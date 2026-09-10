@@ -1,0 +1,17 @@
+<div [class]="wrapperClasses()" role="status" aria-live="polite" aria-atomic="true">
+  @if (variant() === 'spinner') {
+    <span [class]="spinnerClasses()" aria-hidden="true"></span>
+  } @else {
+    <span class="flex items-center gap-1.5" aria-hidden="true">
+      <span [class]="dotClasses()"></span>
+      <span [class]="dotClasses()"></span>
+      <span [class]="dotClasses()"></span>
+    </span>
+  }
+
+  @if (showLabel()) {
+    <span class="text-body-sm">{{ label() }}</span>
+  } @else {
+    <span class="sr-only">{{ label() }}</span>
+  }
+</div>

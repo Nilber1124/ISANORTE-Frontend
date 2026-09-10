@@ -1,0 +1,33 @@
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --theme-brand: #0c0c0a;
+  --theme-background: #ffffff;
+  --theme-background-soft: #f7f7f5;
+  --theme-background-muted: #efefec;
+  --theme-background-deep: #efefec;
+  --theme-surface: #ffffff;
+  --theme-surface-soft: #fafaf9;
+  --theme-surface-hover: #f2f2ef;
+  --theme-surface-elevated: #ffffff;
+  --theme-border: #e4e4df;
+  --theme-border-strong: #ccccc5;
+  --theme-text-primary: #11110f;
+  --theme-text-secondary: #55554f;
+  --theme-text-muted: #707069;
+  --theme-text-disabled: #a0a09a;
+  --theme-accent: #f97316;
+  --theme-accent-hover: #ea580c;
+  --theme-accent-strong: #b93b0a;
+  --theme-accent-contrast: #0c0c0a;
+  --theme-success: #3f704b;
+  --theme-warning: #765b23;
+  --theme-error: #9b4545;
+  --theme-info: #486784;
+  --theme-focus: #3d3d38;
+  --theme-overlay: rgb(12 12 10 / 0.56);
+  --theme-action-primary: #0c0c0a;
+  --theme-action-primary-hover: #292925;
+  --theme-action-primary-text: #ffffff;
+}

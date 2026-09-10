@@ -1,0 +1,32 @@
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --theme-brand: #0c0c0a;
+  --theme-background: #0c0c0a;
+  --theme-background-soft: #11110f;
+  --theme-background-muted: #181816;
+  --theme-background-deep: #000000;
+  --theme-surface: #151513;
+  --theme-surface-soft: #181816;
+  --theme-surface-hover: #1d1d1a;
+  --theme-surface-elevated: #20201d;
+  --theme-border: #2a2a27;
+  --theme-border-strong: #3a3a36;
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: #b5b5b0;
+  --theme-text-muted: #858581;
+  --theme-text-disabled: #62625e;
+  --theme-accent: #f97316;
+  --theme-accent-hover: #ea580c;
+  --theme-accent-strong: #fb923c;
+  --theme-accent-contrast: #0c0c0a;
+  --theme-success: #78a083;
+  --theme-warning: #b99a62;
+  --theme-error: #c77878;
+  --theme-info: #7890aa;
+  --theme-focus: #ffffff;
+  --theme-overlay: rgb(0 0 0 / 0.76);
+  --theme-action-primary: #ffffff;
+  --theme-action-primary-hover: #f5f5f4;
+  --theme-action-primary-text: #0c0c0a;
+}

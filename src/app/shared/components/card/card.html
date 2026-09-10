@@ -1,0 +1,10 @@
+<article [class]="classes()">
+  @if (href()) {
+    <a
+      class="absolute inset-0 z-10 rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      [href]="href()"
+      [attr.aria-label]="accessibleLabel()"
+    ></a>
+  }
+  <div class="relative"><ng-content /></div>
+</article>

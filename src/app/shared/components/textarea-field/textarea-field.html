@@ -1,0 +1,43 @@
+<div>
+  <label [for]="inputId()" class="form-label">
+    {{ label() }}
+    @if (required()) {
+      <span class="text-error" aria-hidden="true">*</span>
+      <span class="sr-only">(obligatorio)</span>
+    }
+  </label>
+
+  <div class="relative">
+    <textarea
+      class="form-control pr-11"
+      [id]="inputId()"
+      [value]="value()"
+      [name]="name()"
+      [placeholder]="placeholder()"
+      [rows]="rows()"
+      [attr.maxlength]="maxLength()"
+      [disabled]="disabled()"
+      [readOnly]="readonly() || loading()"
+      [required]="required()"
+      [attr.aria-invalid]="error() ? true : null"
+      [attr.aria-describedby]="describedBy()"
+      [attr.aria-busy]="loading()"
+      (input)="updateValue($event)"
+      (focus)="focused.emit($event)"
+      (blur)="blurred.emit($event)"
+    ></textarea>
+    @if (loading()) {
+      <span class="pointer-events-none absolute right-4 top-4 text-text-muted" aria-hidden="true">
+        <span
+          class="block size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+        ></span>
+      </span>
+    }
+  </div>
+
+  @if (error()) {
+    <span [id]="feedbackId()" class="form-error" role="alert">{{ error() }}</span>
+  } @else if (helperText()) {
+    <span [id]="feedbackId()" class="form-helper">{{ helperText() }}</span>
+  }
+</div>
