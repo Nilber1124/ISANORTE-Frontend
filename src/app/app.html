@@ -1,1 +1,92 @@
+<main class="app-container section-space flex flex-col gap-10">
+  <app-section-title 
+    title="Prueba de componentes ISANORTE" 
+    description="Interfaz temporal para probar animaciones y microinteracciones"
+    alignment="center"
+  />
+
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Buttons -->
+    <app-card padding="large">
+      <h3 class="text-heading-4 mb-4">Botones</h3>
+      <div class="flex flex-wrap gap-4">
+        <app-button variant="primary">Primary Sweep</app-button>
+        <app-button variant="accent">Accent Sweep</app-button>
+        <app-button variant="secondary">Secondary</app-button>
+        <app-button variant="ghost">Ghost</app-button>
+      </div>
+    </app-card>
+
+    <!-- Card Interactiva -->
+    <app-card padding="large" href="#">
+      <h3 class="text-heading-4 mb-2">Card Interactiva</h3>
+      <p class="text-body-sm text-text-secondary">Pasa el cursor sobre esta card para ver la elevación y sombra dinámica. El color del borde y el fondo también cambiarán sutilmente.</p>
+    </app-card>
+
+    <!-- Inputs -->
+    <app-card padding="large">
+      <h3 class="text-heading-4 mb-4">Input Field</h3>
+      <app-input-field
+        inputId="test-input"
+        label="Campo de prueba"
+        placeholder="Haz click para probar el focus"
+        helperText="Observa la transición suave en el borde y shadow."
+      />
+    </app-card>
+
+    <!-- Badges & Alerts -->
+    <app-card padding="large">
+      <div class="flex flex-col gap-6">
+        <div>
+          <h3 class="text-heading-4 mb-4">Badges</h3>
+          <div class="flex flex-wrap gap-3">
+            <app-badge variant="accent" [dot]="true">Accent</app-badge>
+            <app-badge variant="success" [dot]="true">Success</app-badge>
+            <app-badge variant="neutral">Neutral</app-badge>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="text-heading-4 mb-4">Alert</h3>
+          <app-alert variant="info" title="Información importante">
+            Este alert tiene una animación de entrada suave hacia arriba (fade-in-up).
+          </app-alert>
+        </div>
+      </div>
+    </app-card>
+
+    <!-- Loading -->
+    <app-card padding="large">
+      <h3 class="text-heading-4 mb-4">Loading</h3>
+      <div class="flex items-center gap-8">
+        <app-loading variant="dots" size="medium" />
+        <app-loading variant="spinner" size="medium" />
+      </div>
+    </app-card>
+
+    <!-- Modal Trigger -->
+    <app-card padding="large">
+      <h3 class="text-heading-4 mb-4">Modal</h3>
+      <app-button variant="primary" (click)="openModal()">
+        Abrir Modal Animado
+      </app-button>
+    </app-card>
+  </section>
+</main>
+
+<app-modal
+  modalId="demo-modal"
+  title="Modal de prueba"
+  description="Este modal tiene una animación de entrada (scale y fade)."
+  [(open)]="isModalOpen"
+>
+  <p class="text-body text-text-secondary">
+    Observa cómo el fondo se oscurece con fade, y el panel del modal entra con un ligero translate y scale.
+  </p>
+  <div modal-actions>
+    <app-button variant="secondary" (click)="isModalOpen.set(false)">Cancelar</app-button>
+    <app-button variant="accent" (click)="isModalOpen.set(false)">Aceptar</app-button>
+  </div>
+</app-modal>
+
 <router-outlet />

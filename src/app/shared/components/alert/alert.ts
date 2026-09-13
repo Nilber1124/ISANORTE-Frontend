@@ -23,7 +23,7 @@ export class Alert {
   readonly dismissed = output<void>();
 
   protected readonly classes = computed(() => {
-    const base = 'flex items-start gap-3 rounded-card border p-4 sm:p-5';
+    const base = 'flex items-start gap-3 rounded-card border p-4 sm:p-5 animate-fade-in-up';
     const variants: Record<AlertVariant, string> = {
       neutral: 'border-border bg-surface-soft',
       info: 'border-info/30 bg-info/10',

@@ -44,6 +44,6 @@ export class Loading {
       medium: 'size-2',
       large: 'size-2.5',
     };
-    return `${sizes[this.size()]} rounded-full bg-current animate-pulse`;
+    return `${sizes[this.size()]} rounded-full bg-current animate-loading-dot`;
   });
 }

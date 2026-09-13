@@ -22,7 +22,7 @@ export class EmptyState {
   protected readonly descriptionId = computed(() => `${this.emptyStateId()}-description`);
   protected readonly classes = computed(() =>
     this.compact()
-      ? 'rounded-card border border-dashed border-border bg-surface p-6 text-center'
-      : 'rounded-panel border border-dashed border-border bg-surface px-6 py-12 text-center sm:px-10 sm:py-16',
+      ? 'rounded-card border border-dashed border-border bg-surface p-6 text-center animate-fade-in-up'
+      : 'rounded-panel border border-dashed border-border bg-surface px-6 py-12 text-center sm:px-10 sm:py-16 animate-fade-in-up',
   );
 }

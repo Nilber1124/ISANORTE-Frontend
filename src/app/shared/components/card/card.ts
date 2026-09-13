@@ -17,14 +17,14 @@ export class Card {
 
   protected readonly classes = computed(() => {
     const base =
-      'relative block h-full rounded-card border border-border bg-surface shadow-card transition-[border-color,background-color,transform,box-shadow] duration-200';
+      'relative block h-full overflow-hidden rounded-card border border-border bg-surface shadow-card transition-[border-color,background-color,transform,box-shadow] duration-normal ease-[var(--ease-standard)]';
     const padding: Record<CardPadding, string> = {
       small: 'p-4',
       medium: 'p-6',
       large: 'p-6 md:p-8',
     };
     const interactive = this.href()
-      ? 'cursor-pointer hover:-translate-y-1 hover:border-border-strong hover:bg-surface-hover focus-within:-translate-y-1 focus-within:border-focus'
+      ? 'cursor-pointer hover:-translate-y-1 hover:border-border-strong hover:bg-surface-hover hover:shadow-floating focus-within:-translate-y-1 focus-within:border-focus focus-within:shadow-floating'
       : '';
     return `${base} ${padding[this.padding()]} ${interactive}`;
   });

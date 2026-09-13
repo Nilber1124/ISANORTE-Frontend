@@ -26,16 +26,16 @@ export class Button {
 
   protected readonly classes = computed(() => {
     const base =
-      'relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button border font-semibold transition-[color,background-color,border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px';
+      'relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button border font-semibold shadow-sm transition-[color,background-color,border-color,box-shadow,transform] duration-normal ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-px active:translate-y-[2px] active:shadow-none';
     const variants: Record<ButtonVariant, string> = {
       primary:
-        'border-transparent bg-action-primary text-action-primary-text hover:bg-action-primary-hover active:bg-action-primary-hover',
+        'border-transparent bg-action-primary text-action-primary-text hover:bg-action-primary-hover active:bg-action-primary-hover btn-sweep btn-sweep-primary',
       secondary:
         'border-border-strong bg-surface text-text-primary hover:bg-surface-hover active:bg-background-muted',
       accent:
-        'border-transparent bg-accent text-accent-contrast hover:bg-accent-hover active:bg-accent-hover',
+        'border-transparent bg-accent text-accent-contrast hover:bg-accent-hover active:bg-accent-hover btn-sweep btn-sweep-accent',
       ghost:
-        'border-transparent bg-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary active:bg-background-muted',
+        'border-transparent bg-transparent text-text-secondary shadow-none hover:bg-surface-hover hover:text-text-primary active:bg-background-muted',
     };
     const sizes: Record<ButtonSize, string> = {
       small: 'min-h-10 px-4 py-2 text-body-sm',

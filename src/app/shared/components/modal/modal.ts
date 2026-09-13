@@ -50,7 +50,7 @@ export class Modal {
       medium: 'max-w-2xl',
       large: 'max-w-4xl',
     };
-    return `relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-panel border border-border-strong bg-surface-elevated shadow-floating ${sizes[this.size()]}`;
+    return `relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-panel border border-border-strong bg-surface-elevated shadow-floating animate-modal-panel ${sizes[this.size()]}`;
   });
 
   private readonly manageFocus = effect(() => {

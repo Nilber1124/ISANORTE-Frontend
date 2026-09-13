@@ -34,7 +34,7 @@ export class Badge {
       small: '',
       medium: 'min-h-7 gap-2 px-3 py-1.5 text-body-sm',
     };
-    return ['badge', variants[this.variant()], sizes[this.size()]].filter(Boolean).join(' ');
+    return ['badge transition-colors duration-fast', variants[this.variant()], sizes[this.size()]].filter(Boolean).join(' ');
   });
 
   protected readonly dotClasses = computed(() => {
