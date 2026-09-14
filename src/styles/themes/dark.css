@@ -29,4 +29,37 @@
   --theme-action-primary: #ffffff;
   --theme-action-primary-hover: #f5f5f4;
   --theme-action-primary-text: #0c0c0a;
+
+  /* Resolver la capa de consumo (--color-*) en este mismo elemento para
+     que `data-theme="dark"` también funcione en secciones hijas y no solo
+     en <html>. Los valores reales viven únicamente en --theme-*. */
+  --color-brand: var(--theme-brand);
+  --color-background: var(--theme-background);
+  --color-background-soft: var(--theme-background-soft);
+  --color-background-muted: var(--theme-background-muted);
+  --color-background-deep: var(--theme-background-deep);
+  --color-surface: var(--theme-surface);
+  --color-surface-soft: var(--theme-surface-soft);
+  --color-surface-hover: var(--theme-surface-hover);
+  --color-surface-elevated: var(--theme-surface-elevated);
+  --color-border: var(--theme-border);
+  --color-border-strong: var(--theme-border-strong);
+  --color-border-light: var(--color-border-strong);
+  --color-text-primary: var(--theme-text-primary);
+  --color-text-secondary: var(--theme-text-secondary);
+  --color-text-muted: var(--theme-text-muted);
+  --color-text-disabled: var(--theme-text-disabled);
+  --color-accent: var(--theme-accent);
+  --color-accent-hover: var(--theme-accent-hover);
+  --color-accent-strong: var(--theme-accent-strong);
+  --color-accent-contrast: var(--theme-accent-contrast);
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  --color-error: var(--theme-error);
+  --color-info: var(--theme-info);
+  --color-focus: var(--theme-focus);
+  --color-overlay: var(--theme-overlay);
+  --color-action-primary: var(--theme-action-primary);
+  --color-action-primary-hover: var(--theme-action-primary-hover);
+  --color-action-primary-text: var(--theme-action-primary-text);
 }
