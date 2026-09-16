@@ -274,6 +274,18 @@
   }
 }
 
+@keyframes float-subtle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 /* ── Animation utilities ─────────────────────────────────────────────── */
 
 @utility animate-fade-in-up {
@@ -290,6 +302,10 @@
 
 @utility animate-loading-dot {
   animation: loading-dot 1.2s var(--ease-standard) infinite;
+}
+
+@utility animate-float-subtle {
+  animation: float-subtle 6s ease-in-out infinite;
 }
 
 /* ── Button color sweep ──────────────────────────────────────────────── */

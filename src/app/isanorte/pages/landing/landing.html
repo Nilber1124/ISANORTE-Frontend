@@ -1,8 +1,7 @@
 <!-- Hero Section -->
 <section class="relative min-h-[85vh] flex flex-col justify-center overflow-hidden">
-    <!-- Background image with slow zoom -->
-    <div class="absolute inset-0 bg-cover bg-center animate-slow-zoom"
-        [style.backgroundImage]="'url(' + heroData.bgImageUrl + ')'"></div>
+    <!-- Recorrido cinematográfico arquitectónico (GSAP) -->
+    <app-cinematic-tour [scenes]="heroScenes"></app-cinematic-tour>
 
     <!-- Darker Overlay for better text contrast -->
     <div class="absolute inset-0 bg-black/60"></div>
@@ -22,11 +21,10 @@
 
             <div class="flex flex-wrap gap-4 animate-fade-in-up" style="animation-delay: 300ms">
                 <!-- Solamente botones -->
-                <app-button variant="primary" [href]="heroData.primaryBtn.url" size="large">
+                <app-button variant="accent" [href]="heroData.primaryBtn.url" size="large">
                     {{ heroData.primaryBtn.label }}
                 </app-button>
-                <app-button variant="ghost" [href]="heroData.secondaryBtn.url" size="large"
-                    class="text-white hover:bg-white/10">
+                <app-button variant="primary" [href]="heroData.secondaryBtn.url" size="large">
                     {{ heroData.secondaryBtn.label }}
                 </app-button>
             </div>
@@ -58,69 +56,87 @@
                 <h2 class="text-heading-2 text-text-primary">{{ 'Soluciones integrales de alta\ningeniería y diseño' }}
                 </h2>
             </div>
-            <app-button variant="secondary" href="#">
+            <app-button variant="primary" href="#">
                 VER TODOS LOS SERVICIOS
             </app-button>
         </div>
 
-        <!-- Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            @for(service of services; track service.id) {
-            <app-card [href]="service.linkUrl" class="h-[480px] group">
-                <!-- Using absolute positioned image and overlay over the card background -->
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
-                    [style.backgroundImage]="'url(' + service.bgImageUrl + ')'"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-90">
-                </div>
-
-                <!-- Content -->
-                <div class="absolute inset-0 p-8 flex flex-col justify-end">
-                    <h3
-                        class="text-heading-3 text-white mb-3 group-hover:text-accent transition-colors duration-normal">
-                        {{ service.title }}</h3>
-                    <p class="text-body-sm text-white/70 mb-6">
-                        {{ service.description }}</p>
-                    <div
-                        class="text-caption font-bold text-accent tracking-[0.1em] flex items-center gap-2 uppercase group-hover:text-white transition-colors duration-normal">
-                        LEER MÁS
-                        <svg class="size-4 transform group-hover:translate-x-1 transition-transform duration-normal"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
+        <!-- Carousel (Coverflow 3D) -->
+        <app-carousel [items]="services" variant="coverflow" [autoPlayInterval]="4500"
+            ariaLabel="Carrusel de servicios">
+            <ng-template #cardTemplate let-service>
+                <app-card [href]="service.linkUrl" padding="none" class="group h-full">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
+                        [style.backgroundImage]="'url(' + service.bgImageUrl + ')'"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-90">
                     </div>
-                </div>
-            </app-card>
-            }
-        </div>
+
+                    <div class="absolute inset-0 p-8 flex flex-col justify-end">
+                        <h3
+                            class="text-heading-3 text-white mb-3 group-hover:text-accent transition-colors duration-normal">
+                            {{ service.title }}</h3>
+                        <p class="text-body-sm text-white/70 mb-6">
+                            {{ service.description }}</p>
+                        <div
+                            class="text-caption font-bold text-accent tracking-[0.1em] flex items-center gap-2 uppercase group-hover:text-white transition-colors duration-normal">
+                            LEER MÁS
+                            <svg class="size-4 transform group-hover:translate-x-1 transition-transform duration-normal"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </app-card>
+            </ng-template>
+        </app-carousel>
     </div>
 </section>
 
 <!-- Highlight (ISADECOR) -->
-<section data-theme="dark" class="bg-background section-space overflow-hidden border-y border-border">
-    <div class="app-container grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <!-- Left -->
-        <div class="relative z-10">
-            <app-badge variant="accent" class="mb-6">{{ highlightData.tag }}</app-badge>
-            <h2 class="text-heading-1 text-text-primary mb-6 whitespace-pre-line">{{ highlightData.title }}</h2>
-            <p class="text-body-lg text-text-secondary mb-10 max-w-lg">{{ highlightData.description }}</p>
-
-            <div class="flex flex-wrap gap-4">
-                <app-button variant="primary" [href]="highlightData.primaryBtn.url" size="large">
-                    {{ highlightData.primaryBtn.label }}
-                </app-button>
-                <app-button variant="ghost" [href]="highlightData.secondaryBtn.url" size="large">
-                    {{ highlightData.secondaryBtn.label }}
-                </app-button>
-            </div>
-        </div>
-
-        <!-- Right -->
+<section data-theme="dark" class="group relative flex min-h-[36rem] items-center justify-center overflow-hidden border-y border-border bg-background-deep section-space lg:min-h-[44rem]">
+    <!-- Fondo ambiental ISADECOR -->
+    <div class="absolute inset-0 z-0">
+        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[3000ms] ease-[var(--ease-standard)] group-hover:scale-105"
+            [style.backgroundImage]="'url(' + highlightData.bgImageUrl + ')'"></div>
+        <div class="absolute inset-0 bg-background-deep/90"></div>
         <div
-            class="relative rounded-panel overflow-hidden aspect-[4/3] lg:aspect-auto lg:h-[600px] shadow-floating group">
-            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
-                [style.backgroundImage]="'url(' + highlightData.imageUrl + ')'"></div>
-            <div class="absolute inset-0 bg-gradient-to-tr from-brand/40 to-transparent"></div>
+            class="absolute inset-0 bg-gradient-to-t from-background-deep via-background-deep/20 to-background-deep/60"></div>
+    </div>
+
+    <!-- Imagen superior derecha (escritorio) -->
+    <div
+        class="animate-float-subtle group absolute top-6 right-4 hidden h-64 w-44 overflow-hidden rounded-panel border border-border-strong shadow-floating md:top-8 md:right-8 md:block lg:h-96 lg:w-64 lg:right-12"
+        [style.animation-delay]="'1.5s'">
+        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
+            [style.backgroundImage]="'url(' + highlightData.topRightImageUrl + ')'"></div>
+    </div>
+
+    <!-- Imágenes inferiores izquierdas con desfase editorial (escritorio) -->
+    <div class="absolute bottom-0 left-0 z-0 hidden items-end gap-5 pl-4 md:flex lg:pl-8">
+        @for (item of highlightData.galleryImages; track item.id; let i = $index) {
+        <div class="animate-float-subtle group relative overflow-hidden rounded-t-panel border border-border-strong shadow-floating"
+            [class.h-96]="i % 2 === 0" [class.w-72]="i % 2 === 0" [class.h-64]="i % 2 !== 0"
+            [class.w-52]="i % 2 !== 0" [style.animation-delay]="(i * 700) + 'ms'">
+            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
+                [style.backgroundImage]="'url(' + item.imageUrl + ')'"></div>
+        </div>
+        }
+    </div>
+
+    <!-- Contenido central -->
+    <div class="app-container relative z-10 flex flex-col items-center text-center">
+        <app-badge variant="accent" class="mb-6">{{ highlightData.tag }}</app-badge>
+        <h2 class="text-display text-text-primary mb-6 whitespace-pre-line drop-shadow-md">{{ highlightData.title }}</h2>
+        <p class="text-body-lg text-text-muted mb-10 max-w-xl">{{ highlightData.description }}</p>
+
+        <div class="flex flex-wrap justify-center gap-4">
+            <app-button variant="accent" [href]="highlightData.primaryBtn.url" size="large">
+                {{ highlightData.primaryBtn.label }}
+            </app-button>
+            <app-button variant="ghost" [href]="highlightData.secondaryBtn.url" size="large">
+                {{ highlightData.secondaryBtn.label }}
+            </app-button>
         </div>
     </div>
 </section>
@@ -139,34 +155,34 @@
             </app-button>
         </div>
 
-        <!-- Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            @for(project of projects; track project.id) {
-            <app-card href="#" class="h-[450px] lg:h-[550px] group">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
-                    [style.backgroundImage]="'url(' + project.bgImageUrl + ')'"></div>
-                <div
-                    class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-normal">
-                </div>
+        <!-- Carousel (Marquee infinito) -->
+        <app-carousel [items]="projects" variant="marquee" ariaLabel="Carrusel de proyectos">
+            <ng-template #cardTemplate let-project>
+                <app-card href="#" padding="none" class="group h-full">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
+                        [style.backgroundImage]="'url(' + project.bgImageUrl + ')'"></div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-normal">
+                    </div>
 
-                <div
-                    class="absolute inset-x-8 top-8 transform transition-transform duration-normal group-hover:-translate-y-2">
-                    <h3 class="text-heading-3 text-white mb-2">{{ project.title }}</h3>
-                    <p class="text-caption text-white/70 font-semibold tracking-wider uppercase">{{ project.location }}
-                    </p>
-                </div>
+                    <div
+                        class="absolute inset-x-8 top-8 transform transition-transform duration-normal group-hover:-translate-y-2">
+                        <h3 class="text-heading-3 text-white mb-2">{{ project.title }}</h3>
+                        <p class="text-caption text-white/70 font-semibold tracking-wider uppercase">{{ project.location
+                            }}
+                        </p>
+                    </div>
 
-                <!-- Explore icon -->
-                <div
-                    class="absolute bottom-8 right-8 size-12 bg-accent rounded-full flex items-center justify-center text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-normal shadow-card">
-                    <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                    </svg>
-                </div>
-            </app-card>
-            }
-        </div>
+                    <div
+                        class="absolute bottom-8 right-8 size-12 bg-accent rounded-full flex items-center justify-center text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-normal shadow-card">
+                        <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </div>
+                </app-card>
+            </ng-template>
+        </app-carousel>
     </div>
 </section>
 
@@ -174,14 +190,21 @@
 <section class="bg-background-soft py-16 border-t border-border">
     <div class="app-container">
         <div
-            class="flex flex-col lg:flex-row items-center justify-between gap-8 bg-surface p-8 md:p-12 rounded-panel shadow-card border border-border">
-            <div class="text-center lg:text-left">
-                <h2 class="text-heading-3 text-text-primary mb-3">{{ preFooterData.title }}</h2>
-                <p class="text-body text-text-secondary max-w-xl">{{ preFooterData.subtitle }}</p>
+            class="relative flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden bg-surface p-8 md:p-12 rounded-panel shadow-card border border-border">
+            <!-- Fondo: asesora de asesoría -->
+            <div class="absolute inset-0 bg-cover bg-center"
+                [style.backgroundImage]="'url(/images/asesora-consultoria.jpg)'"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-surface via-surface/90 to-surface/25"></div>
+
+            <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 w-full">
+                <div class="text-center lg:text-left">
+                    <h2 class="text-heading-3 text-text-primary mb-3">{{ preFooterData.title }}</h2>
+                    <p class="text-body text-text-secondary max-w-xl">{{ preFooterData.subtitle }}</p>
+                </div>
+                <app-button variant="accent" [href]="preFooterData.cta.url" size="large">
+                    {{ preFooterData.cta.label }}
+                </app-button>
             </div>
-            <app-button variant="accent" [href]="preFooterData.cta.url" size="large">
-                {{ preFooterData.cta.label }}
-            </app-button>
         </div>
     </div>
 </section>

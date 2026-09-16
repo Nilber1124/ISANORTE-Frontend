@@ -1,0 +1,15 @@
+/*
+ * Ajustes estructurales que Tailwind no puede expresar:
+ * en `prefers-reduced-motion: reduce` el marquee pasa a modo estático
+ * desplazable (`overflow-x: auto`) y se ocultan las copias duplicadas,
+ * manteniendo la altura fija del track.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .carousel__marquee {
+    overflow-x: auto;
+  }
+
+  .carousel__copy ~ .carousel__copy {
+    display: none;
+  }
+}

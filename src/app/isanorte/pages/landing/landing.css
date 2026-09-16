@@ -1,13 +1,9 @@
-@keyframes slow-zoom {
-  0% {
-    transform: scale(1);
-  }
-
-  100% {
-    transform: scale(1.5);
-  }
-}
-
-.animate-slow-zoom {
-  animation: slow-zoom 50s ease-in-out infinite alternate;
-}
+/*
+ * Estilos específicos de la Landing.
+ *
+ * El antiguo `@keyframes slow-zoom` / `.animate-slow-zoom` se eliminó:
+ * el fondo del Hero (recorrido cinematográfico por ambientes con zoom,
+ * deriva, rotación 3D y transiciones en fundido) lo gestiona el componente
+ * reutilizable `CinematicTour` (GSAP) en
+ * `src/app/shared/animaciones/cinematic-tour/`.
+ */

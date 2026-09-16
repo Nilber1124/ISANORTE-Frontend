@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 // Shared Components
+import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Card } from '../../../shared/components/card/card';
+import { Carousel } from '../../../shared/animaciones/carousel/carousel';
+import { CinematicTour, CinematicScene } from '../../../shared/animaciones/cinematic-tour/cinematic-tour';
 import { SectionTitle } from '../../../shared/components/section-title/section-title';
-import { Badge } from '../../../shared/components/badge/badge';
 import { ChangeDetectionStrategy } from '@angular/core';
 
 // Interfaces
@@ -15,7 +17,17 @@ export interface NavbarData { logoUrl: string; links: NavbarLink[]; cta: { label
 export interface HeroData { tag: string; title: string; subtitle: string; bgImageUrl: string; primaryBtn: { label: string; url: string; }; secondaryBtn: { label: string; url: string; }; }
 export interface TrustStripData { text: string; logos: { url: string; alt: string; }[]; }
 export interface ServiceCard { id: string; title: string; description: string; bgImageUrl: string; linkUrl: string; }
-export interface HighlightData { tag: string; title: string; description: string; imageUrl: string; primaryBtn: { label: string; url: string; }; secondaryBtn: { label: string; url: string; }; }
+export interface HighlightGalleryItem { id: string; imageUrl: string; }
+export interface HighlightData {
+  tag: string;
+  title: string;
+  description: string;
+  bgImageUrl: string;
+  topRightImageUrl: string;
+  galleryImages: HighlightGalleryItem[];
+  primaryBtn: { label: string; url: string; };
+  secondaryBtn: { label: string; url: string; };
+}
 export interface ProjectCard { id: string; title: string; location: string; bgImageUrl: string; }
 export interface PreFooterData { title: string; subtitle: string; cta: { label: string; url: string; }; }
 export interface FooterLink { label: string; url: string; }
@@ -29,7 +41,7 @@ export interface FooterData {
 }
 
 @Component({
-  imports: [CommonModule, RouterLink, Button, Card, SectionTitle, Badge],
+  imports: [CommonModule, RouterLink, Button, Card, SectionTitle, Badge, Carousel, CinematicTour],
   selector: 'app-landing',
   styleUrl: './landing.css',
   templateUrl: './landing.html',
@@ -41,10 +53,18 @@ export class Landing {
     tag: 'EMPRESA DE ARQUITECTURA Y CONSTRUCCIÓN',
     title: 'Transformamos espacios\nen experiencias',
     subtitle: 'Soluciones profesionales para construcción, obra civil y acabados.',
-    bgImageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop',
+    bgImageUrl: '/images/recorrido-exterior.jpg',
     primaryBtn: { label: 'SOLICITAR COTIZACIÓN', url: '#cotizar' },
     secondaryBtn: { label: 'HABLA CON UN ASESOR', url: '#contacto' }
   };
+
+  readonly heroScenes: CinematicScene[] = [
+    { id: 'exterior', imageUrl: '/images/recorrido-exterior.jpg' },
+    { id: 'sala', imageUrl: '/images/recorrido-sala.jpg' },
+    { id: 'cocina', imageUrl: '/images/recorrido-cocina.jpg' },
+    { id: 'bano', imageUrl: '/images/recorrido-bano.jpg' },
+    { id: 'dormitorio', imageUrl: '/images/recorrido-dormitorio.jpg' }
+  ];
 
   readonly trustStripData: TrustStripData = {
     text: 'RESPALDADO POR PRIMERAS MARCAS DE DISEÑO Y COMPRA',
@@ -83,9 +103,14 @@ export class Landing {
   readonly highlightData: HighlightData = {
     tag: 'NUEVA LÍNEA DE MOBILIARIO A MEDIDA',
     title: 'ISADECOR: Espacios que\ninspiran.',
-    description: 'Explora nuestra nueva sección de mobiliario y acabados para el hogar y oficina. Piezas únicas diseñadas y fabricadas con los mejores materiales. Uniendo funcionalidad, confort y estética para transformar tus espacios.',
-    imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1000&auto=format&fit=crop',
-    primaryBtn: { label: 'EXPLORAR ISADECOR', url: '#isadecor' },
+    description: 'Diseño interior y mobiliario a medida. Creamos atmósferas únicas que reflejan la esencia de quienes las habitan, uniendo materiales premium con estética atemporal.',
+    bgImageUrl: '/images/isadecor-fondo.jpg',
+    topRightImageUrl: '/images/isadecor-top.jpg',
+    galleryImages: [
+      { id: 'g1', imageUrl: '/images/isadecor-left-1.jpg' },
+      { id: 'g2', imageUrl: '/images/isadecor-left-2.jpg' }
+    ],
+    primaryBtn: { label: 'CONOCE ISADECOR', url: '#isadecor' },
     secondaryBtn: { label: 'DESCARGAR CATÁLOGO (PDF)', url: '#catalogo' }
   };
 
