@@ -1,0 +1,188 @@
+/* ===== HERO NOSOTROS (HOJA N.º 02 — fondo negro) ===== */
+
+/* Rejilla técnica tenue del plano sobre el fondo negro. */
+.hero-grid {
+  background-image:
+    linear-gradient(to right, var(--color-border-strong) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border-strong) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: linear-gradient(to right, rgb(0 0 0 / 0.5), transparent 30%);
+}
+
+/* Blob circular (mockup): sale desde el borde izquierdo de la sección, está
+   centrado verticalmente mediante márgenes automáticos (sin `transform`, que
+   queda libre para la animación `slide-left` del reveal-stagger) y su diámetro
+   es mayor que la altura de la hoja, por lo que se recorta arriba y abajo con
+   el `overflow-hidden` de la sección. `left` negativo respecto a la sección
+   (es hermano del contenedor full-bleed, fuera de `.app-container`). */
+.hero-halo {
+  position: absolute;
+  left: -220px;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  width: min(1000px, 120vw);
+  height: min(1000px, 120vw);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%,
+      var(--color-accent) 0%,
+      color-mix(in srgb, var(--color-accent) 72%, #000) 78%);
+  box-shadow: 0 2rem 6rem -2rem color-mix(in srgb, var(--color-accent) 55%, transparent);
+  will-change: transform;
+}
+
+@media (max-width: 1023px) {
+  .hero-halo {
+    left: -150px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-halo {
+    left: -110px;
+  }
+}
+
+/* Figura (imagen real sin fondo) al ras del borde inferior de la hoja, justo
+   antes de donde acaba el círculo. Sólida, sin máscara de transparencia;
+   `object-fit: contain` + `max-height` evitan que una imagen subida por el
+   admin desborde el alto de la columna visual (h-80/h-96 en mobile). */
+.hero-figure {
+  position: absolute;
+  bottom: 0;
+  right: -3%;
+  z-index: 2;
+  width: 62%;
+  max-width: 340px;
+  max-height: 100%;
+  object-fit: contain;
+  filter: contrast(1.08) brightness(1.04);
+}
+
+@media (max-width: 640px) {
+  .hero-figure {
+    width: 58%;
+    right: -2%;
+    max-width: 260px;
+  }
+}
+
+/* HOJA N.º 01 — IDENTIDAD: foto de fondo "frosted" (difuminada + velo claro
+   del color de fondo para que el texto siga siendo legible). `scale` evita
+   que el desenfoque muestre bordes duros en los extremos del recorte. */
+.identidad-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(18px) saturate(1.15) brightness(1.05);
+  transform: scale(1.1);
+}
+
+.identidad-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: color-mix(in srgb, var(--color-background) 70%, transparent);
+}
+
+/* Panel de plano de la HOJA N.º 01 — IDENTIDAD. */
+.sheet1-panel__grid {
+  background-image:
+    linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0.6), rgb(0 0 0 / 0.25) 70%, transparent);
+}
+
+.sheet1-panel__corner {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+
+.sheet1-panel__halo {
+  position: absolute;
+  bottom: -3.5rem;
+  right: -3rem;
+  width: 13.5rem;
+  height: 13.5rem;
+  border-radius: 9999px;
+  background-color: var(--color-accent);
+  box-shadow: 0 1.25rem 3rem -1.25rem var(--color-accent);
+}
+
+/* Foto de la HOJA N.º 01: entrada con fundido y zoom lento continuo (ken burns).
+   Con `prefers-reduced-motion` la regla global limita duración e iteraciones. */
+@keyframes sheet1-pan {
+  0% {
+    background-size: 100% 100%;
+    background-position: 50% 20%;
+  }
+
+  100% {
+    background-size: 112% 112%;
+    background-position: 46% 30%;
+  }
+}
+
+.sheet1-panel__photo {
+  background-size: cover;
+  animation:
+    fade-in-up var(--duration-entry) var(--ease-standard) both,
+    sheet1-pan 16s ease-in-out infinite alternate;
+}
+
+/* Icono de cada fila del acordeón. */
+.value-icon {
+  background-color: var(--color-accent);
+  color: var(--color-background);
+}
+
+.value-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Marcador "+" del acordeón (rota a "×" al abrirse). */
+.value-mark {
+  position: relative;
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  transition: background-color var(--duration-entry) ease, border-color var(--duration-entry) ease, transform var(--duration-entry) ease;
+}
+
+.value-mark::before,
+.value-mark::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  background-color: var(--color-text-primary);
+}
+
+.value-mark::before {
+  width: 0.875rem;
+  height: 2px;
+}
+
+.value-mark::after {
+  width: 2px;
+  height: 0.875rem;
+}
+
+.value-row--open .value-mark {
+  transform: rotate(45deg);
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+}
+
+.value-row--open .value-mark::before,
+.value-row--open .value-mark::after {
+  background-color: var(--color-background);
+}

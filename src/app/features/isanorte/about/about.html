@@ -1,0 +1,159 @@
+<!-- HOJA N.º 01 — IDENTIDAD (foto de fondo "frosted": difuminada + velo claro
+     para que el texto siga siendo legible). Sección compacta (menos padding) -->
+<section data-theme="light" class="relative isolate overflow-hidden border-b border-border bg-background-soft">
+  <!-- Foto de fondo desenfocada + velo claro (definidas en about.css) -->
+  <div class="identidad-bg" aria-hidden="true" [style.background-image]="'url(' + identidadData.backgroundImageUrl + ')'"></div>
+  <div class="identidad-veil" aria-hidden="true"></div>
+
+  <app-reveal-stagger [stagger]="0.18" [duration]="0.85" [ease]="'power3.out'" [trigger]="'load'">
+    <div class="app-container relative z-10 grid grid-cols-1 items-center gap-10 py-12 lg:grid-cols-[1.35fr_1fr] lg:gap-14 lg:py-16">
+      <div>
+        <p
+          class="mb-3 flex items-center gap-3 text-eyebrow uppercase text-text-secondary"
+          data-reveal="up"
+          data-reveal-order="0"
+        >
+          <span class="h-px w-6 bg-accent" aria-hidden="true"></span>
+          {{ identidadData.eyebrow }}
+        </p>
+        <h2
+          class="text-display whitespace-pre-line text-text-primary lg:text-display-xl"
+          data-reveal="up"
+          data-reveal-order="1"
+        >
+          {{ identidadData.title }}
+        </h2>
+        @for (paragraph of identidadData.paragraphs; track $index) {
+        <p
+          class="mt-6 max-w-[52ch] text-body-lg text-text-secondary"
+          data-reveal="up"
+          [attr.data-reveal-order]="2 + $index"
+        >
+          {{ paragraph }}
+        </p>
+        }
+        <div
+          class="mt-8 flex flex-wrap gap-3"
+          data-reveal="up"
+          [attr.data-reveal-order]="2 + identidadData.paragraphs.length"
+        >
+          @for (tag of identidadData.tags; track tag) {
+          <span
+            class="rounded-[2px] border border-border-strong px-3 py-1.5 font-mono text-caption uppercase tracking-wider text-text-secondary">
+            {{ tag }}
+          </span>
+          }
+        </div>
+      </div>
+
+      <div
+        class="relative mx-auto w-full max-w-[440px]"
+        data-reveal="scale"
+        [attr.data-reveal-order]="3 + identidadData.paragraphs.length"
+      >
+        <div
+          class="sheet1-panel relative aspect-[4/5] w-full overflow-hidden rounded-panel border border-border bg-background shadow-card">
+          <div class="sheet1-panel__grid absolute inset-0" aria-hidden="true"></div>
+          <svg class="absolute -inset-3 h-[calc(100%+1.5rem)] w-[calc(100%+1.5rem)] overflow-visible"
+            viewBox="0 0 100 125" preserveAspectRatio="none" aria-hidden="true">
+            <path class="sheet1-panel__corner" d="M0 18 L0 0 L18 0"></path>
+            <path class="sheet1-panel__corner" d="M82 0 L100 0 L100 18"></path>
+            <path class="sheet1-panel__corner" d="M100 107 L100 125 L82 125"></path>
+            <path class="sheet1-panel__corner" d="M18 125 L0 125 L0 107"></path>
+          </svg>
+          <div class="sheet1-panel__halo" aria-hidden="true"></div>
+          <div
+            class="sheet1-panel__photo absolute bottom-5 left-5 right-[26%] top-10 rounded-control border border-border-strong bg-center shadow-card"
+            [style.background-image]="'url(' + identidadData.imageUrl + ')'"></div>
+        </div>
+      </div>
+    </div>
+  </app-reveal-stagger>
+</section>
+
+<!-- ESTADÍSTICAS (fondo negro, valores blancos, títulos naranjas) -->
+<section data-theme="dark" class="border-b border-border bg-black" aria-label="Estadísticas">
+  <div class="app-container">
+    <div class="grid grid-cols-2 gap-y-10 py-14 lg:grid-cols-4 lg:py-16">
+      @for (stat of stats; track stat.label) {
+      <div class="border-l border-border px-6 first:border-l-0 lg:border-l lg:border-border lg:first:border-l-0">
+        <p class="text-heading-1 text-white">{{ stat.value }}</p>
+        <p class="mt-2 font-mono text-caption uppercase tracking-wider text-accent">
+          {{ stat.label }}
+        </p>
+      </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- HOJA N.º 03 — PRINCIPIOS (Misión / Visión / Valores con iconos) -->
+<section class="app-container py-16 lg:py-24">
+  <header class="grid grid-cols-1 items-start gap-6 md:grid-cols-[1fr_minmax(0,28rem)] md:items-end">
+    <div>
+      <p class="mb-3 flex items-center gap-3 text-eyebrow uppercase text-text-secondary">
+        <span class="h-px w-6 bg-accent" aria-hidden="true"></span>
+      </p>
+      <h2 class="text-heading-2 text-text-primary">Por qué elegir ISANORTE</h2>
+    </div>
+    <p class="text-body-lg text-text-secondary">
+      La misión define nuestra razón de ser, la visión nuestra meta y los valores la forma en que trabajamos.
+    </p>
+  </header>
+
+  <div class="mt-12 border-b border-border">
+    @for (item of values; track item.id) {
+    <div class="border-t border-border" [class.value-row--open]="openValue() === item.id">
+      <button type="button" class="grid w-full grid-cols-[2.5rem_1fr_2.5rem] items-center gap-4 py-6 text-left lg:py-8"
+        (click)="toggleValue(item.id)" [attr.aria-expanded]="openValue() === item.id">
+        <span class="value-icon flex h-10 w-10 items-center justify-center rounded-control" aria-hidden="true">
+          @switch (item.id) {
+          @case ('mision') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <circle cx="12" cy="12" r="5"></circle>
+            <circle cx="12" cy="12" r="1"></circle>
+          </svg>
+          }
+          @case ('vision') {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          }
+          @default {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z"></path>
+            <path d="M9 12l2 2 4-4"></path>
+          </svg>
+          }
+          }
+        </span>
+        <span class="text-heading-3 text-text-primary">{{ item.title }}</span>
+        <span class="value-mark" aria-hidden="true"></span>
+      </button>
+      <div class="-mt-1 grid transition-[grid-template-rows] duration-normal ease-out"
+        [style.grid-template-rows]="openValue() === item.id ? '1fr' : '0fr'">
+        <div class="overflow-hidden">
+          <div class="flex flex-wrap items-start gap-x-10 gap-y-3 pb-8">
+            <p class="max-w-[68ch] text-body-lg text-text-secondary">{{ item.description }}</p>
+            @if (item.tags && item.tags.length > 0) {
+            <div class="flex flex-wrap gap-3 pt-1">
+              @for (tag of item.tags; track tag) {
+              <span
+                class="rounded-[2px] border border-border-strong px-3 py-1.5 font-mono text-caption uppercase tracking-wider text-text-secondary">
+                {{ tag }}
+              </span>
+              }
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</section>

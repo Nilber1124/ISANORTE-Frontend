@@ -1,0 +1,32 @@
+@if (variant() === 'coverflow') {
+<section
+  class="carousel__coverflow relative h-[28rem] md:h-[30rem] lg:h-[32rem] overflow-x-clip [perspective:1200px] [touch-action:pan-y] select-none"
+  role="region" aria-roledescription="carrusel" [attr.aria-label]="ariaLabel()" (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()" (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerEnd()" (pointercancel)="onPointerEnd()">
+  @for (item of items(); track item.id; let i = $index, total = $count) {
+  <div #card class="absolute inset-0 flex items-center justify-center will-change-transform">
+    <div class="h-full w-[62%] md:w-[54%] lg:w-[48%]">
+      <ng-container [ngTemplateOutlet]="cardTemplate()"
+        [ngTemplateOutletContext]="{ $implicit: item, index: i, total }"></ng-container>
+    </div>
+  </div>
+  }
+</section>
+} @else {
+<section class="carousel__marquee overflow-x-clip" role="region" aria-roledescription="carrusel"
+  [attr.aria-label]="ariaLabel()" (mouseenter)="pauseMarquee()" (mouseleave)="resumeMarquee()">
+  <div #track class="flex h-[450px] lg:h-[550px] w-max gap-5 md:gap-7">
+    @for (copies of marqueeCopies; track copies) {
+    <div class="carousel__copy flex h-full flex-shrink-0 items-stretch gap-5 md:gap-7">
+      @for (item of items(); track item.id; let i = $index, total = $count) {
+      <div class="h-full w-[min(85vw,26rem)] flex-shrink-0 md:w-[350px]">
+        <ng-container [ngTemplateOutlet]="cardTemplate()"
+          [ngTemplateOutletContext]="{ $implicit: item, index: i, total }"></ng-container>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</section>
+}

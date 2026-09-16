@@ -1,0 +1,9 @@
+/*
+ * Estilos específicos de la home de ISANORTE.
+ *
+ * El antiguo `@keyframes slow-zoom` / `.animate-slow-zoom` se eliminó:
+ * el fondo del Hero (recorrido cinematográfico por ambientes con zoom,
+ * deriva, rotación 3D y transiciones en fundido) lo gestiona el componente
+ * reutilizable `CinematicTour` (GSAP) en
+ * `src/app/shared/components/cinematic-tour/`.
+ */
