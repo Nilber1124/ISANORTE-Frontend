@@ -1,1 +1,61 @@
-<p>servicios works!</p>
+<header data-theme="dark" class="relative overflow-hidden bg-background">
+  <div class="app-container py-16 lg:py-24">
+    <p class="mb-5 flex items-center gap-3 text-eyebrow uppercase text-accent">
+      <span class="h-px w-6 bg-accent" aria-hidden="true"></span>
+      {{ heroData.eyebrow }}
+    </p>
+    <h1 class="max-w-4xl text-display text-text-primary lg:text-display-xl">
+      {{ heroData.title }}
+    </h1>
+  </div>
+</header>
+
+<div class="h-1 w-full bg-accent" aria-hidden="true"></div>
+
+<section class="section-space bg-background-soft" aria-label="Servicios de ISANORTE">
+  <div class="app-container">
+    <app-reveal-stagger [stagger]="0.16" [duration]="0.85" [ease]="'power3.out'" [trigger]="'view'">
+      <div class="flex flex-col gap-8 lg:gap-12">
+        @for (service of services; track service.id; let i = $index) {
+        <article
+          class="group grid grid-cols-1 overflow-hidden rounded-card border border-dashed border-border-strong bg-surface shadow-card lg:grid-cols-2"
+          data-reveal="up"
+          [attr.data-reveal-order]="i"
+        >
+          <div class="relative aspect-[4/3] overflow-hidden lg:aspect-auto lg:min-h-[22rem]">
+            <img
+              class="absolute inset-0 h-full w-full object-cover transition-transform duration-entry ease-[var(--ease-standard)] group-hover:scale-105"
+              [src]="service.imageUrl"
+              [alt]="service.imageAlt"
+              loading="lazy"
+            />
+          </div>
+
+          <div class="flex flex-col justify-center p-6 md:p-8 lg:p-10">
+            <p class="mb-4 flex flex-wrap items-center gap-3 text-eyebrow uppercase text-accent-strong">
+              <span class="font-mono">{{ service.number }}</span>
+              <span class="h-px w-5 bg-border-strong" aria-hidden="true"></span>
+              <span>{{ service.category }}</span>
+            </p>
+
+            <h2 class="text-heading-2 text-text-primary">{{ service.title }}</h2>
+
+            <p class="mt-4 max-w-[60ch] text-body text-text-secondary">
+              {{ service.description }}
+            </p>
+
+            <ul class="mt-6 flex flex-col gap-3">
+              @for (feature of service.features; track feature) {
+              <li class="flex items-start gap-3 text-body-sm text-text-secondary">
+                <span class="mt-[0.7em] h-px w-6 flex-none bg-accent" aria-hidden="true"></span>
+                <span>{{ feature }}</span>
+              </li>
+              }
+            </ul>
+          </div>
+        </article>
+        }
+      </div>
+    </app-reveal-stagger>
+  </div>
+</section>
