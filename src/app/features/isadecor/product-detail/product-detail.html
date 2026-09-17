@@ -41,6 +41,12 @@
         <app-product-info [product]="product" />
       </div>
 
+      @if (
+        product.configuracionCalculo !== null && product.configuracionCalculo.habilitada === true
+      ) {
+        <app-product-calculator class="mt-14 lg:mt-20" [config]="product.configuracionCalculo" />
+      }
+
       @if (product.descripcion.trim()) {
         <section
           class="mt-14 border-t border-border pt-10 lg:mt-20 lg:pt-14"

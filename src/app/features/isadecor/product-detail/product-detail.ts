@@ -12,6 +12,7 @@ import { Button } from '../../../shared/components/button/button';
 import { Card } from '../../../shared/components/card/card';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../shared/components/loading/loading';
+import { ProductCalculator } from './components/product-calculator/product-calculator';
 import { ProductGallery } from './components/product-gallery/product-gallery';
 import { ProductInfo } from './components/product-info/product-info';
 import { ProductDetailFacade } from './product-detail.facade';
@@ -30,6 +31,7 @@ interface VariantAvailabilityPresentation {
     DecimalPipe,
     EmptyState,
     Loading,
+    ProductCalculator,
     ProductGallery,
     ProductInfo,
     RouterLink,

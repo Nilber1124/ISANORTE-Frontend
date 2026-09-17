@@ -1,0 +1,100 @@
+<section aria-labelledby="product-calculator-title">
+  <app-card padding="large">
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.72fr)] lg:items-start">
+      <div class="min-w-0">
+        <p class="mb-3 text-eyebrow uppercase text-text-muted">Estimación de material</p>
+        <h2 id="product-calculator-title" class="text-heading-2 text-text-primary">
+          Calcula cuánto necesitas
+        </h2>
+        <p class="mt-3 max-w-2xl text-body text-text-secondary">
+          Ingresa una medida para estimar la cantidad de unidades de venta requeridas.
+        </p>
+
+        @if (calculationAvailable()) {
+          <div class="mt-7">
+            <label for="product-calculator-measurement" class="form-label">
+              {{ inputLabel() }}
+              @if (inputUnit(); as unit) {
+                <span class="font-normal text-text-muted">({{ unit }})</span>
+              }
+            </label>
+            <input
+              id="product-calculator-measurement"
+              name="product-measurement"
+              class="form-control"
+              type="number"
+              inputmode="decimal"
+              autocomplete="off"
+              min="0"
+              step="any"
+              [value]="measurement() ?? ''"
+              [attr.aria-describedby]="describedBy()"
+              [attr.aria-invalid]="measurementError() ? true : null"
+              (input)="updateMeasurement($event)"
+            />
+
+            @if (helperText(); as help) {
+              <span id="product-calculator-help" class="form-helper">{{ help }}</span>
+            }
+            @if (measurementError(); as error) {
+              <span id="product-calculator-error" class="form-error" role="status">
+                {{ error }}
+              </span>
+            }
+          </div>
+
+          <dl class="mt-6 border-t border-border pt-5">
+            <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+              <dt class="text-body-sm text-text-muted">Cobertura por unidad</dt>
+              <dd class="text-body-sm font-semibold text-text-primary">
+                {{ config().coberturaPorUnidad | number: '1.0-4' }}
+                @if (inputUnit(); as unit) {
+                  {{ unit }}
+                }
+              </dd>
+            </div>
+          </dl>
+        } @else {
+          <p
+            class="mt-7 rounded-card border border-border bg-background-soft p-5 text-body-sm text-text-secondary"
+            role="status"
+          >
+            El cálculo no está disponible para este producto.
+          </p>
+        }
+      </div>
+
+      @if (calculationAvailable()) {
+        <div
+          class="min-w-0 rounded-card border border-border bg-background-soft p-5 sm:p-6"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <p class="text-caption font-semibold uppercase tracking-wider text-text-muted">
+            Cantidad estimada
+          </p>
+
+          @if (quantity(); as result) {
+            <output
+              for="product-calculator-measurement"
+              class="mt-3 flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1 text-text-primary"
+            >
+              <span class="text-heading-1">{{ result }}</span>
+              @if (saleUnit(); as unit) {
+                <span class="break-words text-body-lg font-semibold">{{ unit }}</span>
+              }
+            </output>
+
+            @if (saleUnit(); as unit) {
+              <p class="mt-3 text-body-sm text-text-secondary">Unidad de venta: {{ unit }}</p>
+            }
+          } @else {
+            <p class="mt-3 text-body-sm text-text-secondary">
+              Ingresa una medida válida para ver el resultado.
+            </p>
+          }
+        </div>
+      }
+    </div>
+  </app-card>
+</section>

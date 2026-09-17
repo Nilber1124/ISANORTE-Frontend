@@ -242,6 +242,7 @@ src/app/
 │   │   │   └── catalog.ts
 │   │   ├── product-detail/
 │   │   │   ├── components/
+│   │   │   │   ├── product-calculator/
 │   │   │   │   ├── product-gallery/
 │   │   │   │   └── product-info/
 │   │   │   ├── product-detail.css
@@ -393,9 +394,9 @@ Una feature representa una pantalla o funcionalidad que usa una persona. El proy
 | `isanorte/contact` | Contacto | No | No | Placeholder |
 | `isadecor/home` | Landing ISADECOR | No | No | Placeholder |
 | `isadecor/catalog` | Catálogo ISADECOR | Sí | Productos y categorías | Funcional; búsqueda, filtro y estados de UI |
-| `isadecor/product-detail` | Detalle de producto | Sí | Productos | Funcional; carga por slug, ficha y estados de UI |
+| `isadecor/product-detail` | Detalle de producto | Sí | Productos | Funcional; carga por slug, ficha, calculadora local y estados de UI |
 
-El catálogo contiene un `ProductCard` propio del feature, que navega por el slug real al detalle. El detalle contiene `ProductGallery` y `ProductInfo` como componentes internos. Las demás páginas componen directamente UI compartida.
+El catálogo contiene un `ProductCard` propio del feature, que navega por el slug real al detalle. El detalle contiene `ProductGallery`, `ProductInfo` y `ProductCalculator` como componentes internos. Las demás páginas componen directamente UI compartida.
 
 ## ¿Cuándo necesita un Feature un Facade?
 
@@ -672,11 +673,24 @@ El nombre oficial usado por rutas, carpetas, selectores y enlaces del frontend e
 - detalle en `features/isadecor/product-detail/`;
 - ruta pública `/isadecor/productos/:slug`;
 - navegación desde cada `ProductCard` mediante el slug real;
+- calculadora local dentro del detalle cuando el producto incluye una configuración habilitada;
 - enlace desde Navbar, Footer y Home de ISANORTE.
 
 ### Estado
 
-La landing continúa con `<p>landing works!</p>` y no fue modificada por estas features. `/isadecor/catalogo` carga productos publicados y categorías activas, permite búsqueda y filtro local, y diferencia loading, error, catálogo vacío y filtros sin resultados. `/isadecor/productos/:slug` carga el producto publicado después de la hidratación y presenta sus datos reales, 404 y errores. No existen calculadora ni cotización en Angular.
+La landing continúa con `<p>landing works!</p>` y no fue modificada por estas features. `/isadecor/catalogo` carga productos publicados y categorías activas, permite búsqueda y filtro local, y diferencia loading, error, catálogo vacío y filtros sin resultados. `/isadecor/productos/:slug` carga el producto publicado después de la hidratación y presenta sus datos reales, 404, errores y una calculadora local cuando `configuracionCalculo` existe y está habilitada. No existe cotización en Angular.
+
+### Calculadora de cantidad ISADECOR
+
+`ProductCalculator` recibe únicamente `CalculationConfigResponse` y mantiene la medida ingresada como estado local con Signals. No usa Facade, ApiService, HTTP ni persistencia.
+
+La fórmula es `Q = ceil(M / C)`, donde:
+
+- `Q` es la cantidad requerida;
+- `M` es la medida ingresada;
+- `C` es la cobertura por unidad configurada para el producto.
+
+Se utiliza redondeo hacia arriba porque una fracción de unidad de venta requiere adquirir una unidad completa adicional. La calculadora solo produce un resultado con configuración habilitada, cobertura positiva y medida positiva y finita.
 
 No se encontraron referencias activas a `isadecord`. El título de `docs/openapi.yaml` usa `ISADECO`, que no coincide con `ISADECOR` en el frontend.
 
@@ -846,13 +860,14 @@ El comando SSR necesita que exista previamente un build compatible en `dist/`.
 
 ## Tests existentes
 
-Existen tres archivos de pruebas:
+Existen cuatro archivos de pruebas:
 
 1. `src/app/app.spec.ts`, con tres casos para el componente raíz, el `router-outlet` y las rutas públicas;
 2. `src/app/features/isadecor/catalog/catalog.facade.spec.ts`, con cinco casos para carga exitosa, respuesta vacía, filtro, búsqueda y error.
 3. `src/app/features/isadecor/product-detail/product-detail.facade.spec.ts`, con cinco casos para carga por slug, producto recibido, 404, loading y slug inválido.
+4. `src/app/features/isadecor/product-detail/components/product-calculator/product-calculator.spec.ts`, con casos de configuración, límites de redondeo, valores inválidos y contenido dinámico.
 
-Durante esta revisión, `npm test -- --watch=false` finalizó con **3 archivos y 13 tests aprobados**.
+Durante esta revisión, `npm test -- --watch=false` finalizó con **4 archivos y 26 tests aprobados**.
 
 ## Checklist para un integrante nuevo
 
@@ -902,7 +917,7 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 | Admin | No implementado |
 | Animaciones | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger |
 | Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug |
-| Tests | 3 archivos spec con 13 casos aprobados: aplicación, catálogo y detalle |
+| Tests | 4 archivos spec con 26 casos aprobados: aplicación, catálogo, detalle y calculadora |
 | Carga de rutas | Eager; no existe lazy loading |
 | Build verificado | Correcto; bundles browser/server, 7 rutas estáticas prerenderizadas y detalle dinámico en modo Server |
 
