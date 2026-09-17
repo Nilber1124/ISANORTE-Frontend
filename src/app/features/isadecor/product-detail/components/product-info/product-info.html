@@ -1,0 +1,61 @@
+<section
+  class="rounded-panel border border-border bg-surface p-6 shadow-card sm:p-8"
+  aria-labelledby="product-title"
+>
+  <div class="flex flex-wrap items-center gap-2">
+    @if (product().destacado) {
+      <app-badge variant="accent">Destacado</app-badge>
+    }
+    <app-badge [variant]="availability().variant" size="medium" dot>
+      {{ availability().label }}
+    </app-badge>
+  </div>
+
+  <p class="mt-6 text-caption font-semibold uppercase tracking-wider text-text-muted">
+    SKU {{ product().sku }}
+  </p>
+  <h1 id="product-title" class="mt-3 text-heading-1 text-text-primary">
+    {{ product().nombre }}
+  </h1>
+
+  @if (showSummary()) {
+    <p class="mt-5 text-body-lg text-text-secondary">{{ product().resumen }}</p>
+  }
+
+  <div class="mt-8 border-y border-border py-6">
+    <p class="text-caption text-text-muted">Precio referencial</p>
+    @if (product().precioBase !== null) {
+      <div class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <p class="text-heading-2 text-text-primary">
+          {{ product().precioBase | number: '1.2-2' }}
+        </p>
+        @if (
+          product().precioAnterior !== null && product().precioAnterior! > product().precioBase!
+        ) {
+          <p class="text-body text-text-muted line-through">
+            {{ product().precioAnterior | number: '1.2-2' }}
+          </p>
+        }
+      </div>
+    } @else {
+      <p class="mt-2 text-heading-4 text-text-primary">Consultar precio</p>
+    }
+
+    @if (product().descuentoPorcentaje !== null && product().descuentoPorcentaje! > 0) {
+      <p class="mt-2 text-body-sm font-semibold text-accent-strong">
+        {{ product().descuentoPorcentaje | number: '1.0-2' }}% de descuento
+      </p>
+    }
+  </div>
+
+  @if (product().categorias?.length) {
+    <div class="mt-6">
+      <h2 class="text-body-sm font-semibold text-text-primary">Categorías</h2>
+      <div class="mt-3 flex flex-wrap gap-2">
+        @for (category of product().categorias; track category.id) {
+          <app-badge>{{ category.nombre }}</app-badge>
+        }
+      </div>
+    </div>
+  }
+</section>

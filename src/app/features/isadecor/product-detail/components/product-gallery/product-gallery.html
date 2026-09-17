@@ -1,0 +1,61 @@
+<section aria-label="Galería del producto">
+  <div
+    class="aspect-[4/3] overflow-hidden rounded-panel border border-border bg-background-muted shadow-card"
+  >
+    @if (mainImage(); as image) {
+      <img
+        class="h-full w-full object-cover"
+        [src]="image.url"
+        [alt]="imageAlt(image)"
+        width="960"
+        height="720"
+        loading="eager"
+        fetchpriority="high"
+        (error)="markImageAsFailed(image.id)"
+      />
+    } @else {
+      <div
+        class="flex h-full min-h-64 w-full flex-col items-center justify-center gap-4 bg-surface-soft p-8 text-center text-text-muted sm:min-h-80"
+        role="img"
+        [attr.aria-label]="'Imagen no disponible para ' + productName()"
+      >
+        <svg class="size-16" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <path
+            d="M10 17h44v34H10zM18 11h28v6M19 28h26M19 36h18"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+          />
+        </svg>
+        <span class="text-body-sm font-semibold">Imagen no disponible</span>
+      </div>
+    }
+  </div>
+
+  @if (availableImages().length > 1) {
+    <div class="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5" aria-label="Seleccionar imagen">
+      @for (image of availableImages(); track image.id; let index = $index) {
+        <button
+          type="button"
+          class="aspect-square min-w-0 overflow-hidden rounded-control border bg-surface transition-[border-color,box-shadow] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          [class.border-accent]="mainImage()?.id === image.id"
+          [class.border-border]="mainImage()?.id !== image.id"
+          [attr.aria-label]="'Ver imagen ' + (index + 1) + ' de ' + productName()"
+          [attr.aria-pressed]="mainImage()?.id === image.id"
+          (click)="selectImage(image.id)"
+        >
+          <img
+            class="h-full w-full object-cover"
+            [src]="image.url"
+            alt=""
+            width="160"
+            height="160"
+            loading="lazy"
+            (error)="markImageAsFailed(image.id)"
+          />
+        </button>
+      }
+    </div>
+  }
+</section>

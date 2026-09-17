@@ -14,7 +14,7 @@ Cuando este documento, `AGENTS.md`, una Skill o cualquier otra guía contradiga 
 El repositorio contiene una aplicación Angular que reúne dos experiencias públicas:
 
 - **ISANORTE:** sitio corporativo de arquitectura, construcción, servicios y proyectos.
-- **ISADECOR:** experiencia comercial con una landing todavía placeholder y un catálogo funcional conectado al backend.
+- **ISADECOR:** experiencia comercial con una landing todavía placeholder, catálogo y detalle de producto conectados al backend.
 - **ADMIN:** será el área de administración de contenido y recursos. No existe todavía en `src/app/`.
 
 ### Stack detectado
@@ -42,7 +42,7 @@ Las versiones declaradas en `package.json` permiten actualizaciones compatibles,
 - Home y Nosotros de ISANORTE tienen UI real, pero su contenido comercial continúa definido en TypeScript/HTML.
 - Servicios, Proyectos, Contacto e ISADECOR Home son placeholders.
 - La capa `data/` ya contiene contratos TypeScript y ApiServices para los 10 recursos reales del backend.
-- `HttpClient` está registrado con `provideHttpClient(withFetch())`; el catálogo ISADECOR consume productos y categorías mediante su facade y los ApiServices existentes.
+- `HttpClient` está registrado con `provideHttpClient(withFetch())`; catálogo y detalle ISADECOR consumen la API mediante facades y los ApiServices existentes.
 - Existe un contrato backend estático en `docs/openapi.yaml`, contrastado con los controllers, DTO y enums actuales de Spring Boot.
 
 ## Arquitectura del frontend
@@ -87,7 +87,7 @@ Datos estáticos tipados o Signal local
 Template
 ```
 
-La organización Feature-Based, `core/`, `shared/`, `layouts/` y `data/` ya existe. Signals también están en uso. El catálogo ISADECOR implementa el primer flujo completo Component → Facade → ApiService.
+La organización Feature-Based, `core/`, `shared/`, `layouts/` y `data/` ya existe. Signals también están en uso. Catálogo y detalle de producto ISADECOR implementan el flujo completo Component → Facade → ApiService.
 
 ### Component
 
@@ -112,7 +112,7 @@ Un facade reúne la lógica y el estado propios de una pantalla o feature:
 - coordinación de uno o varios servicios;
 - acciones de la funcionalidad.
 
-No todos los componentes necesitan facade. Actualmente `CatalogFacade` concentra la carga, los filtros y los estados del catálogo ISADECOR.
+No todos los componentes necesitan facade. Actualmente `CatalogFacade` concentra la carga, los filtros y los estados del catálogo ISADECOR; `ProductDetailFacade` carga un producto por slug y prepara sus datos para la vista.
 
 ### ApiService
 
@@ -240,6 +240,15 @@ src/app/
 │   │   │   ├── catalog.facade.ts
 │   │   │   ├── catalog.html
 │   │   │   └── catalog.ts
+│   │   ├── product-detail/
+│   │   │   ├── components/
+│   │   │   │   ├── product-gallery/
+│   │   │   │   └── product-info/
+│   │   │   ├── product-detail.css
+│   │   │   ├── product-detail.facade.spec.ts
+│   │   │   ├── product-detail.facade.ts
+│   │   │   ├── product-detail.html
+│   │   │   └── product-detail.ts
 │   │   └── home/
 │   │       ├── home.css
 │   │       ├── home.html
@@ -384,8 +393,9 @@ Una feature representa una pantalla o funcionalidad que usa una persona. El proy
 | `isanorte/contact` | Contacto | No | No | Placeholder |
 | `isadecor/home` | Landing ISADECOR | No | No | Placeholder |
 | `isadecor/catalog` | Catálogo ISADECOR | Sí | Productos y categorías | Funcional; búsqueda, filtro y estados de UI |
+| `isadecor/product-detail` | Detalle de producto | Sí | Productos | Funcional; carga por slug, ficha y estados de UI |
 
-El catálogo contiene un `ProductCard` propio del feature. Las demás páginas componen directamente UI compartida.
+El catálogo contiene un `ProductCard` propio del feature, que navega por el slug real al detalle. El detalle contiene `ProductGallery` y `ProductInfo` como componentes internos. Las demás páginas componen directamente UI compartida.
 
 ## ¿Cuándo necesita un Feature un Facade?
 
@@ -418,7 +428,7 @@ No se debe crear `BaseFacade`, un facade genérico ni una capa adicional solo po
 
 ## Ejemplo: flujo de una funcionalidad
 
-El catálogo ISADECOR es la primera funcionalidad completa que conecta Component, Facade y ApiService:
+El catálogo ISADECOR fue la primera funcionalidad completa que conectó Component, Facade y ApiService:
 
 ```text
 Catalog
@@ -446,6 +456,18 @@ Flujo explicado paso a paso:
 8. Angular detecta el cambio del Signal y actualiza la vista.
 
 Si el contrato no contiene la operación necesaria, se documenta la limitación; no se inventa el endpoint.
+
+El detalle aplica el mismo flujo con una sola petición:
+
+```text
+ProductDetail
+       ↓
+ProductDetailFacade
+       ↓
+ProductApiService.getPublishedBySlug(slug)
+       ↓
+GET /api/productos/publicados/slug/{slug}
+```
 
 ## ¿Dónde crear cada cosa?
 
@@ -549,6 +571,7 @@ HttpClient
 - `data/models/` representa request, update request, response, cambios de estado y enums reales.
 - `data/services/` cubre las 66 operaciones de los 10 controllers documentados.
 - `CatalogFacade` invoca productos publicados y categorías activas en paralelo desde el navegador. El prerender conserva un shell estable y no consulta la API con la URL relativa.
+- `ProductDetailFacade` invoca el producto publicado por slug únicamente desde el navegador. SSR entrega el shell de loading y la hidratación inicia la petición.
 - La URL base se obtiene mediante `API_BASE_URL`; su valor predeterminado vacío produce rutas del mismo origen como `/api/productos/publicados`.
 - El servidor de desarrollo usa `proxy.conf.json` para reenviar `/api` a `http://localhost:8080`, conservando el prefijo. Este proxy solo se aplica con `ng serve`; no forma parte del build ni del servidor Spring Boot.
 
@@ -576,7 +599,7 @@ Para productos, por ejemplo, sí constan operaciones como:
 - `GET /api/productos/publicados/slug/{slug}`;
 - operaciones administrativas bajo `/api/productos` y `/api/productos/{id}`.
 
-Estos endpoints están representados en `ProductApiService`, pero aún no tienen un facade ni una pantalla consumidora.
+Ambos endpoints públicos están representados en `ProductApiService` y tienen consumidores: el catálogo usa el listado y el detalle usa la búsqueda por slug.
 
 ## Base API Service
 
@@ -599,7 +622,7 @@ Signals permite que Angular actualice la vista cuando cambia un valor, sin admin
 - InputField, SelectField, TextareaField y Modal usan `model()` para binding bidireccional.
 - Modal usa `effect()` para administrar el foco al abrir y cerrar.
 
-Un facade futuro debe conservar Signals mutables como privados cuando sea posible y exponer estado de solo lectura al componente.
+Los facades actuales conservan Signals mutables como privados y exponen estado de solo lectura al componente.
 
 ## Rutas actuales
 
@@ -614,6 +637,7 @@ Todas las rutas se declaran en `src/app/app.routes.ts`, se cargan de forma eager
 | `/contacto` | `features/isanorte/contact` | `PublicLayout` | Placeholder |
 | `/isadecor` | `features/isadecor/home` | `PublicLayout` | Placeholder |
 | `/isadecor/catalogo` | `features/isadecor/catalog` | `PublicLayout` | Catálogo funcional conectado al backend |
+| `/isadecor/productos/:slug` | `features/isadecor/product-detail` | `PublicLayout` | Detalle funcional conectado al backend |
 
 No existe lazy loading, ruta cliente wildcard ni página 404.
 
@@ -645,11 +669,14 @@ El nombre oficial usado por rutas, carpetas, selectores y enlaces del frontend e
 - ruta pública `/isadecor`;
 - catálogo en `features/isadecor/catalog/`;
 - ruta pública `/isadecor/catalogo`;
+- detalle en `features/isadecor/product-detail/`;
+- ruta pública `/isadecor/productos/:slug`;
+- navegación desde cada `ProductCard` mediante el slug real;
 - enlace desde Navbar, Footer y Home de ISANORTE.
 
 ### Estado
 
-La landing continúa con `<p>landing works!</p>` y no fue modificada por el catálogo. `/isadecor/catalogo` carga productos publicados y categorías activas, permite búsqueda y filtro local, y diferencia loading, error, catálogo vacío y filtros sin resultados. No existen detalle de producto, calculadora ni cotización en Angular.
+La landing continúa con `<p>landing works!</p>` y no fue modificada por estas features. `/isadecor/catalogo` carga productos publicados y categorías activas, permite búsqueda y filtro local, y diferencia loading, error, catálogo vacío y filtros sin resultados. `/isadecor/productos/:slug` carga el producto publicado después de la hidratación y presenta sus datos reales, 404 y errores. No existen calculadora ni cotización en Angular.
 
 No se encontraron referencias activas a `isadecord`. El título de `docs/openapi.yaml` usa `ISADECO`, que no coincide con `ISADECOR` en el frontend.
 
@@ -683,8 +710,9 @@ El objetivo es que el contenido comercial pueda administrarse desde backend/base
 
 - Productos publicados del catálogo ISADECOR mediante `GET /api/productos/publicados`.
 - Categorías activas del catálogo ISADECOR mediante `GET /api/categorias/activas`.
+- Producto publicado por slug mediante `GET /api/productos/publicados/slug/{slug}`.
 
-La carga se ejecuta únicamente en browser mientras `API_BASE_URL` sea relativo. Así `/isadecor/catalogo` puede prerenderizar su shell sin pedir `/api` desde Node; los datos se solicitan después de la hidratación. Para renderizar productos durante SSR será necesario configurar posteriormente una `API_BASE_URL` absoluta accesible desde el servidor Angular.
+La carga se ejecuta únicamente en browser mientras `API_BASE_URL` sea relativo. Así `/isadecor/catalogo` puede prerenderizar su shell y el detalle puede renderizar su shell en servidor sin pedir `/api` desde Node; los datos se solicitan después de la hidratación. Para renderizar productos y metadata SEO completos durante SSR será necesario configurar posteriormente una `API_BASE_URL` absoluta accesible desde el servidor Angular.
 
 ## Design System
 
@@ -730,9 +758,9 @@ Server-Side Rendering genera HTML en el servidor antes de que el navegador ejecu
 
 ### Prerender
 
-Prerender genera HTML por adelantado durante el build. `app.routes.server.ts` aplica `RenderMode.Prerender` a `**`, por lo que todas las rutas Angular actuales entran en esta estrategia.
+Prerender genera HTML por adelantado durante el build. `app.routes.server.ts` aplica `RenderMode.Prerender` a `**` para las rutas estáticas y una regla previa con `RenderMode.Server` solo para `isadecor/productos/:slug`. La ruta dinámica no tiene slugs conocidos durante el build y por eso no se prerenderiza ni inventa parámetros.
 
-La validación de esta revisión ejecutó `npm run build` correctamente y Angular informó **7 rutas estáticas prerenderizadas**, incluida `/isadecor/catalogo`.
+La validación de esta revisión ejecutó `npm run build` correctamente y Angular informó **7 rutas estáticas prerenderizadas**, incluida `/isadecor/catalogo`; el detalle dinámico quedó disponible por SSR sin degradar las rutas estáticas.
 
 ### Hidratación
 
@@ -818,12 +846,13 @@ El comando SSR necesita que exista previamente un build compatible en `dist/`.
 
 ## Tests existentes
 
-Existen dos archivos de pruebas:
+Existen tres archivos de pruebas:
 
 1. `src/app/app.spec.ts`, con tres casos para el componente raíz, el `router-outlet` y las rutas públicas;
 2. `src/app/features/isadecor/catalog/catalog.facade.spec.ts`, con cinco casos para carga exitosa, respuesta vacía, filtro, búsqueda y error.
+3. `src/app/features/isadecor/product-detail/product-detail.facade.spec.ts`, con cinco casos para carga por slug, producto recibido, 404, loading y slug inválido.
 
-Durante esta revisión, `npm test -- --watch=false` finalizó con **2 archivos y 8 tests aprobados**.
+Durante esta revisión, `npm test -- --watch=false` finalizó con **3 archivos y 13 tests aprobados**.
 
 ## Checklist para un integrante nuevo
 
@@ -855,26 +884,26 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 
 | Área | Estado verificado |
 | --- | --- |
-| Arquitectura | Feature-Based implementada; catálogo con Facade Pattern y API Service Layer |
+| Arquitectura | Feature-Based implementada; catálogo y detalle con Facade Pattern y API Service Layer |
 | Angular | 22.1.6, standalone, sin NgModules |
 | TypeScript | 6.0.3 |
 | Tailwind | 4.3.3, CSS-first con PostCSS |
 | SSR | Configurado con Express y `AngularNodeAppEngine` |
-| Prerender | Wildcard `**` con `RenderMode.Prerender` |
+| Prerender | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server` |
 | Hidratación | `provideClientHydration()` activo |
-| Features | 7 páginas: 5 ISANORTE y 2 ISADECOR |
+| Features | 8 páginas: 5 ISANORTE y 3 ISADECOR |
 | Layouts | 1: `PublicLayout` con Navbar, RouterOutlet y Footer |
 | Shared Components | 14 |
 | Servicios globales | 1: `ThemeService` |
-| Facades | 1: `CatalogFacade`, con alcance del componente de catálogo |
+| Facades | 2: `CatalogFacade` y `ProductDetailFacade`, con alcance de sus componentes |
 | ApiServices | 10; uno por recurso backend documentado |
 | Modelos API | Contratos de los 10 recursos, tipos comunes y 7 enums exactos |
-| Backend conectado | Catálogo ISADECOR mediante `CatalogFacade` y los ApiServices de productos/categorías |
+| Backend conectado | Catálogo y detalle ISADECOR mediante sus facades y los ApiServices existentes |
 | Admin | No implementado |
 | Animaciones | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger |
-| Contenido dinámico desde API | Productos publicados y categorías activas del catálogo ISADECOR |
-| Tests | 2 archivos spec con 8 casos aprobados: aplicación y `CatalogFacade` |
+| Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug |
+| Tests | 3 archivos spec con 13 casos aprobados: aplicación, catálogo y detalle |
 | Carga de rutas | Eager; no existe lazy loading |
-| Build verificado | Correcto; bundles browser/server y 7 rutas prerenderizadas, incluido el catálogo |
+| Build verificado | Correcto; bundles browser/server, 7 rutas estáticas prerenderizadas y detalle dinámico en modo Server |
 
 La siguiente evolución no requiere reorganizar otra vez el proyecto: una feature real puede añadir su facade, inyectar el ApiService del recurso y gestionar datos, loading y errores sin colocar HTTP en componentes.
