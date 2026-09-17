@@ -33,6 +33,7 @@ describe('App', () => {
       'servicios',
       'proyectos',
       'contacto',
+      'isadecor/catalogo',
       'isadecor',
     ]);
   });

@@ -1,0 +1,103 @@
+<main class="min-h-[70vh] bg-background">
+  <section class="catalog-hero border-b border-border bg-background-soft">
+    <div class="app-container py-14 sm:py-16 lg:py-20">
+      <app-section-title
+        eyebrow="ISADECOR"
+        title="Catálogo de productos"
+        description="Explora nuestra selección de productos para acabados y diseño de interiores."
+        level="h1"
+      />
+    </div>
+  </section>
+
+  <section class="app-container py-10 sm:py-12 lg:py-16" aria-labelledby="catalog-results-title">
+    <h2 id="catalog-results-title" class="sr-only">Productos del catálogo</h2>
+
+    @if (facade.loading()) {
+      <div class="rounded-panel border border-border bg-surface py-12 sm:py-16">
+        <app-loading label="Cargando productos y categorías" size="large" />
+      </div>
+    } @else if (facade.error()) {
+      <div class="mx-auto max-w-3xl">
+        <app-alert variant="error" title="No se pudo cargar el catálogo">
+          <p>{{ facade.error() }}</p>
+          <div class="mt-4">
+            <app-button variant="secondary" size="small" (click)="facade.load()">
+              Reintentar
+            </app-button>
+          </div>
+        </app-alert>
+      </div>
+    } @else if (facade.products().length === 0) {
+      <app-empty-state
+        emptyStateId="catalog-empty"
+        title="No hay productos disponibles por el momento"
+        description="Vuelve a visitarnos pronto para conocer las novedades de ISADECOR."
+      />
+    } @else {
+      <div class="rounded-panel border border-border bg-surface p-4 shadow-soft sm:p-6">
+        <div class="grid gap-4 md:grid-cols-2">
+          <app-input-field
+            inputId="catalog-search"
+            label="Buscar productos"
+            type="search"
+            name="catalog-search"
+            placeholder="Nombre, SKU o descripción"
+            autocomplete="off"
+            [value]="facade.searchTerm()"
+            (valueChange)="facade.setSearchTerm($event)"
+          />
+
+          <app-select-field
+            inputId="catalog-category"
+            label="Categoría"
+            name="catalog-category"
+            [options]="categoryOptions()"
+            [value]="facade.selectedCategory() ?? ''"
+            (valueChange)="facade.setSelectedCategory($event)"
+          />
+        </div>
+
+        <div
+          class="mt-5 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p class="text-body-sm text-text-secondary" aria-live="polite" aria-atomic="true">
+            Mostrando
+            <strong class="font-semibold text-text-primary">{{
+              facade.filteredProducts().length
+            }}</strong>
+            de {{ facade.products().length }}
+            {{ facade.products().length === 1 ? 'producto' : 'productos' }}
+          </p>
+
+          @if (facade.hasActiveFilters()) {
+            <app-button variant="ghost" size="small" (click)="facade.clearFilters()">
+              Limpiar filtros
+            </app-button>
+          }
+        </div>
+      </div>
+
+      @if (facade.filteredProducts().length > 0) {
+        <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:gap-6">
+          @for (product of facade.filteredProducts(); track product.id) {
+            <app-product-card [product]="product" />
+          }
+        </div>
+      } @else {
+        <div class="mt-8">
+          <app-empty-state
+            emptyStateId="catalog-no-results"
+            title="No encontramos productos con esos filtros"
+            description="Prueba con otro término o consulta todas las categorías."
+            compact
+          >
+            <app-button empty-state-actions variant="secondary" (click)="facade.clearFilters()">
+              Limpiar filtros
+            </app-button>
+          </app-empty-state>
+        </div>
+      }
+    }
+  </section>
+</main>
