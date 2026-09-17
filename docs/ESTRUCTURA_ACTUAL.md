@@ -1,6 +1,6 @@
 # Estructura actual del frontend ISANORTE
 
-**Fecha de revisión:** 15 de septiembre de 2026
+**Fecha de revisión:** 16 de septiembre de 2026
 **Fuente de verdad:** código presente en este repositorio durante la revisión.
 
 ## Propósito del documento
@@ -41,8 +41,9 @@ Las versiones declaradas en `package.json` permiten actualizaciones compatibles,
 - SSR, prerender de rutas e hidratación están configurados.
 - Home y Nosotros de ISANORTE tienen UI real, pero su contenido comercial continúa definido en TypeScript/HTML.
 - Servicios, Proyectos, Contacto e ISADECOR Home son placeholders.
-- No hay facades, ApiServices, modelos API, `HttpClient` ni conexión del frontend con Spring Boot.
-- Existe un contrato backend estático en `docs/openapi.yaml`, pero todavía no se consume desde Angular.
+- La capa `data/` ya contiene contratos TypeScript y ApiServices para los 10 recursos reales del backend.
+- `HttpClient` está registrado con `provideHttpClient(withFetch())`, pero ninguna pantalla ni facade consume todavía los ApiServices.
+- Existe un contrato backend estático en `docs/openapi.yaml`, contrastado con los controllers, DTO y enums actuales de Spring Boot.
 
 ## Arquitectura del frontend
 
@@ -86,7 +87,7 @@ Datos estáticos tipados o Signal local
 Template
 ```
 
-La organización Feature-Based, `core/`, `shared/` y `layouts/` ya existe. Signals también están en uso. El tramo Facade → ApiService → Spring Boot es la forma prevista de crecimiento, pero todavía no tiene implementaciones en el frontend.
+La organización Feature-Based, `core/`, `shared/`, `layouts/` y `data/` ya existe. Signals también están en uso. Los ApiServices y modelos están preparados, pero el tramo Component → Facade todavía no se implementa porque ninguna pantalla se conectó en esta etapa.
 
 ### Component
 
@@ -122,7 +123,7 @@ Un ApiService encapsula la comunicación HTTP:
 - `GET`, `POST`, `PUT` y `PATCH` documentados;
 - tipos Request y Response del contrato.
 
-No contiene decisiones visuales ni estado de una pantalla. Actualmente el proyecto no contiene ApiServices.
+No contiene decisiones visuales ni estado de una pantalla. Actualmente existe un ApiService por cada uno de los 10 recursos documentados del backend.
 
 ### Models
 
@@ -134,11 +135,11 @@ Los modelos API representan el contrato con Spring Boot:
 - enums;
 - tipos compartidos por el contrato.
 
-No existe todavía una carpeta de modelos API. Las interfaces de Home, About, Navbar, Footer y componentes shared son tipos locales de presentación, no DTO del backend.
+Los contratos viven bajo `data/models/`, separados por dominio, request, update request, response y enum cuando corresponde. Las interfaces de Home, About, Navbar, Footer y componentes shared siguen siendo tipos locales de presentación, no DTO del backend.
 
 ## Matriz de responsabilidades de la arquitectura
 
-Esta matriz describe el reparto objetivo cuando una feature tenga integración con backend. Actualmente no existen facades, ApiServices ni modelos API en Angular; por eso estas columnas representan la forma aprobada de crecimiento, no clases ya implementadas.
+Esta matriz describe el reparto objetivo cuando una feature integre la capa preparada. Actualmente existen ApiServices y modelos API, pero no facades ni pantallas consumidoras.
 
 | Responsabilidad | Component | Facade | ApiService | Models | Backend |
 | --- | :---: | :---: | :---: | :---: | :---: |
@@ -168,7 +169,7 @@ Hay dos precisiones importantes:
 
 ### Decisiones rápidas
 
-Los siguientes nombres de catálogo son conceptuales: todavía no existen esos archivos en el frontend.
+Los nombres de catálogo y facade son conceptuales; `ProductApiService` y sus modelos sí existen, pero todavía no tienen consumidores.
 
 | Necesidad | Responsable y ubicación |
 | --- | --- |
@@ -199,8 +200,34 @@ src/app/
 ├── app.spec.ts
 ├── app.ts
 ├── core/
+│   ├── config/
+│   │   └── api.config.ts
 │   └── services/
 │       └── theme.service.ts
+├── data/
+│   ├── models/
+│   │   ├── administrator/
+│   │   ├── business-unit/
+│   │   ├── category/
+│   │   ├── common/
+│   │   ├── company/
+│   │   ├── landing-section/
+│   │   ├── product/
+│   │   ├── project/
+│   │   ├── quote/
+│   │   ├── service/
+│   │   └── site-config/
+│   └── services/
+│       ├── administrator-api.service.ts
+│       ├── business-unit-api.service.ts
+│       ├── category-api.service.ts
+│       ├── company-api.service.ts
+│       ├── landing-section-api.service.ts
+│       ├── product-api.service.ts
+│       ├── project-api.service.ts
+│       ├── quote-api.service.ts
+│       ├── service-api.service.ts
+│       └── site-config-api.service.ts
 ├── features/
 │   ├── isadecor/
 │   │   └── home/
@@ -257,7 +284,7 @@ src/app/
         └── textarea-field/
 ```
 
-No existen actualmente `src/app/data/`, `src/app/features/admin/`, guards, interceptors, facades ni servicios HTTP.
+No existen actualmente `src/app/features/admin/`, guards, interceptors ni facades. La capa HTTP existe, pero aún no tiene consumidores en features.
 
 ## `core/`
 
@@ -274,7 +301,9 @@ No existen actualmente `src/app/data/`, `src/app/features/admin/`, guards, inter
 - no persiste todavía la preferencia;
 - actualmente no está inyectado por ninguna pantalla.
 
-No existen configuraciones adicionales, guards, interceptors ni helpers HTTP dentro de `core/`.
+`core/config/api.config.ts` declara el token inyectable `API_BASE_URL`. Su valor predeterminado es vacío para que el navegador use rutas del mismo origen (`/api/...`) y puede sobrescribirse con un provider por entorno o para SSR sin modificar los ApiServices.
+
+No existen guards, interceptors ni helpers HTTP adicionales dentro de `core/`.
 
 ## `shared/`
 
@@ -303,17 +332,17 @@ Hay 14 componentes compartidos. Todos son standalone y usan `ChangeDetectionStra
 
 ## `data/`
 
-**Estado actual: no existe.**
-
-Cuando ocurra la primera integración HTTP real, esta capa podrá crearse de forma incremental:
+`data/` contiene la capa de transporte preparada para futuras facades:
 
 ```text
 data/
-├── models/      # Contratos reales derivados de OpenAPI/backend
-└── services/    # ApiServices con HttpClient
+├── models/      # Contratos TypeScript derivados de OpenAPI, DTO y enums reales
+└── services/    # Un ApiService con HttpClient por recurso backend
 ```
 
-No se deben crear estas carpetas vacías ni anticipar DTO. El primer modelo y ApiService deben aparecer porque una feature real los necesita y después de comprobar el contrato.
+Los dominios modelados son administradores, categorías, configuración del sitio, cotizaciones, empresa, productos, proyectos, secciones landing, servicios y unidades de negocio. Los tipos comunes centralizan `ActivoRequest`, errores y resúmenes reutilizados por el contrato.
+
+No hay wrappers inventados, carpetas vacías, estado de UI ni mensajes visuales en esta capa. Los ApiServices conservan los errores HTTP para que los futuros facades decidan su presentación.
 
 ## `layouts/`
 
@@ -416,8 +445,8 @@ Si el contrato no contiene la operación necesaria, se documenta la limitación;
 | Componente exclusivo de una feature | `src/app/features/<area>/<feature>/components/` |
 | Componente reutilizable y sin negocio | `src/app/shared/components/` |
 | Estado y lógica relevante de pantalla | `<feature>/<feature>.facade.ts` |
-| Petición HTTP | `src/app/data/services/` cuando exista integración real |
-| Request, Response o enum de API | `src/app/data/models/<dominio>/` cuando exista contrato usado |
+| Petición HTTP | `src/app/data/services/`; reutilizar o ampliar el ApiService verificado del recurso |
+| Request, Response o enum de API | `src/app/data/models/<dominio>/`; ampliar solo cuando cambie el contrato real |
 | Tipo exclusivamente visual | Junto al componente o feature que lo usa |
 | Navbar, Footer o estructura común | `src/app/layouts/` |
 | Servicio global | `src/app/core/services/` |
@@ -425,7 +454,7 @@ Si el contrato no contiene la operación necesaria, se documenta la limitación;
 | Configuración global Angular | `app.config.ts` o `core/`, según responsabilidad |
 | Imagen pública | `public/images/` |
 
-Las rutas de `data/`, guards, interceptors y Admin son ubicaciones previstas; esas carpetas no existen todavía y no deben crearse vacías.
+Las rutas de guards, interceptors y Admin son ubicaciones previstas; esas carpetas no existen todavía y no deben crearse vacías. `data/` sí está implementada.
 
 ## Guía para crear una nueva feature
 
@@ -504,11 +533,25 @@ HttpClient
 
 ### Estado actual
 
-- `app.config.ts` no registra `provideHttpClient()`.
-- No hay imports ni usos de `HttpClient`.
-- No existe `data/`.
-- No hay modelos Request/Response ni enums del backend en Angular.
-- No se realiza ninguna petición a Spring Boot.
+- `app.config.ts` registra `provideHttpClient(withFetch())`, compatible con browser y SSR.
+- `HttpClient` se usa únicamente dentro de `data/services/`.
+- `data/models/` representa request, update request, response, cambios de estado y enums reales.
+- `data/services/` cubre las 66 operaciones de los 10 controllers documentados.
+- Ninguna pantalla ni facade invoca todavía estos servicios, por lo que la aplicación aún no realiza peticiones a Spring Boot durante ejecución o prerender.
+- La URL base se obtiene mediante `API_BASE_URL`; su valor predeterminado vacío produce rutas del mismo origen como `/api/productos/publicados`.
+- El servidor de desarrollo usa `proxy.conf.json` para reenviar `/api` a `http://localhost:8080`, conservando el prefijo. Este proxy solo se aplica con `ng serve`; no forma parte del build ni del servidor Spring Boot.
+
+Flujo de desarrollo:
+
+```text
+Angular http://localhost:4200
+        ↓ /api
+proxy del servidor de desarrollo
+        ↓
+Spring Boot http://localhost:8080
+```
+
+`npm start` levanta Angular con esta configuración automáticamente. Spring Boot debe estar ejecutándose por separado. Cuando una pantalla consuma datos durante SSR o prerender, el servidor Angular necesitará un provider de `API_BASE_URL` con una URL absoluta accesible desde ese proceso; el proxy de `ng serve` resuelve únicamente las peticiones del navegador en desarrollo.
 
 ### Contrato disponible
 
@@ -522,13 +565,11 @@ Para productos, por ejemplo, sí constan operaciones como:
 - `GET /api/productos/publicados/slug/{slug}`;
 - operaciones administrativas bajo `/api/productos` y `/api/productos/{id}`.
 
-Estos endpoints están documentados, pero aún no tienen un `ProductApiService` en el frontend.
+Estos endpoints están representados en `ProductApiService`, pero aún no tienen un facade ni una pantalla consumidora.
 
 ## Base API Service
 
-No existe `BaseApiService` ni una abstracción HTTP genérica. Tampoco está definida como requisito global actual en `AGENTS.md`.
-
-No debe documentarse ni crearse como implementación existente. Si en el futuro varios ApiServices repiten operaciones reales, cualquier abstracción debe evaluarse en ese momento y mantenerse pequeña.
+No existe `BaseApiService` ni una abstracción HTTP genérica. Aunque varios recursos comparten CRUD, las rutas públicas, búsquedas por slug/SKU/código y cambios de estado difieren. Mantener llamadas explícitas deja visible el contrato completo y evita una jerarquía genérica que hoy no reduce complejidad suficiente.
 
 ## Angular Signals
 
@@ -749,7 +790,7 @@ Todos proceden de `package.json`:
 
 | Comando | Función |
 | --- | --- |
-| `npm start` | Inicia el servidor de desarrollo Angular. |
+| `npm start` | Inicia Angular en `http://localhost:4200` con el proxy de `/api` hacia Spring Boot en `http://localhost:8080`. |
 | `npm run build` | Ejecuta el build de producción con browser, SSR y prerender. |
 | `npm run watch` | Mantiene un build de desarrollo observando cambios. |
 | `npm test` | Ejecuta las pruebas mediante el builder de Angular/Vitest. |
@@ -812,14 +853,14 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 | Shared Components | 14 |
 | Servicios globales | 1: `ThemeService` |
 | Facades | 0 |
-| ApiServices | 0 |
-| Modelos API | 0; solo tipos locales de presentación |
-| Backend conectado | No; existe OpenAPI, pero Angular no usa `HttpClient` |
+| ApiServices | 10; uno por recurso backend documentado |
+| Modelos API | Contratos de los 10 recursos, tipos comunes y 7 enums exactos |
+| Backend conectado | Capa HTTP preparada; ninguna pantalla/facade la consume todavía |
 | Admin | No implementado |
 | Animaciones | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger |
 | Contenido dinámico desde API | Ninguno |
 | Tests | 1 archivo spec con 3 casos |
 | Carga de rutas | Eager; no existe lazy loading |
-| Build verificado | Correcto; bundles browser/server y 6 rutas prerenderizadas |
+| Build verificado | Correcto; bundles browser/server y 6 rutas prerenderizadas tras crear `data/` |
 
-La siguiente evolución no requiere reorganizar otra vez el proyecto: una feature real puede añadir sus componentes y facade, y crear de forma incremental los modelos y ApiServices verificados que necesite. Hasta que eso ocurra, esas capas deben seguir descritas como previstas, no como implementadas.
+La siguiente evolución no requiere reorganizar otra vez el proyecto: una feature real puede añadir su facade, inyectar el ApiService del recurso y gestionar datos, loading y errores sin colocar HTTP en componentes.

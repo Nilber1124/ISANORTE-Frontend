@@ -1,0 +1,6 @@
+export enum ProductAvailability {
+  DISPONIBLE = 'DISPONIBLE',
+  AGOTADO = 'AGOTADO',
+  BAJO_PEDIDO = 'BAJO_PEDIDO',
+  CONSULTAR = 'CONSULTAR',
+}
