@@ -1,1 +1,70 @@
-<p>proyectos works!</p>
+<header data-theme="dark" class="relative overflow-hidden bg-background">
+  <div class="app-container py-16 lg:py-24">
+    <p class="mb-5 flex items-center gap-3 text-eyebrow uppercase text-accent">
+      <span class="h-px w-6 bg-accent" aria-hidden="true"></span>
+      {{ header.eyebrow }}
+    </p>
+    <h1 class="max-w-4xl text-display text-text-primary lg:text-display-xl">
+      {{ header.title }}
+    </h1>
+  </div>
+</header>
+
+<div class="h-1 w-full bg-accent" aria-hidden="true"></div>
+
+<section class="section-space bg-background-soft">
+  <div class="app-container">
+    <h2 class="sr-only">Obras y proyectos</h2>
+
+    <div class="flex flex-wrap gap-3" role="group" aria-label="Filtrar proyectos por categoría">
+      @for (category of categories; track category.id) {
+      <button type="button"
+        class="inline-flex min-h-10 items-center gap-2 rounded-button border px-4 py-2 text-body-sm font-semibold transition-colors duration-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        [ngClass]="activeCategory() === category.id ? 'border-transparent bg-action-primary text-action-primary-text' : 'border-border-strong bg-surface text-text-secondary hover:bg-surface-hover hover:text-text-primary'"
+        [attr.aria-pressed]="activeCategory() === category.id" (click)="selectCategory(category.id)">
+        <span class="size-1.5 rounded-full" aria-hidden="true"
+          [ngClass]="activeCategory() === category.id ? 'bg-accent' : 'bg-transparent'"></span>
+        {{ category.label }}
+      </button>
+      }
+    </div>
+
+    <div class="mt-8 rounded-panel border border-dashed border-border-strong bg-surface p-4 shadow-card md:p-6">
+      @if (filteredProjects().length === 0) {
+      <app-empty-state emptyStateId="projects-empty" [title]="emptyState.title"
+        [description]="emptyState.description" />
+      } @else {
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6">
+        @for (project of featuredProjects(); track project.id) {
+        <ng-container [ngTemplateOutlet]="projectTile" [ngTemplateOutletContext]="{ $implicit: project }" />
+        }
+      </div>
+
+      @if (secondaryProjects().length > 0) {
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-6 lg:grid-cols-3 lg:gap-6">
+        @for (project of secondaryProjects(); track project.id) {
+        <ng-container [ngTemplateOutlet]="projectTile" [ngTemplateOutletContext]="{ $implicit: project }" />
+        }
+      </div>
+      }
+      }
+    </div>
+  </div>
+</section>
+
+<ng-template #projectTile let-project>
+  <div class="group aspect-[4/3]">
+    <app-card padding="none" class="h-full">
+      <img
+        class="absolute inset-0 h-full w-full object-cover transition-transform duration-entry ease-[var(--ease-standard)] group-hover:scale-105"
+        [src]="project.imageUrl" [alt]="project.imageAlt" loading="lazy" />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/5" aria-hidden="true"></div>
+      <div class="absolute inset-x-0 bottom-0 p-6">
+        <h3 class="text-heading-3 text-white">{{ project.title }}</h3>
+        <p class="mt-2 max-w-[46ch] text-body-sm text-white/85">
+          {{ project.description }}@if (project.location) {<span> · {{ project.location }}</span>}
+        </p>
+      </div>
+    </app-card>
+  </div>
+</ng-template>
