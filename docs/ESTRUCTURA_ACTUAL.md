@@ -301,7 +301,7 @@ No existen actualmente `src/app/features/admin/`, guards, interceptors ni facade
 - no persiste todavía la preferencia;
 - actualmente no está inyectado por ninguna pantalla.
 
-`core/config/api.config.ts` declara el token inyectable `API_BASE_URL`. Su valor predeterminado es el servidor de desarrollo documentado por OpenAPI (`http://localhost:8080`) y puede sobrescribirse con un provider por entorno sin modificar los ApiServices.
+`core/config/api.config.ts` declara el token inyectable `API_BASE_URL`. Su valor predeterminado es vacío para que el navegador use rutas del mismo origen (`/api/...`) y puede sobrescribirse con un provider por entorno o para SSR sin modificar los ApiServices.
 
 No existen guards, interceptors ni helpers HTTP adicionales dentro de `core/`.
 
@@ -538,8 +538,20 @@ HttpClient
 - `data/models/` representa request, update request, response, cambios de estado y enums reales.
 - `data/services/` cubre las 66 operaciones de los 10 controllers documentados.
 - Ninguna pantalla ni facade invoca todavía estos servicios, por lo que la aplicación aún no realiza peticiones a Spring Boot durante ejecución o prerender.
-- La URL base se obtiene mediante `API_BASE_URL`; el valor de desarrollo documentado es `http://localhost:8080`.
-- No hay proxy de desarrollo configurado. El backend no contiene una configuración CORS explícita, por lo que las pruebas browser desde el dev server de Angular requerirán definir proxy o CORS antes de conectar una feature.
+- La URL base se obtiene mediante `API_BASE_URL`; su valor predeterminado vacío produce rutas del mismo origen como `/api/productos/publicados`.
+- El servidor de desarrollo usa `proxy.conf.json` para reenviar `/api` a `http://localhost:8080`, conservando el prefijo. Este proxy solo se aplica con `ng serve`; no forma parte del build ni del servidor Spring Boot.
+
+Flujo de desarrollo:
+
+```text
+Angular http://localhost:4200
+        ↓ /api
+proxy del servidor de desarrollo
+        ↓
+Spring Boot http://localhost:8080
+```
+
+`npm start` levanta Angular con esta configuración automáticamente. Spring Boot debe estar ejecutándose por separado. Cuando una pantalla consuma datos durante SSR o prerender, el servidor Angular necesitará un provider de `API_BASE_URL` con una URL absoluta accesible desde ese proceso; el proxy de `ng serve` resuelve únicamente las peticiones del navegador en desarrollo.
 
 ### Contrato disponible
 
@@ -778,7 +790,7 @@ Todos proceden de `package.json`:
 
 | Comando | Función |
 | --- | --- |
-| `npm start` | Inicia el servidor de desarrollo Angular. |
+| `npm start` | Inicia Angular en `http://localhost:4200` con el proxy de `/api` hacia Spring Boot en `http://localhost:8080`. |
 | `npm run build` | Ejecuta el build de producción con browser, SSR y prerender. |
 | `npm run watch` | Mantiene un build de desarrollo observando cambios. |
 | `npm test` | Ejecuta las pruebas mediante el builder de Angular/Vitest. |
