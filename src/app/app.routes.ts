@@ -61,7 +61,13 @@ export const routes: Routes = [
             ({ AdminProjectDetail }) => AdminProjectDetail,
           ),
       },
-      { path: 'servicios', loadComponent: loadAdminPlaceholder, data: { title: 'Servicios' } },
+      {
+        path: 'servicios',
+        loadComponent: () =>
+          import('./features/admin/services/admin-services').then(
+            ({ AdminServices }) => AdminServices,
+          ),
+      },
       {
         path: 'unidades-negocio',
         loadComponent: loadAdminPlaceholder,

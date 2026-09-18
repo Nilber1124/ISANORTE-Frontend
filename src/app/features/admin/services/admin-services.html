@@ -1,0 +1,185 @@
+<header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+  <div class="max-w-3xl">
+    <p class="text-eyebrow uppercase text-text-muted">Contenido ISANORTE</p>
+    <h1 class="mt-3 text-heading-1 text-text-primary">Administración de servicios</h1>
+    <p class="mt-3 text-body text-text-secondary">
+      Gestiona la información, el orden y la visibilidad de los servicios.
+    </p>
+  </div>
+  <app-button variant="primary" (click)="facade.openCreate()">Nuevo servicio</app-button>
+</header>
+
+@if (facade.success(); as success) {
+  <app-alert
+    class="mt-7"
+    variant="success"
+    title="Cambio guardado"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+  >
+    {{ success }}
+  </app-alert>
+}
+
+@if (facade.error() && !facade.formOpen()) {
+  <app-alert
+    class="mt-7"
+    variant="error"
+    title="No pudimos completar la operación"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+  >
+    {{ facade.error() }}
+  </app-alert>
+}
+
+<section class="mt-8" aria-labelledby="services-list-title">
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <h2 id="services-list-title" class="text-heading-3 text-text-primary">Servicios registrados</h2>
+    @if (!facade.loading()) {
+      <span class="text-body-sm text-text-muted" aria-live="polite">
+        {{ facade.services().length }}
+        {{ facade.services().length === 1 ? 'servicio' : 'servicios' }}
+      </span>
+    }
+  </div>
+
+  @if (facade.loading()) {
+    <div class="rounded-card border border-border bg-surface py-14">
+      <app-loading label="Cargando servicios" size="large" />
+    </div>
+  } @else if (facade.services().length === 0) {
+    <app-empty-state
+      emptyStateId="admin-services-empty"
+      title="No hay servicios registrados"
+      description="Crea el primer servicio para comenzar a administrar este contenido."
+    >
+      <app-button empty-state-actions variant="primary" (click)="facade.openCreate()">
+        Nuevo servicio
+      </app-button>
+    </app-empty-state>
+  } @else {
+    <div
+      class="max-w-full overflow-x-auto rounded-card border border-border bg-surface shadow-card"
+    >
+      <table class="w-full min-w-[56rem] border-collapse text-left">
+        <caption class="sr-only">
+          Listado administrativo de servicios
+        </caption>
+        <thead class="border-b border-border bg-background-soft">
+          <tr>
+            <th scope="col" class="table-heading">Servicio</th>
+            <th scope="col" class="table-heading">Slug</th>
+            <th scope="col" class="table-heading">Orden</th>
+            <th scope="col" class="table-heading">Destacado</th>
+            <th scope="col" class="table-heading">Estado</th>
+            <th scope="col" class="table-heading text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          @for (service of facade.services(); track service.id) {
+            <tr class="transition-colors duration-fast hover:bg-surface-hover">
+              <th scope="row" class="px-5 py-4">
+                <span class="block text-body-sm font-semibold text-text-primary">
+                  {{ service.nombre }}
+                </span>
+                @if (service.resumen) {
+                  <span class="mt-1 block max-w-xs text-caption font-normal text-text-muted">
+                    {{ service.resumen }}
+                  </span>
+                }
+              </th>
+              <td class="px-5 py-4 font-mono text-body-sm text-text-secondary">
+                {{ service.slug }}
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                {{ service.orden ?? '—' }}
+              </td>
+              <td class="px-5 py-4">
+                @if (service.destacado === true) {
+                  <app-badge variant="accent">Sí</app-badge>
+                } @else {
+                  <app-badge variant="neutral">No</app-badge>
+                }
+              </td>
+              <td class="px-5 py-4">
+                @if (service.activo === true) {
+                  <app-badge variant="success" dot>Activo</app-badge>
+                } @else {
+                  <app-badge variant="neutral" dot>Inactivo</app-badge>
+                }
+              </td>
+              <td class="px-5 py-4">
+                <div class="flex justify-end gap-2">
+                  <app-button
+                    size="small"
+                    variant="ghost"
+                    [disabled]="facade.submitting() || facade.changingActiveId() !== null"
+                    (click)="facade.openEdit(service)"
+                  >
+                    Editar
+                  </app-button>
+                  <app-button
+                    size="small"
+                    variant="secondary"
+                    [loading]="facade.changingActiveId() === service.id"
+                    [disabled]="facade.submitting() || facade.changingActiveId() !== null"
+                    (click)="requestActiveChange(service)"
+                  >
+                    {{ service.activo === true ? 'Desactivar' : 'Activar' }}
+                  </app-button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (facade.formOpen()) {
+  <app-service-form
+    [mode]="facade.formMode()"
+    [service]="facade.selectedService()"
+    [submitting]="facade.submitting()"
+    [serverError]="facade.error()"
+    (canceled)="facade.closeForm()"
+    (saved)="save($event)"
+  />
+}
+
+@if (serviceToDeactivate(); as service) {
+  <app-modal
+    modalId="deactivate-service-modal"
+    title="Desactivar servicio"
+    [description]="
+      'El servicio ' + service.nombre + ' dejará de aparecer en los listados públicos activos.'
+    "
+    size="small"
+    [open]="true"
+    [loading]="facade.changingActiveId() === service.id"
+    (closed)="closeDeactivation()"
+  >
+    <p class="text-body-sm text-text-secondary">
+      El servicio seguirá disponible en este panel y podrás reactivarlo más adelante.
+    </p>
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button
+        variant="secondary"
+        [disabled]="facade.changingActiveId() !== null"
+        (click)="closeDeactivation()"
+      >
+        Cancelar
+      </app-button>
+      <app-button
+        variant="primary"
+        [loading]="facade.changingActiveId() === service.id"
+        [disabled]="facade.changingActiveId() !== null"
+        (click)="confirmDeactivation()"
+      >
+        Desactivar
+      </app-button>
+    </div>
+  </app-modal>
+}

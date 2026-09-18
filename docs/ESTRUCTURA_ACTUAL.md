@@ -1,6 +1,6 @@
 # Estructura actual del frontend ISANORTE
 
-**Fecha de revisión:** 17 de septiembre de 2026
+**Fecha de revisión:** 18 de septiembre de 2026
 **Fuente de verdad:** código presente en este repositorio durante la revisión.
 
 ## Propósito del documento
@@ -649,6 +649,7 @@ Todas las rutas se declaran en `src/app/app.routes.ts`. Las rutas públicas exis
 | `/admin/cotizaciones`       | `features/admin/quotes`            | `AdminLayout`  | Consulta y cambio de estado de cotizaciones        |
 | `/admin/proyectos`          | `features/admin/projects`          | `AdminLayout`  | Gestión de proyectos y activación lógica           |
 | `/admin/proyectos/:id`      | `features/admin/projects/detail`   | `AdminLayout`  | Gestión de imágenes por URL de un proyecto         |
+| `/admin/servicios`          | `features/admin/services`          | `AdminLayout`  | Gestión de servicios y activación lógica           |
 
 Admin usa carga diferida. No existe ruta cliente wildcard ni página 404.
 
@@ -794,7 +795,23 @@ Proyecto imágenes
 
 La pantalla carga con `GET /api/proyectos/{id}` y administra URLs mediante `POST /api/proyectos/{proyectoId}/imagenes`, `PUT /api/proyectos/{proyectoId}/imagenes/{imagenId}` y `DELETE /api/proyectos/{proyectoId}/imagenes/{imagenId}`. No existe upload físico, file input ni integración con almacenamiento externo. El único DELETE usado por el módulo corresponde al recurso hijo imagen; nunca se elimina el proyecto. El frontend conserva exactamente `GENERAL`, `ANTES` y `DESPUES` y permite representar varias imágenes principales porque el contrato no impone unicidad.
 
-Las rutas `/admin/servicios`, `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
+`/admin/servicios` implementa listado, creación, edición, orden y activación lógica:
+
+```text
+AdminServices
+  ↓
+AdminServicesFacade
+  ↓
+ServiceApiService
+  ↓
+Spring Boot
+```
+
+Utiliza `GET /api/servicios`, `POST /api/servicios`, `PUT /api/servicios/{id}` y `PATCH /api/servicios/{id}/activo`. El listado administrativo incluye activos e inactivos; no usa `/api/servicios/activos`. `destacado` y `activo` se gestionan como booleanos independientes y `orden` se envía como entero, preservando explícitamente valores válidos `false` y `0` en las actualizaciones.
+
+El módulo no usa DELETE, upload, file input ni almacenamiento externo: `icono` se mantiene como texto e `imagenUrl` como URL. Tampoco envía proyectos, `projectIds` ni objetos relacionados; las asociaciones se preservan y continúan administrándose desde Proyectos.
+
+Las rutas `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
 
 **Limitación temporal:** Admin actualmente no tiene autenticación. La protección real está pendiente de Spring Security/JWT; no existen guards, login simulado, roles ficticios ni estado `isAdmin` local.
 
@@ -870,7 +887,7 @@ Server-Side Rendering genera HTML en el servidor antes de que el navegador ejecu
 
 ### Prerender
 
-Prerender genera HTML por adelantado durante el build. `app.routes.server.ts` aplica `RenderMode.Prerender` a `**` para las rutas estáticas y una regla previa con `RenderMode.Server` solo para `isadecor/productos/:slug`. La ruta dinámica no tiene slugs conocidos durante el build y por eso no se prerenderiza ni inventa parámetros.
+Prerender genera HTML por adelantado durante el build. `app.routes.server.ts` aplica `RenderMode.Prerender` a las rutas estáticas, incluido `/admin/servicios`, y reglas previas con `RenderMode.Server` para `isadecor/productos/:slug` y `admin/proyectos/:id`. Las rutas dinámicas no inventan parámetros durante el build.
 
 La validación de esta revisión ejecutó `npm run build` correctamente y Angular informó **7 rutas estáticas prerenderizadas**, incluida `/isadecor/catalogo`; el detalle dinámico quedó disponible por SSR sin degradar las rutas estáticas.
 
@@ -1005,28 +1022,28 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 
 ## Estado actual del frontend
 
-| Área                         | Estado verificado                                                                                            |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Arquitectura                 | Feature-Based implementada; catálogo y detalle con Facade Pattern y API Service Layer                        |
-| Angular                      | 22.1.6, standalone, sin NgModules                                                                            |
-| TypeScript                   | 6.0.3                                                                                                        |
-| Tailwind                     | 4.3.3, CSS-first con PostCSS                                                                                 |
-| SSR                          | Configurado con Express y `AngularNodeAppEngine`                                                             |
-| Prerender                    | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server`                         |
-| Hidratación                  | `provideClientHydration()` activo                                                                            |
-| Features                     | 15 carpetas: 5 ISANORTE, 4 ISADECOR y 6 Admin (incluido el placeholder compartido)                           |
-| Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                            |
-| Shared Components            | 14                                                                                                           |
-| Servicios globales           | 1: `ThemeService`                                                                                            |
-| Facades                      | 8, incluidas las facades Admin de categorías, productos, cotizaciones, proyectos y detalle de proyecto       |
-| ApiServices                  | 10; uno por recurso backend documentado                                                                      |
-| Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                                |
-| Backend conectado            | Flujos públicos ISADECOR y gestión Admin de categorías, productos, cotizaciones y proyectos mediante facades |
-| Admin                        | Layout, dashboard, categorías, productos, cotizaciones y proyectos; sin autenticación                        |
-| Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                                     |
-| Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                       |
-| Tests                        | 20 archivos spec con 117 casos aprobados, incluidos proyectos e imágenes Admin                               |
-| Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                                    |
-| Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server       |
+| Área                         | Estado verificado                                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Arquitectura                 | Feature-Based implementada; catálogo y detalle con Facade Pattern y API Service Layer                      |
+| Angular                      | 22.1.6, standalone, sin NgModules                                                                          |
+| TypeScript                   | 6.0.3                                                                                                      |
+| Tailwind                     | 4.3.3, CSS-first con PostCSS                                                                               |
+| SSR                          | Configurado con Express y `AngularNodeAppEngine`                                                           |
+| Prerender                    | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server`                       |
+| Hidratación                  | `provideClientHydration()` activo                                                                          |
+| Features                     | 16 carpetas: 5 ISANORTE, 4 ISADECOR y 7 Admin (incluido el placeholder compartido)                         |
+| Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                          |
+| Shared Components            | 14                                                                                                         |
+| Servicios globales           | 1: `ThemeService`                                                                                          |
+| Facades                      | 9, incluidas las facades Admin de categorías, productos, cotizaciones, proyectos, detalle y servicios      |
+| ApiServices                  | 10; uno por recurso backend documentado                                                                    |
+| Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                              |
+| Backend conectado            | Flujos públicos ISADECOR y Admin de categorías, productos, cotizaciones, proyectos y servicios con facades |
+| Admin                        | Layout, dashboard, categorías, productos, cotizaciones, proyectos y servicios; sin autenticación           |
+| Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                                   |
+| Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                     |
+| Tests                        | 23 archivos spec con 138 casos aprobados, incluido el módulo Admin de servicios                            |
+| Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                                  |
+| Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server     |
 
 La siguiente evolución no requiere reorganizar otra vez el proyecto: una feature real puede añadir su facade, inyectar el ApiService del recurso y gestionar datos, loading y errores sin colocar HTTP en componentes.
