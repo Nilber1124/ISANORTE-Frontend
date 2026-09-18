@@ -1,0 +1,197 @@
+<header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+  <div class="max-w-3xl">
+    <p class="text-eyebrow uppercase text-text-muted">Catálogo ISADECOR</p>
+    <h1 class="mt-3 text-heading-1 text-text-primary">Productos</h1>
+    <p class="mt-3 text-body text-text-secondary">
+      Administra la información comercial, las relaciones y la publicación de los productos.
+    </p>
+  </div>
+  <app-button variant="primary" (click)="facade.openCreate()">Nuevo producto</app-button>
+</header>
+
+@if (facade.success(); as success) {
+  <app-alert
+    class="mt-7"
+    variant="success"
+    title="Cambio guardado"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+  >
+    {{ success }}
+  </app-alert>
+}
+
+@if (facade.error() && !facade.formOpen()) {
+  <app-alert
+    class="mt-7"
+    variant="error"
+    title="No pudimos completar la operación"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+  >
+    {{ facade.error() }}
+  </app-alert>
+}
+
+<section class="mt-8" aria-labelledby="products-list-title">
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <h2 id="products-list-title" class="text-heading-3 text-text-primary">Productos registrados</h2>
+    @if (!facade.loading()) {
+      <span class="text-body-sm text-text-muted">
+        {{ facade.products().length }}
+        {{ facade.products().length === 1 ? 'producto' : 'productos' }}
+      </span>
+    }
+  </div>
+
+  @if (facade.loading()) {
+    <div class="rounded-card border border-border bg-surface py-14">
+      <app-loading label="Cargando productos" size="large" />
+    </div>
+  } @else if (facade.products().length === 0) {
+    <app-empty-state
+      emptyStateId="admin-products-empty"
+      title="No hay productos registrados"
+      description="Crea el primer producto para incorporarlo al catálogo ISADECOR."
+    >
+      <app-button empty-state-actions variant="primary" (click)="facade.openCreate()">
+        Nuevo producto
+      </app-button>
+    </app-empty-state>
+  } @else {
+    <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+      <table class="w-full min-w-[72rem] border-collapse text-left">
+        <caption class="sr-only">
+          Listado administrativo de productos ISADECOR
+        </caption>
+        <thead class="border-b border-border bg-background-soft">
+          <tr>
+            <th scope="col" class="table-heading">Producto</th>
+            <th scope="col" class="table-heading">SKU</th>
+            <th scope="col" class="table-heading">Categorías</th>
+            <th scope="col" class="table-heading">Precio</th>
+            <th scope="col" class="table-heading">Disponibilidad</th>
+            <th scope="col" class="table-heading">Estado</th>
+            <th scope="col" class="table-heading">Destacado</th>
+            <th scope="col" class="table-heading text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          @for (product of facade.products(); track product.id) {
+            <tr class="transition-colors duration-fast hover:bg-surface-hover">
+              <th scope="row" class="px-5 py-4">
+                <span class="block text-body-sm font-semibold text-text-primary">
+                  {{ product.nombre }}
+                </span>
+                <span class="mt-1 block font-mono text-caption text-text-muted">
+                  {{ product.slug }}
+                </span>
+              </th>
+              <td class="px-5 py-4 font-mono text-body-sm text-text-secondary">
+                {{ product.sku }}
+              </td>
+              <td class="max-w-64 px-5 py-4 text-body-sm text-text-secondary">
+                @if (product.categorias?.length) {
+                  {{ categoryNames(product) }}
+                } @else {
+                  Sin categorías
+                }
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                {{ product.precioBase ?? 'Sin precio' }}
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                {{ availabilityLabel(product.disponibilidad) }}
+              </td>
+              <td class="px-5 py-4">
+                <app-badge [variant]="statusVariant(product.estado)" dot>
+                  {{ statusLabel(product.estado) }}
+                </app-badge>
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                {{ product.destacado === true ? 'Sí' : 'No' }}
+              </td>
+              <td class="px-5 py-4">
+                <div class="flex justify-end gap-2">
+                  <app-button
+                    size="small"
+                    variant="ghost"
+                    [disabled]="facade.submitting() || facade.changingStatusId() !== null"
+                    (click)="facade.openEdit(product)"
+                  >
+                    Editar
+                  </app-button>
+                  <app-button
+                    size="small"
+                    variant="secondary"
+                    [loading]="facade.changingStatusId() === product.id"
+                    [disabled]="facade.submitting() || facade.changingStatusId() !== null"
+                    (click)="openStatusChange(product)"
+                  >
+                    Cambiar estado
+                  </app-button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (facade.formOpen()) {
+  <app-product-form
+    [mode]="facade.formMode()"
+    [product]="facade.selectedProduct()"
+    [businessUnits]="facade.businessUnits()"
+    [categories]="facade.categories()"
+    [loadingFormData]="facade.loadingFormData()"
+    [submitting]="facade.submitting()"
+    [serverError]="facade.error()"
+    (canceled)="facade.closeForm()"
+    (saved)="save($event)"
+  />
+}
+
+@if (statusProduct(); as product) {
+  <app-modal
+    modalId="product-status-modal"
+    title="Cambiar estado de publicación"
+    [description]="'Selecciona el estado editorial de ' + product.nombre + '.'"
+    size="small"
+    [open]="true"
+    [loading]="facade.changingStatusId() === product.id"
+    (closed)="closeStatusChange()"
+  >
+    <app-select-field
+      inputId="product-next-status"
+      label="Estado"
+      [value]="nextStatus()"
+      (valueChange)="updateNextStatus($event)"
+      [options]="statusOptions"
+      [disabled]="facade.changingStatusId() !== null"
+      required
+    />
+    <p class="mt-4 text-body-sm text-text-muted">
+      Este cambio no modifica la disponibilidad comercial del producto.
+    </p>
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button
+        variant="secondary"
+        [disabled]="facade.changingStatusId() !== null"
+        (click)="closeStatusChange()"
+      >
+        Cancelar
+      </app-button>
+      <app-button
+        variant="primary"
+        [loading]="facade.changingStatusId() === product.id"
+        [disabled]="facade.changingStatusId() !== null || nextStatus() === product.estado"
+        (click)="confirmStatusChange()"
+      >
+        Guardar estado
+      </app-button>
+    </div>
+  </app-modal>
+}

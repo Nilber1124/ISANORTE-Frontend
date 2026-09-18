@@ -1,0 +1,225 @@
+<app-modal
+  modalId="product-form-modal"
+  [title]="mode() === 'create' ? 'Nuevo producto' : 'Editar producto'"
+  description="Completa los datos comerciales y editoriales admitidos por la API actual."
+  size="large"
+  [open]="true"
+  [loading]="submitting()"
+  (closed)="canceled.emit()"
+>
+  @if (serverError()) {
+    <app-alert class="mb-6" variant="error" title="No se guardaron los cambios">
+      {{ serverError() }}
+    </app-alert>
+  }
+
+  @if (mode() === 'edit') {
+    <app-alert class="mb-6" variant="info" title="Contenido avanzado preservado">
+      La API actual no permite editar variantes, imágenes, especificaciones, documentos ni la
+      configuración de cálculo. Estos datos no se incluyen en la actualización y permanecen sin
+      cambios.
+    </app-alert>
+  }
+
+  <form id="product-form" class="grid gap-6" (submit)="submit()" novalidate>
+    <fieldset class="grid gap-5 sm:grid-cols-2" [disabled]="submitting()">
+      <legend class="mb-4 text-heading-3 text-text-primary">Información básica</legend>
+      <app-input-field
+        inputId="product-sku"
+        label="SKU"
+        [(value)]="sku"
+        helperText="Debe ser único."
+        [error]="errors().sku"
+        required
+      />
+      <app-input-field
+        inputId="product-name"
+        label="Nombre"
+        [(value)]="nombre"
+        [error]="errors().nombre"
+        required
+      />
+      <app-input-field
+        class="sm:col-span-2"
+        inputId="product-slug"
+        label="Slug"
+        [(value)]="slug"
+        helperText="Se utiliza en URLs y debe ser único."
+        [error]="errors().slug"
+        required
+      />
+      <app-textarea-field
+        class="sm:col-span-2"
+        inputId="product-summary"
+        label="Resumen"
+        [(value)]="resumen"
+        [rows]="3"
+      />
+      <app-textarea-field
+        class="sm:col-span-2"
+        inputId="product-description"
+        label="Descripción"
+        [(value)]="descripcion"
+        [rows]="5"
+        [error]="errors().descripcion"
+        required
+      />
+    </fieldset>
+
+    <fieldset
+      class="grid gap-5 border-t border-border pt-6 sm:grid-cols-3"
+      [disabled]="submitting()"
+    >
+      <legend class="mb-4 text-heading-3 text-text-primary">Precio y disponibilidad</legend>
+      <app-input-field
+        inputId="product-base-price"
+        label="Precio base"
+        type="number"
+        inputMode="decimal"
+        [(value)]="precioBase"
+        helperText="Puede quedar vacío."
+        [error]="errors().precioBase"
+      />
+      <app-input-field
+        inputId="product-previous-price"
+        label="Precio anterior"
+        type="number"
+        inputMode="decimal"
+        [(value)]="precioAnterior"
+        helperText="Puede quedar vacío."
+        [error]="errors().precioAnterior"
+      />
+      <app-input-field
+        inputId="product-discount"
+        label="Descuento %"
+        type="number"
+        inputMode="decimal"
+        [(value)]="descuentoPorcentaje"
+        [error]="errors().descuentoPorcentaje"
+      />
+      <app-select-field
+        inputId="product-availability"
+        label="Disponibilidad"
+        [value]="disponibilidad()"
+        (valueChange)="updateAvailability($event)"
+        [options]="availabilityOptions"
+        required
+      />
+      <app-select-field
+        inputId="product-publication-status"
+        label="Estado de publicación"
+        [value]="estado()"
+        (valueChange)="updatePublicationStatus($event)"
+        [options]="publicationOptions"
+        required
+      />
+      <label
+        class="flex min-h-12 items-center gap-3 self-end rounded-control border border-border bg-surface-soft px-4 py-3 text-body-sm font-semibold text-text-secondary"
+      >
+        <input
+          class="form-choice"
+          type="checkbox"
+          name="product-featured"
+          [checked]="destacado()"
+          (change)="updateFeatured($event)"
+        />
+        Producto destacado
+      </label>
+    </fieldset>
+
+    <fieldset
+      class="grid gap-5 border-t border-border pt-6 sm:grid-cols-2"
+      [disabled]="submitting()"
+    >
+      <legend class="mb-4 text-heading-3 text-text-primary">Relaciones</legend>
+      <app-select-field
+        class="sm:col-span-2"
+        inputId="product-business-unit"
+        label="Unidad de negocio"
+        [(value)]="unidadNegocioId"
+        [options]="businessUnitOptions()"
+        [loading]="loadingFormData()"
+        [error]="errors().unidadNegocioId"
+        required
+      />
+
+      <fieldset class="sm:col-span-2" [disabled]="loadingFormData() || submitting()">
+        <legend class="mb-2 text-body-sm font-semibold text-text-primary">Categorías</legend>
+        <p id="product-categories-help" class="mb-3 text-caption text-text-muted">
+          La selección es opcional y admite varias categorías.
+        </p>
+        @if (loadingFormData()) {
+          <p class="text-body-sm text-text-muted" role="status">Cargando categorías…</p>
+        } @else if (categories().length === 0) {
+          <p
+            class="rounded-control border border-border bg-surface-soft p-4 text-body-sm text-text-muted"
+          >
+            No hay categorías disponibles.
+          </p>
+        } @else {
+          <div
+            class="grid gap-2 rounded-control border border-border bg-surface-soft p-3 sm:grid-cols-2"
+            aria-describedby="product-categories-help"
+          >
+            @for (category of categories(); track category.id) {
+              <label
+                class="flex min-h-11 items-center gap-3 rounded-control px-3 py-2 text-body-sm text-text-secondary transition-colors hover:bg-surface-hover"
+              >
+                <input
+                  class="form-choice"
+                  type="checkbox"
+                  [name]="'product-category-' + category.id"
+                  [checked]="categorySelected(category.id)"
+                  (change)="updateCategory(category.id, $event)"
+                />
+                {{ category.nombre }}
+              </label>
+            }
+          </div>
+        }
+      </fieldset>
+    </fieldset>
+
+    <fieldset
+      class="grid gap-5 border-t border-border pt-6 sm:grid-cols-2"
+      [disabled]="submitting()"
+    >
+      <legend class="mb-4 text-heading-3 text-text-primary">SEO</legend>
+      <app-input-field
+        class="sm:col-span-2"
+        inputId="product-seo-title"
+        label="Título SEO"
+        [(value)]="tituloSeo"
+      />
+      <app-textarea-field
+        class="sm:col-span-2"
+        inputId="product-seo-description"
+        label="Descripción SEO"
+        [(value)]="descripcionSeo"
+        [rows]="3"
+      />
+    </fieldset>
+
+    @if (mode() === 'create') {
+      <p class="border-t border-border pt-5 text-caption text-text-muted">
+        Este primer incremento crea el producto básico y sus relaciones. Las colecciones avanzadas
+        admitidas por POST se incorporarán en una fase específica para evitar una edición parcial.
+      </p>
+    }
+  </form>
+
+  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
+      Cancelar
+    </app-button>
+    <app-button
+      variant="primary"
+      [loading]="submitting()"
+      [disabled]="submitting() || loadingFormData()"
+      ariaLabel="Guardar producto"
+      (click)="submit()"
+    >
+      Guardar producto
+    </app-button>
+  </div>
+</app-modal>

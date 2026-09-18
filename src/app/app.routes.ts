@@ -35,7 +35,13 @@ export const routes: Routes = [
             ({ AdminCategories }) => AdminCategories,
           ),
       },
-      { path: 'productos', loadComponent: loadAdminPlaceholder, data: { title: 'Productos' } },
+      {
+        path: 'productos',
+        loadComponent: () =>
+          import('./features/admin/products/admin-products').then(
+            ({ AdminProducts }) => AdminProducts,
+          ),
+      },
       {
         path: 'cotizaciones',
         loadComponent: loadAdminPlaceholder,

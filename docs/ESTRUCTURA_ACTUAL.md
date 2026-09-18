@@ -641,10 +641,11 @@ Todas las rutas se declaran en `src/app/app.routes.ts`. Las rutas públicas exis
 | `/contacto`                 | `features/isanorte/contact`        | `PublicLayout` | Placeholder                                        |
 | `/isadecor`                 | `features/isadecor/home`           | `PublicLayout` | Placeholder                                        |
 | `/isadecor/catalogo`        | `features/isadecor/catalog`        | `PublicLayout` | Catálogo funcional conectado al backend            |
-| `/isadecor/cotizacion`      | `features/isadecor/quote`          | `PublicLayout` | Solicitud de cotización conectada al backend        |
+| `/isadecor/cotizacion`      | `features/isadecor/quote`          | `PublicLayout` | Solicitud de cotización conectada al backend       |
 | `/isadecor/productos/:slug` | `features/isadecor/product-detail` | `PublicLayout` | Detalle funcional conectado al backend             |
-| `/admin`                    | `features/admin/dashboard`         | `AdminLayout`  | Dashboard estructural sin conexión API              |
-| `/admin/categorias`         | `features/admin/categories`        | `AdminLayout`  | Gestión de categorías conectada al backend          |
+| `/admin`                    | `features/admin/dashboard`         | `AdminLayout`  | Dashboard estructural sin conexión API             |
+| `/admin/categorias`         | `features/admin/categories`        | `AdminLayout`  | Gestión de categorías conectada al backend         |
+| `/admin/productos`          | `features/admin/products`          | `AdminLayout`  | Gestión de productos conectada al backend          |
 
 Admin usa carga diferida. No existe ruta cliente wildcard ni página 404.
 
@@ -727,7 +728,24 @@ AdminCategoriesFacade
 
 Utiliza `GET /api/categorias`, `POST /api/categorias`, `PUT /api/categorias/{id}` y `PATCH /api/categorias/{id}/activo`. Las unidades opcionales se cargan con `GET /api/unidades-negocio`. No utiliza DELETE.
 
-Las rutas `/admin/productos`, `/admin/cotizaciones`, `/admin/proyectos`, `/admin/servicios`, `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
+`/admin/productos` implementa listado, creación básica, edición y cambio de estado mediante el siguiente flujo:
+
+```text
+AdminLayout
+  ↓
+AdminProducts
+  ↓
+AdminProductsFacade
+  ├── ProductApiService
+  ├── CategoryApiService
+  └── BusinessUnitApiService
+```
+
+Utiliza `GET /api/productos`, `POST /api/productos`, `PUT /api/productos/{id}` y `PATCH /api/productos/{id}/estado`; categorías y unidades se cargan con sus respectivos `GET` administrativos. No utiliza DELETE ni el listado `/publicados`, porque el panel debe conservar borradores y productos ocultos.
+
+El contrato de creación acepta variantes, imágenes, especificaciones, documentos y configuración de cálculo. El primer formulario administrativo no incorpora todavía esas colecciones para mantener un flujo básico estable. `ProductUpdateRequest` no acepta ninguna de ellas y el backend las preserva durante `PUT`; por ello nunca se muestran como editables ni se envían en una actualización. No existen endpoints independientes para administrarlas actualmente.
+
+Las rutas `/admin/cotizaciones`, `/admin/proyectos`, `/admin/servicios`, `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
 
 **Limitación temporal:** Admin actualmente no tiene autenticación. La protección real está pendiente de Spring Security/JWT; no existen guards, login simulado, roles ficticios ni estado `isAdmin` local.
 
@@ -947,19 +965,19 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 | SSR                          | Configurado con Express y `AngularNodeAppEngine`                                                       |
 | Prerender                    | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server`                   |
 | Hidratación                  | `provideClientHydration()` activo                                                                      |
-| Features                     | 10 páginas: 5 ISANORTE, 4 ISADECOR y 1 dashboard Admin                                                 |
-| Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                     |
+| Features                     | 13 carpetas: 5 ISANORTE, 4 ISADECOR y 4 Admin (incluido el placeholder compartido)                     |
+| Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                      |
 | Shared Components            | 14                                                                                                     |
 | Servicios globales           | 1: `ThemeService`                                                                                      |
-| Facades                      | 4, incluida `AdminCategoriesFacade` para la gestión administrativa de categorías                      |
+| Facades                      | 5, incluidas `AdminCategoriesFacade` y `AdminProductsFacade` para la gestión administrativa            |
 | ApiServices                  | 10; uno por recurso backend documentado                                                                |
 | Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                          |
-| Backend conectado            | Flujos públicos ISADECOR y gestión administrativa de categorías mediante facades y ApiServices        |
-| Admin                        | Layout, dashboard y gestión de categorías; sin autenticación                                           |
+| Backend conectado            | Flujos públicos ISADECOR y gestión administrativa de categorías y productos mediante facades           |
+| Admin                        | Layout, dashboard, categorías y productos; sin autenticación                                           |
 | Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                               |
 | Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                 |
-| Tests                        | 10 archivos spec con 54 casos aprobados, incluidos Quote y categorías Admin                            |
-| Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                               |
+| Tests                        | 13 archivos spec con 73 casos aprobados, incluidos Quote, categorías y productos Admin                 |
+| Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                              |
 | Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server |
 
 La siguiente evolución no requiere reorganizar otra vez el proyecto: una feature real puede añadir su facade, inyectar el ApiService del recurso y gestionar datos, loading y errores sin colocar HTTP en componentes.
