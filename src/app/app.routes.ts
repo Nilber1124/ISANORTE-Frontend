@@ -44,8 +44,8 @@ export const routes: Routes = [
       },
       {
         path: 'cotizaciones',
-        loadComponent: loadAdminPlaceholder,
-        data: { title: 'Cotizaciones' },
+        loadComponent: () =>
+          import('./features/admin/quotes/admin-quotes').then(({ AdminQuotes }) => AdminQuotes),
       },
       { path: 'proyectos', loadComponent: loadAdminPlaceholder, data: { title: 'Proyectos' } },
       { path: 'servicios', loadComponent: loadAdminPlaceholder, data: { title: 'Servicios' } },

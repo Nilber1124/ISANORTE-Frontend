@@ -646,6 +646,7 @@ Todas las rutas se declaran en `src/app/app.routes.ts`. Las rutas públicas exis
 | `/admin`                    | `features/admin/dashboard`         | `AdminLayout`  | Dashboard estructural sin conexión API             |
 | `/admin/categorias`         | `features/admin/categories`        | `AdminLayout`  | Gestión de categorías conectada al backend         |
 | `/admin/productos`          | `features/admin/products`          | `AdminLayout`  | Gestión de productos conectada al backend          |
+| `/admin/cotizaciones`       | `features/admin/quotes`            | `AdminLayout`  | Consulta y cambio de estado de cotizaciones        |
 
 Admin usa carga diferida. No existe ruta cliente wildcard ni página 404.
 
@@ -745,7 +746,25 @@ Utiliza `GET /api/productos`, `POST /api/productos`, `PUT /api/productos/{id}` y
 
 El contrato de creación acepta variantes, imágenes, especificaciones, documentos y configuración de cálculo. El primer formulario administrativo no incorpora todavía esas colecciones para mantener un flujo básico estable. `ProductUpdateRequest` no acepta ninguna de ellas y el backend las preserva durante `PUT`; por ello nunca se muestran como editables ni se envían en una actualización. No existen endpoints independientes para administrarlas actualmente.
 
-Las rutas `/admin/cotizaciones`, `/admin/proyectos`, `/admin/servicios`, `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
+`/admin/cotizaciones` implementa consulta, filtro local por estado, búsqueda local, detalle y cambio de estado mediante el siguiente flujo:
+
+```text
+AdminLayout
+  ↓
+AdminQuotes
+  ↓
+AdminQuotesFacade
+  ↓
+QuoteApiService
+  ↓
+Spring Boot
+```
+
+La pantalla carga el listado con `GET /api/cotizaciones`, obtiene el detalle con `GET /api/cotizaciones/{id}` y actualiza el estado con `PATCH /api/cotizaciones/{id}/estado`. `QuoteApiService` también conserva los métodos documentados para `GET /api/cotizaciones/codigo/{codigo}` y `GET /api/cotizaciones/estado/{estado}`, aunque AdminQuotes no los necesita: filtra el listado ya cargado para evitar peticiones repetidas. La respuesta del PATCH actualiza tanto la fila como el detalle abierto y muestra el seguimiento que Spring Boot crea automáticamente.
+
+AdminQuotes muestra únicamente los importes entregados por el backend. `totalEstimado`, `precioUnitario` y `subtotal` nulos se presentan como «Por confirmar»; el frontend no calcula valores oficiales ni inventa moneda. Los datos personales permanecen en memoria de la pantalla administrativa: no se guardan en storage, no se incorporan a la URL y no se escriben en logs.
+
+El módulo administrativo no crea ni elimina cotizaciones, no edita los datos del solicitante y no crea seguimientos manuales. Las rutas `/admin/proyectos`, `/admin/servicios`, `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
 
 **Limitación temporal:** Admin actualmente no tiene autenticación. La protección real está pendiente de Spring Security/JWT; no existen guards, login simulado, roles ficticios ni estado `isAdmin` local.
 
@@ -956,28 +975,28 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 
 ## Estado actual del frontend
 
-| Área                         | Estado verificado                                                                                      |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Arquitectura                 | Feature-Based implementada; catálogo y detalle con Facade Pattern y API Service Layer                  |
-| Angular                      | 22.1.6, standalone, sin NgModules                                                                      |
-| TypeScript                   | 6.0.3                                                                                                  |
-| Tailwind                     | 4.3.3, CSS-first con PostCSS                                                                           |
-| SSR                          | Configurado con Express y `AngularNodeAppEngine`                                                       |
-| Prerender                    | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server`                   |
-| Hidratación                  | `provideClientHydration()` activo                                                                      |
-| Features                     | 13 carpetas: 5 ISANORTE, 4 ISADECOR y 4 Admin (incluido el placeholder compartido)                     |
-| Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                      |
-| Shared Components            | 14                                                                                                     |
-| Servicios globales           | 1: `ThemeService`                                                                                      |
-| Facades                      | 5, incluidas `AdminCategoriesFacade` y `AdminProductsFacade` para la gestión administrativa            |
-| ApiServices                  | 10; uno por recurso backend documentado                                                                |
-| Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                          |
-| Backend conectado            | Flujos públicos ISADECOR y gestión administrativa de categorías y productos mediante facades           |
-| Admin                        | Layout, dashboard, categorías y productos; sin autenticación                                           |
-| Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                               |
-| Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                 |
-| Tests                        | 13 archivos spec con 73 casos aprobados, incluidos Quote, categorías y productos Admin                 |
-| Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                              |
-| Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server |
+| Área                         | Estado verificado                                                                                            |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Arquitectura                 | Feature-Based implementada; catálogo y detalle con Facade Pattern y API Service Layer                        |
+| Angular                      | 22.1.6, standalone, sin NgModules                                                                            |
+| TypeScript                   | 6.0.3                                                                                                        |
+| Tailwind                     | 4.3.3, CSS-first con PostCSS                                                                                 |
+| SSR                          | Configurado con Express y `AngularNodeAppEngine`                                                             |
+| Prerender                    | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server`                         |
+| Hidratación                  | `provideClientHydration()` activo                                                                            |
+| Features                     | 14 carpetas: 5 ISANORTE, 4 ISADECOR y 5 Admin (incluido el placeholder compartido)                           |
+| Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                            |
+| Shared Components            | 14                                                                                                           |
+| Servicios globales           | 1: `ThemeService`                                                                                            |
+| Facades                      | 6, incluidas `AdminCategoriesFacade`, `AdminProductsFacade` y `AdminQuotesFacade`                            |
+| ApiServices                  | 10; uno por recurso backend documentado                                                                      |
+| Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                                |
+| Backend conectado            | Flujos públicos ISADECOR y gestión administrativa de categorías, productos y cotizaciones mediante facades   |
+| Admin                        | Layout, dashboard, categorías, productos y cotizaciones; sin autenticación                                   |
+| Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                                     |
+| Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                       |
+| Tests                        | 15 archivos spec con 89 casos aprobados, incluidos Quote público, categorías, productos y cotizaciones Admin |
+| Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                                    |
+| Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server       |
 
 La siguiente evolución no requiere reorganizar otra vez el proyecto: una feature real puede añadir su facade, inyectar el ApiService del recurso y gestionar datos, loading y errores sin colocar HTTP en componentes.
