@@ -644,6 +644,7 @@ Todas las rutas se declaran en `src/app/app.routes.ts`. Las rutas públicas exis
 | `/isadecor/cotizacion`      | `features/isadecor/quote`          | `PublicLayout` | Solicitud de cotización conectada al backend        |
 | `/isadecor/productos/:slug` | `features/isadecor/product-detail` | `PublicLayout` | Detalle funcional conectado al backend             |
 | `/admin`                    | `features/admin/dashboard`         | `AdminLayout`  | Dashboard estructural sin conexión API              |
+| `/admin/categorias`         | `features/admin/categories`        | `AdminLayout`  | Gestión de categorías conectada al backend          |
 
 Admin usa carga diferida. No existe ruta cliente wildcard ni página 404.
 
@@ -712,7 +713,21 @@ Admin
 └── Dashboard
 ```
 
-`/admin` muestra el dashboard inicial. Están preparadas las rutas `/admin/categorias`, `/admin/productos`, `/admin/cotizaciones`, `/admin/proyectos`, `/admin/servicios`, `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion`; todas reutilizan un único placeholder informativo hasta que sus módulos reales se implementen. No existen CRUD ni conexiones a ApiServices desde Admin.
+`/admin` muestra el dashboard inicial. `/admin/categorias` implementa listado, creación, edición y activación lógica mediante el siguiente flujo:
+
+```text
+AdminLayout
+  ↓
+AdminCategories
+  ↓
+AdminCategoriesFacade
+  ├── CategoryApiService
+  └── BusinessUnitApiService
+```
+
+Utiliza `GET /api/categorias`, `POST /api/categorias`, `PUT /api/categorias/{id}` y `PATCH /api/categorias/{id}/activo`. Las unidades opcionales se cargan con `GET /api/unidades-negocio`. No utiliza DELETE.
+
+Las rutas `/admin/productos`, `/admin/cotizaciones`, `/admin/proyectos`, `/admin/servicios`, `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
 
 **Limitación temporal:** Admin actualmente no tiene autenticación. La protección real está pendiente de Spring Security/JWT; no existen guards, login simulado, roles ficticios ni estado `isAdmin` local.
 
@@ -936,14 +951,14 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 | Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                     |
 | Shared Components            | 14                                                                                                     |
 | Servicios globales           | 1: `ThemeService`                                                                                      |
-| Facades                      | 3: `CatalogFacade`, `ProductDetailFacade` y `QuoteFacade`, con alcance de sus componentes              |
+| Facades                      | 4, incluida `AdminCategoriesFacade` para la gestión administrativa de categorías                      |
 | ApiServices                  | 10; uno por recurso backend documentado                                                                |
 | Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                          |
-| Backend conectado            | Catálogo, detalle y solicitud de cotización ISADECOR mediante sus facades y los ApiServices existentes |
-| Admin                        | Estructura base con layout, navegación responsive y dashboard; sin CRUD, API ni autenticación         |
+| Backend conectado            | Flujos públicos ISADECOR y gestión administrativa de categorías mediante facades y ApiServices        |
+| Admin                        | Layout, dashboard y gestión de categorías; sin autenticación                                           |
 | Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                               |
 | Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                 |
-| Tests                        | 7 archivos spec con 39 casos aprobados, incluidos Quote y Admin                                        |
+| Tests                        | 10 archivos spec con 54 casos aprobados, incluidos Quote y categorías Admin                            |
 | Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                               |
 | Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server |
 

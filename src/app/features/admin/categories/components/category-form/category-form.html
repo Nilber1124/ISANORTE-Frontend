@@ -1,0 +1,98 @@
+<app-modal
+  modalId="category-form-modal"
+  [title]="mode() === 'create' ? 'Nueva categoría' : 'Editar categoría'"
+  description="Completa la información que se mostrará y utilizará en el catálogo."
+  size="large"
+  [open]="true"
+  [loading]="submitting()"
+  (closed)="canceled.emit()"
+>
+  @if (serverError()) {
+    <app-alert class="mb-6" variant="error" title="No se guardaron los cambios">
+      {{ serverError() }}
+    </app-alert>
+  }
+
+  <form id="category-form" class="grid gap-5 sm:grid-cols-2" (submit)="submit()" novalidate>
+    <app-input-field
+      inputId="category-name"
+      label="Nombre"
+      [(value)]="nombre"
+      [error]="errors().nombre"
+      [disabled]="submitting()"
+      required
+    />
+    <app-input-field
+      inputId="category-slug"
+      label="Slug"
+      [(value)]="slug"
+      helperText="Se utiliza en URLs y debe ser único."
+      [error]="errors().slug"
+      [disabled]="submitting()"
+      required
+    />
+    <app-textarea-field
+      class="sm:col-span-2"
+      inputId="category-description"
+      label="Descripción"
+      [(value)]="descripcion"
+      [rows]="4"
+      [disabled]="submitting()"
+    />
+    <app-input-field
+      class="sm:col-span-2"
+      inputId="category-image-url"
+      label="Imagen URL"
+      type="url"
+      [(value)]="imagenUrl"
+      placeholder="https://..."
+      [disabled]="submitting()"
+    />
+    <app-select-field
+      inputId="category-business-unit"
+      label="Unidad de negocio"
+      [(value)]="unidadNegocioId"
+      [options]="businessUnitOptions()"
+      [loading]="loadingFormData()"
+      [disabled]="submitting()"
+    />
+    <app-input-field
+      inputId="category-order"
+      label="Orden"
+      type="number"
+      inputMode="numeric"
+      [(value)]="orden"
+      [error]="errors().orden"
+      [disabled]="submitting()"
+      required
+    />
+    <label
+      class="flex min-h-12 items-center gap-3 rounded-control border border-border bg-surface-soft px-4 py-3 text-body-sm font-semibold text-text-secondary sm:col-span-2"
+    >
+      <input
+        class="form-choice"
+        type="checkbox"
+        name="category-active"
+        [checked]="activo()"
+        [disabled]="submitting()"
+        (change)="updateActive($event)"
+      />
+      Categoría activa
+    </label>
+  </form>
+
+  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
+      Cancelar
+    </app-button>
+    <app-button
+      variant="primary"
+      [loading]="submitting()"
+      [disabled]="submitting()"
+      ariaLabel="Guardar categoría"
+      (click)="submit()"
+    >
+      Guardar categoría
+    </app-button>
+  </div>
+</app-modal>

@@ -28,7 +28,13 @@ export const routes: Routes = [
             ({ AdminDashboard }) => AdminDashboard,
           ),
       },
-      { path: 'categorias', loadComponent: loadAdminPlaceholder, data: { title: 'Categorías' } },
+      {
+        path: 'categorias',
+        loadComponent: () =>
+          import('./features/admin/categories/admin-categories').then(
+            ({ AdminCategories }) => AdminCategories,
+          ),
+      },
       { path: 'productos', loadComponent: loadAdminPlaceholder, data: { title: 'Productos' } },
       {
         path: 'cotizaciones',
