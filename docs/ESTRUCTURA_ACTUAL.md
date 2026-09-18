@@ -366,18 +366,21 @@ No hay wrappers inventados, carpetas vacías, estado de UI ni mensajes visuales 
 
 ## `layouts/`
 
-Un layout define la estructura visual que rodea a varias páginas. Actualmente existe un único layout público:
+Un layout define la estructura visual que rodea a varias páginas. Actualmente existen dos layouts independientes:
 
 ```text
 PublicLayout
 ├── Navbar
 ├── RouterOutlet  ← aquí Angular muestra la página activa
 └── Footer
+
+AdminLayout
+├── AdminTopbar
+├── AdminSidebar
+└── RouterOutlet  ← dashboard y futuros módulos administrativos
 ```
 
-`PublicLayout` envuelve todas las rutas actuales, incluidas ISANORTE e ISADECOR. Navbar y Footer contienen todavía navegación, contacto y copy definidos como objetos estáticos en sus componentes.
-
-No existen layouts separados para ISADECOR ni Admin.
+`PublicLayout` envuelve las rutas públicas de ISANORTE e ISADECOR. `AdminLayout` envuelve exclusivamente `/admin` y sus rutas hijas; usa un Signal local para el drawer móvil y reutiliza el `ThemeService` global. No existe un layout separado para ISADECOR.
 
 ## `features/`
 
@@ -627,7 +630,7 @@ Los facades actuales conservan Signals mutables como privados y exponen estado d
 
 ## Rutas actuales
 
-Todas las rutas se declaran en `src/app/app.routes.ts`, se cargan de forma eager y usan `PublicLayout`.
+Todas las rutas se declaran en `src/app/app.routes.ts`. Las rutas públicas existentes se cargan de forma eager y usan `PublicLayout`; `/admin` usa `AdminLayout` con rutas hijas y `loadComponent` para mantener el código administrativo fuera del bundle público inicial.
 
 | Ruta                        | Feature                            | Layout         | Estado                                             |
 | --------------------------- | ---------------------------------- | -------------- | -------------------------------------------------- |
@@ -638,9 +641,11 @@ Todas las rutas se declaran en `src/app/app.routes.ts`, se cargan de forma eager
 | `/contacto`                 | `features/isanorte/contact`        | `PublicLayout` | Placeholder                                        |
 | `/isadecor`                 | `features/isadecor/home`           | `PublicLayout` | Placeholder                                        |
 | `/isadecor/catalogo`        | `features/isadecor/catalog`        | `PublicLayout` | Catálogo funcional conectado al backend            |
+| `/isadecor/cotizacion`      | `features/isadecor/quote`          | `PublicLayout` | Solicitud de cotización conectada al backend        |
 | `/isadecor/productos/:slug` | `features/isadecor/product-detail` | `PublicLayout` | Detalle funcional conectado al backend             |
+| `/admin`                    | `features/admin/dashboard`         | `AdminLayout`  | Dashboard estructural sin conexión API              |
 
-No existe lazy loading, ruta cliente wildcard ni página 404.
+Admin usa carga diferida. No existe ruta cliente wildcard ni página 404.
 
 ## Área ISANORTE
 
@@ -696,9 +701,20 @@ No se encontraron referencias activas a `isadecord`. El título de `docs/openapi
 
 ## Área Admin
 
-No existe `features/admin/`, layout administrativo, ruta admin ni autenticación frontend.
+La estructura inicial administrativa está implementada así:
 
-El OpenAPI documenta operaciones con intención administrativa, pero también indica que Security/JWT aún no está implementado. Admin es una dirección futura, no una funcionalidad disponible.
+```text
+Admin
+├── AdminLayout
+│   ├── AdminSidebar
+│   ├── AdminTopbar
+│   └── RouterOutlet
+└── Dashboard
+```
+
+`/admin` muestra el dashboard inicial. Están preparadas las rutas `/admin/categorias`, `/admin/productos`, `/admin/cotizaciones`, `/admin/proyectos`, `/admin/servicios`, `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion`; todas reutilizan un único placeholder informativo hasta que sus módulos reales se implementen. No existen CRUD ni conexiones a ApiServices desde Admin.
+
+**Limitación temporal:** Admin actualmente no tiene autenticación. La protección real está pendiente de Spring Security/JWT; no existen guards, login simulado, roles ficticios ni estado `isAdmin` local.
 
 ## Contenido dinámico
 
@@ -916,19 +932,19 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 | SSR                          | Configurado con Express y `AngularNodeAppEngine`                                                       |
 | Prerender                    | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server`                   |
 | Hidratación                  | `provideClientHydration()` activo                                                                      |
-| Features                     | 9 páginas: 5 ISANORTE y 4 ISADECOR                                                                     |
-| Layouts                      | 1: `PublicLayout` con Navbar, RouterOutlet y Footer                                                    |
+| Features                     | 10 páginas: 5 ISANORTE, 4 ISADECOR y 1 dashboard Admin                                                 |
+| Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                     |
 | Shared Components            | 14                                                                                                     |
 | Servicios globales           | 1: `ThemeService`                                                                                      |
 | Facades                      | 3: `CatalogFacade`, `ProductDetailFacade` y `QuoteFacade`, con alcance de sus componentes              |
 | ApiServices                  | 10; uno por recurso backend documentado                                                                |
 | Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                          |
 | Backend conectado            | Catálogo, detalle y solicitud de cotización ISADECOR mediante sus facades y los ApiServices existentes |
-| Admin                        | No implementado                                                                                        |
+| Admin                        | Estructura base con layout, navegación responsive y dashboard; sin CRUD, API ni autenticación         |
 | Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                               |
 | Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                 |
-| Tests                        | 4 archivos spec con 26 casos aprobados: aplicación, catálogo, detalle y calculadora                    |
-| Carga de rutas               | Eager; no existe lazy loading                                                                          |
-| Build verificado             | Correcto; bundles browser/server, 7 rutas estáticas prerenderizadas y detalle dinámico en modo Server  |
+| Tests                        | 7 archivos spec con 39 casos aprobados, incluidos Quote y Admin                                        |
+| Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                               |
+| Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server |
 
 La siguiente evolución no requiere reorganizar otra vez el proyecto: una feature real puede añadir su facade, inyectar el ApiService del recurso y gestionar datos, loading y errores sin colocar HTTP en componentes.

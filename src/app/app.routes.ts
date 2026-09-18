@@ -10,7 +10,47 @@ import { Projects } from './features/isanorte/projects/projects';
 import { Services } from './features/isanorte/services/services';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 
+const loadAdminPlaceholder = () =>
+  import('./features/admin/module-placeholder/admin-module-placeholder').then(
+    ({ AdminModulePlaceholder }) => AdminModulePlaceholder,
+  );
+
 export const routes: Routes = [
+  {
+    path: 'admin',
+    loadComponent: () =>
+      import('./layouts/admin-layout/admin-layout').then(({ AdminLayout }) => AdminLayout),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/admin/dashboard/admin-dashboard').then(
+            ({ AdminDashboard }) => AdminDashboard,
+          ),
+      },
+      { path: 'categorias', loadComponent: loadAdminPlaceholder, data: { title: 'Categorías' } },
+      { path: 'productos', loadComponent: loadAdminPlaceholder, data: { title: 'Productos' } },
+      {
+        path: 'cotizaciones',
+        loadComponent: loadAdminPlaceholder,
+        data: { title: 'Cotizaciones' },
+      },
+      { path: 'proyectos', loadComponent: loadAdminPlaceholder, data: { title: 'Proyectos' } },
+      { path: 'servicios', loadComponent: loadAdminPlaceholder, data: { title: 'Servicios' } },
+      {
+        path: 'unidades-negocio',
+        loadComponent: loadAdminPlaceholder,
+        data: { title: 'Unidades de negocio' },
+      },
+      { path: 'empresa', loadComponent: loadAdminPlaceholder, data: { title: 'Empresa' } },
+      { path: 'landing', loadComponent: loadAdminPlaceholder, data: { title: 'Landing' } },
+      {
+        path: 'configuracion',
+        loadComponent: loadAdminPlaceholder,
+        data: { title: 'Configuración' },
+      },
+    ],
+  },
   {
     path: '',
     component: PublicLayout,

@@ -39,4 +39,25 @@ describe('App', () => {
       'isadecor',
     ]);
   });
+
+  it('should keep admin routes isolated from the public layout', () => {
+    const adminRoute = routes.find((route) => route.path === 'admin');
+    const publicRoute = routes.find((route) => route.path === '');
+
+    expect(adminRoute?.loadComponent).toBeTruthy();
+    expect(adminRoute?.component).toBeUndefined();
+    expect(adminRoute?.loadComponent).not.toBe(publicRoute?.loadComponent);
+    expect(adminRoute?.children?.map((route) => route.path)).toEqual([
+      '',
+      'categorias',
+      'productos',
+      'cotizaciones',
+      'proyectos',
+      'servicios',
+      'unidades-negocio',
+      'empresa',
+      'landing',
+      'configuracion',
+    ]);
+  });
 });

@@ -1,0 +1,62 @@
+<header
+  class="fixed inset-x-0 top-0 z-50 flex h-16 items-center border-b border-border bg-surface px-4 sm:px-6"
+>
+  <button
+    type="button"
+    class="mr-3 inline-flex size-11 items-center justify-center rounded-control text-text-secondary transition-colors duration-fast hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus lg:hidden"
+    [attr.aria-label]="menuOpen() ? 'Cerrar menú administrativo' : 'Abrir menú administrativo'"
+    aria-controls="admin-sidebar"
+    [attr.aria-expanded]="menuOpen()"
+    (click)="menuToggle.emit()"
+  >
+    <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 7h16M4 12h16M4 17h16"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-width="1.8"
+      />
+    </svg>
+  </button>
+
+  <div class="min-w-0 lg:pl-72">
+    <p class="truncate text-body-sm font-semibold text-text-primary sm:text-body">ISANORTE Admin</p>
+  </div>
+
+  <div class="ml-auto flex items-center gap-2 sm:gap-4">
+    <button
+      type="button"
+      class="inline-flex size-11 items-center justify-center rounded-control border border-border bg-surface text-text-secondary transition-colors duration-fast hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      [attr.aria-label]="
+        themeService.theme() === 'light' ? 'Activar tema oscuro' : 'Activar tema claro'
+      "
+      (click)="themeService.toggleTheme()"
+    >
+      @if (themeService.theme() === 'light') {
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M12 3v2m0 14v2M3 12h2m14 0h2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42m0-12.72-1.42 1.42M7.06 16.94l-1.42 1.42"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-width="1.7"
+          />
+          <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7" />
+        </svg>
+      } @else {
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2Z"
+            stroke="currentColor"
+            stroke-linejoin="round"
+            stroke-width="1.7"
+          />
+        </svg>
+      }
+    </button>
+
+    <div class="hidden border-l border-border pl-4 sm:block">
+      <p class="text-body-sm font-semibold text-text-primary">Administrador</p>
+      <p class="text-caption text-text-muted">Acceso sin autenticación</p>
+    </div>
+  </div>
+</header>
