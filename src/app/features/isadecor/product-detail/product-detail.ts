@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, afterNextRender, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ProductDocumentType } from '../../../data/models/product/product-document-type.enum';
@@ -43,6 +43,7 @@ interface VariantAvailabilityPresentation {
 })
 export class ProductDetail {
   readonly facade = inject(ProductDetailFacade);
+  readonly quoteQuantity = signal<number | null>(null);
   private readonly route = inject(ActivatedRoute);
 
   constructor() {
@@ -82,6 +83,11 @@ export class ProductDetail {
     }
 
     return metadata.filter(Boolean).join(' · ');
+  }
+
+  protected quoteQueryParams(slug: string): { producto: string; cantidad?: number } {
+    const quantity = this.quoteQuantity();
+    return quantity === null ? { producto: slug } : { producto: slug, cantidad: quantity };
   }
 
   private formatFileSize(bytes: number): string {

@@ -19,17 +19,17 @@ El repositorio contiene una aplicación Angular que reúne dos experiencias púb
 
 ### Stack detectado
 
-| Tecnología | Estado y versión instalada |
-| --- | --- |
-| Angular | 22.1.6; componentes standalone y sin NgModules |
-| Angular CLI / build | 22.1.7 |
-| TypeScript | 6.0.3 |
-| RxJS | 7.8.2 |
-| Tailwind CSS | 4.3.3, configuración CSS-first mediante PostCSS |
-| GSAP | 3.15.0 |
-| Express | 5.2.1 para el servidor SSR |
-| Vitest | 4.1.11 mediante `@angular/build:unit-test` |
-| Gestor de paquetes | npm 12.0.2 declarado en `package.json` |
+| Tecnología          | Estado y versión instalada                      |
+| ------------------- | ----------------------------------------------- |
+| Angular             | 22.1.6; componentes standalone y sin NgModules  |
+| Angular CLI / build | 22.1.7                                          |
+| TypeScript          | 6.0.3                                           |
+| RxJS                | 7.8.2                                           |
+| Tailwind CSS        | 4.3.3, configuración CSS-first mediante PostCSS |
+| GSAP                | 3.15.0                                          |
+| Express             | 5.2.1 para el servidor SSR                      |
+| Vitest              | 4.1.11 mediante `@angular/build:unit-test`      |
+| Gestor de paquetes  | npm 12.0.2 declarado en `package.json`          |
 
 Las versiones declaradas en `package.json` permiten actualizaciones compatibles, por ejemplo Angular `^22.0.0` y TypeScript `~6.0.2`; la tabla muestra las versiones realmente instaladas al revisar el proyecto.
 
@@ -141,24 +141,24 @@ Los contratos viven bajo `data/models/`, separados por dominio, request, update 
 
 Esta matriz describe el reparto aplicado por el catálogo ISADECOR y previsto para las siguientes features conectadas.
 
-| Responsabilidad | Component | Facade | ApiService | Models | Backend |
-| --- | :---: | :---: | :---: | :---: | :---: |
-| Mostrar información y enlazar el template | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Recibir clicks, inputs y otros eventos de UI | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Mantener estado visual local y pequeño | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Solicitar una acción simple al facade | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Mantener estado relevante de la pantalla con Signals | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Calcular estado derivado con `computed()` | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Gestionar loading y error de la pantalla | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Aplicar filtros y transformaciones para la vista | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Coordinar uno o varios servicios | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Ejecutar una petición con `HttpClient` | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Construir la URL, parámetros y verbo HTTP documentados | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Representar Request, Response, UpdateRequest y enums | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Definir e implementar el endpoint real | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Validar reglas de negocio críticas | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Autorizar y proteger operaciones | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Persistir información | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Responsabilidad                                        | Component | Facade | ApiService | Models | Backend |
+| ------------------------------------------------------ | :-------: | :----: | :--------: | :----: | :-----: |
+| Mostrar información y enlazar el template              |    ✅     |   ❌   |     ❌     |   ❌   |   ❌    |
+| Recibir clicks, inputs y otros eventos de UI           |    ✅     |   ❌   |     ❌     |   ❌   |   ❌    |
+| Mantener estado visual local y pequeño                 |    ✅     |   ❌   |     ❌     |   ❌   |   ❌    |
+| Solicitar una acción simple al facade                  |    ✅     |   ❌   |     ❌     |   ❌   |   ❌    |
+| Mantener estado relevante de la pantalla con Signals   |    ❌     |   ✅   |     ❌     |   ❌   |   ❌    |
+| Calcular estado derivado con `computed()`              |    ❌     |   ✅   |     ❌     |   ❌   |   ❌    |
+| Gestionar loading y error de la pantalla               |    ❌     |   ✅   |     ❌     |   ❌   |   ❌    |
+| Aplicar filtros y transformaciones para la vista       |    ❌     |   ✅   |     ❌     |   ❌   |   ❌    |
+| Coordinar uno o varios servicios                       |    ❌     |   ✅   |     ❌     |   ❌   |   ❌    |
+| Ejecutar una petición con `HttpClient`                 |    ❌     |   ❌   |     ✅     |   ❌   |   ❌    |
+| Construir la URL, parámetros y verbo HTTP documentados |    ❌     |   ❌   |     ✅     |   ❌   |   ❌    |
+| Representar Request, Response, UpdateRequest y enums   |    ❌     |   ❌   |     ❌     |   ✅   |   ❌    |
+| Definir e implementar el endpoint real                 |    ❌     |   ❌   |     ❌     |   ❌   |   ✅    |
+| Validar reglas de negocio críticas                     |    ❌     |   ❌   |     ❌     |   ❌   |   ✅    |
+| Autorizar y proteger operaciones                       |    ❌     |   ❌   |     ❌     |   ❌   |   ✅    |
+| Persistir información                                  |    ❌     |   ❌   |     ❌     |   ❌   |   ✅    |
 
 `❌` significa “no es responsable de esa tarea”; una capa sí puede solicitar una operación a la siguiente. Por ejemplo, el Component solicita al Facade que cargue, pero no realiza la petición.
 
@@ -171,17 +171,17 @@ Hay dos precisiones importantes:
 
 El catálogo, su facade y el consumo de `ProductApiService` y `CategoryApiService` ya están implementados.
 
-| Necesidad | Responsable y ubicación |
-| --- | --- |
-| “Necesito cargar productos” | `ProductApiService` ejecuta la petición documentada; `CatalogFacade` decide cuándo cargarla. |
-| “Necesito guardar los productos cargados en estado” | `CatalogFacade`, mediante un Signal. |
-| “Necesito mostrar esos productos” | Componente `Catalog` y su template dentro de `features/isadecor/catalog/`. |
-| “Necesito validar una regla comercial” | Spring Boot; Angular puede mostrar feedback, pero no sustituir la validación backend. |
-| “Necesito representar la respuesta de productos” | Modelo verificado bajo `data/models/product/`. |
-| “Necesito reutilizar un botón” | `shared/components/button/`; el componente `Button` ya existe. |
-| “Necesito un ProductCard solo para el catálogo” | `features/isadecor/catalog/components/product-card/`. |
-| “Necesito Navbar o Footer” | `layouts/`; actualmente pertenecen a `PublicLayout`. |
-| “Necesito estado global de tema” | `core/services/`; actualmente lo gestiona `ThemeService`. |
+| Necesidad                                           | Responsable y ubicación                                                                      |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| “Necesito cargar productos”                         | `ProductApiService` ejecuta la petición documentada; `CatalogFacade` decide cuándo cargarla. |
+| “Necesito guardar los productos cargados en estado” | `CatalogFacade`, mediante un Signal.                                                         |
+| “Necesito mostrar esos productos”                   | Componente `Catalog` y su template dentro de `features/isadecor/catalog/`.                   |
+| “Necesito validar una regla comercial”              | Spring Boot; Angular puede mostrar feedback, pero no sustituir la validación backend.        |
+| “Necesito representar la respuesta de productos”    | Modelo verificado bajo `data/models/product/`.                                               |
+| “Necesito reutilizar un botón”                      | `shared/components/button/`; el componente `Button` ya existe.                               |
+| “Necesito un ProductCard solo para el catálogo”     | `features/isadecor/catalog/components/product-card/`.                                        |
+| “Necesito Navbar o Footer”                          | `layouts/`; actualmente pertenecen a `PublicLayout`.                                         |
+| “Necesito estado global de tema”                    | `core/services/`; actualmente lo gestiona `ThemeService`.                                    |
 
 La regla práctica es seguir la responsabilidad, no el nombre del archivo: UI en Component, estado de pantalla en Facade, transporte HTTP en ApiService, contrato TypeScript en Models y negocio/persistencia en Backend.
 
@@ -331,22 +331,22 @@ No existen guards, interceptors ni helpers HTTP adicionales dentro de `core/`.
 
 ### Componentes compartidos actuales
 
-| Componente | Propósito |
-| --- | --- |
-| `Alert` | Feedback neutral, informativo, exitoso, de advertencia o error; puede emitir cierre. |
-| `Badge` | Etiqueta corta para categoría o estado. |
-| `Button` | Botón o enlace con variantes, tamaños, loading y disabled. |
-| `Card` | Contenedor genérico estático o enlazable mediante proyección de contenido. |
-| `Carousel` | Carrusel reutilizable en variantes coverflow y marquee, animado con GSAP. |
-| `CinematicTour` | Secuencia visual de imágenes arquitectónicas para fondos/hero. |
-| `EmptyState` | Comunica ausencia de datos y permite proyectar una acción. |
-| `InputField` | Input accesible con label, ayuda, error y loading. |
-| `Loading` | Indicador spinner o dots para regiones en espera. |
-| `Modal` | Diálogo accesible con control de foco, cierre y loading. |
-| `RevealStagger` | Orquesta apariciones escalonadas del contenido proyectado. |
-| `SectionTitle` | Encabezado reutilizable con eyebrow, título y descripción. |
-| `SelectField` | Select nativo tipado con estados de ayuda, error y loading. |
-| `TextareaField` | Campo multilínea accesible con ayuda, error y loading. |
+| Componente      | Propósito                                                                            |
+| --------------- | ------------------------------------------------------------------------------------ |
+| `Alert`         | Feedback neutral, informativo, exitoso, de advertencia o error; puede emitir cierre. |
+| `Badge`         | Etiqueta corta para categoría o estado.                                              |
+| `Button`        | Botón o enlace con variantes, tamaños, loading y disabled.                           |
+| `Card`          | Contenedor genérico estático o enlazable mediante proyección de contenido.           |
+| `Carousel`      | Carrusel reutilizable en variantes coverflow y marquee, animado con GSAP.            |
+| `CinematicTour` | Secuencia visual de imágenes arquitectónicas para fondos/hero.                       |
+| `EmptyState`    | Comunica ausencia de datos y permite proyectar una acción.                           |
+| `InputField`    | Input accesible con label, ayuda, error y loading.                                   |
+| `Loading`       | Indicador spinner o dots para regiones en espera.                                    |
+| `Modal`         | Diálogo accesible con control de foco, cierre y loading.                             |
+| `RevealStagger` | Orquesta apariciones escalonadas del contenido proyectado.                           |
+| `SectionTitle`  | Encabezado reutilizable con eyebrow, título y descripción.                           |
+| `SelectField`   | Select nativo tipado con estados de ayuda, error y loading.                          |
+| `TextareaField` | Campo multilínea accesible con ayuda, error y loading.                               |
 
 Hay 14 componentes compartidos. Todos son standalone y usan `ChangeDetectionStrategy.OnPush`. Algunos incluyen un README propio con su API y ejemplos.
 
@@ -385,16 +385,16 @@ Una feature representa una pantalla o funcionalidad que usa una persona. El proy
 
 ### Resumen real
 
-| Feature | Página | Facade | ApiService | Estado |
-| --- | --- | --- | --- | --- |
-| `isanorte/home` | Home corporativa | No | No | UI completa con contenido estático y componentes compartidos |
-| `isanorte/about` | Nosotros | No | No | UI desarrollada, contenido estático y acordeón con Signal local |
-| `isanorte/services` | Servicios | No | No | Placeholder |
-| `isanorte/projects` | Proyectos | No | No | Placeholder |
-| `isanorte/contact` | Contacto | No | No | Placeholder |
-| `isadecor/home` | Landing ISADECOR | No | No | Placeholder |
-| `isadecor/catalog` | Catálogo ISADECOR | Sí | Productos y categorías | Funcional; búsqueda, filtro y estados de UI |
-| `isadecor/product-detail` | Detalle de producto | Sí | Productos | Funcional; carga por slug, ficha, calculadora local y estados de UI |
+| Feature                   | Página              | Facade | ApiService             | Estado                                                              |
+| ------------------------- | ------------------- | ------ | ---------------------- | ------------------------------------------------------------------- |
+| `isanorte/home`           | Home corporativa    | No     | No                     | UI completa con contenido estático y componentes compartidos        |
+| `isanorte/about`          | Nosotros            | No     | No                     | UI desarrollada, contenido estático y acordeón con Signal local     |
+| `isanorte/services`       | Servicios           | No     | No                     | Placeholder                                                         |
+| `isanorte/projects`       | Proyectos           | No     | No                     | Placeholder                                                         |
+| `isanorte/contact`        | Contacto            | No     | No                     | Placeholder                                                         |
+| `isadecor/home`           | Landing ISADECOR    | No     | No                     | Placeholder                                                         |
+| `isadecor/catalog`        | Catálogo ISADECOR   | Sí     | Productos y categorías | Funcional; búsqueda, filtro y estados de UI                         |
+| `isadecor/product-detail` | Detalle de producto | Sí     | Productos              | Funcional; carga por slug, ficha, calculadora local y estados de UI |
 
 El catálogo contiene un `ProductCard` propio del feature, que navega por el slug real al detalle. El detalle contiene `ProductGallery`, `ProductInfo` y `ProductCalculator` como componentes internos. Las demás páginas componen directamente UI compartida.
 
@@ -415,15 +415,15 @@ Un feature probablemente necesita facade cuando tiene una o varias de estas resp
 
 Ejemplos orientativos:
 
-| Caso | ¿Facade? | Motivo |
-| --- | --- | --- |
-| Catálogo conectado al backend | Sí | Carga productos, filtros, empty/error/loading. |
-| Administración de productos | Sí | Coordina listado, edición, estados y errores. |
-| Detalle de producto | Sí | Carga por slug y maneja estados de la pantalla. |
-| Button | No | Es una primitiva visual reutilizable. |
-| Card | No | Solo presenta contenido. |
-| Hero puramente visual | No | No coordina datos ni lógica relevante. |
-| Acordeón actual de About | No | Un Signal local resuelve su estado sencillo. |
+| Caso                          | ¿Facade? | Motivo                                          |
+| ----------------------------- | -------- | ----------------------------------------------- |
+| Catálogo conectado al backend | Sí       | Carga productos, filtros, empty/error/loading.  |
+| Administración de productos   | Sí       | Coordina listado, edición, estados y errores.   |
+| Detalle de producto           | Sí       | Carga por slug y maneja estados de la pantalla. |
+| Button                        | No       | Es una primitiva visual reutilizable.           |
+| Card                          | No       | Solo presenta contenido.                        |
+| Hero puramente visual         | No       | No coordina datos ni lógica relevante.          |
+| Acordeón actual de About      | No       | Un Signal local resuelve su estado sencillo.    |
 
 No se debe crear `BaseFacade`, un facade genérico ni una capa adicional solo por simetría.
 
@@ -472,21 +472,21 @@ GET /api/productos/publicados/slug/{slug}
 
 ## ¿Dónde crear cada cosa?
 
-| Necesito crear... | Ubicación |
-| --- | --- |
-| Nueva página de ISANORTE | `src/app/features/isanorte/<feature>/` |
-| Nueva página de ISADECOR | `src/app/features/isadecor/<feature>/` |
-| Componente exclusivo de una feature | `src/app/features/<area>/<feature>/components/` |
-| Componente reutilizable y sin negocio | `src/app/shared/components/` |
-| Estado y lógica relevante de pantalla | `<feature>/<feature>.facade.ts` |
-| Petición HTTP | `src/app/data/services/`; reutilizar o ampliar el ApiService verificado del recurso |
-| Request, Response o enum de API | `src/app/data/models/<dominio>/`; ampliar solo cuando cambie el contrato real |
-| Tipo exclusivamente visual | Junto al componente o feature que lo usa |
-| Navbar, Footer o estructura común | `src/app/layouts/` |
-| Servicio global | `src/app/core/services/` |
-| Guard o interceptor | Bajo `src/app/core/`, solo cuando exista una necesidad real |
-| Configuración global Angular | `app.config.ts` o `core/`, según responsabilidad |
-| Imagen pública | `public/images/` |
+| Necesito crear...                     | Ubicación                                                                           |
+| ------------------------------------- | ----------------------------------------------------------------------------------- |
+| Nueva página de ISANORTE              | `src/app/features/isanorte/<feature>/`                                              |
+| Nueva página de ISADECOR              | `src/app/features/isadecor/<feature>/`                                              |
+| Componente exclusivo de una feature   | `src/app/features/<area>/<feature>/components/`                                     |
+| Componente reutilizable y sin negocio | `src/app/shared/components/`                                                        |
+| Estado y lógica relevante de pantalla | `<feature>/<feature>.facade.ts`                                                     |
+| Petición HTTP                         | `src/app/data/services/`; reutilizar o ampliar el ApiService verificado del recurso |
+| Request, Response o enum de API       | `src/app/data/models/<dominio>/`; ampliar solo cuando cambie el contrato real       |
+| Tipo exclusivamente visual            | Junto al componente o feature que lo usa                                            |
+| Navbar, Footer o estructura común     | `src/app/layouts/`                                                                  |
+| Servicio global                       | `src/app/core/services/`                                                            |
+| Guard o interceptor                   | Bajo `src/app/core/`, solo cuando exista una necesidad real                         |
+| Configuración global Angular          | `app.config.ts` o `core/`, según responsabilidad                                    |
+| Imagen pública                        | `public/images/`                                                                    |
 
 Las rutas de guards, interceptors y Admin son ubicaciones previstas; esas carpetas no existen todavía y no deben crearse vacías. `data/` sí está implementada.
 
@@ -629,16 +629,16 @@ Los facades actuales conservan Signals mutables como privados y exponen estado d
 
 Todas las rutas se declaran en `src/app/app.routes.ts`, se cargan de forma eager y usan `PublicLayout`.
 
-| Ruta | Feature | Layout | Estado |
-| --- | --- | --- | --- |
-| `/` | `features/isanorte/home` | `PublicLayout` | UI desarrollada; contenido estático |
-| `/nosotros` | `features/isanorte/about` | `PublicLayout` | UI desarrollada; contenido estático y Signal local |
-| `/servicios` | `features/isanorte/services` | `PublicLayout` | Placeholder |
-| `/proyectos` | `features/isanorte/projects` | `PublicLayout` | Placeholder |
-| `/contacto` | `features/isanorte/contact` | `PublicLayout` | Placeholder |
-| `/isadecor` | `features/isadecor/home` | `PublicLayout` | Placeholder |
-| `/isadecor/catalogo` | `features/isadecor/catalog` | `PublicLayout` | Catálogo funcional conectado al backend |
-| `/isadecor/productos/:slug` | `features/isadecor/product-detail` | `PublicLayout` | Detalle funcional conectado al backend |
+| Ruta                        | Feature                            | Layout         | Estado                                             |
+| --------------------------- | ---------------------------------- | -------------- | -------------------------------------------------- |
+| `/`                         | `features/isanorte/home`           | `PublicLayout` | UI desarrollada; contenido estático                |
+| `/nosotros`                 | `features/isanorte/about`          | `PublicLayout` | UI desarrollada; contenido estático y Signal local |
+| `/servicios`                | `features/isanorte/services`       | `PublicLayout` | Placeholder                                        |
+| `/proyectos`                | `features/isanorte/projects`       | `PublicLayout` | Placeholder                                        |
+| `/contacto`                 | `features/isanorte/contact`        | `PublicLayout` | Placeholder                                        |
+| `/isadecor`                 | `features/isadecor/home`           | `PublicLayout` | Placeholder                                        |
+| `/isadecor/catalogo`        | `features/isadecor/catalog`        | `PublicLayout` | Catálogo funcional conectado al backend            |
+| `/isadecor/productos/:slug` | `features/isadecor/product-detail` | `PublicLayout` | Detalle funcional conectado al backend             |
 
 No existe lazy loading, ruta cliente wildcard ni página 404.
 
@@ -810,18 +810,18 @@ Antes de cambiar una API de un componente shared, se deben buscar todos sus cons
 
 ## Archivos globales que requieren cuidado
 
-| Archivo o carpeta | Por qué requiere coordinación |
-| --- | --- |
-| `src/app/app.routes.ts` | Toda alta o cambio de ruta pasa por este arreglo compartido. |
-| `src/app/app.config.ts` | Registra providers globales e hidratación. |
-| `src/app/app.config.server.ts` | Configura el render de servidor. |
-| `src/app/app.routes.server.ts` | Define la estrategia de render/prerender. |
-| `src/styles.css` | Carga Tailwind, temas y estilos base de toda la app. |
-| `src/styles/theme.css` | Define tokens y utilidades globales. |
-| `src/styles/themes/` | Cambia valores cromáticos para toda la aplicación. |
-| `src/app/layouts/public-layout/` | Afecta todas las rutas actuales. |
-| `src/app/shared/components/` | Un cambio de API puede romper varios consumidores. |
-| `angular.json` | Controla build, assets, SSR, budgets y tests. |
+| Archivo o carpeta                | Por qué requiere coordinación                                |
+| -------------------------------- | ------------------------------------------------------------ |
+| `src/app/app.routes.ts`          | Toda alta o cambio de ruta pasa por este arreglo compartido. |
+| `src/app/app.config.ts`          | Registra providers globales e hidratación.                   |
+| `src/app/app.config.server.ts`   | Configura el render de servidor.                             |
+| `src/app/app.routes.server.ts`   | Define la estrategia de render/prerender.                    |
+| `src/styles.css`                 | Carga Tailwind, temas y estilos base de toda la app.         |
+| `src/styles/theme.css`           | Define tokens y utilidades globales.                         |
+| `src/styles/themes/`             | Cambia valores cromáticos para toda la aplicación.           |
+| `src/app/layouts/public-layout/` | Afecta todas las rutas actuales.                             |
+| `src/app/shared/components/`     | Un cambio de API puede romper varios consumidores.           |
+| `angular.json`                   | Controla build, assets, SSR, budgets y tests.                |
 
 ## AGENTS y Skills
 
@@ -830,16 +830,16 @@ Antes de cambiar una API de un componente shared, se deben buscar todos sus cons
 
 Skills reales disponibles:
 
-| Skill | Propósito |
-| --- | --- |
+| Skill                   | Propósito                                                  |
+| ----------------------- | ---------------------------------------------------------- |
 | `frontend-architecture` | Ubicar archivos y mantener responsabilidades/dependencias. |
-| `angular-feature` | Crear o ampliar una pantalla o funcionalidad Angular. |
-| `api-integration` | Integrar Angular con contratos reales de Spring Boot. |
-| `design-system` | Crear UI coherente con tokens y componentes existentes. |
-| `dynamic-content` | Separar presentación de contenido administrable. |
-| `gsap-animations` | Implementar movimiento GSAP accesible y seguro. |
-| `ssr-safety` | Proteger SSR, prerender e hidratación. |
-| `frontend-review` | Auditar y validar un cambio antes de entregarlo. |
+| `angular-feature`       | Crear o ampliar una pantalla o funcionalidad Angular.      |
+| `api-integration`       | Integrar Angular con contratos reales de Spring Boot.      |
+| `design-system`         | Crear UI coherente con tokens y componentes existentes.    |
+| `dynamic-content`       | Separar presentación de contenido administrable.           |
+| `gsap-animations`       | Implementar movimiento GSAP accesible y seguro.            |
+| `ssr-safety`            | Proteger SSR, prerender e hidratación.                     |
+| `frontend-review`       | Auditar y validar un cambio antes de entregarlo.           |
 
 Una tarea puede requerir varias Skills. Deben leerse desde su ubicación real, `.agents/skills/`.
 
@@ -847,14 +847,14 @@ Una tarea puede requerir varias Skills. Deben leerse desde su ubicación real, `
 
 Todos proceden de `package.json`:
 
-| Comando | Función |
-| --- | --- |
-| `npm start` | Inicia Angular en `http://localhost:4200` con el proxy de `/api` hacia Spring Boot en `http://localhost:8080`. |
-| `npm run build` | Ejecuta el build de producción con browser, SSR y prerender. |
-| `npm run watch` | Mantiene un build de desarrollo observando cambios. |
-| `npm test` | Ejecuta las pruebas mediante el builder de Angular/Vitest. |
-| `npm run ng -- <comando>` | Ejecuta Angular CLI a través del script local. |
-| `npm run serve:ssr:ISANORTE-FRONTEND` | Sirve el resultado SSR ya generado en `dist/`. |
+| Comando                               | Función                                                                                                        |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `npm start`                           | Inicia Angular en `http://localhost:4200` con el proxy de `/api` hacia Spring Boot en `http://localhost:8080`. |
+| `npm run build`                       | Ejecuta el build de producción con browser, SSR y prerender.                                                   |
+| `npm run watch`                       | Mantiene un build de desarrollo observando cambios.                                                            |
+| `npm test`                            | Ejecuta las pruebas mediante el builder de Angular/Vitest.                                                     |
+| `npm run ng -- <comando>`             | Ejecuta Angular CLI a través del script local.                                                                 |
+| `npm run serve:ssr:ISANORTE-FRONTEND` | Sirve el resultado SSR ya generado en `dist/`.                                                                 |
 
 El comando SSR necesita que exista previamente un build compatible en `dist/`.
 
@@ -867,7 +867,17 @@ Existen cuatro archivos de pruebas:
 3. `src/app/features/isadecor/product-detail/product-detail.facade.spec.ts`, con cinco casos para carga por slug, producto recibido, 404, loading y slug inválido.
 4. `src/app/features/isadecor/product-detail/components/product-calculator/product-calculator.spec.ts`, con casos de configuración, límites de redondeo, valores inválidos y contenido dinámico.
 
-Durante esta revisión, `npm test -- --watch=false` finalizó con **4 archivos y 26 tests aprobados**.
+La feature `quote` añade `quote.facade.spec.ts` para verificar carga de producto, 404, envío, bloqueo de doble envío, request y respuesta. La calculadora también verifica que comunica su cantidad al detalle.
+
+## Flujo de cotización ISADECOR
+
+La ruta pública `/isadecor/cotizacion` vive bajo `PublicLayout` y usa únicamente los query params no sensibles `producto` (slug) y `cantidad` (entero positivo opcional). No lleva datos personales, precios ni identificadores UUID en la URL.
+
+```text
+Product Detail → Quote → QuoteFacade → ProductApiService / QuoteApiService → POST /api/cotizaciones
+```
+
+`ProductCalculator` conserva la fórmula `ceil(medida / cobertura)` y emite solo el resultado al `ProductDetail`; el detalle navega con el slug real del producto y, cuando existe, esa cantidad. `QuoteFacade` carga el producto publicado por slug solo en browser y usa su UUID real para construir el único detalle de `QuoteCreateRequest`. El envío usa `QuoteApiService.create()` con `QuoteChannel.FORMULARIO`. La respuesta del POST muestra el código, estado y `totalEstimado` que devuelve Spring Boot; la UI no calcula ni persiste datos personales ni totales oficiales.
 
 ## Checklist para un integrante nuevo
 
@@ -897,28 +907,28 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 
 ## Estado actual del frontend
 
-| Área | Estado verificado |
-| --- | --- |
-| Arquitectura | Feature-Based implementada; catálogo y detalle con Facade Pattern y API Service Layer |
-| Angular | 22.1.6, standalone, sin NgModules |
-| TypeScript | 6.0.3 |
-| Tailwind | 4.3.3, CSS-first con PostCSS |
-| SSR | Configurado con Express y `AngularNodeAppEngine` |
-| Prerender | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server` |
-| Hidratación | `provideClientHydration()` activo |
-| Features | 8 páginas: 5 ISANORTE y 3 ISADECOR |
-| Layouts | 1: `PublicLayout` con Navbar, RouterOutlet y Footer |
-| Shared Components | 14 |
-| Servicios globales | 1: `ThemeService` |
-| Facades | 2: `CatalogFacade` y `ProductDetailFacade`, con alcance de sus componentes |
-| ApiServices | 10; uno por recurso backend documentado |
-| Modelos API | Contratos de los 10 recursos, tipos comunes y 7 enums exactos |
-| Backend conectado | Catálogo y detalle ISADECOR mediante sus facades y los ApiServices existentes |
-| Admin | No implementado |
-| Animaciones | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger |
-| Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug |
-| Tests | 4 archivos spec con 26 casos aprobados: aplicación, catálogo, detalle y calculadora |
-| Carga de rutas | Eager; no existe lazy loading |
-| Build verificado | Correcto; bundles browser/server, 7 rutas estáticas prerenderizadas y detalle dinámico en modo Server |
+| Área                         | Estado verificado                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Arquitectura                 | Feature-Based implementada; catálogo y detalle con Facade Pattern y API Service Layer                  |
+| Angular                      | 22.1.6, standalone, sin NgModules                                                                      |
+| TypeScript                   | 6.0.3                                                                                                  |
+| Tailwind                     | 4.3.3, CSS-first con PostCSS                                                                           |
+| SSR                          | Configurado con Express y `AngularNodeAppEngine`                                                       |
+| Prerender                    | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server`                   |
+| Hidratación                  | `provideClientHydration()` activo                                                                      |
+| Features                     | 9 páginas: 5 ISANORTE y 4 ISADECOR                                                                     |
+| Layouts                      | 1: `PublicLayout` con Navbar, RouterOutlet y Footer                                                    |
+| Shared Components            | 14                                                                                                     |
+| Servicios globales           | 1: `ThemeService`                                                                                      |
+| Facades                      | 3: `CatalogFacade`, `ProductDetailFacade` y `QuoteFacade`, con alcance de sus componentes              |
+| ApiServices                  | 10; uno por recurso backend documentado                                                                |
+| Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                          |
+| Backend conectado            | Catálogo, detalle y solicitud de cotización ISADECOR mediante sus facades y los ApiServices existentes |
+| Admin                        | No implementado                                                                                        |
+| Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                               |
+| Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                 |
+| Tests                        | 4 archivos spec con 26 casos aprobados: aplicación, catálogo, detalle y calculadora                    |
+| Carga de rutas               | Eager; no existe lazy loading                                                                          |
+| Build verificado             | Correcto; bundles browser/server, 7 rutas estáticas prerenderizadas y detalle dinámico en modo Server  |
 
 La siguiente evolución no requiere reorganizar otra vez el proyecto: una feature real puede añadir su facade, inyectar el ApiService del recurso y gestionar datos, loading y errores sin colocar HTTP en componentes.

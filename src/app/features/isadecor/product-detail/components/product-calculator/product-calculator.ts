@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 
 import { CalculationConfigResponse } from '../../../../../data/models/product/product-response.model';
 import { Card } from '../../../../../shared/components/card/card';
@@ -13,6 +13,7 @@ import { Card } from '../../../../../shared/components/card/card';
 })
 export class ProductCalculator {
   readonly config = input.required<CalculationConfigResponse>();
+  readonly quantityChange = output<number | null>();
   readonly measurement = signal<number | null>(null);
 
   protected readonly inputLabel = computed(() => this.config().etiquetaEntrada?.trim() || 'Medida');
@@ -86,9 +87,11 @@ export class ProductCalculator {
 
     if (input.value.trim() === '') {
       this.measurement.set(null);
+      this.quantityChange.emit(null);
       return;
     }
 
     this.measurement.set(input.valueAsNumber);
+    this.quantityChange.emit(this.quantity());
   }
 }

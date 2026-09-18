@@ -53,6 +53,16 @@ describe('ProductCalculator', () => {
     expect(resultText(element)).toContain('21');
   });
 
+  it('emits the calculated quantity for its parent feature', () => {
+    const quantities: Array<number | null> = [];
+    fixture.componentInstance.quantityChange.subscribe((quantity) => quantities.push(quantity));
+    render();
+    enterMeasurement('4.5');
+    enterMeasurement('');
+
+    expect(quantities).toEqual([21, null]);
+  });
+
   it('calculates five units for a measurement of one', () => {
     render();
     const element = enterMeasurement('1');

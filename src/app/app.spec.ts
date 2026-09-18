@@ -34,6 +34,7 @@ describe('App', () => {
       'proyectos',
       'contacto',
       'isadecor/catalogo',
+      'isadecor/cotizacion',
       'isadecor/productos/:slug',
       'isadecor',
     ]);

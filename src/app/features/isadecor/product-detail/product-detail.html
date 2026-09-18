@@ -41,10 +41,24 @@
         <app-product-info [product]="product" />
       </div>
 
+      <div class="mt-8 flex flex-wrap gap-3">
+        <app-button
+          variant="accent"
+          [routerLink]="['/isadecor/cotizacion']"
+          [queryParams]="quoteQueryParams(product.slug)"
+        >
+          Solicitar cotización
+        </app-button>
+      </div>
+
       @if (
         product.configuracionCalculo !== null && product.configuracionCalculo.habilitada === true
       ) {
-        <app-product-calculator class="mt-14 lg:mt-20" [config]="product.configuracionCalculo" />
+        <app-product-calculator
+          class="mt-14 lg:mt-20"
+          [config]="product.configuracionCalculo"
+          (quantityChange)="quoteQuantity.set($event)"
+        />
       }
 
       @if (product.descripcion.trim()) {
