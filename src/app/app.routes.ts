@@ -70,8 +70,10 @@ export const routes: Routes = [
       },
       {
         path: 'unidades-negocio',
-        loadComponent: loadAdminPlaceholder,
-        data: { title: 'Unidades de negocio' },
+        loadComponent: () =>
+          import('./features/admin/business-units/admin-business-units').then(
+            ({ AdminBusinessUnits }) => AdminBusinessUnits,
+          ),
       },
       { path: 'empresa', loadComponent: loadAdminPlaceholder, data: { title: 'Empresa' } },
       { path: 'landing', loadComponent: loadAdminPlaceholder, data: { title: 'Landing' } },

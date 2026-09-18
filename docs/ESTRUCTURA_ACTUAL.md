@@ -650,6 +650,7 @@ Todas las rutas se declaran en `src/app/app.routes.ts`. Las rutas públicas exis
 | `/admin/proyectos`          | `features/admin/projects`          | `AdminLayout`  | Gestión de proyectos y activación lógica           |
 | `/admin/proyectos/:id`      | `features/admin/projects/detail`   | `AdminLayout`  | Gestión de imágenes por URL de un proyecto         |
 | `/admin/servicios`          | `features/admin/services`          | `AdminLayout`  | Gestión de servicios y activación lógica           |
+| `/admin/unidades-negocio`   | `features/admin/business-units`    | `AdminLayout`  | Gestión de unidades y activación lógica            |
 
 Admin usa carga diferida. No existe ruta cliente wildcard ni página 404.
 
@@ -811,7 +812,21 @@ Utiliza `GET /api/servicios`, `POST /api/servicios`, `PUT /api/servicios/{id}` y
 
 El módulo no usa DELETE, upload, file input ni almacenamiento externo: `icono` se mantiene como texto e `imagenUrl` como URL. Tampoco envía proyectos, `projectIds` ni objetos relacionados; las asociaciones se preservan y continúan administrándose desde Proyectos.
 
-Las rutas `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
+`/admin/unidades-negocio` implementa listado, creación, edición y activación lógica:
+
+```text
+AdminBusinessUnits
+  ↓
+AdminBusinessUnitsFacade
+  ├── BusinessUnitApiService
+  └── CompanyApiService
+```
+
+Utiliza `GET /api/unidades-negocio`, `POST /api/unidades-negocio`, `PUT /api/unidades-negocio/{id}` y `PATCH /api/unidades-negocio/{id}/activo`, además de `GET /api/empresa` para asociar únicamente unidades nuevas. La empresa se selecciona mediante UUID al crear; al editar se presenta como información de solo lectura y el `empresaId` actual se reenvía porque el contrato prohíbe reparentar la unidad. No se envían productos ni relaciones asociadas, por lo que se preservan.
+
+El módulo no usa DELETE, upload ni file input. `imagenUrl` se administra únicamente como URL textual, con fallback de preview.
+
+Las rutas `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
 
 **Limitación temporal:** Admin actualmente no tiene autenticación. La protección real está pendiente de Spring Security/JWT; no existen guards, login simulado, roles ficticios ni estado `isAdmin` local.
 
@@ -1031,18 +1046,18 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 | SSR                          | Configurado con Express y `AngularNodeAppEngine`                                                           |
 | Prerender                    | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server`                       |
 | Hidratación                  | `provideClientHydration()` activo                                                                          |
-| Features                     | 16 carpetas: 5 ISANORTE, 4 ISADECOR y 7 Admin (incluido el placeholder compartido)                         |
+| Features                     | 17 carpetas: 5 ISANORTE, 4 ISADECOR y 8 Admin (incluido el placeholder compartido)                         |
 | Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                          |
 | Shared Components            | 14                                                                                                         |
 | Servicios globales           | 1: `ThemeService`                                                                                          |
-| Facades                      | 9, incluidas las facades Admin de categorías, productos, cotizaciones, proyectos, detalle y servicios      |
+| Facades                      | 10, incluidas las facades Admin de categorías, productos, cotizaciones, proyectos, detalle, servicios y unidades |
 | ApiServices                  | 10; uno por recurso backend documentado                                                                    |
 | Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                              |
-| Backend conectado            | Flujos públicos ISADECOR y Admin de categorías, productos, cotizaciones, proyectos y servicios con facades |
-| Admin                        | Layout, dashboard, categorías, productos, cotizaciones, proyectos y servicios; sin autenticación           |
+| Backend conectado            | Flujos públicos ISADECOR y Admin de categorías, productos, cotizaciones, proyectos, servicios y unidades con facades |
+| Admin                        | Layout, dashboard, categorías, productos, cotizaciones, proyectos, servicios y unidades; sin autenticación |
 | Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                                   |
 | Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                     |
-| Tests                        | 23 archivos spec con 138 casos aprobados, incluido el módulo Admin de servicios                            |
+| Tests                        | 26 archivos spec con 155 casos aprobados, incluidos servicios y unidades Admin                              |
 | Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                                  |
 | Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server     |
 
