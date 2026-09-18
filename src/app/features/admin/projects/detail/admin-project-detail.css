@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.summary-label {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.summary-value {
+  margin-top: 0.25rem;
+  font-size: var(--text-body-sm);
+  color: var(--color-text-primary);
+}

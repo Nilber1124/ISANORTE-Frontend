@@ -53,6 +53,7 @@ describe('App', () => {
       'productos',
       'cotizaciones',
       'proyectos',
+      'proyectos/:id',
       'servicios',
       'unidades-negocio',
       'empresa',

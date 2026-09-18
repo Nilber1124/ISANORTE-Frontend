@@ -1,0 +1,118 @@
+<app-modal
+  modalId="admin-project-form"
+  [title]="mode() === 'create' ? 'Nuevo proyecto' : 'Editar proyecto'"
+  [description]="
+    mode() === 'create'
+      ? 'Crea los datos básicos; las imágenes se administran después desde el detalle.'
+      : 'Actualiza los datos del proyecto sin modificar sus imágenes.'
+  "
+  size="large"
+  [open]="true"
+  [loading]="submitting()"
+  (closed)="canceled.emit()"
+>
+  @if (serverError(); as error) {
+    <app-alert class="mb-5" variant="error" title="No se guardó el proyecto">{{ error }}</app-alert>
+  }
+
+  <form
+    id="project-form"
+    class="grid gap-5 sm:grid-cols-2"
+    (submit)="submit(); $event.preventDefault()"
+  >
+    <app-input-field
+      inputId="project-name"
+      label="Nombre"
+      [(value)]="nombre"
+      [error]="errors().nombre"
+      required
+    />
+    <app-input-field
+      inputId="project-slug"
+      label="Slug"
+      [(value)]="slug"
+      [error]="errors().slug"
+      helperText="Se mantiene manual y editable."
+      required
+    />
+    <app-input-field inputId="project-client" label="Cliente" [(value)]="cliente" />
+    <app-input-field inputId="project-location" label="Ubicación" [(value)]="ubicacion" />
+    <app-input-field
+      inputId="project-date"
+      label="Fecha del proyecto"
+      [(value)]="fechaProyecto"
+      helperText="Texto libre según el contrato, por ejemplo 2026."
+    />
+    <div class="hidden sm:block" aria-hidden="true"></div>
+    <app-textarea-field
+      class="sm:col-span-2"
+      inputId="project-description"
+      label="Descripción"
+      [(value)]="descripcion"
+      [error]="errors().descripcion"
+      [rows]="5"
+      required
+    />
+
+    <fieldset class="sm:col-span-2 rounded-card border border-border p-4">
+      <legend class="px-1 text-body-sm font-semibold text-text-primary">Servicios asociados</legend>
+      @if (loadingFormData()) {
+        <p class="mt-2 text-body-sm text-text-muted">Cargando servicios…</p>
+      } @else if (services().length === 0) {
+        <p class="mt-2 text-body-sm text-text-muted">No hay servicios disponibles.</p>
+      } @else {
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          @for (service of services(); track service.id) {
+            <label
+              class="flex min-h-11 items-center gap-3 rounded-control border border-border px-3 py-2 text-body-sm text-text-secondary hover:bg-surface-hover"
+            >
+              <input
+                class="form-choice"
+                type="checkbox"
+                [checked]="serviceSelected(service.id)"
+                [disabled]="submitting()"
+                (change)="updateService(service.id, $event)"
+              />
+              <span>{{ service.nombre }}</span>
+            </label>
+          }
+        </div>
+      }
+    </fieldset>
+
+    <fieldset class="sm:col-span-2 rounded-card border border-border p-4">
+      <legend class="px-1 text-body-sm font-semibold text-text-primary">Visibilidad</legend>
+      <div class="mt-3 grid gap-3 sm:grid-cols-2">
+        <label class="flex min-h-11 items-center gap-3 text-body-sm text-text-secondary">
+          <input
+            class="form-choice"
+            type="checkbox"
+            [checked]="destacado()"
+            [disabled]="submitting()"
+            (change)="updateFeatured($event)"
+          />
+          Destacado
+        </label>
+        <label class="flex min-h-11 items-center gap-3 text-body-sm text-text-secondary">
+          <input
+            class="form-choice"
+            type="checkbox"
+            [checked]="activo()"
+            [disabled]="submitting()"
+            (change)="updateActive($event)"
+          />
+          Activo
+        </label>
+      </div>
+    </fieldset>
+  </form>
+
+  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()"
+      >Cancelar</app-button
+    >
+    <app-button [loading]="submitting()" [disabled]="loadingFormData()" (click)="submit()">
+      {{ mode() === 'create' ? 'Crear proyecto' : 'Guardar cambios' }}
+    </app-button>
+  </div>
+</app-modal>

@@ -573,7 +573,7 @@ HttpClient
 - `app.config.ts` registra `provideHttpClient(withFetch())`, compatible con browser y SSR.
 - `HttpClient` se usa únicamente dentro de `data/services/`.
 - `data/models/` representa request, update request, response, cambios de estado y enums reales.
-- `data/services/` cubre las 66 operaciones de los 10 controllers documentados.
+- `data/services/` cubre las operaciones consumidas de los 10 controllers documentados; los ApiServices se amplían únicamente cuando una feature usa un contrato real.
 - `CatalogFacade` invoca productos publicados y categorías activas en paralelo desde el navegador. El prerender conserva un shell estable y no consulta la API con la URL relativa.
 - `ProductDetailFacade` invoca el producto publicado por slug únicamente desde el navegador. SSR entrega el shell de loading y la hidratación inicia la petición.
 - La URL base se obtiene mediante `API_BASE_URL`; su valor predeterminado vacío produce rutas del mismo origen como `/api/productos/publicados`.
@@ -593,7 +593,7 @@ Spring Boot http://localhost:8080
 
 ### Contrato disponible
 
-`docs/openapi.yaml` es un contrato estático derivado del backend. Documenta 48 paths y 66 operaciones en áreas como productos, categorías, proyectos, servicios, landing, empresa, cotizaciones, configuración, unidades de negocio y administradores.
+`docs/openapi.yaml` es un contrato estático derivado del backend. Actualmente documenta 59 paths y 82 operaciones en áreas como productos, categorías, proyectos, servicios, landing, empresa, cotizaciones, configuración, unidades de negocio y administradores.
 
 El contrato declara expresamente que Security/JWT no está implementado. `x-access-intent` diferencia intención pública o administrativa, pero no representa protección efectiva.
 
@@ -647,6 +647,8 @@ Todas las rutas se declaran en `src/app/app.routes.ts`. Las rutas públicas exis
 | `/admin/categorias`         | `features/admin/categories`        | `AdminLayout`  | Gestión de categorías conectada al backend         |
 | `/admin/productos`          | `features/admin/products`          | `AdminLayout`  | Gestión de productos conectada al backend          |
 | `/admin/cotizaciones`       | `features/admin/quotes`            | `AdminLayout`  | Consulta y cambio de estado de cotizaciones        |
+| `/admin/proyectos`          | `features/admin/projects`          | `AdminLayout`  | Gestión de proyectos y activación lógica           |
+| `/admin/proyectos/:id`      | `features/admin/projects/detail`   | `AdminLayout`  | Gestión de imágenes por URL de un proyecto         |
 
 Admin usa carga diferida. No existe ruta cliente wildcard ni página 404.
 
@@ -764,7 +766,35 @@ La pantalla carga el listado con `GET /api/cotizaciones`, obtiene el detalle con
 
 AdminQuotes muestra únicamente los importes entregados por el backend. `totalEstimado`, `precioUnitario` y `subtotal` nulos se presentan como «Por confirmar»; el frontend no calcula valores oficiales ni inventa moneda. Los datos personales permanecen en memoria de la pantalla administrativa: no se guardan en storage, no se incorporan a la URL y no se escriben en logs.
 
-El módulo administrativo no crea ni elimina cotizaciones, no edita los datos del solicitante y no crea seguimientos manuales. Las rutas `/admin/proyectos`, `/admin/servicios`, `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
+El módulo administrativo no crea ni elimina cotizaciones, no edita los datos del solicitante y no crea seguimientos manuales.
+
+`/admin/proyectos` implementa listado, creación básica, edición, asociación de servicios y activación lógica:
+
+```text
+AdminProjects
+  ↓
+AdminProjectsFacade
+  ├── ProjectApiService
+  └── ServiceApiService
+```
+
+Utiliza `GET /api/proyectos`, `POST /api/proyectos`, `PUT /api/proyectos/{id}` y `PATCH /api/proyectos/{id}/activo`, además de `GET /api/servicios` para seleccionar relaciones mediante UUID. El POST administrativo crea inicialmente el proyecto sin imágenes. El PUT envía solo `ProjectUpdateRequest`; no incluye imágenes, IDs, timestamps ni objetos response, por lo que el backend conserva la colección existente. Los proyectos no se eliminan: se activan o desactivan lógicamente.
+
+`/admin/proyectos/:id` es el detalle administrativo dinámico y gestiona las imágenes del proyecto existente:
+
+```text
+AdminProjectDetail
+  ↓
+AdminProjectDetailFacade
+  ↓
+ProjectApiService
+  ↓
+Proyecto imágenes
+```
+
+La pantalla carga con `GET /api/proyectos/{id}` y administra URLs mediante `POST /api/proyectos/{proyectoId}/imagenes`, `PUT /api/proyectos/{proyectoId}/imagenes/{imagenId}` y `DELETE /api/proyectos/{proyectoId}/imagenes/{imagenId}`. No existe upload físico, file input ni integración con almacenamiento externo. El único DELETE usado por el módulo corresponde al recurso hijo imagen; nunca se elimina el proyecto. El frontend conserva exactamente `GENERAL`, `ANTES` y `DESPUES` y permite representar varias imágenes principales porque el contrato no impone unicidad.
+
+Las rutas `/admin/servicios`, `/admin/unidades-negocio`, `/admin/empresa`, `/admin/landing` y `/admin/configuracion` conservan el placeholder compartido hasta que sus módulos reales se implementen.
 
 **Limitación temporal:** Admin actualmente no tiene autenticación. La protección real está pendiente de Spring Security/JWT; no existen guards, login simulado, roles ficticios ni estado `isAdmin` local.
 
@@ -984,18 +1014,18 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 | SSR                          | Configurado con Express y `AngularNodeAppEngine`                                                             |
 | Prerender                    | Rutas estáticas con `RenderMode.Prerender`; detalle dinámico con `RenderMode.Server`                         |
 | Hidratación                  | `provideClientHydration()` activo                                                                            |
-| Features                     | 14 carpetas: 5 ISANORTE, 4 ISADECOR y 5 Admin (incluido el placeholder compartido)                           |
+| Features                     | 15 carpetas: 5 ISANORTE, 4 ISADECOR y 6 Admin (incluido el placeholder compartido)                           |
 | Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                            |
 | Shared Components            | 14                                                                                                           |
 | Servicios globales           | 1: `ThemeService`                                                                                            |
-| Facades                      | 6, incluidas `AdminCategoriesFacade`, `AdminProductsFacade` y `AdminQuotesFacade`                            |
+| Facades                      | 8, incluidas las facades Admin de categorías, productos, cotizaciones, proyectos y detalle de proyecto       |
 | ApiServices                  | 10; uno por recurso backend documentado                                                                      |
 | Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                                |
-| Backend conectado            | Flujos públicos ISADECOR y gestión administrativa de categorías, productos y cotizaciones mediante facades   |
-| Admin                        | Layout, dashboard, categorías, productos y cotizaciones; sin autenticación                                   |
+| Backend conectado            | Flujos públicos ISADECOR y gestión Admin de categorías, productos, cotizaciones y proyectos mediante facades |
+| Admin                        | Layout, dashboard, categorías, productos, cotizaciones y proyectos; sin autenticación                        |
 | Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                                     |
 | Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                       |
-| Tests                        | 15 archivos spec con 89 casos aprobados, incluidos Quote público, categorías, productos y cotizaciones Admin |
+| Tests                        | 20 archivos spec con 117 casos aprobados, incluidos proyectos e imágenes Admin                               |
 | Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                                    |
 | Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server       |
 

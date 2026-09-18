@@ -47,7 +47,20 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/quotes/admin-quotes').then(({ AdminQuotes }) => AdminQuotes),
       },
-      { path: 'proyectos', loadComponent: loadAdminPlaceholder, data: { title: 'Proyectos' } },
+      {
+        path: 'proyectos',
+        loadComponent: () =>
+          import('./features/admin/projects/admin-projects').then(
+            ({ AdminProjects }) => AdminProjects,
+          ),
+      },
+      {
+        path: 'proyectos/:id',
+        loadComponent: () =>
+          import('./features/admin/projects/detail/admin-project-detail').then(
+            ({ AdminProjectDetail }) => AdminProjectDetail,
+          ),
+      },
       { path: 'servicios', loadComponent: loadAdminPlaceholder, data: { title: 'Servicios' } },
       {
         path: 'unidades-negocio',

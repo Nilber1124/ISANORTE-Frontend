@@ -3,19 +3,18 @@ info:
   title: ISANORTE / ISADECO API
   version: 0.0.1-SNAPSHOT
   description: |
-    Contrato estático derivado de los Controllers y DTO del commit de código
-    df55b1b3b856c71a5da17e9269e22d5984ae1a73, auditado el 2026-09-13.
+    Contrato estático derivado de los Controllers y DTO, actualizado el 2026-09-18.
     No implica integración de Swagger/OpenAPI en Spring Boot. Security/JWT no está implementado;
     `x-access-intent` expresa el acceso previsto y no una protección efectiva.
 x-contract-audit:
   controllers: 10
-  paths: 48
-  operations: 66
+  paths: 59
+  operations: 82
   get: 40
-  post: 9
-  put: 9
+  post: 14
+  put: 15
   patch: 8
-  delete: 0
+  delete: 5
 x-security-status: NOT_IMPLEMENTED
 servers:
   - url: http://localhost:8080
@@ -540,6 +539,259 @@ paths:
         '200': {$ref: '#/components/responses/ProductoOk'}
         '400': {$ref: '#/components/responses/BadRequest'}
         '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{productoId}/variantes:
+    post:
+      tags: [Productos]
+      operationId: crearVarianteProducto
+      summary: Agrega una variante a un producto existente
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VarianteProductoRequest'}
+      responses:
+        '201':
+          description: Variante creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/VarianteProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/{productoId}/variantes/{varianteId}:
+    put:
+      tags: [Productos]
+      operationId: actualizarVarianteProducto
+      summary: Reemplaza los campos editables de una variante del producto
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/VarianteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VarianteProductoRequest'}
+      responses:
+        '200':
+          description: Variante actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/VarianteProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+    delete:
+      tags: [Productos]
+      operationId: eliminarVarianteProducto
+      summary: Elimina una variante mediante orphanRemoval
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/VarianteId'
+      responses:
+        '204': {description: Variante eliminada}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{productoId}/imagenes:
+    post:
+      tags: [Productos]
+      operationId: crearImagenProducto
+      summary: Agrega una URL de imagen a un producto existente
+      description: No carga archivos. El dominio permite más de una imagen con esPrincipal=true.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImagenProductoRequest'}
+      responses:
+        '201':
+          description: Imagen creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImagenProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/{productoId}/imagenes/{imagenId}:
+    put:
+      tags: [Productos]
+      operationId: actualizarImagenProducto
+      summary: Actualiza una imagen URL perteneciente al producto
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/ImagenId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImagenProductoRequest'}
+      responses:
+        '200':
+          description: Imagen actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImagenProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+    delete:
+      tags: [Productos]
+      operationId: eliminarImagenProducto
+      summary: Elimina una imagen mediante orphanRemoval
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/ImagenId'
+      responses:
+        '204': {description: Imagen eliminada}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{productoId}/especificaciones:
+    post:
+      tags: [Productos]
+      operationId: crearEspecificacionProducto
+      summary: Agrega una especificación a un producto existente
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EspecificacionProductoRequest'}
+      responses:
+        '201':
+          description: Especificación creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EspecificacionProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/{productoId}/especificaciones/{especificacionId}:
+    put:
+      tags: [Productos]
+      operationId: actualizarEspecificacionProducto
+      summary: Actualiza una especificación perteneciente al producto
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/EspecificacionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EspecificacionProductoRequest'}
+      responses:
+        '200':
+          description: Especificación actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EspecificacionProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+    delete:
+      tags: [Productos]
+      operationId: eliminarEspecificacionProducto
+      summary: Elimina una especificación mediante orphanRemoval
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/EspecificacionId'
+      responses:
+        '204': {description: Especificación eliminada}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{productoId}/documentos:
+    post:
+      tags: [Productos]
+      operationId: crearDocumentoProducto
+      summary: Agrega un documento URL a un producto existente
+      description: No carga ni almacena archivos.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DocumentoProductoRequest'}
+      responses:
+        '201':
+          description: Documento creado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DocumentoProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/{productoId}/documentos/{documentoId}:
+    put:
+      tags: [Productos]
+      operationId: actualizarDocumentoProducto
+      summary: Actualiza un documento perteneciente al producto
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/DocumentoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DocumentoProductoRequest'}
+      responses:
+        '200':
+          description: Documento actualizado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DocumentoProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+    delete:
+      tags: [Productos]
+      operationId: eliminarDocumentoProducto
+      summary: Elimina un documento mediante orphanRemoval
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/DocumentoId'
+      responses:
+        '204': {description: Documento eliminado}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{productoId}/configuracion-calculo:
+    put:
+      tags: [Productos]
+      operationId: establecerConfiguracionCalculoProducto
+      summary: Crea o actualiza la configuración de cálculo del producto
+      description: Se retira funcionalmente enviando habilitada=false; la relación no se elimina.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ConfiguracionCalculoRequest'}
+      responses:
+        '200':
+          description: Configuración creada o actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ConfiguracionCalculoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
   /api/productos/slug/{slug}:
     get:
       tags: [Productos]
@@ -638,6 +890,65 @@ paths:
         '400': {$ref: '#/components/responses/BadRequest'}
         '404': {$ref: '#/components/responses/NotFound'}
         '409': {$ref: '#/components/responses/Conflict'}
+  /api/proyectos/{proyectoId}/imagenes:
+    post:
+      tags: [Proyectos]
+      operationId: crearImagenProyecto
+      summary: Agrega una imagen URL a un proyecto existente
+      description: No carga archivos. El dominio permite más de una imagen con esPrincipal=true.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProyectoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImagenProyectoRequest'}
+      responses:
+        '201':
+          description: Imagen creada y asociada al proyecto
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImagenProyectoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/proyectos/{proyectoId}/imagenes/{imagenId}:
+    put:
+      tags: [Proyectos]
+      operationId: actualizarImagenProyecto
+      summary: Actualiza una imagen URL perteneciente al proyecto
+      description: Conserva el ID y la FK; no permite mover la imagen a otro proyecto.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProyectoId'
+        - $ref: '#/components/parameters/ImagenId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImagenProyectoRequest'}
+      responses:
+        '200':
+          description: Imagen actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImagenProyectoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+    delete:
+      tags: [Proyectos]
+      operationId: eliminarImagenProyecto
+      summary: Elimina una imagen del proyecto mediante orphanRemoval
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProyectoId'
+        - $ref: '#/components/parameters/ImagenId'
+      responses:
+        '204': {description: Imagen eliminada}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
   /api/proyectos/{id}/activo:
     patch:
       tags: [Proyectos]
@@ -972,6 +1283,36 @@ components:
       in: path
       required: true
       schema: {type: string, format: uuid}
+    ProductoId:
+      name: productoId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    ProyectoId:
+      name: proyectoId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    VarianteId:
+      name: varianteId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    ImagenId:
+      name: imagenId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    EspecificacionId:
+      name: especificacionId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    DocumentoId:
+      name: documentoId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
     Slug:
       name: slug
       in: path
@@ -1259,7 +1600,7 @@ components:
           items: {$ref: '#/components/schemas/ProductoDocumentoRequest'}
         configuracionCalculo:
           allOf:
-            - $ref: '#/components/schemas/ConfiguracionCalculoRequest'
+            - $ref: '#/components/schemas/ProductoConfiguracionCalculoRequest'
           nullable: true
     ProductoVarianteRequest:
       type: object
@@ -1297,7 +1638,7 @@ components:
         tipo: {$ref: '#/components/schemas/TipoDocumentoProducto'}
         formato: {type: string, nullable: true}
         tamanoBytes: {type: integer, format: int64, minimum: 0, nullable: true}
-    ConfiguracionCalculoRequest:
+    ProductoConfiguracionCalculoRequest:
       type: object
       required: [coberturaPorUnidad]
       properties:
@@ -1307,6 +1648,52 @@ components:
         coberturaPorUnidad: {type: number, exclusiveMinimum: true, minimum: 0}
         unidadVenta: {type: string, nullable: true}
         textoAyuda: {type: string, nullable: true}
+    VarianteProductoRequest:
+      type: object
+      required: [sku, nombre, disponible, orden]
+      properties:
+        sku: {type: string, minLength: 1, maxLength: 100}
+        nombre: {type: string, minLength: 1, maxLength: 150}
+        descripcion: {type: string, maxLength: 500, nullable: true}
+        precio: {type: number, minimum: 0, nullable: true}
+        disponible: {type: boolean}
+        imagenUrl: {type: string, maxLength: 500, nullable: true}
+        orden: {type: integer, format: int32}
+    ImagenProductoRequest:
+      type: object
+      required: [url, esPrincipal, orden]
+      properties:
+        url: {type: string, minLength: 1, maxLength: 500}
+        altText: {type: string, maxLength: 200, nullable: true}
+        esPrincipal: {type: boolean}
+        orden: {type: integer, format: int32}
+    EspecificacionProductoRequest:
+      type: object
+      required: [clave, valor, orden]
+      properties:
+        clave: {type: string, minLength: 1, maxLength: 100}
+        valor: {type: string, minLength: 1, maxLength: 500}
+        grupo: {type: string, maxLength: 100, nullable: true}
+        orden: {type: integer, format: int32}
+    DocumentoProductoRequest:
+      type: object
+      required: [titulo, url, tipo]
+      properties:
+        titulo: {type: string, minLength: 1, maxLength: 180}
+        url: {type: string, minLength: 1, maxLength: 500}
+        tipo: {$ref: '#/components/schemas/TipoDocumentoProducto'}
+        formato: {type: string, maxLength: 20, nullable: true}
+        tamanoBytes: {type: integer, format: int64, minimum: 0, nullable: true}
+    ConfiguracionCalculoRequest:
+      type: object
+      required: [habilitada, coberturaPorUnidad]
+      properties:
+        habilitada: {type: boolean}
+        etiquetaEntrada: {type: string, maxLength: 100, nullable: true}
+        unidadEntrada: {type: string, maxLength: 50, nullable: true}
+        coberturaPorUnidad: {type: number, exclusiveMinimum: true, minimum: 0}
+        unidadVenta: {type: string, maxLength: 50, nullable: true}
+        textoAyuda: {type: string, maxLength: 255, nullable: true}
     ProyectoRequest:
       type: object
       required: [nombre, slug, descripcion]
@@ -1338,6 +1725,17 @@ components:
         tipo: {$ref: '#/components/schemas/TipoImagenProyecto'}
         esPrincipal: {type: boolean, nullable: true}
         orden: {type: integer, format: int32, nullable: true}
+    ImagenProyectoRequest:
+      type: object
+      description: DTO administrativo por URL; no acepta id, proyectoId, timestamps ni entidades.
+      required: [url, tipo, esPrincipal, orden]
+      properties:
+        url: {type: string, minLength: 1, maxLength: 500}
+        titulo: {type: string, maxLength: 150, nullable: true}
+        descripcion: {type: string, maxLength: 300, nullable: true}
+        tipo: {$ref: '#/components/schemas/TipoImagenProyecto'}
+        esPrincipal: {type: boolean}
+        orden: {type: integer, format: int32}
     SeccionLandingRequest:
       type: object
       required: [configuracionSitioId, tipo]
@@ -1778,26 +2176,26 @@ components:
         variantes:
           type: array
           nullable: true
-          items: {$ref: '#/components/schemas/ProductoVarianteResponse'}
+          items: {$ref: '#/components/schemas/VarianteProductoResponse'}
         imagenes:
           type: array
           nullable: true
-          items: {$ref: '#/components/schemas/ProductoImagenResponse'}
+          items: {$ref: '#/components/schemas/ImagenProductoResponse'}
         especificaciones:
           type: array
           nullable: true
-          items: {$ref: '#/components/schemas/ProductoEspecificacionResponse'}
+          items: {$ref: '#/components/schemas/EspecificacionProductoResponse'}
         documentos:
           type: array
           nullable: true
-          items: {$ref: '#/components/schemas/ProductoDocumentoResponse'}
+          items: {$ref: '#/components/schemas/DocumentoProductoResponse'}
         configuracionCalculo:
           allOf:
             - $ref: '#/components/schemas/ConfiguracionCalculoResponse'
           nullable: true
         fechaCreacion: {type: string, format: date-time, nullable: true}
         fechaActualizacion: {type: string, format: date-time, nullable: true}
-    ProductoVarianteResponse:
+    VarianteProductoResponse:
       type: object
       required: [id, sku, nombre, descripcion, precio, disponible, imagenUrl, orden]
       properties:
@@ -1809,7 +2207,7 @@ components:
         disponible: {type: boolean, nullable: true}
         imagenUrl: {type: string, nullable: true}
         orden: {type: integer, format: int32, nullable: true}
-    ProductoImagenResponse:
+    ImagenProductoResponse:
       type: object
       required: [id, url, altText, esPrincipal, orden]
       properties:
@@ -1818,7 +2216,7 @@ components:
         altText: {type: string, nullable: true}
         esPrincipal: {type: boolean, nullable: true}
         orden: {type: integer, format: int32, nullable: true}
-    ProductoEspecificacionResponse:
+    EspecificacionProductoResponse:
       type: object
       required: [id, clave, valor, grupo, orden]
       properties:
@@ -1827,7 +2225,7 @@ components:
         valor: {type: string}
         grupo: {type: string, nullable: true}
         orden: {type: integer, format: int32, nullable: true}
-    ProductoDocumentoResponse:
+    DocumentoProductoResponse:
       type: object
       required: [id, titulo, url, tipo, formato, tamanoBytes]
       properties:
@@ -1870,10 +2268,10 @@ components:
         imagenes:
           type: array
           nullable: true
-          items: {$ref: '#/components/schemas/ProyectoImagenResponse'}
+          items: {$ref: '#/components/schemas/ImagenProyectoResponse'}
         fechaCreacion: {type: string, format: date-time, nullable: true}
         fechaActualizacion: {type: string, format: date-time, nullable: true}
-    ProyectoImagenResponse:
+    ImagenProyectoResponse:
       type: object
       required: [id, url, titulo, descripcion, tipo, esPrincipal, orden]
       properties:

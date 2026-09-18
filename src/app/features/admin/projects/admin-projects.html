@@ -1,0 +1,181 @@
+<header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+  <div class="max-w-3xl">
+    <p class="text-eyebrow uppercase text-text-muted">Portafolio ISANORTE</p>
+    <h1 class="mt-3 text-heading-1 text-text-primary">Proyectos</h1>
+    <p class="mt-3 text-body text-text-secondary">
+      Administra la información, los servicios asociados y la visibilidad de los proyectos.
+    </p>
+  </div>
+  <app-button variant="primary" (click)="facade.openCreate()">Nuevo proyecto</app-button>
+</header>
+
+@if (facade.success(); as success) {
+  <app-alert
+    class="mt-7"
+    variant="success"
+    title="Cambio guardado"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+  >
+    {{ success }}
+  </app-alert>
+}
+
+@if (facade.error() && !facade.formOpen()) {
+  <app-alert
+    class="mt-7"
+    variant="error"
+    title="No pudimos completar la operación"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+  >
+    {{ facade.error() }}
+  </app-alert>
+}
+
+<section class="mt-8" aria-labelledby="projects-list-title">
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <h2 id="projects-list-title" class="text-heading-3 text-text-primary">Proyectos registrados</h2>
+    @if (!facade.loading()) {
+      <span class="text-body-sm text-text-muted" aria-live="polite">
+        {{ facade.projects().length }}
+        {{ facade.projects().length === 1 ? 'proyecto' : 'proyectos' }}
+      </span>
+    }
+  </div>
+
+  @if (facade.loading()) {
+    <div class="rounded-card border border-border bg-surface py-14">
+      <app-loading label="Cargando proyectos" size="large" />
+    </div>
+  } @else if (facade.projects().length === 0) {
+    <app-empty-state
+      emptyStateId="admin-projects-empty"
+      title="No hay proyectos registrados"
+      description="Crea el primer proyecto para comenzar a administrar el portafolio."
+    >
+      <app-button empty-state-actions variant="primary" (click)="facade.openCreate()"
+        >Nuevo proyecto</app-button
+      >
+    </app-empty-state>
+  } @else {
+    <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+      <table class="w-full min-w-[72rem] border-collapse text-left">
+        <caption class="sr-only">
+          Listado administrativo de proyectos ISANORTE
+        </caption>
+        <thead class="border-b border-border bg-background-soft">
+          <tr>
+            <th scope="col" class="table-heading">Proyecto</th>
+            <th scope="col" class="table-heading">Cliente</th>
+            <th scope="col" class="table-heading">Ubicación</th>
+            <th scope="col" class="table-heading">Servicios</th>
+            <th scope="col" class="table-heading">Destacado</th>
+            <th scope="col" class="table-heading">Estado</th>
+            <th scope="col" class="table-heading text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          @for (project of facade.projects(); track project.id) {
+            <tr class="transition-colors duration-fast hover:bg-surface-hover">
+              <th scope="row" class="px-5 py-4">
+                <span class="block text-body-sm font-semibold text-text-primary">{{
+                  project.nombre
+                }}</span>
+                <span class="mt-1 block font-mono text-caption text-text-muted">{{
+                  project.slug
+                }}</span>
+              </th>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                {{ project.cliente ?? 'Sin cliente' }}
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                {{ project.ubicacion ?? 'Sin ubicación' }}
+              </td>
+              <td class="max-w-64 px-5 py-4 text-body-sm text-text-secondary">
+                {{ serviceNames(project) }}
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                {{ project.destacado === true ? 'Sí' : 'No' }}
+              </td>
+              <td class="px-5 py-4">
+                <app-badge [variant]="project.activo === true ? 'success' : 'neutral'" dot>
+                  {{ project.activo === true ? 'Activo' : 'Inactivo' }}
+                </app-badge>
+              </td>
+              <td class="px-5 py-4">
+                <div class="flex justify-end gap-2">
+                  <app-button
+                    size="small"
+                    variant="ghost"
+                    [disabled]="facade.submitting() || facade.changingActiveId() !== null"
+                    (click)="facade.openEdit(project)"
+                    >Editar</app-button
+                  >
+                  <a
+                    [routerLink]="['/admin/proyectos', project.id]"
+                    class="inline-flex min-h-10 items-center justify-center rounded-button border border-border-strong bg-surface px-4 py-2 text-body-sm font-semibold text-text-primary shadow-sm transition-colors duration-normal hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                    >Gestionar</a
+                  >
+                  <app-button
+                    size="small"
+                    [variant]="project.activo === true ? 'secondary' : 'primary'"
+                    [loading]="facade.changingActiveId() === project.id"
+                    [disabled]="facade.submitting() || facade.changingActiveId() !== null"
+                    (click)="requestActiveChange(project)"
+                  >
+                    {{ project.activo === true ? 'Desactivar' : 'Activar' }}
+                  </app-button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (facade.formOpen()) {
+  <app-project-form
+    [mode]="facade.formMode()"
+    [project]="facade.selectedProject()"
+    [services]="facade.services()"
+    [loadingFormData]="facade.loadingFormData()"
+    [submitting]="facade.submitting()"
+    [serverError]="facade.error()"
+    (canceled)="facade.closeForm()"
+    (saved)="save($event)"
+  />
+}
+
+@if (projectToDeactivate(); as project) {
+  <app-modal
+    modalId="deactivate-project"
+    title="Desactivar proyecto"
+    [description]="
+      'El proyecto ' + project.nombre + ' dejará de aparecer en los endpoints públicos activos.'
+    "
+    size="small"
+    [open]="true"
+    [loading]="facade.changingActiveId() === project.id"
+    (closed)="closeDeactivation()"
+  >
+    <p class="text-body-sm text-text-secondary">Puedes volver a activarlo desde este listado.</p>
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button
+        variant="secondary"
+        [disabled]="facade.changingActiveId() !== null"
+        (click)="closeDeactivation()"
+        >Cancelar</app-button
+      >
+      <app-button
+        variant="primary"
+        [loading]="facade.changingActiveId() === project.id"
+        [disabled]="facade.changingActiveId() !== null"
+        (click)="confirmDeactivation()"
+        >Desactivar</app-button
+      >
+    </div>
+  </app-modal>
+}
