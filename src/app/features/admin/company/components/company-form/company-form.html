@@ -1,0 +1,136 @@
+<app-modal
+  modalId="company-form-modal"
+  [title]="mode() === 'create' ? 'Nueva empresa' : 'Editar empresa'"
+  description="Completa los datos corporativos de la empresa."
+  size="large"
+  [open]="true"
+  [loading]="submitting()"
+  (closed)="canceled.emit()"
+>
+  <form id="company-form" (submit)="submit(); $event.preventDefault()" novalidate>
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <app-input-field
+        inputId="company-razon-social"
+        label="Razón social"
+        [(value)]="razonSocial"
+        [error]="razonSocialError()"
+        [disabled]="submitting()"
+        required
+      />
+      <app-input-field
+        inputId="company-nombre-comercial"
+        label="Nombre comercial"
+        [(value)]="nombreComercial"
+        [error]="nombreComercialError()"
+        [disabled]="submitting()"
+        required
+      />
+      <app-input-field
+        inputId="company-ruc"
+        label="RUC"
+        [(value)]="ruc"
+        [error]="rucError()"
+        [disabled]="submitting()"
+        required
+      />
+      
+      <app-input-field
+        inputId="company-direccion"
+        label="Dirección"
+        [(value)]="direccion"
+        [disabled]="submitting()"
+      />
+      <app-input-field
+        inputId="company-ciudad"
+        label="Ciudad"
+        [(value)]="ciudad"
+        [disabled]="submitting()"
+      />
+      
+      <app-input-field
+        inputId="company-telefono"
+        label="Teléfono"
+        [(value)]="telefono"
+        [disabled]="submitting()"
+      />
+      <app-input-field
+        inputId="company-telefono-sec"
+        label="Teléfono secundario"
+        [(value)]="telefonoSecundario"
+        [disabled]="submitting()"
+      />
+      <app-input-field
+        inputId="company-whatsapp"
+        label="WhatsApp"
+        [(value)]="whatsapp"
+        [disabled]="submitting()"
+      />
+      <app-input-field
+        inputId="company-horario"
+        label="Horario de atención"
+        [(value)]="horarioAtencion"
+        [disabled]="submitting()"
+      />
+
+      <app-input-field
+        inputId="company-email"
+        type="email"
+        label="Email"
+        [(value)]="email"
+        [disabled]="submitting()"
+      />
+      <app-input-field
+        inputId="company-email-ventas"
+        type="email"
+        label="Email de ventas"
+        [(value)]="emailVentas"
+        [disabled]="submitting()"
+      />
+    </div>
+
+    <div class="mt-6 grid gap-4 lg:grid-cols-2">
+      <app-textarea-field
+        inputId="company-resumen"
+        label="Resumen Nosotros"
+        [(value)]="resumenNosotros"
+        [disabled]="submitting()"
+      />
+      <app-textarea-field
+        inputId="company-mision"
+        label="Misión"
+        [(value)]="mision"
+        [disabled]="submitting()"
+      />
+      <app-textarea-field
+        inputId="company-vision"
+        label="Visión"
+        [(value)]="vision"
+        [disabled]="submitting()"
+      />
+      <app-textarea-field
+        inputId="company-valores"
+        label="Valores"
+        [(value)]="valores"
+        [disabled]="submitting()"
+      />
+    </div>
+  </form>
+
+  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button
+      type="button"
+      variant="secondary"
+      [disabled]="submitting()"
+      (click)="canceled.emit()"
+    >
+      Cancelar
+    </app-button>
+    <app-button
+      [loading]="submitting()"
+      [disabled]="submitting()"
+      (click)="submit()"
+    >
+      {{ mode() === 'create' ? 'Registrar' : 'Guardar' }}
+    </app-button>
+  </div>
+</app-modal>

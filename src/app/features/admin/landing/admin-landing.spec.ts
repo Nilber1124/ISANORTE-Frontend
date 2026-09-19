@@ -1,0 +1,123 @@
+import { signal } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
+
+import { LandingSectionResponse } from '../../../data/models/landing-section/landing-section-response.model';
+import { LandingSectionType } from '../../../data/models/landing-section/landing-section-type.enum';
+import { SiteConfigResponse } from '../../../data/models/site-config/site-config-response.model';
+import { AdminLanding } from './admin-landing';
+import { AdminLandingFacade } from './admin-landing.facade';
+
+const mockSection: LandingSectionResponse = {
+  id: 'sec-1',
+  tipo: LandingSectionType.PERSONALIZADA,
+  titulo: 'Hero Principal',
+  subtitulo: null,
+  contenido: null,
+  imagenUrl: null,
+  textoBoton: null,
+  enlaceBoton: null,
+  orden: 0,
+  visible: false,
+  configuracionSitioId: 'site-1',
+  fechaCreacion: null,
+  fechaActualizacion: null,
+};
+
+const mockSiteConfig: SiteConfigResponse = {
+  id: 'site-1',
+  tituloSitio: 'ISANORTE',
+  descripcionSitio: null,
+  logoUrl: null,
+  logoBlancoUrl: null,
+  faviconUrl: null,
+  colorPrimario: null,
+  colorSecundario: null,
+  textoPiePagina: null,
+  empresa: { id: 'emp-1' } as any,
+  secciones: null,
+  fechaActualizacion: null,
+};
+
+describe('AdminLanding', () => {
+  let component: AdminLanding;
+  let fixture: ComponentFixture<AdminLanding>;
+  let facadeMock: any;
+
+  beforeEach(async () => {
+    facadeMock = {
+      sections: signal<LandingSectionResponse[]>([]),
+      siteConfigurations: signal<SiteConfigResponse[]>([]),
+      loading: signal<boolean>(false),
+      submitting: signal<boolean>(false),
+      changingVisibilityId: signal<string | null>(null),
+      error: signal<string | null>(null),
+      success: signal<string | null>(null),
+      selectedSection: signal<LandingSectionResponse | null>(null),
+      formMode: signal<'create' | 'edit'>('create'),
+      formOpen: signal<boolean>(false),
+      load: vi.fn(),
+      openCreate: vi.fn(),
+      openEdit: vi.fn(),
+      closeForm: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      changeVisibility: vi.fn(),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [AdminLanding],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { queryParams: of({}) },
+        },
+      ],
+    })
+      .overrideComponent(AdminLanding, {
+        set: {
+          providers: [{ provide: AdminLandingFacade, useValue: facadeMock }],
+        },
+      })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(AdminLanding);
+    component = fixture.componentInstance;
+  });
+
+  it('debe crearse correctamente', () => {
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
+  });
+
+  it('debe mostrar mensaje de falta de configuración', () => {
+    facadeMock.siteConfigurations.set([]);
+    facadeMock.sections.set([]);
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Falta configuración inicial');
+  });
+
+  it('debe mostrar mensaje de sin secciones cuando hay config pero 0 secciones', () => {
+    facadeMock.siteConfigurations.set([mockSiteConfig]);
+    facadeMock.sections.set([]);
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Sin secciones');
+    expect(text).toContain('No hay secciones de Landing registradas');
+  });
+
+  it('debe mostrar la tabla con datos', () => {
+    facadeMock.siteConfigurations.set([mockSiteConfig]);
+    facadeMock.sections.set([mockSection]);
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Hero Principal');
+    expect(text).toContain('PERSONALIZADA');
+    expect(text).toContain('Oculta');
+  });
+});

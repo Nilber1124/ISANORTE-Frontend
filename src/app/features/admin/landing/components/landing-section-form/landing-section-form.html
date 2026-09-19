@@ -1,0 +1,136 @@
+<app-modal
+  modalId="landing-section-modal"
+  [open]="open()"
+  [title]="mode() === 'create' ? 'Nueva Sección' : 'Editar Sección'"
+  (closed)="closed.emit()"
+>
+  <form (submit)="submit($event)" class="space-y-6">
+    
+    @if (mode() === 'create' && hasMultipleConfigs()) {
+      <app-select-field
+        inputId="config"
+        label="Configuración de Sitio *"
+        [options]="configOptions()"
+        [(value)]="configuracionSitioId"
+        [disabled]="submitting()"
+        [required]="true"
+      />
+    }
+
+    <app-select-field
+      inputId="tipo"
+      label="Tipo de Sección *"
+      [options]="typeOptions"
+      [(value)]="tipo"
+      [disabled]="submitting()"
+      [required]="true"
+    />
+
+    <app-input-field
+      inputId="titulo"
+      label="Título"
+      [(value)]="titulo"
+      placeholder="Ej. Bienvenidos a ISANORTE"
+      [disabled]="submitting()"
+    />
+
+    <app-input-field
+      inputId="subtitulo"
+      label="Subtítulo"
+      [(value)]="subtitulo"
+      placeholder="Ej. Líderes en construcción"
+      [disabled]="submitting()"
+    />
+
+    <app-textarea-field
+      inputId="contenido"
+      label="Contenido"
+      [(value)]="contenido"
+      placeholder="Descripción de la sección..."
+      [disabled]="submitting()"
+      [rows]="3"
+    />
+
+    <div class="space-y-4">
+      <app-input-field
+        inputId="imagenUrl"
+        label="Imagen (URL)"
+        type="url"
+        [(value)]="imagenUrl"
+        placeholder="https://ejemplo.com/imagen.jpg"
+        [disabled]="submitting()"
+      />
+      @if (imagenUrl()) {
+        <div class="h-32 w-full overflow-hidden rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center">
+          <img 
+            [src]="imagenUrl()" 
+            alt="Vista previa de imagen" 
+            class="max-h-full max-w-full object-contain"
+            (error)="imagenUrl.set('')"
+          />
+        </div>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <app-input-field
+        inputId="textoBoton"
+        label="Texto del botón (CTA)"
+        [(value)]="textoBoton"
+        placeholder="Ej. Contáctanos"
+        [disabled]="submitting()"
+      />
+      <app-input-field
+        inputId="enlaceBoton"
+        label="Enlace del botón (CTA)"
+        [(value)]="enlaceBoton"
+        placeholder="Ej. /contacto"
+        [disabled]="submitting()"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+      <app-input-field
+        inputId="orden"
+        label="Orden *"
+        type="number"
+        [(value)]="orden"
+        [required]="true"
+        [disabled]="submitting()"
+      />
+      
+      <div class="flex items-center space-x-2 mt-4 md:mt-6">
+        <input 
+          type="checkbox" 
+          id="visible" 
+          name="visible" 
+          [checked]="visible()" 
+          (change)="handleVisibilityChange($event)"
+          [disabled]="submitting()"
+          class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600"
+        >
+        <label for="visible" class="text-sm font-medium leading-6 text-gray-900">
+          Visible públicamente
+        </label>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-x-3 pt-4 border-t border-gray-200">
+      <app-button
+        type="button"
+        variant="secondary"
+        (clicked)="closed.emit()"
+        [disabled]="submitting()"
+      >
+        Cancelar
+      </app-button>
+      <app-button
+        type="submit"
+        variant="primary"
+        [loading]="submitting()"
+      >
+        Guardar
+      </app-button>
+    </div>
+  </form>
+</app-modal>

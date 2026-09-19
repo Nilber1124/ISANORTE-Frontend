@@ -645,6 +645,8 @@ Todas las rutas se declaran en `src/app/app.routes.ts`. Las rutas públicas exis
 | `/isadecor/productos/:slug` | `features/isadecor/product-detail` | `PublicLayout` | Detalle funcional conectado al backend             |
 | `/admin`                    | `features/admin/dashboard`         | `AdminLayout`  | Dashboard estructural sin conexión API             |
 | `/admin/categorias`         | `features/admin/categories`        | `AdminLayout`  | Gestión de categorías conectada al backend         |
+| `/admin/empresa`            | `features/admin/company`           | `AdminLayout`  | Gestión corporativa y redes sociales               |
+| `/admin/landing`            | `features/admin/landing`           | `AdminLayout`  | Gestión de secciones de la Landing Page            |
 | `/admin/productos`          | `features/admin/products`          | `AdminLayout`  | Gestión de productos conectada al backend          |
 | `/admin/cotizaciones`       | `features/admin/quotes`            | `AdminLayout`  | Consulta y cambio de estado de cotizaciones        |
 | `/admin/proyectos`          | `features/admin/projects`          | `AdminLayout`  | Gestión de proyectos y activación lógica           |
@@ -767,6 +769,30 @@ Spring Boot
 La pantalla carga el listado con `GET /api/cotizaciones`, obtiene el detalle con `GET /api/cotizaciones/{id}` y actualiza el estado con `PATCH /api/cotizaciones/{id}/estado`. `QuoteApiService` también conserva los métodos documentados para `GET /api/cotizaciones/codigo/{codigo}` y `GET /api/cotizaciones/estado/{estado}`, aunque AdminQuotes no los necesita: filtra el listado ya cargado para evitar peticiones repetidas. La respuesta del PATCH actualiza tanto la fila como el detalle abierto y muestra el seguimiento que Spring Boot crea automáticamente.
 
 AdminQuotes muestra únicamente los importes entregados por el backend. `totalEstimado`, `precioUnitario` y `subtotal` nulos se presentan como «Por confirmar»; el frontend no calcula valores oficiales ni inventa moneda. Los datos personales permanecen en memoria de la pantalla administrativa: no se guardan en storage, no se incorporan a la URL y no se escriben en logs.
+
+`/admin/empresa` implementa consulta, edición corporativa y gestión de redes sociales mediante el siguiente flujo:
+
+```mermaid
+graph TD;
+AdminLayout --> AdminCompany;
+AdminCompany --> AdminCompanyFacade;
+AdminCompanyFacade --> CompanyApiService;
+CompanyApiService --> SpringBoot;
+```
+
+Utiliza `GET /api/empresa` para listar y obtener datos, `POST /api/empresa` para registrar una nueva, y `PUT /api/empresa/{id}` para actualizarla. Para redes sociales, utiliza `POST /api/empresa/{empresaId}/redes-sociales`, `PUT /api/empresa/{empresaId}/redes-sociales/{redSocialId}` y `DELETE /api/empresa/{empresaId}/redes-sociales/{redSocialId}`. `PUT Empresa` no envía redes sociales ni otras colecciones (unidades de negocio, configuración), ya que el backend las preserva y se editan de forma asilada y separada mediante sus propios endpoints.
+
+`/admin/landing` implementa listado, creación, edición de contenido y visibilidad de las secciones de la página principal:
+
+```mermaid
+graph TD;
+AdminLayout --> AdminLanding;
+AdminLanding --> AdminLandingFacade;
+AdminLandingFacade --> LandingSectionApiService;
+AdminLandingFacade -.-> SiteConfigApiService;
+```
+
+Utiliza `GET /api/secciones-landing` (para obtener todas, incluyendo ocultas), `POST /api/secciones-landing`, y `PUT /api/secciones-landing/{id}` preservando el `configuracionSitioId` de forma estricta. Para el estado visible usa un cambio optimizado con `PATCH /api/secciones-landing/{id}/visible`. Además verifica si existe `SiteConfig` antes de permitir la creación de una sección para mantener la integridad.
 
 El módulo administrativo no crea ni elimina cotizaciones, no edita los datos del solicitante y no crea seguimientos manuales.
 

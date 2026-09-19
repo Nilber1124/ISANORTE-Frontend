@@ -1,0 +1,223 @@
+<header class="mb-8 flex items-center justify-between">
+  <div>
+    <h1 class="text-h4 font-bold text-text-primary">Empresa</h1>
+    <p class="mt-1 text-body-sm text-text-secondary">Gestiona la información corporativa y redes sociales.</p>
+  </div>
+</header>
+
+@if (facade.error() && !facade.companyFormOpen() && !facade.socialFormOpen()) {
+  <app-alert class="mb-6" variant="error" title="Error">{{ facade.error() }}</app-alert>
+}
+
+@if (facade.success() && !facade.companyFormOpen() && !facade.socialFormOpen()) {
+  <app-alert class="mb-6" variant="success" title="Éxito">{{ facade.success() }}</app-alert>
+}
+
+@if (facade.loading()) {
+  <div class="mt-12 flex justify-center">
+    <app-loading size="large" />
+  </div>
+} @else {
+  @if (facade.companies().length === 0) {
+    <app-empty-state
+      emptyStateId="admin-empty-company"
+      title="No hay una empresa registrada"
+      description="Registra los datos de la empresa para habilitar la administración corporativa."
+      icon="building"
+      actionText="Registrar empresa"
+      (action)="facade.openCompanyCreate()"
+    />
+  } @else if (facade.companies().length > 1 && !facade.company()) {
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      @for (cmp of facade.companies(); track cmp.id) {
+        <div class="rounded-card border border-border bg-surface px-5 py-4">
+          <h2 class="text-subtitle font-semibold text-text-primary">{{ cmp.razonSocial }}</h2>
+          <p class="mt-1 text-body-sm text-text-secondary">RUC: {{ cmp.ruc }}</p>
+          <app-button variant="secondary" class="mt-4 w-full" (click)="facade.selectCompany(cmp.id)">
+            Administrar
+          </app-button>
+        </div>
+      }
+    </div>
+  } @else if (facade.company(); as company) {
+    <div class="grid items-start gap-6 lg:grid-cols-3">
+      <div class="space-y-6 lg:col-span-2">
+        <section class="rounded-card border border-border bg-surface p-5">
+          <div class="flex items-center justify-between border-b border-border pb-4">
+            <h2 class="text-subtitle font-semibold text-text-primary">Información general</h2>
+            <app-button variant="secondary" size="small" (click)="facade.openCompanyEdit()">Editar datos</app-button>
+          </div>
+          <div class="grid gap-y-4 pt-4 sm:grid-cols-2">
+            <div>
+              <p class="text-caption font-medium text-text-muted">Razón social</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.razonSocial }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Nombre comercial</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.nombreComercial }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">RUC</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.ruc }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Horario de atención</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.horarioAtencion || '-' }}</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-card border border-border bg-surface p-5">
+          <h2 class="border-b border-border pb-4 text-subtitle font-semibold text-text-primary">Contacto y Ubicación</h2>
+          <div class="grid gap-y-4 pt-4 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <p class="text-caption font-medium text-text-muted">Dirección</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.direccion || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Ciudad</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.ciudad || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Email</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.email || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Email de ventas</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.emailVentas || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Teléfono principal</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.telefono || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Teléfono secundario</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.telefonoSecundario || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">WhatsApp</p>
+              <p class="mt-1 text-body-sm text-text-primary">{{ company.whatsapp || '-' }}</p>
+            </div>
+          </div>
+        </section>
+        
+        <section class="rounded-card border border-border bg-surface p-5">
+          <h2 class="border-b border-border pb-4 text-subtitle font-semibold text-text-primary">Contenido corporativo</h2>
+          <div class="space-y-4 pt-4">
+            <div>
+              <p class="text-caption font-medium text-text-muted">Resumen Nosotros</p>
+              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">{{ company.resumenNosotros || '-' }}</p>
+            </div>
+            <div class="border-t border-border pt-4">
+              <p class="text-caption font-medium text-text-muted">Misión</p>
+              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">{{ company.mision || '-' }}</p>
+            </div>
+            <div class="border-t border-border pt-4">
+              <p class="text-caption font-medium text-text-muted">Visión</p>
+              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">{{ company.vision || '-' }}</p>
+            </div>
+            <div class="border-t border-border pt-4">
+              <p class="text-caption font-medium text-text-muted">Valores</p>
+              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">{{ company.valores || '-' }}</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="space-y-6">
+        <section class="rounded-card border border-border bg-surface p-5">
+          <div class="flex items-center justify-between border-b border-border pb-4">
+            <h2 class="text-subtitle font-semibold text-text-primary">Redes sociales</h2>
+            <app-button variant="secondary" size="small" (click)="facade.openSocialNetworkCreate()">Agregar</app-button>
+          </div>
+          
+          <div class="space-y-3 pt-4">
+            @for (net of sortedNetworks; track net.id) {
+              <div class="flex items-center justify-between rounded-control border border-border p-3 transition-colors hover:border-primary/30">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <p class="truncate text-body-sm font-medium text-text-primary" [title]="net.nombre">{{ net.nombre }}</p>
+                    @if (!net.activo) {
+                      <app-badge variant="neutral" class="shrink-0">Inactiva</app-badge>
+                    }
+                  </div>
+                  <p class="truncate text-caption text-text-muted" [title]="net.url">{{ net.url }}</p>
+                </div>
+                <div class="ml-3 flex shrink-0 gap-1">
+                  <button
+                    type="button"
+                    class="rounded p-1.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-primary"
+                    aria-label="Editar"
+                    (click)="facade.openSocialNetworkEdit(net)"
+                  >
+                    <span class="icon-[tabler--pencil] size-4"></span>
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded p-1.5 text-text-muted transition-colors hover:bg-error/10 hover:text-error"
+                    aria-label="Eliminar"
+                    (click)="requestDeleteNetwork(net)"
+                  >
+                    <span class="icon-[tabler--trash] size-4"></span>
+                  </button>
+                </div>
+              </div>
+            } @empty {
+              <p class="text-center text-body-sm text-text-muted">No hay redes sociales registradas.</p>
+            }
+          </div>
+        </section>
+      </div>
+    </div>
+  }
+}
+
+@if (facade.companyFormOpen()) {
+  <app-company-form
+    [mode]="facade.companyFormMode()"
+    [initialData]="facade.company()"
+    [submitting]="facade.submitting()"
+    (saved)="saveCompany($event)"
+    (canceled)="facade.closeCompanyForm()"
+  />
+}
+
+@if (facade.socialFormOpen()) {
+  <app-social-network-form
+    [mode]="facade.selectedSocialNetwork() ? 'edit' : 'create'"
+    [initialData]="facade.selectedSocialNetwork()"
+    [submitting]="facade.savingSocialNetwork()"
+    (saved)="saveSocialNetwork($event)"
+    (canceled)="facade.closeSocialNetworkForm()"
+  />
+}
+
+@if (networkToDelete(); as net) {
+  <app-modal
+    modalId="delete-network-modal"
+    title="Eliminar red social"
+    [description]="'¿Estás seguro de que deseas eliminar la red social ' + net.nombre + '? Esta acción no se puede deshacer.'"
+    size="small"
+    [open]="true"
+    [loading]="facade.deletingSocialNetworkId() === net.id"
+    (closed)="closeDeleteNetwork()"
+  >
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button
+        variant="secondary"
+        [disabled]="facade.deletingSocialNetworkId() === net.id"
+        (click)="closeDeleteNetwork()"
+      >
+        Cancelar
+      </app-button>
+      <app-button
+        variant="primary"
+        class="bg-error hover:bg-error/90"
+        [loading]="facade.deletingSocialNetworkId() === net.id"
+        (click)="confirmDeleteNetwork()"
+      >
+        Eliminar
+      </app-button>
+    </div>
+  </app-modal>
+}

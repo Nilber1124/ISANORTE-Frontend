@@ -1,0 +1,159 @@
+<div class="space-y-6">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:tracking-tight">
+        Secciones de Landing
+      </h1>
+      <p class="mt-1 text-sm leading-6 text-gray-500">
+        Administra el contenido, visibilidad y orden de las secciones de la página principal.
+      </p>
+    </div>
+    <div class="mt-4 sm:ml-4 sm:mt-0">
+      <app-button
+        variant="primary"
+        (clicked)="facade.openCreate()"
+        [disabled]="facade.loading() || facade.siteConfigurations().length === 0"
+      >
+        Nueva sección
+      </app-button>
+    </div>
+  </div>
+
+  @if (facade.error()) {
+    <app-alert variant="error">{{ facade.error() }}</app-alert>
+  }
+
+  @if (facade.success()) {
+    <app-alert variant="success">{{ facade.success() }}</app-alert>
+  }
+
+  @if (facade.loading()) {
+    <div class="animate-pulse space-y-4">
+      <div class="h-10 bg-gray-200 rounded"></div>
+      <div class="h-10 bg-gray-200 rounded"></div>
+      <div class="h-10 bg-gray-200 rounded"></div>
+    </div>
+  } @else {
+    
+    @if (facade.siteConfigurations().length === 0) {
+      <app-empty-state
+        emptyStateId="no-config"
+        title="Falta configuración inicial"
+        description="Primero debes crear la configuración del sitio para poder agregar secciones a la landing page."
+      >
+        <svg empty-state-icon class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div empty-state-actions>
+          <a routerLink="/admin/configuracion" class="text-sm font-semibold leading-6 text-primary-600 hover:text-primary-500">
+            Ir a Configuración <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </app-empty-state>
+    } @else if (facade.sections().length === 0) {
+      <app-empty-state
+        emptyStateId="no-sections"
+        title="Sin secciones"
+        description="No hay secciones de Landing registradas."
+      >
+        <svg empty-state-icon class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+        </svg>
+        <div empty-state-actions>
+          <app-button variant="primary" (clicked)="facade.openCreate()">
+            Nueva sección
+          </app-button>
+        </div>
+      </app-empty-state>
+    } @else {
+      <div class="mt-8 flow-root">
+        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Tipo / Título</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Orden</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Visibilidad</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Acción (CTA)</th>
+                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                      <span class="sr-only">Acciones</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                  @for (section of facade.sections(); track section.id) {
+                    <tr>
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                        <div class="font-medium text-gray-900">{{ section.tipo }}</div>
+                        @if (section.titulo) {
+                          <div class="text-gray-500">{{ section.titulo }}</div>
+                        }
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {{ section.orden }}
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        @if (facade.changingVisibilityId() === section.id) {
+                          <span class="inline-flex items-center text-gray-500">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Actualizando...
+                          </span>
+                        } @else {
+                          <app-badge [variant]="section.visible ? 'success' : 'neutral'">
+                            {{ section.visible ? 'Visible' : 'Oculta' }}
+                          </app-badge>
+                        }
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        @if (section.textoBoton) {
+                          {{ section.textoBoton }}
+                        } @else {
+                          <span class="text-gray-400">-</span>
+                        }
+                      </td>
+                      <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                        <div class="flex items-center justify-end gap-x-4">
+                          <button
+                            type="button"
+                            (click)="facade.changeVisibility(section, !section.visible)"
+                            class="text-primary-600 hover:text-primary-900"
+                            [disabled]="facade.changingVisibilityId() !== null"
+                          >
+                            {{ section.visible ? 'Ocultar' : 'Mostrar' }}
+                          </button>
+                          <button
+                            type="button"
+                            (click)="facade.openEdit(section)"
+                            class="text-primary-600 hover:text-primary-900"
+                          >
+                            Editar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  <app-landing-section-form
+    [open]="facade.formOpen()"
+    [mode]="facade.formMode()"
+    [initialData]="facade.selectedSection()"
+    [siteConfigurations]="facade.siteConfigurations()"
+    [submitting]="facade.submitting()"
+    (closed)="facade.closeForm()"
+    (created)="facade.create($event)"
+    (updated)="facade.update($event)"
+  />
+</div>
