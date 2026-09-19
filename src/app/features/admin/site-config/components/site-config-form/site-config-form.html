@@ -1,0 +1,235 @@
+<app-modal
+  modalId="site-config-form-modal"
+  [title]="mode() === 'create' ? 'Crear configuración' : 'Editar configuración'"
+  description="Administra la identidad visual y los datos globales del sitio."
+  size="large"
+  [open]="true"
+  [loading]="submitting()"
+  (closed)="canceled.emit()"
+>
+  @if (serverError(); as error) {
+    <app-alert class="mb-5" variant="error" title="No se guardó la configuración">
+      {{ error }}
+    </app-alert>
+  }
+
+  <form
+    id="site-config-form"
+    class="space-y-7"
+    (submit)="submit(); $event.preventDefault()"
+    novalidate
+  >
+    @if (mode() === 'create') {
+      <section aria-labelledby="config-company-heading">
+        <h2 id="config-company-heading" class="mb-4 text-heading-4 text-text-primary">
+          Empresa asociada
+        </h2>
+        @if (!loadingFormData() && !hasCompanies()) {
+          <app-alert variant="warning" title="Primero registra una empresa">
+            No hay empresas disponibles. La configuración no puede crearse sin una empresa real.
+          </app-alert>
+        } @else if (companies().length === 1) {
+          <div class="rounded-control border border-border bg-surface-soft px-4 py-3">
+            <p class="text-body-sm font-semibold text-text-primary">
+              {{ companies()[0].nombreComercial }}
+            </p>
+            <p class="mt-1 text-caption text-text-muted">Se asociará automáticamente.</p>
+          </div>
+        } @else {
+          <app-select-field
+            inputId="site-config-company"
+            label="Empresa"
+            [(value)]="empresaId"
+            [options]="companyOptions()"
+            placeholder="Selecciona una empresa"
+            [error]="empresaError()"
+            [loading]="loadingFormData()"
+            [disabled]="submitting() || !hasCompanies()"
+            required
+          />
+        }
+      </section>
+    } @else if (config(); as currentConfig) {
+      <section aria-labelledby="config-company-heading">
+        <h2 id="config-company-heading" class="mb-4 text-heading-4 text-text-primary">
+          Empresa asociada
+        </h2>
+        <div class="rounded-control border border-border bg-surface-soft px-4 py-3">
+          <p class="text-body-sm font-semibold text-text-primary">
+            {{ currentConfig.empresa.nombreComercial }}
+          </p>
+          <p class="mt-1 text-caption text-text-muted">
+            La empresa no se puede cambiar al editar la configuración.
+          </p>
+        </div>
+      </section>
+    }
+
+    <section aria-labelledby="config-identity-heading">
+      <h2 id="config-identity-heading" class="mb-4 text-heading-4 text-text-primary">
+        Identidad del sitio
+      </h2>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <app-input-field
+          inputId="site-config-title"
+          label="Título del sitio"
+          [(value)]="tituloSitio"
+          [disabled]="submitting()"
+        />
+        <app-textarea-field
+          inputId="site-config-description"
+          label="Descripción del sitio"
+          [(value)]="descripcionSitio"
+          [rows]="3"
+          [disabled]="submitting()"
+        />
+      </div>
+    </section>
+
+    <section aria-labelledby="config-branding-heading">
+      <h2 id="config-branding-heading" class="mb-4 text-heading-4 text-text-primary">Branding</h2>
+      <div class="grid gap-5 lg:grid-cols-3">
+        <div>
+          <app-input-field
+            inputId="site-config-logo"
+            label="Logo URL"
+            type="url"
+            [value]="logoUrl()"
+            (valueChange)="updateLogoUrl($event)"
+            placeholder="https://..."
+            [disabled]="submitting()"
+          />
+          @if (logoUrl()) {
+            <div class="mt-3" aria-live="polite">
+              @if (logoFailed()) {
+                <div class="image-fallback" role="status">No se pudo mostrar el logo.</div>
+              } @else {
+                <img
+                  class="image-preview"
+                  [src]="logoUrl()"
+                  alt="Vista previa del logo"
+                  (error)="logoFailed.set(true)"
+                />
+              }
+            </div>
+          }
+        </div>
+        <div>
+          <app-input-field
+            inputId="site-config-white-logo"
+            label="Logo blanco URL"
+            type="url"
+            [value]="logoBlancoUrl()"
+            (valueChange)="updateWhiteLogoUrl($event)"
+            placeholder="https://..."
+            [disabled]="submitting()"
+          />
+          @if (logoBlancoUrl()) {
+            <div class="mt-3" aria-live="polite">
+              @if (whiteLogoFailed()) {
+                <div class="image-fallback" role="status">No se pudo mostrar el logo blanco.</div>
+              } @else {
+                <img
+                  class="image-preview image-preview-dark"
+                  [src]="logoBlancoUrl()"
+                  alt="Vista previa del logo blanco"
+                  (error)="whiteLogoFailed.set(true)"
+                />
+              }
+            </div>
+          }
+        </div>
+        <div>
+          <app-input-field
+            inputId="site-config-favicon"
+            label="Favicon URL"
+            type="url"
+            [value]="faviconUrl()"
+            (valueChange)="updateFaviconUrl($event)"
+            placeholder="https://..."
+            [disabled]="submitting()"
+          />
+          @if (faviconUrl()) {
+            <div class="mt-3" aria-live="polite">
+              @if (faviconFailed()) {
+                <div class="image-fallback" role="status">No se pudo mostrar el favicon.</div>
+              } @else {
+                <img
+                  class="favicon-preview"
+                  [src]="faviconUrl()"
+                  alt="Vista previa del favicon"
+                  (error)="faviconFailed.set(true)"
+                />
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="config-colors-heading">
+      <h2 id="config-colors-heading" class="mb-4 text-heading-4 text-text-primary">Colores</h2>
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div class="color-field">
+          <app-input-field
+            inputId="site-config-primary-color"
+            label="Color primario"
+            [(value)]="colorPrimario"
+            helperText="Se guarda como texto, sin modificar el Design System."
+            [disabled]="submitting()"
+          />
+          @if (colorPrimario()) {
+            <span
+              class="color-swatch"
+              [style.background-color]="colorPrimario()"
+              aria-hidden="true"
+            ></span>
+          }
+        </div>
+        <div class="color-field">
+          <app-input-field
+            inputId="site-config-secondary-color"
+            label="Color secundario"
+            [(value)]="colorSecundario"
+            helperText="Se guarda como texto, sin modificar el Design System."
+            [disabled]="submitting()"
+          />
+          @if (colorSecundario()) {
+            <span
+              class="color-swatch"
+              [style.background-color]="colorSecundario()"
+              aria-hidden="true"
+            ></span>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="config-footer-heading">
+      <h2 id="config-footer-heading" class="mb-4 text-heading-4 text-text-primary">
+        Pie de página
+      </h2>
+      <app-textarea-field
+        inputId="site-config-footer-text"
+        label="Texto del pie de página"
+        [(value)]="textoPiePagina"
+        [rows]="4"
+        helperText="El contenido se guarda exactamente como fue ingresado."
+        [disabled]="submitting()"
+      />
+    </section>
+  </form>
+
+  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
+      Cancelar
+    </app-button>
+    <app-button
+      [loading]="submitting()"
+      [disabled]="submitting() || loadingFormData() || (mode() === 'create' && !hasCompanies())"
+      (click)="submit()"
+    >
+      {{ mode() === 'create' ? 'Crear configuración' : 'Guardar cambios' }}
+    </app-button>
+  </div>
+</app-modal>

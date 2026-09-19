@@ -83,8 +83,10 @@ export const routes: Routes = [
       { path: 'landing', loadComponent: loadAdminPlaceholder, data: { title: 'Landing' } },
       {
         path: 'configuracion',
-        loadComponent: loadAdminPlaceholder,
-        data: { title: 'Configuración' },
+        loadComponent: () =>
+          import('./features/admin/site-config/admin-site-config').then(
+            ({ AdminSiteConfig }) => AdminSiteConfig,
+          ),
       },
     ],
   },

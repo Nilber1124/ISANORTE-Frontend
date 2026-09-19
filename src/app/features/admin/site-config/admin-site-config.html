@@ -1,0 +1,224 @@
+<div class="space-y-6">
+  <header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <p class="text-eyebrow text-accent-strong">Administración</p>
+      <h1 class="mt-2 text-heading-1 text-text-primary">Configuración del sitio</h1>
+      <p class="mt-2 max-w-2xl text-body text-text-secondary">
+        Consulta y administra la identidad visual y los datos globales del sitio.
+      </p>
+    </div>
+    @if (!facade.loading() && facade.configs().length === 0) {
+      <app-button (click)="facade.openCreate()">Crear configuración</app-button>
+    }
+  </header>
+
+  @if (facade.error() && !facade.formOpen()) {
+    <app-alert variant="error" title="No se pudo completar la operación">
+      {{ facade.error() }}
+    </app-alert>
+  }
+  @if (facade.success()) {
+    <app-alert variant="success">{{ facade.success() }}</app-alert>
+  }
+
+  @if (facade.loading()) {
+    <app-loading label="Cargando configuraciones" />
+  } @else if (facade.configs().length === 0) {
+    <app-empty-state
+      emptyStateId="site-config-empty"
+      title="No hay configuración de sitio registrada."
+      description="Crea la configuración inicial y asóciala a una empresa registrada."
+    >
+      <div empty-state-actions>
+        <app-button (click)="facade.openCreate()">Crear configuración</app-button>
+      </div>
+    </app-empty-state>
+  } @else {
+    @if (facade.configs().length > 1) {
+      <section
+        class="rounded-card border border-border bg-surface p-5"
+        aria-labelledby="config-list-heading"
+      >
+        <div class="mb-4">
+          <h2 id="config-list-heading" class="text-heading-4 text-text-primary">
+            Configuraciones registradas
+          </h2>
+          <p class="mt-1 text-body-sm text-text-secondary">
+            Selecciona explícitamente la configuración que deseas consultar o editar.
+          </p>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          @for (config of facade.configs(); track config.id) {
+            <button
+              type="button"
+              class="config-selector"
+              [class.config-selector-active]="facade.selectedConfig()?.id === config.id"
+              [attr.aria-pressed]="facade.selectedConfig()?.id === config.id"
+              (click)="facade.selectConfig(config.id)"
+            >
+              <span class="font-semibold text-text-primary">{{
+                config.tituloSitio || 'Sin título'
+              }}</span>
+              <span class="mt-1 text-caption text-text-muted">{{
+                config.empresa.nombreComercial
+              }}</span>
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    @if (facade.selectedConfig(); as config) {
+      <div class="flex justify-end">
+        <app-button (click)="facade.openEdit()">Editar configuración</app-button>
+      </div>
+
+      <div class="grid gap-6 xl:grid-cols-2">
+        <section class="config-card" aria-labelledby="identity-heading">
+          <h2 id="identity-heading" class="config-card-title">Identidad del sitio</h2>
+          <dl class="config-list">
+            <div>
+              <dt>Título</dt>
+              <dd>{{ config.tituloSitio || 'No configurado' }}</dd>
+            </div>
+            <div>
+              <dt>Descripción</dt>
+              <dd class="whitespace-pre-wrap">{{ config.descripcionSitio || 'No configurada' }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="config-card" aria-labelledby="company-heading">
+          <h2 id="company-heading" class="config-card-title">Empresa asociada</h2>
+          <p class="text-body font-semibold text-text-primary">
+            {{ config.empresa.nombreComercial }}
+          </p>
+          <p class="mt-2 text-body-sm text-text-muted">Esta asociación es de solo lectura.</p>
+        </section>
+
+        <section class="config-card xl:col-span-2" aria-labelledby="branding-heading">
+          <h2 id="branding-heading" class="config-card-title">Branding</h2>
+          <div class="grid gap-5 md:grid-cols-3">
+            <div>
+              <p class="config-label">Logo</p>
+              @if (config.logoUrl) {
+                @if (previewFailed(config, 'logo')) {
+                  <div class="preview-fallback" role="status">No se pudo mostrar el logo.</div>
+                } @else {
+                  <img
+                    class="brand-preview"
+                    [src]="config.logoUrl"
+                    alt="Logo configurado del sitio"
+                    (error)="markPreviewFailed(config.id + ':logo')"
+                  />
+                }
+                <p class="preview-url" [title]="config.logoUrl">{{ config.logoUrl }}</p>
+              } @else {
+                <p class="text-body-sm text-text-muted">No configurado</p>
+              }
+            </div>
+            <div>
+              <p class="config-label">Logo blanco</p>
+              @if (config.logoBlancoUrl) {
+                @if (previewFailed(config, 'white-logo')) {
+                  <div class="preview-fallback" role="status">
+                    No se pudo mostrar el logo blanco.
+                  </div>
+                } @else {
+                  <img
+                    class="brand-preview brand-preview-dark"
+                    [src]="config.logoBlancoUrl"
+                    alt="Logo blanco configurado del sitio"
+                    (error)="markPreviewFailed(config.id + ':white-logo')"
+                  />
+                }
+                <p class="preview-url" [title]="config.logoBlancoUrl">{{ config.logoBlancoUrl }}</p>
+              } @else {
+                <p class="text-body-sm text-text-muted">No configurado</p>
+              }
+            </div>
+            <div>
+              <p class="config-label">Favicon</p>
+              @if (config.faviconUrl) {
+                @if (previewFailed(config, 'favicon')) {
+                  <div class="preview-fallback preview-fallback-small" role="status">
+                    No disponible
+                  </div>
+                } @else {
+                  <img
+                    class="favicon-preview"
+                    [src]="config.faviconUrl"
+                    alt="Favicon configurado del sitio"
+                    (error)="markPreviewFailed(config.id + ':favicon')"
+                  />
+                }
+                <p class="preview-url" [title]="config.faviconUrl">{{ config.faviconUrl }}</p>
+              } @else {
+                <p class="text-body-sm text-text-muted">No configurado</p>
+              }
+            </div>
+          </div>
+        </section>
+
+        <section class="config-card" aria-labelledby="colors-heading">
+          <h2 id="colors-heading" class="config-card-title">Colores</h2>
+          <dl class="config-list">
+            <div class="color-row">
+              <div>
+                <dt>Primario</dt>
+                <dd>{{ config.colorPrimario || 'No configurado' }}</dd>
+              </div>
+              @if (config.colorPrimario) {
+                <span
+                  class="detail-swatch"
+                  [style.background-color]="config.colorPrimario"
+                  aria-hidden="true"
+                ></span>
+              }
+            </div>
+            <div class="color-row">
+              <div>
+                <dt>Secundario</dt>
+                <dd>{{ config.colorSecundario || 'No configurado' }}</dd>
+              </div>
+              @if (config.colorSecundario) {
+                <span
+                  class="detail-swatch"
+                  [style.background-color]="config.colorSecundario"
+                  aria-hidden="true"
+                ></span>
+              }
+            </div>
+          </dl>
+        </section>
+
+        <section class="config-card" aria-labelledby="footer-heading">
+          <h2 id="footer-heading" class="config-card-title">Pie de página</h2>
+          <p class="whitespace-pre-wrap text-body text-text-secondary">
+            {{ config.textoPiePagina || 'No configurado' }}
+          </p>
+        </section>
+      </div>
+    } @else {
+      <app-empty-state
+        emptyStateId="site-config-selection"
+        title="Selecciona una configuración"
+        description="No se ha elegido ninguna configuración para consultar o editar."
+        compact
+      />
+    }
+  }
+</div>
+
+@if (facade.formOpen()) {
+  <app-site-config-form
+    [mode]="facade.formMode()"
+    [config]="facade.formMode() === 'edit' ? facade.selectedConfig() : null"
+    [companies]="facade.companies()"
+    [loadingFormData]="facade.loadingFormData()"
+    [submitting]="facade.submitting()"
+    [serverError]="facade.error()"
+    (saved)="save($event)"
+    (canceled)="facade.closeForm()"
+  />
+}
