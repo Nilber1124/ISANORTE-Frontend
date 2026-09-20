@@ -10,11 +10,6 @@ import { Projects } from './features/isanorte/projects/projects';
 import { Services } from './features/isanorte/services/services';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 
-const loadAdminPlaceholder = () =>
-  import('./features/admin/module-placeholder/admin-module-placeholder').then(
-    ({ AdminModulePlaceholder }) => AdminModulePlaceholder,
-  );
-
 export const routes: Routes = [
   {
     path: 'admin',
@@ -80,7 +75,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/company/admin-company').then(({ AdminCompany }) => AdminCompany),
       },
-      { path: 'landing', loadComponent: loadAdminPlaceholder, data: { title: 'Landing' } },
+      {
+        path: 'landing',
+        loadComponent: () =>
+          import('./features/admin/landing/admin-landing').then(
+            ({ AdminLanding }) => AdminLanding,
+          ),
+        data: { title: 'Landing' },
+      },
       {
         path: 'configuracion',
         loadComponent: () =>

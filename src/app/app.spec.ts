@@ -61,4 +61,21 @@ describe('App', () => {
       'configuracion',
     ]);
   });
+
+  it('should lazy-load AdminLanding for the admin landing route', async () => {
+    const adminRoute = routes.find((route) => route.path === 'admin');
+    const landingRoute = adminRoute?.children?.find((route) => route.path === 'landing');
+
+    expect(landingRoute?.component).toBeUndefined();
+    expect(landingRoute?.loadComponent).toBeTypeOf('function');
+
+    const loadedComponent = await landingRoute?.loadComponent?.();
+    const [{ AdminLanding }, { AdminModulePlaceholder }] = await Promise.all([
+      import('./features/admin/landing/admin-landing'),
+      import('./features/admin/module-placeholder/admin-module-placeholder'),
+    ]);
+
+    expect(loadedComponent).toBe(AdminLanding);
+    expect(loadedComponent).not.toBe(AdminModulePlaceholder);
+  });
 });
