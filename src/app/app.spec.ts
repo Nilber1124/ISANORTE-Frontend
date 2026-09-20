@@ -61,4 +61,18 @@ describe('App', () => {
       'configuracion',
     ]);
   });
+
+  it('should lazy load AdminLanding instead of the admin placeholder', async () => {
+    const adminRoute = routes.find((route) => route.path === 'admin');
+    const landingRoute = adminRoute?.children?.find((route) => route.path === 'landing');
+    const loadedComponent = await landingRoute?.loadComponent?.();
+    const { AdminLanding } = await import('./features/admin/landing/admin-landing');
+    const { AdminModulePlaceholder } = await import(
+      './features/admin/module-placeholder/admin-module-placeholder'
+    );
+
+    expect(landingRoute?.component).toBeUndefined();
+    expect(loadedComponent).toBe(AdminLanding);
+    expect(loadedComponent).not.toBe(AdminModulePlaceholder);
+  });
 });

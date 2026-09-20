@@ -1,6 +1,6 @@
 # Estructura actual del frontend ISANORTE
 
-**Fecha de revisión:** 18 de septiembre de 2026
+**Fecha de revisión:** 19 de septiembre de 2026
 **Fuente de verdad:** código presente en este repositorio durante la revisión.
 
 ## Propósito del documento
@@ -265,6 +265,8 @@ src/app/
 │       │   └── contact.ts
 │       ├── home/
 │       │   ├── home.css
+│       │   ├── public-home.facade.spec.ts
+│       │   ├── public-home.facade.ts
 │       │   ├── home.html
 │       │   └── home.ts
 │       ├── projects/
@@ -284,6 +286,8 @@ src/app/
 │       │   ├── navbar.html
 │       │   └── navbar.ts
 │       ├── public-layout.css
+│       ├── public-layout.facade.spec.ts
+│       ├── public-layout.facade.ts
 │       ├── public-layout.html
 │       └── public-layout.ts
 └── shared/
@@ -388,16 +392,16 @@ Una feature representa una pantalla o funcionalidad que usa una persona. El proy
 
 ### Resumen real
 
-| Feature                   | Página              | Facade | ApiService             | Estado                                                              |
-| ------------------------- | ------------------- | ------ | ---------------------- | ------------------------------------------------------------------- |
-| `isanorte/home`           | Home corporativa    | No     | No                     | UI completa con contenido estático y componentes compartidos        |
-| `isanorte/about`          | Nosotros            | No     | No                     | UI desarrollada, contenido estático y acordeón con Signal local     |
-| `isanorte/services`       | Servicios           | No     | No                     | Placeholder                                                         |
-| `isanorte/projects`       | Proyectos           | No     | No                     | Placeholder                                                         |
-| `isanorte/contact`        | Contacto            | No     | No                     | Placeholder                                                         |
-| `isadecor/home`           | Landing ISADECOR    | No     | No                     | Placeholder                                                         |
-| `isadecor/catalog`        | Catálogo ISADECOR   | Sí     | Productos y categorías | Funcional; búsqueda, filtro y estados de UI                         |
-| `isadecor/product-detail` | Detalle de producto | Sí     | Productos              | Funcional; carga por slug, ficha, calculadora local y estados de UI |
+| Feature                   | Página              | Facade | ApiService                               | Estado                                                              |
+| ------------------------- | ------------------- | ------ | ---------------------------------------- | ------------------------------------------------------------------- |
+| `isanorte/home`           | Home corporativa    | Sí     | Landing, servicios, proyectos y unidades | Infraestructura dinámica; UI conserva fallbacks estáticos           |
+| `isanorte/about`          | Nosotros            | No     | No                                       | UI desarrollada, contenido estático y acordeón con Signal local     |
+| `isanorte/services`       | Servicios           | No     | No                                       | Placeholder                                                         |
+| `isanorte/projects`       | Proyectos           | No     | No                                       | Placeholder                                                         |
+| `isanorte/contact`        | Contacto            | No     | No                                       | Placeholder                                                         |
+| `isadecor/home`           | Landing ISADECOR    | No     | No                                       | Placeholder                                                         |
+| `isadecor/catalog`        | Catálogo ISADECOR   | Sí     | Productos y categorías                   | Funcional; búsqueda, filtro y estados de UI                         |
+| `isadecor/product-detail` | Detalle de producto | Sí     | Productos                                | Funcional; carga por slug, ficha, calculadora local y estados de UI |
 
 El catálogo contiene un `ProductCard` propio del feature, que navega por el slug real al detalle. El detalle contiene `ProductGallery`, `ProductInfo` y `ProductCalculator` como componentes internos. Las demás páginas componen directamente UI compartida.
 
@@ -632,28 +636,28 @@ Los facades actuales conservan Signals mutables como privados y exponen estado d
 
 Todas las rutas se declaran en `src/app/app.routes.ts`. Las rutas públicas existentes se cargan de forma eager y usan `PublicLayout`; `/admin` usa `AdminLayout` con rutas hijas y `loadComponent` para mantener el código administrativo fuera del bundle público inicial.
 
-| Ruta                        | Feature                            | Layout         | Estado                                             |
-| --------------------------- | ---------------------------------- | -------------- | -------------------------------------------------- |
-| `/`                         | `features/isanorte/home`           | `PublicLayout` | UI desarrollada; contenido estático                |
-| `/nosotros`                 | `features/isanorte/about`          | `PublicLayout` | UI desarrollada; contenido estático y Signal local |
-| `/servicios`                | `features/isanorte/services`       | `PublicLayout` | Placeholder                                        |
-| `/proyectos`                | `features/isanorte/projects`       | `PublicLayout` | Placeholder                                        |
-| `/contacto`                 | `features/isanorte/contact`        | `PublicLayout` | Placeholder                                        |
-| `/isadecor`                 | `features/isadecor/home`           | `PublicLayout` | Placeholder                                        |
-| `/isadecor/catalogo`        | `features/isadecor/catalog`        | `PublicLayout` | Catálogo funcional conectado al backend            |
-| `/isadecor/cotizacion`      | `features/isadecor/quote`          | `PublicLayout` | Solicitud de cotización conectada al backend       |
-| `/isadecor/productos/:slug` | `features/isadecor/product-detail` | `PublicLayout` | Detalle funcional conectado al backend             |
-| `/admin`                    | `features/admin/dashboard`         | `AdminLayout`  | Dashboard estructural sin conexión API             |
-| `/admin/categorias`         | `features/admin/categories`        | `AdminLayout`  | Gestión de categorías conectada al backend         |
-| `/admin/empresa`            | `features/admin/company`           | `AdminLayout`  | Gestión corporativa y redes sociales               |
-| `/admin/landing`            | `features/admin/landing`           | `AdminLayout`  | Gestión de secciones de la Landing Page            |
-| `/admin/productos`          | `features/admin/products`          | `AdminLayout`  | Gestión de productos conectada al backend          |
-| `/admin/cotizaciones`       | `features/admin/quotes`            | `AdminLayout`  | Consulta y cambio de estado de cotizaciones        |
-| `/admin/proyectos`          | `features/admin/projects`          | `AdminLayout`  | Gestión de proyectos y activación lógica           |
-| `/admin/proyectos/:id`      | `features/admin/projects/detail`   | `AdminLayout`  | Gestión de imágenes por URL de un proyecto         |
-| `/admin/servicios`          | `features/admin/services`          | `AdminLayout`  | Gestión de servicios y activación lógica           |
-| `/admin/unidades-negocio`   | `features/admin/business-units`    | `AdminLayout`  | Gestión de unidades y activación lógica            |
-| `/admin/configuracion`      | `features/admin/site-config`       | `AdminLayout`  | Gestión de la configuración global del sitio       |
+| Ruta                        | Feature                            | Layout         | Estado                                                 |
+| --------------------------- | ---------------------------------- | -------------- | ------------------------------------------------------ |
+| `/`                         | `features/isanorte/home`           | `PublicLayout` | UI intacta; facades cargan datos con fallback estático |
+| `/nosotros`                 | `features/isanorte/about`          | `PublicLayout` | UI desarrollada; contenido estático y Signal local     |
+| `/servicios`                | `features/isanorte/services`       | `PublicLayout` | Placeholder                                            |
+| `/proyectos`                | `features/isanorte/projects`       | `PublicLayout` | Placeholder                                            |
+| `/contacto`                 | `features/isanorte/contact`        | `PublicLayout` | Placeholder                                            |
+| `/isadecor`                 | `features/isadecor/home`           | `PublicLayout` | Placeholder                                            |
+| `/isadecor/catalogo`        | `features/isadecor/catalog`        | `PublicLayout` | Catálogo funcional conectado al backend                |
+| `/isadecor/cotizacion`      | `features/isadecor/quote`          | `PublicLayout` | Solicitud de cotización conectada al backend           |
+| `/isadecor/productos/:slug` | `features/isadecor/product-detail` | `PublicLayout` | Detalle funcional conectado al backend                 |
+| `/admin`                    | `features/admin/dashboard`         | `AdminLayout`  | Dashboard estructural sin conexión API                 |
+| `/admin/categorias`         | `features/admin/categories`        | `AdminLayout`  | Gestión de categorías conectada al backend             |
+| `/admin/empresa`            | `features/admin/company`           | `AdminLayout`  | Gestión corporativa y redes sociales                   |
+| `/admin/landing`            | `features/admin/landing`           | `AdminLayout`  | Gestión de secciones de la Landing Page                |
+| `/admin/productos`          | `features/admin/products`          | `AdminLayout`  | Gestión de productos conectada al backend              |
+| `/admin/cotizaciones`       | `features/admin/quotes`            | `AdminLayout`  | Consulta y cambio de estado de cotizaciones            |
+| `/admin/proyectos`          | `features/admin/projects`          | `AdminLayout`  | Gestión de proyectos y activación lógica               |
+| `/admin/proyectos/:id`      | `features/admin/projects/detail`   | `AdminLayout`  | Gestión de imágenes por URL de un proyecto             |
+| `/admin/servicios`          | `features/admin/services`          | `AdminLayout`  | Gestión de servicios y activación lógica               |
+| `/admin/unidades-negocio`   | `features/admin/business-units`    | `AdminLayout`  | Gestión de unidades y activación lógica                |
+| `/admin/configuracion`      | `features/admin/site-config`       | `AdminLayout`  | Gestión de la configuración global del sitio           |
 
 Admin usa carga diferida. No existe ruta cliente wildcard ni página 404.
 
@@ -663,7 +667,7 @@ Admin usa carga diferida. No existe ruta cliente wildcard ni página 404.
 
 Es la pantalla más completa. Incluye hero cinematográfico, franja de marcas, servicios, promoción de ISADECOR, proyectos y CTA final. Reutiliza Button, Badge, Card, Carousel y CinematicTour.
 
-Los textos, tarjetas, imágenes, enlaces, servicios y proyectos están definidos como constantes tipadas en `home.ts`. No hay backend ni facade.
+Los textos, tarjetas, imágenes, enlaces, servicios y proyectos siguen definidos como constantes tipadas en `home.ts` y permanecen como fallback visual. `PublicHomeFacade` ya carga los recursos públicos, pero el template todavía no los consume.
 
 ### Nosotros
 
@@ -897,7 +901,34 @@ El objetivo es que el contenido comercial pueda administrarse desde backend/base
 - Categorías activas del catálogo ISADECOR mediante `GET /api/categorias/activas`.
 - Producto publicado por slug mediante `GET /api/productos/publicados/slug/{slug}`.
 
-La carga se ejecuta únicamente en browser mientras `API_BASE_URL` sea relativo. Así `/isadecor/catalogo` puede prerenderizar su shell y el detalle puede renderizar su shell en servidor sin pedir `/api` desde Node; los datos se solicitan después de la hidratación. Para renderizar productos y metadata SEO completos durante SSR será necesario configurar posteriormente una `API_BASE_URL` absoluta accesible desde el servidor Angular.
+### Primera fase de integración dinámica de la web pública
+
+La infraestructura pública incorpora dos facades, sin sustituir todavía la composición visual ni el contenido estático de Home, Navbar o Footer:
+
+```text
+PublicLayout
+    ↓
+PublicLayoutFacade
+    ├── CompanyApiService.getAll()
+    ├── SiteConfigApiService.getAll()
+    └── BusinessUnitApiService.getActive()
+
+Home
+    ↓
+PublicHomeFacade
+    ├── LandingSectionApiService.getVisible()
+    ├── ServiceApiService.getActive()
+    ├── ProjectApiService.getActive()
+    └── BusinessUnitApiService.getActive()
+```
+
+`PublicLayoutFacade` expone empresas, configuraciones del sitio y unidades activas, además de loading, loaded, empty, errores por recurso y error agregado. `company` y `siteConfig` solo se resuelven automáticamente cuando su lista contiene exactamente un elemento: con cero devuelven `null` y con más de uno también devuelven `null`, activando `hasAmbiguousCompany` o `hasAmbiguousSiteConfig`. No existe selección arbitraria de la primera respuesta ni UUID hardcodeado.
+
+`PublicHomeFacade` conserva el orden recibido de `GET /api/secciones-landing/visibles` y localiza opcionalmente `HERO`, `EMPRESA`, `SERVICIOS`, `PROYECTOS`, `CONTACTO`, `CTA` y las secciones `PERSONALIZADA`. También deriva servicios y proyectos destacados únicamente desde el campo real `destacado`. Las cuatro cargas son independientes: el error de un recurso se expone sin descartar las respuestas correctas de los demás.
+
+En esta fase, `home.html`, Navbar y Footer continúan consumiendo sus datos hardcodeados como fallback visual. Las facades se proveen y cargan en `PublicLayout` y `Home`, pero sus respuestas todavía no reemplazan masivamente el HTML. La siguiente fase conectará los componentes y definirá el fallback localizado de cada sección sin modificar Hero, CinematicTour, carruseles ni la composición ISADECOR.
+
+Mientras `API_BASE_URL` sea relativo, las nuevas facades públicas no intentan resolver `/api` desde Node: marcan `ssrBlocked`, finalizan loading y conservan el HTML estático completo durante prerender. `app.config.server.ts` admite una URL absoluta mediante la variable de entorno `API_BASE_URL`; cuando existe y es HTTP(S), las facades cargan durante SSR y serializan su resultado con `TransferState`, que el navegador restaura y retira sin repetir las peticiones durante la hidratación. Sin esa variable, el navegador carga desde las rutas relativas del mismo origen después de hidratar. El patrón anterior de catálogo y detalle continúa cargando únicamente en browser y no fue modificado.
 
 ## Design System
 
@@ -1031,12 +1062,14 @@ El comando SSR necesita que exista previamente un build compatible en `dist/`.
 
 ## Tests existentes
 
-Existen cuatro archivos de pruebas:
+Entre los tests de integración pública se incluyen:
 
 1. `src/app/app.spec.ts`, con tres casos para el componente raíz, el `router-outlet` y las rutas públicas;
 2. `src/app/features/isadecor/catalog/catalog.facade.spec.ts`, con cinco casos para carga exitosa, respuesta vacía, filtro, búsqueda y error.
 3. `src/app/features/isadecor/product-detail/product-detail.facade.spec.ts`, con cinco casos para carga por slug, producto recibido, 404, loading y slug inválido.
 4. `src/app/features/isadecor/product-detail/components/product-calculator/product-calculator.spec.ts`, con casos de configuración, límites de redondeo, valores inválidos y contenido dinámico.
+5. `src/app/layouts/public-layout/public-layout.facade.spec.ts`, con carga parcial, ambigüedad 0/1/múltiples, error y unidades activas.
+6. `src/app/features/isanorte/home/public-home.facade.spec.ts`, con endpoints públicos, secciones opcionales, destacados, empty, error y preservación del orden.
 
 La feature `quote` añade `quote.facade.spec.ts` para verificar carga de producto, 404, envío, bloqueo de doble envío, request y respuesta. La calculadora también verifica que comunica su cantidad al detalle.
 
@@ -1091,14 +1124,14 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 | Layouts                      | 2: `PublicLayout` y `AdminLayout`                                                                                    |
 | Shared Components            | 14                                                                                                                   |
 | Servicios globales           | 1: `ThemeService`                                                                                                    |
-| Facades                      | 11, incluida `AdminSiteConfigFacade` para configuración global                                                       |
+| Facades                      | 13, incluidas `PublicLayoutFacade` y `PublicHomeFacade`                                                              |
 | ApiServices                  | 10; uno por recurso backend documentado                                                                              |
 | Modelos API                  | Contratos de los 10 recursos, tipos comunes y 7 enums exactos                                                        |
 | Backend conectado            | Flujos públicos ISADECOR y Admin de categorías, productos, cotizaciones, proyectos, servicios y unidades con facades |
 | Admin                        | Layout, dashboard y módulos de contenido, incluida configuración del sitio; sin autenticación                        |
 | Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                                             |
-| Contenido dinámico desde API | Productos publicados, categorías activas y producto publicado por slug                                               |
-| Tests                        | 33 archivos spec con 204 casos aprobados                                                                             |
+| Contenido dinámico desde API | Productos/categorías ISADECOR y primera fase de Empresa, Configuración, Landing, Servicios, Proyectos y Unidades     |
+| Tests                        | 35 archivos spec con 226 casos aprobados                                                                             |
 | Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                                            |
 | Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server               |
 

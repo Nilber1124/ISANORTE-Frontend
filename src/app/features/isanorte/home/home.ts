@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Shared Components
@@ -10,6 +10,7 @@ import {
   CinematicTour,
   CinematicScene,
 } from '../../../shared/components/cinematic-tour/cinematic-tour';
+import { PublicHomeFacade } from './public-home.facade';
 
 // Interfaces
 export interface HeroData {
@@ -58,12 +59,15 @@ export interface PreFooterData {
 }
 @Component({
   imports: [CommonModule, Button, Card, Badge, Carousel, CinematicTour],
+  providers: [PublicHomeFacade],
   selector: 'app-isanorte-home',
   styleUrl: './home.css',
   templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
+  readonly facade = inject(PublicHomeFacade);
+
   readonly heroData: HeroData = {
     tag: 'EMPRESA DE ARQUITECTURA Y CONSTRUCCIÓN',
     title: 'Transformamos espacios\nen experiencias',
@@ -167,4 +171,8 @@ export class Home {
       'Ofrecemos asesoría técnica integral sin costo para la estimación inicial de tu obra o acabados.',
     cta: { label: 'SOLICITAR ASESORÍA GRATUITA', url: '#contacto' },
   };
+
+  constructor() {
+    this.facade.load();
+  }
 }
