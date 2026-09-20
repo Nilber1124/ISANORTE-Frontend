@@ -48,137 +48,185 @@
 }
 
 <!-- Services -->
-<section class="section-space bg-background-soft">
-  <div class="app-container">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-      <div>
-        <span class="text-eyebrow text-accent block mb-2">{{
-          'Nuestros Servicios' | uppercase
-        }}</span>
-        <h2 class="text-heading-2 text-text-primary">
-          {{ 'Soluciones integrales de alta\ningeniería y diseño' }}
-        </h2>
+@if (facade.showServices() && facade.servicesHeader(); as servicesHeader) {
+  <section class="section-space bg-background-soft" data-home-services>
+    <div class="app-container">
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div>
+          <span class="text-eyebrow text-accent block mb-2">{{
+            servicesHeader.eyebrow | uppercase
+          }}</span>
+          <h2 class="text-heading-2 text-text-primary">
+            {{ servicesHeader.title }}
+          </h2>
+        </div>
+        @if (facade.servicesAction(); as servicesAction) {
+          <app-button variant="primary" [href]="servicesAction.url">
+            {{ servicesAction.label }}
+          </app-button>
+        }
       </div>
-      <app-button variant="primary" href="#"> VER TODOS LOS SERVICIOS </app-button>
-    </div>
 
-    <!-- Carousel (Coverflow 3D) -->
-    <app-carousel
-      [items]="services"
-      variant="coverflow"
-      [autoPlayInterval]="4500"
-      ariaLabel="Carrusel de servicios"
-    >
-      <ng-template #cardTemplate let-service>
-        <app-card [href]="service.linkUrl" padding="none" class="group h-full">
-          <div
-            class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
-            [style.backgroundImage]="'url(' + service.bgImageUrl + ')'"
-          ></div>
-          <div
-            class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-90"
-          ></div>
-
-          <div class="absolute inset-0 p-8 flex flex-col justify-end">
-            <h3
-              class="text-heading-3 text-white mb-3 group-hover:text-accent transition-colors duration-normal"
-            >
-              {{ service.title }}
-            </h3>
-            <p class="text-body-sm text-white/70 mb-6">
-              {{ service.description }}
-            </p>
-            <div
-              class="text-caption font-bold text-accent tracking-[0.1em] flex items-center gap-2 uppercase group-hover:text-white transition-colors duration-normal"
-            >
-              LEER MÁS
-              <svg
-                class="size-4 transform group-hover:translate-x-1 transition-transform duration-normal"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                ></path>
-              </svg>
-            </div>
-          </div>
-        </app-card>
-      </ng-template>
-    </app-carousel>
-  </div>
-</section>
-
-<!-- Highlight (ISADECOR) -->
-<section
-  data-theme="dark"
-  class="group relative flex min-h-[36rem] items-center justify-center overflow-hidden border-y border-border bg-background-deep section-space lg:min-h-[44rem]"
->
-  <!-- Fondo ambiental ISADECOR -->
-  <div class="absolute inset-0 z-0">
-    <div
-      class="absolute inset-0 bg-cover bg-center transition-transform duration-[3000ms] ease-[var(--ease-standard)] group-hover:scale-105"
-      [style.backgroundImage]="'url(' + highlightData.bgImageUrl + ')'"
-    ></div>
-    <div class="absolute inset-0 bg-background-deep/90"></div>
-    <div
-      class="absolute inset-0 bg-gradient-to-t from-background-deep via-background-deep/20 to-background-deep/60"
-    ></div>
-  </div>
-
-  <!-- Imagen superior derecha (escritorio) -->
-  <div
-    class="animate-float-subtle group absolute top-6 right-4 hidden h-64 w-44 overflow-hidden rounded-panel border border-border-strong shadow-floating md:top-8 md:right-8 md:block lg:h-96 lg:w-64 lg:right-12"
-    [style.animation-delay]="'1.5s'"
-  >
-    <div
-      class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
-      [style.backgroundImage]="'url(' + highlightData.topRightImageUrl + ')'"
-    ></div>
-  </div>
-
-  <!-- Imágenes inferiores izquierdas con desfase editorial (escritorio) -->
-  <div class="absolute bottom-0 left-0 z-0 hidden items-end gap-5 pl-4 md:flex lg:pl-8">
-    @for (item of highlightData.galleryImages; track item.id; let i = $index) {
-      <div
-        class="animate-float-subtle group relative overflow-hidden rounded-t-panel border border-border-strong shadow-floating"
-        [class.h-96]="i % 2 === 0"
-        [class.w-72]="i % 2 === 0"
-        [class.h-64]="i % 2 !== 0"
-        [class.w-52]="i % 2 !== 0"
-        [style.animation-delay]="i * 700 + 'ms'"
+      <!-- Carousel (Coverflow 3D) -->
+      <app-carousel
+        [items]="facade.services()"
+        variant="coverflow"
+        [autoPlayInterval]="4500"
+        ariaLabel="Carrusel de servicios"
       >
-        <div
-          class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
-          [style.backgroundImage]="'url(' + item.imageUrl + ')'"
-        ></div>
-      </div>
-    }
-  </div>
+        <ng-template #cardTemplate let-service>
+          <app-card
+            [href]="service.linkUrl"
+            [ariaLabel]="service.name"
+            padding="none"
+            class="group h-full"
+          >
+            <div
+              class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
+              [style.backgroundImage]="service.imageUrl ? 'url(' + service.imageUrl + ')' : null"
+              [attr.role]="service.imageAlt ? 'img' : null"
+              [attr.aria-label]="service.imageAlt"
+              [attr.aria-hidden]="service.imageAlt ? null : 'true'"
+            ></div>
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-90"
+            ></div>
 
-  <!-- Contenido central -->
-  <div class="app-container relative z-10 flex flex-col items-center text-center">
-    <app-badge variant="accent" class="mb-6">{{ highlightData.tag }}</app-badge>
-    <h2 class="text-display text-text-primary mb-6 whitespace-pre-line drop-shadow-md">
-      {{ highlightData.title }}
-    </h2>
-    <p class="text-body-lg text-text-muted mb-10 max-w-xl">{{ highlightData.description }}</p>
-
-    <div class="flex flex-wrap justify-center gap-4">
-      <app-button variant="accent" [href]="highlightData.primaryBtn.url" size="large">
-        {{ highlightData.primaryBtn.label }}
-      </app-button>
-      <app-button variant="ghost" [href]="highlightData.secondaryBtn.url" size="large">
-        {{ highlightData.secondaryBtn.label }}
-      </app-button>
+            <div class="absolute inset-0 p-8 flex flex-col justify-end">
+              <h3
+                class="text-heading-3 text-white mb-3 group-hover:text-accent transition-colors duration-normal"
+              >
+                {{ service.name }}
+              </h3>
+              <p class="text-body-sm text-white/70 mb-6">
+                {{ service.summary }}
+              </p>
+              <div
+                class="text-caption font-bold text-accent tracking-[0.1em] flex items-center gap-2 uppercase group-hover:text-white transition-colors duration-normal"
+              >
+                LEER MÁS
+                <svg
+                  class="size-4 transform group-hover:translate-x-1 transition-transform duration-normal"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+          </app-card>
+        </ng-template>
+      </app-carousel>
     </div>
-  </div>
-</section>
+  </section>
+}
+
+<!-- Highlight (unidad de negocio destacada) -->
+@if (facade.showBusinessUnit()) {
+  @if (facade.featuredBusinessUnit(); as businessUnit) {
+    @if (facade.businessUnitSection(); as businessUnitSection) {
+      <section
+        data-theme="dark"
+        data-home-business-unit
+        class="group relative flex min-h-[36rem] items-center justify-center overflow-hidden border-y border-border bg-background-deep section-space lg:min-h-[44rem]"
+      >
+        <!-- Fondo ambiental de la unidad -->
+        <div class="absolute inset-0 z-0">
+          <div
+            class="absolute inset-0 bg-cover bg-center transition-transform duration-[3000ms] ease-[var(--ease-standard)] group-hover:scale-105"
+            [style.backgroundImage]="
+              facade.businessUnitBackground()?.url
+                ? 'url(' + facade.businessUnitBackground()?.url + ')'
+                : null
+            "
+            aria-hidden="true"
+          ></div>
+          <div class="absolute inset-0 bg-background-deep/90"></div>
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-background-deep via-background-deep/20 to-background-deep/60"
+          ></div>
+        </div>
+
+        <!-- Primera imagen editorial, superior derecha (escritorio) -->
+        @if (facade.businessUnitEditorialImages()[0]; as topEditorialImage) {
+          <div
+            class="animate-float-subtle group absolute top-6 right-4 hidden h-64 w-44 overflow-hidden rounded-panel border border-border-strong shadow-floating md:top-8 md:right-8 md:block lg:h-96 lg:w-64 lg:right-12"
+            [style.animation-delay]="'1.5s'"
+          >
+            <div
+              class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
+              [style.backgroundImage]="'url(' + topEditorialImage.url + ')'"
+              [attr.role]="topEditorialImage.alt ? 'img' : null"
+              [attr.aria-label]="topEditorialImage.alt"
+              [attr.aria-hidden]="topEditorialImage.alt ? null : 'true'"
+            ></div>
+          </div>
+        }
+
+        <!-- Imágenes editoriales restantes con desfase (escritorio) -->
+        @if (facade.businessUnitEditorialImages().length > 1) {
+          <div class="absolute bottom-0 left-0 z-0 hidden items-end gap-5 pl-4 md:flex lg:pl-8">
+            @for (
+              item of facade.businessUnitEditorialImages().slice(1, 3);
+              track item.orden + ':' + item.url;
+              let i = $index
+            ) {
+              <div
+                class="animate-float-subtle group relative overflow-hidden rounded-t-panel border border-border-strong shadow-floating"
+                [class.h-96]="i % 2 === 0"
+                [class.w-72]="i % 2 === 0"
+                [class.h-64]="i % 2 !== 0"
+                [class.w-52]="i % 2 !== 0"
+                [style.animation-delay]="i * 700 + 'ms'"
+              >
+                <div
+                  class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
+                  [style.backgroundImage]="'url(' + item.url + ')'"
+                  [attr.role]="item.alt ? 'img' : null"
+                  [attr.aria-label]="item.alt"
+                  [attr.aria-hidden]="item.alt ? null : 'true'"
+                ></div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Contenido central -->
+        <div class="app-container relative z-10 flex flex-col items-center text-center">
+          @if (businessUnitSection.etiqueta; as eyebrow) {
+            <app-badge variant="accent" class="mb-6">{{ eyebrow }}</app-badge>
+          }
+          <h2 class="text-display text-text-primary mb-6 whitespace-pre-line drop-shadow-md">
+            {{ businessUnit.nombre }}
+          </h2>
+          <p class="text-body-lg text-text-muted mb-10 max-w-xl">
+            {{ businessUnit.descripcion }}
+          </p>
+
+          <div class="flex flex-wrap justify-center gap-4">
+            @if (facade.businessUnitPrimaryAction(); as primaryAction) {
+              <app-button variant="accent" [href]="primaryAction.url" size="large">
+                {{ primaryAction.label }}
+              </app-button>
+            }
+            @if (facade.businessUnitCatalogAction(); as catalogAction) {
+              <app-button variant="ghost" [href]="catalogAction.url" size="large">
+                {{ catalogAction.label }}
+              </app-button>
+            }
+          </div>
+        </div>
+      </section>
+    }
+  }
+}
 
 <!-- Projects -->
 <section class="section-space bg-background">
