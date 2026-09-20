@@ -12,10 +12,24 @@ import {
   BusinessUnitForm,
   BusinessUnitFormSubmission,
 } from './components/business-unit-form/business-unit-form';
+import { BusinessUnitResourceRequest } from '../../../data/models/business-unit/business-unit-resource.model';
+import {
+  DynamicChildManager,
+  DynamicChildSave,
+} from '../shared/dynamic-child-manager/dynamic-child-manager';
 
 @Component({
   selector: 'app-admin-business-units',
-  imports: [Alert, Badge, Button, BusinessUnitForm, EmptyState, Loading, Modal],
+  imports: [
+    Alert,
+    Badge,
+    Button,
+    BusinessUnitForm,
+    DynamicChildManager,
+    EmptyState,
+    Loading,
+    Modal,
+  ],
   providers: [AdminBusinessUnitsFacade],
   templateUrl: './admin-business-units.html',
   styleUrl: './admin-business-units.css',
@@ -48,5 +62,8 @@ export class AdminBusinessUnits {
 
   protected closeDeactivation(): void {
     if (this.facade.changingActiveId() === null) this.businessUnitToDeactivate.set(null);
+  }
+  protected saveResource(event: DynamicChildSave): void {
+    this.facade.saveResource(event.request as BusinessUnitResourceRequest, event.id);
   }
 }

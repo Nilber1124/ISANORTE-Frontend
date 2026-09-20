@@ -29,7 +29,7 @@
               <img
                 class="h-full w-full object-cover"
                 [src]="image.url"
-                [alt]="image.titulo || 'Vista del proyecto'"
+                [alt]="image.alt || image.titulo || 'Vista del proyecto'"
                 loading="lazy"
                 (error)="markPreviewFailed(image.id)"
               />
@@ -135,6 +135,12 @@
         label="Título"
         [(value)]="titulo"
         [maxLength]="150"
+      />
+      <app-input-field
+        inputId="project-image-alt"
+        label="Texto alternativo"
+        [(value)]="alt"
+        [maxLength]="255"
       />
       <app-select-field
         inputId="project-image-type"

@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
 
-import { CompanyResponse, SocialNetworkResponse } from '../../../data/models/company/company-response.model';
+import {
+  CompanyResponse,
+  SocialNetworkResponse,
+} from '../../../data/models/company/company-response.model';
 import { Alert } from '../../../shared/components/alert/alert';
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
@@ -9,11 +12,29 @@ import { Loading } from '../../../shared/components/loading/loading';
 import { Modal } from '../../../shared/components/modal/modal';
 import { AdminCompanyFacade } from './admin-company.facade';
 import { CompanyForm, CompanyFormSubmission } from './components/company-form/company-form';
-import { SocialNetworkForm, SocialNetworkFormSubmission } from './components/social-network-form/social-network-form';
+import {
+  SocialNetworkForm,
+  SocialNetworkFormSubmission,
+} from './components/social-network-form/social-network-form';
+import { CompanyStatisticRequest } from '../../../data/models/company/company-statistic.model';
+import {
+  DynamicChildManager,
+  DynamicChildSave,
+} from '../shared/dynamic-child-manager/dynamic-child-manager';
 
 @Component({
   selector: 'app-admin-company',
-  imports: [Alert, Badge, Button, CompanyForm, EmptyState, Loading, Modal, SocialNetworkForm],
+  imports: [
+    Alert,
+    Badge,
+    Button,
+    CompanyForm,
+    DynamicChildManager,
+    EmptyState,
+    Loading,
+    Modal,
+    SocialNetworkForm,
+  ],
   providers: [AdminCompanyFacade],
   templateUrl: './admin-company.html',
   styleUrl: './admin-company.css',
@@ -61,7 +82,12 @@ export class AdminCompany {
     const company = this.facade.company();
     if (!company || !company.redesSociales) return [];
     return [...company.redesSociales].sort(
-      (a, b) => (a.orden ?? Number.MAX_SAFE_INTEGER) - (b.orden ?? Number.MAX_SAFE_INTEGER) || a.nombre.localeCompare(b.nombre)
+      (a, b) =>
+        (a.orden ?? Number.MAX_SAFE_INTEGER) - (b.orden ?? Number.MAX_SAFE_INTEGER) ||
+        a.nombre.localeCompare(b.nombre),
     );
+  }
+  protected saveStatistic(event: DynamicChildSave): void {
+    this.facade.saveStatistic(event.request as CompanyStatisticRequest, event.id);
   }
 }

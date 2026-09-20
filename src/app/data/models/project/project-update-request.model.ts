@@ -7,5 +7,6 @@ export interface ProjectUpdateRequest {
   descripcion: string;
   destacado: boolean;
   activo: boolean;
+  orden: number;
   servicioIds: string[];
 }

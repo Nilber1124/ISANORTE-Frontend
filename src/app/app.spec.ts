@@ -59,6 +59,8 @@ describe('App', () => {
       'empresa',
       'landing',
       'configuracion',
+      'contenido',
+      'contacto',
     ]);
   });
 

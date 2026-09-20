@@ -4,10 +4,12 @@ import { LandingSectionType } from '../landing-section/landing-section-type.enum
 export interface SiteConfigSectionResponse {
   id: string;
   tipo: LandingSectionType;
+  etiqueta: string | null;
   titulo: string | null;
   subtitulo: string | null;
   contenido: string | null;
   imagenUrl: string | null;
+  imagenAlt: string | null;
   textoBoton: string | null;
   enlaceBoton: string | null;
   orden: number | null;
@@ -16,6 +18,7 @@ export interface SiteConfigSectionResponse {
 
 export interface SiteConfigResponse {
   id: string;
+  clave: string;
   tituloSitio: string | null;
   descripcionSitio: string | null;
   logoUrl: string | null;

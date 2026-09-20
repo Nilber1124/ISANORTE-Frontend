@@ -20,9 +20,12 @@ const service: ServiceResponse = {
   descripcion: 'Diseño',
   icono: null,
   imagenUrl: null,
+  etiqueta: null,
+  imagenAlt: null,
   activo: true,
   destacado: false,
   orden: 1,
+  beneficios: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -36,6 +39,7 @@ const project: ProjectResponse = {
   descripcion: 'Proyecto residencial',
   destacado: false,
   activo: true,
+  orden: 1,
   servicios: [{ id: service.id, nombre: service.nombre, slug: service.slug }],
   imagenes: [],
   fechaCreacion: null,
@@ -50,6 +54,7 @@ const createRequest: ProjectCreateRequest = {
   descripcion: 'Descripción',
   destacado: false,
   activo: true,
+  orden: 1,
   servicioIds: [service.id],
 };
 const updateRequest: ProjectUpdateRequest = {
@@ -61,6 +66,7 @@ const updateRequest: ProjectUpdateRequest = {
   descripcion: 'Editado',
   destacado: true,
   activo: true,
+  orden: 2,
   servicioIds: [service.id],
 };
 

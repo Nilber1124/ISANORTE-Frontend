@@ -71,6 +71,15 @@
       </h2>
       <div class="grid gap-5 sm:grid-cols-2">
         <app-input-field
+          inputId="site-config-key"
+          label="Clave pública"
+          [(value)]="clave"
+          helperText="Identificador público del sitio. Ej.: isanorte"
+          [error]="claveError()"
+          [maxLength]="100"
+          [disabled]="submitting()"
+        />
+        <app-input-field
           inputId="site-config-title"
           label="Título del sitio"
           [(value)]="tituloSitio"

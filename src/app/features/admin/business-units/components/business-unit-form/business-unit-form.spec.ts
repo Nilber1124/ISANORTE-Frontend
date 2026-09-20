@@ -21,6 +21,7 @@ const company: CompanyResponse = {
   valores: null,
   resumenNosotros: null,
   redesSociales: null,
+  estadisticas: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -31,9 +32,12 @@ const unit: BusinessUnitResponse = {
   descripcion: null,
   icono: null,
   imagenUrl: 'https://example.com/image.jpg',
+  imagenAlt: null,
   activo: false,
+  destacado: false,
   orden: 0,
   empresa: { id: company.id, nombreComercial: company.nombreComercial },
+  recursos: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };

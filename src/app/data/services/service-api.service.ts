@@ -7,6 +7,10 @@ import { ActiveRequest } from '../models/common/active-request.model';
 import { ServiceCreateRequest } from '../models/service/service-create-request.model';
 import { ServiceResponse } from '../models/service/service-response.model';
 import { ServiceUpdateRequest } from '../models/service/service-update-request.model';
+import {
+  ServiceBenefitRequest,
+  ServiceBenefitResponse,
+} from '../models/service/service-benefit.model';
 
 @Injectable({ providedIn: 'root' })
 export class ServiceApiService {
@@ -48,5 +52,36 @@ export class ServiceApiService {
       `${this.resourceUrl}/${encodeURIComponent(id)}/activo`,
       request,
     );
+  }
+
+  createBenefit(
+    serviceId: string,
+    request: ServiceBenefitRequest,
+  ): Observable<ServiceBenefitResponse> {
+    return this.http.post<ServiceBenefitResponse>(
+      `${this.serviceUrl(serviceId)}/beneficios`,
+      request,
+    );
+  }
+
+  updateBenefit(
+    serviceId: string,
+    benefitId: string,
+    request: ServiceBenefitRequest,
+  ): Observable<ServiceBenefitResponse> {
+    return this.http.put<ServiceBenefitResponse>(
+      `${this.serviceUrl(serviceId)}/beneficios/${encodeURIComponent(benefitId)}`,
+      request,
+    );
+  }
+
+  deleteBenefit(serviceId: string, benefitId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.serviceUrl(serviceId)}/beneficios/${encodeURIComponent(benefitId)}`,
+    );
+  }
+
+  private serviceUrl(id: string): string {
+    return `${this.resourceUrl}/${encodeURIComponent(id)}`;
   }
 }

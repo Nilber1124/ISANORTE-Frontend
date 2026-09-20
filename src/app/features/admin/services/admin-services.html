@@ -119,6 +119,9 @@
                   >
                     Editar
                   </app-button>
+                  <app-button size="small" variant="ghost" (click)="facade.openBenefits(service)"
+                    >Beneficios</app-button
+                  >
                   <app-button
                     size="small"
                     variant="secondary"
@@ -146,6 +149,18 @@
     [serverError]="facade.error()"
     (canceled)="facade.closeForm()"
     (saved)="save($event)"
+  />
+}
+@if (facade.managedService(); as service) {
+  <app-dynamic-child-manager
+    kind="benefit"
+    [parentName]="service.nombre"
+    [items]="service.beneficios"
+    [saving]="facade.childSaving()"
+    [error]="facade.error()"
+    (closed)="facade.closeBenefits()"
+    (saved)="saveBenefit($event)"
+    (deleted)="facade.deleteBenefit($event)"
   />
 }
 

@@ -7,6 +7,10 @@ import { finalize } from 'rxjs';
 import { ServiceCreateRequest } from '../../../data/models/service/service-create-request.model';
 import { ServiceResponse } from '../../../data/models/service/service-response.model';
 import { ServiceUpdateRequest } from '../../../data/models/service/service-update-request.model';
+import {
+  ServiceBenefitRequest,
+  ServiceBenefitResponse,
+} from '../../../data/models/service/service-benefit.model';
 import { ServiceApiService } from '../../../data/services/service-api.service';
 
 export type ServiceFormMode = 'create' | 'edit';
@@ -26,6 +30,8 @@ export class AdminServicesFacade {
   private readonly _selectedService = signal<ServiceResponse | null>(null);
   private readonly _formMode = signal<ServiceFormMode>('create');
   private readonly _formOpen = signal(false);
+  private readonly _managedService = signal<ServiceResponse | null>(null);
+  private readonly _childSaving = signal(false);
 
   readonly services = this._services.asReadonly();
   readonly loading = this._loading.asReadonly();
@@ -36,6 +42,8 @@ export class AdminServicesFacade {
   readonly selectedService = this._selectedService.asReadonly();
   readonly formMode = this._formMode.asReadonly();
   readonly formOpen = this._formOpen.asReadonly();
+  readonly managedService = this._managedService.asReadonly();
+  readonly childSaving = this._childSaving.asReadonly();
 
   load(): void {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -153,6 +161,68 @@ export class AdminServicesFacade {
   clearFeedback(): void {
     this._error.set(null);
     this._success.set(null);
+  }
+
+  openBenefits(service: ServiceResponse): void {
+    this.clearFeedback();
+    this._managedService.set(service);
+  }
+  closeBenefits(): void {
+    if (!this._childSaving()) this._managedService.set(null);
+  }
+  saveBenefit(request: ServiceBenefitRequest, id: string | null): void {
+    const service = this._managedService();
+    if (!service || this._childSaving()) return;
+    this._childSaving.set(true);
+    this.clearFeedback();
+    const operation = id
+      ? this.serviceApi.updateBenefit(service.id, id, request)
+      : this.serviceApi.createBenefit(service.id, request);
+    operation
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._childSaving.set(false)),
+      )
+      .subscribe({
+        next: (benefit) =>
+          this.updateBenefits(service, this.upsertBenefit(service.beneficios, benefit)),
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+  deleteBenefit(id: string): void {
+    const service = this._managedService();
+    if (!service || this._childSaving()) return;
+    this._childSaving.set(true);
+    this.serviceApi
+      .deleteBenefit(service.id, id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._childSaving.set(false)),
+      )
+      .subscribe({
+        next: () =>
+          this.updateBenefits(
+            service,
+            service.beneficios.filter((item) => item.id !== id),
+          ),
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+  private upsertBenefit(
+    items: readonly ServiceBenefitResponse[],
+    saved: ServiceBenefitResponse,
+  ): ServiceBenefitResponse[] {
+    return [
+      ...(items.some((item) => item.id === saved.id)
+        ? items.map((item) => (item.id === saved.id ? saved : item))
+        : [...items, saved]),
+    ].sort((a, b) => a.orden - b.orden);
+  }
+  private updateBenefits(service: ServiceResponse, beneficios: ServiceBenefitResponse[]): void {
+    const updated = { ...service, beneficios };
+    this.upsertService(updated);
+    this._managedService.set(updated);
+    this._success.set('Beneficios actualizados correctamente.');
   }
 
   private upsertService(service: ServiceResponse): void {

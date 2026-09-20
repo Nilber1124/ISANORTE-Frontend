@@ -5,7 +5,6 @@
   (closed)="closed.emit()"
 >
   <form (submit)="submit($event)" class="space-y-6">
-    
     @if (mode() === 'create' && hasMultipleConfigs()) {
       <app-select-field
         inputId="config"
@@ -24,6 +23,14 @@
       [(value)]="tipo"
       [disabled]="submitting()"
       [required]="true"
+    />
+
+    <app-input-field
+      inputId="etiqueta"
+      label="Etiqueta"
+      [(value)]="etiqueta"
+      placeholder="Ej. Nuestra experiencia"
+      [disabled]="submitting()"
     />
 
     <app-input-field
@@ -60,11 +67,20 @@
         placeholder="https://ejemplo.com/imagen.jpg"
         [disabled]="submitting()"
       />
+      <app-input-field
+        inputId="imagenAlt"
+        label="Texto alternativo de la imagen"
+        [(value)]="imagenAlt"
+        helperText="Describe la imagen cuando aporte información al contenido."
+        [disabled]="submitting()"
+      />
       @if (imagenUrl()) {
-        <div class="h-32 w-full overflow-hidden rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center">
-          <img 
-            [src]="imagenUrl()" 
-            alt="Vista previa de imagen" 
+        <div
+          class="h-32 w-full overflow-hidden rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center"
+        >
+          <img
+            [src]="imagenUrl()"
+            alt="Vista previa de imagen"
             class="max-h-full max-w-full object-contain"
             (error)="imagenUrl.set('')"
           />
@@ -98,17 +114,17 @@
         [required]="true"
         [disabled]="submitting()"
       />
-      
+
       <div class="flex items-center space-x-2 mt-4 md:mt-6">
-        <input 
-          type="checkbox" 
-          id="visible" 
-          name="visible" 
-          [checked]="visible()" 
+        <input
+          type="checkbox"
+          id="visible"
+          name="visible"
+          [checked]="visible()"
           (change)="handleVisibilityChange($event)"
           [disabled]="submitting()"
           class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600"
-        >
+        />
         <label for="visible" class="text-sm font-medium leading-6 text-gray-900">
           Visible públicamente
         </label>
@@ -124,13 +140,7 @@
       >
         Cancelar
       </app-button>
-      <app-button
-        type="submit"
-        variant="primary"
-        [loading]="submitting()"
-      >
-        Guardar
-      </app-button>
+      <app-button type="submit" variant="primary" [loading]="submitting()"> Guardar </app-button>
     </div>
   </form>
 </app-modal>

@@ -12,21 +12,26 @@ import { AdminLandingFacade } from './admin-landing.facade';
 const mockSection: LandingSectionResponse = {
   id: 'sec-1',
   tipo: LandingSectionType.PERSONALIZADA,
+  etiqueta: null,
   titulo: 'Hero Principal',
   subtitulo: null,
   contenido: null,
   imagenUrl: null,
+  imagenAlt: null,
   textoBoton: null,
   enlaceBoton: null,
   orden: 0,
   visible: false,
   configuracionSitioId: 'site-1',
+  escenas: [],
+  acciones: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };
 
 const mockSiteConfig: SiteConfigResponse = {
   id: 'site-1',
+  clave: 'isanorte',
   tituloSitio: 'ISANORTE',
   descripcionSitio: null,
   logoUrl: null,
@@ -57,6 +62,9 @@ describe('AdminLanding', () => {
       selectedSection: signal<LandingSectionResponse | null>(null),
       formMode: signal<'create' | 'edit'>('create'),
       formOpen: signal<boolean>(false),
+      managedSection: signal<LandingSectionResponse | null>(null),
+      childKind: signal<'scene' | 'action'>('action'),
+      childSaving: signal(false),
       load: vi.fn(),
       openCreate: vi.fn(),
       openEdit: vi.fn(),
@@ -64,6 +72,12 @@ describe('AdminLanding', () => {
       create: vi.fn(),
       update: vi.fn(),
       changeVisibility: vi.fn(),
+      openChildren: vi.fn(),
+      closeChildren: vi.fn(),
+      saveScene: vi.fn(),
+      deleteScene: vi.fn(),
+      saveAction: vi.fn(),
+      deleteAction: vi.fn(),
     };
 
     await TestBed.configureTestingModule({

@@ -6,6 +6,7 @@ export interface ProjectImageResponse {
   url: string;
   titulo: string | null;
   descripcion: string | null;
+  alt: string | null;
   tipo: ProjectImageType;
   esPrincipal: boolean | null;
   orden: number | null;
@@ -21,6 +22,7 @@ export interface ProjectResponse {
   descripcion: string;
   destacado: boolean | null;
   activo: boolean | null;
+  orden: number | null;
   servicios: NamedSlugSummary[] | null;
   imagenes: ProjectImageResponse[] | null;
   fechaCreacion: string | null;

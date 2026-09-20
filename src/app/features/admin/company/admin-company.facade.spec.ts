@@ -4,7 +4,10 @@ import { TestBed } from '@angular/core/testing';
 import { Observable, of, throwError } from 'rxjs';
 
 import { CompanyCreateRequest } from '../../../data/models/company/company-create-request.model';
-import { CompanyResponse, SocialNetworkResponse } from '../../../data/models/company/company-response.model';
+import {
+  CompanyResponse,
+  SocialNetworkResponse,
+} from '../../../data/models/company/company-response.model';
 import { CompanyUpdateRequest } from '../../../data/models/company/company-update-request.model';
 import { SocialNetworkRequest } from '../../../data/models/company/social-network-request.model';
 import { CompanyApiService } from '../../../data/services/company-api.service';
@@ -37,6 +40,7 @@ const mockCompany: CompanyResponse = {
   valores: null,
   resumenNosotros: null,
   redesSociales: [mockNetwork],
+  estadisticas: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -53,7 +57,9 @@ class CompanyApiStub {
   updateRequests: Array<{ id: string; request: CompanyUpdateRequest }> = [];
   deleteSnRequests: Array<{ companyId: string; snId: string }> = [];
 
-  getAll() { return this.getAllResponse$; }
+  getAll() {
+    return this.getAllResponse$;
+  }
   create(request: CompanyCreateRequest) {
     this.createRequests.push(request);
     return this.createResponse$;
@@ -62,8 +68,12 @@ class CompanyApiStub {
     this.updateRequests.push({ id, request });
     return this.updateResponse$;
   }
-  createSocialNetwork(companyId: string, request: SocialNetworkRequest) { return this.createSnResponse$; }
-  updateSocialNetwork(companyId: string, snId: string, request: SocialNetworkRequest) { return this.updateSnResponse$; }
+  createSocialNetwork(companyId: string, request: SocialNetworkRequest) {
+    return this.createSnResponse$;
+  }
+  updateSocialNetwork(companyId: string, snId: string, request: SocialNetworkRequest) {
+    return this.updateSnResponse$;
+  }
   deleteSocialNetwork(companyId: string, snId: string) {
     this.deleteSnRequests.push({ companyId, snId });
     return this.deleteSnResponse$;
@@ -173,7 +183,9 @@ describe('AdminCompanyFacade', () => {
         nombreComercial: 'ISANORTE',
         ruc: '200',
       });
-      expect(facade.error()).toBe('No se pudo guardar porque existe un conflicto (ej. RUC duplicado).');
+      expect(facade.error()).toBe(
+        'No se pudo guardar porque existe un conflicto (ej. RUC duplicado).',
+      );
       expect(facade.submitting()).toBe(false);
     });
   });
@@ -185,7 +197,14 @@ describe('AdminCompanyFacade', () => {
     });
 
     it('debe crear red social y actualizar el estado', () => {
-      const newSn: SocialNetworkResponse = { id: 'sn-2', nombre: 'IG', url: 'https://ig.com', icono: null, orden: 1, activo: true };
+      const newSn: SocialNetworkResponse = {
+        id: 'sn-2',
+        nombre: 'IG',
+        url: 'https://ig.com',
+        icono: null,
+        orden: 1,
+        activo: true,
+      };
       companyApi.createSnResponse$ = of(newSn);
       facade.createSocialNetwork({ nombre: 'IG', url: 'https://ig.com', orden: 1, activo: true });
       expect(facade.company()?.redesSociales?.length).toBe(2);
@@ -193,11 +212,16 @@ describe('AdminCompanyFacade', () => {
     });
 
     it('debe actualizar red social (activo=false, orden=0)', () => {
-      const updatedSn: SocialNetworkResponse = { ...mockNetwork, nombre: 'FB', orden: 0, activo: false };
+      const updatedSn: SocialNetworkResponse = {
+        ...mockNetwork,
+        nombre: 'FB',
+        orden: 0,
+        activo: false,
+      };
       companyApi.updateSnResponse$ = of(updatedSn);
       facade.openSocialNetworkEdit(mockNetwork);
       facade.updateSocialNetwork({ nombre: 'FB', url: 'https://fb.com', orden: 0, activo: false });
-      const updatedCompanySn = facade.company()?.redesSociales?.find(n => n.id === 'sn-1');
+      const updatedCompanySn = facade.company()?.redesSociales?.find((n) => n.id === 'sn-1');
       expect(updatedCompanySn?.orden).toBe(0);
       expect(updatedCompanySn?.activo).toBe(false);
       expect(facade.savingSocialNetwork()).toBe(false);

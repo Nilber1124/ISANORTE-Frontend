@@ -7,6 +7,10 @@ import { CompanyCreateRequest } from '../models/company/company-create-request.m
 import { CompanyResponse, SocialNetworkResponse } from '../models/company/company-response.model';
 import { CompanyUpdateRequest } from '../models/company/company-update-request.model';
 import { SocialNetworkRequest } from '../models/company/social-network-request.model';
+import {
+  CompanyStatisticRequest,
+  CompanyStatisticResponse,
+} from '../models/company/company-statistic.model';
 
 @Injectable({ providedIn: 'root' })
 export class CompanyApiService {
@@ -29,7 +33,10 @@ export class CompanyApiService {
     return this.http.put<CompanyResponse>(`${this.resourceUrl}/${encodeURIComponent(id)}`, request);
   }
 
-  createSocialNetwork(empresaId: string, request: SocialNetworkRequest): Observable<SocialNetworkResponse> {
+  createSocialNetwork(
+    empresaId: string,
+    request: SocialNetworkRequest,
+  ): Observable<SocialNetworkResponse> {
     return this.http.post<SocialNetworkResponse>(
       `${this.resourceUrl}/${encodeURIComponent(empresaId)}/redes-sociales`,
       request,
@@ -50,6 +57,33 @@ export class CompanyApiService {
   deleteSocialNetwork(empresaId: string, redSocialId: string): Observable<void> {
     return this.http.delete<void>(
       `${this.resourceUrl}/${encodeURIComponent(empresaId)}/redes-sociales/${encodeURIComponent(redSocialId)}`,
+    );
+  }
+
+  createStatistic(
+    companyId: string,
+    request: CompanyStatisticRequest,
+  ): Observable<CompanyStatisticResponse> {
+    return this.http.post<CompanyStatisticResponse>(
+      `${this.resourceUrl}/${encodeURIComponent(companyId)}/estadisticas`,
+      request,
+    );
+  }
+
+  updateStatistic(
+    companyId: string,
+    statisticId: string,
+    request: CompanyStatisticRequest,
+  ): Observable<CompanyStatisticResponse> {
+    return this.http.put<CompanyStatisticResponse>(
+      `${this.resourceUrl}/${encodeURIComponent(companyId)}/estadisticas/${encodeURIComponent(statisticId)}`,
+      request,
+    );
+  }
+
+  deleteStatistic(companyId: string, statisticId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.resourceUrl}/${encodeURIComponent(companyId)}/estadisticas/${encodeURIComponent(statisticId)}`,
     );
   }
 }

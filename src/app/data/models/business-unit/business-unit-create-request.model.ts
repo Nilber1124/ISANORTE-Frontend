@@ -4,7 +4,9 @@ export interface BusinessUnitCreateRequest {
   descripcion?: string | null;
   icono?: string | null;
   imagenUrl?: string | null;
+  imagenAlt?: string | null;
   activo?: boolean | null;
+  destacado?: boolean | null;
   orden?: number | null;
   empresaId: string;
 }

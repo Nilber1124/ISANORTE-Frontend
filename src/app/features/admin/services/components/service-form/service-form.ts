@@ -47,9 +47,11 @@ export class ServiceForm implements OnInit {
   readonly nombre = signal('');
   readonly slug = signal('');
   readonly resumen = signal('');
+  readonly etiqueta = signal('');
   readonly descripcion = signal('');
   readonly icono = signal('');
   readonly imagenUrl = signal('');
+  readonly imagenAlt = signal('');
   readonly orden = signal('');
   readonly destacado = signal(false);
   readonly activo = signal(true);
@@ -64,9 +66,11 @@ export class ServiceForm implements OnInit {
     this.nombre.set(service.nombre);
     this.slug.set(service.slug);
     this.resumen.set(service.resumen ?? '');
+    this.etiqueta.set(service.etiqueta ?? '');
     this.descripcion.set(service.descripcion);
     this.icono.set(service.icono ?? '');
     this.imagenUrl.set(service.imagenUrl ?? '');
+    this.imagenAlt.set(service.imagenAlt ?? '');
     this.orden.set(String(service.orden ?? 0));
     this.destacado.set(service.destacado === true);
     this.activo.set(service.activo === true);
@@ -80,9 +84,11 @@ export class ServiceForm implements OnInit {
       nombre: this.nombre().trim(),
       slug: this.slug().trim(),
       resumen: this.optionalValue(this.resumen()),
+      etiqueta: this.optionalValue(this.etiqueta()),
       descripcion: this.descripcion().trim(),
       icono: this.optionalValue(this.icono()),
       imagenUrl: this.optionalValue(this.imagenUrl()),
+      imagenAlt: this.optionalValue(this.imagenAlt()),
       activo: this.activo(),
       destacado: this.destacado(),
     };

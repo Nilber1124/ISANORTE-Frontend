@@ -105,6 +105,7 @@ export class AdminSiteConfigFacade {
 
     const createRequest: SiteConfigCreateRequest = {
       empresaId: request.empresaId,
+      clave: request.clave,
       tituloSitio: request.tituloSitio,
       descripcionSitio: request.descripcionSitio,
       logoUrl: request.logoUrl,
@@ -138,6 +139,7 @@ export class AdminSiteConfigFacade {
     if (!selected || this._submitting()) return;
 
     const updateRequest: SiteConfigUpdateRequest = {
+      clave: request.clave,
       tituloSitio: request.tituloSitio,
       descripcionSitio: request.descripcionSitio,
       logoUrl: request.logoUrl,

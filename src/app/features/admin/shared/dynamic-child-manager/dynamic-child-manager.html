@@ -1,0 +1,169 @@
+<app-modal
+  modalId="dynamic-child-manager"
+  [title]="title()"
+  [description]="parentName()"
+  size="large"
+  [open]="true"
+  [loading]="saving()"
+  (closed)="closed.emit()"
+>
+  @if (kind() === 'action' && parentType() === 'HERO') {
+    <p class="mb-4 rounded-control bg-surface-soft p-3 text-body-sm">
+      Un Hero admite como máximo 2 acciones activas.
+    </p>
+  }
+  @if (kind() === 'action' && parentType() === 'CTA') {
+    <p class="mb-4 rounded-control bg-surface-soft p-3 text-body-sm">
+      Una sección CTA admite como máximo 1 acción activa.
+    </p>
+  }
+  @if (error()) {
+    <p class="mb-4 text-body-sm text-error">{{ error() }}</p>
+  }
+  <div class="mb-4 flex justify-end">
+    <app-button size="small" (click)="openCreate()">Agregar</app-button>
+  </div>
+  @if (items().length === 0) {
+    <app-empty-state
+      emptyStateId="dynamic-child-empty"
+      [title]="emptyDescription()"
+      description="No se insertan datos de demostración automáticamente."
+    />
+  } @else {
+    <div class="space-y-2">
+      @for (item of items(); track item.id) {
+        <div class="flex items-center gap-3 rounded-control border border-border p-3">
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-body-sm font-semibold">{{ itemLabel(item) }}</p>
+            <p class="text-caption text-text-muted">
+              Orden {{ item.orden }} · {{ item.activo ? 'Activo' : 'Inactivo' }}
+            </p>
+          </div>
+          <app-button size="small" variant="ghost" (click)="openEdit(item)">Editar</app-button
+          ><app-button
+            size="small"
+            variant="ghost"
+            [disabled]="saving()"
+            (click)="deleted.emit(item.id)"
+            >Eliminar</app-button
+          >
+        </div>
+      }
+    </div>
+  }
+  @if (formOpen()) {
+    <section class="mt-5 grid gap-4 rounded-card border border-border p-4 sm:grid-cols-2">
+      @if (kind() === 'scene' || kind() === 'resource') {
+        <app-input-field
+          class="sm:col-span-2"
+          inputId="child-url"
+          [label]="kind() === 'scene' ? 'Imagen URL' : 'URL'"
+          type="url"
+          [(value)]="url"
+          required
+        />
+      }
+      @if (kind() === 'action') {
+        <app-input-field
+          inputId="child-text"
+          label="Texto"
+          [(value)]="text"
+          required
+        /><app-input-field
+          inputId="child-link"
+          label="Enlace"
+          [(value)]="url"
+          helperText="/, #, https, mailto o tel"
+          required
+        />
+      }
+      @if (kind() === 'benefit') {
+        <app-input-field
+          class="sm:col-span-2"
+          inputId="child-benefit"
+          label="Texto"
+          [(value)]="text"
+          required
+        />
+      }
+      @if (kind() === 'resource') {
+        <label class="form-label"
+          >Tipo<select
+            class="form-control mt-2"
+            [value]="resourceType()"
+            (change)="resourceType.set($any($event.target).value)"
+          >
+            @for (type of resourceTypes; track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select></label
+        ><app-input-field
+          inputId="child-resource-label"
+          label="Etiqueta"
+          [(value)]="label"
+          [helperText]="
+            resourceType() === 'CATALOGO' ? 'Texto recomendado para el enlace o documento.' : ''
+          "
+        /><app-input-field
+          class="sm:col-span-2"
+          inputId="child-alt"
+          label="Texto alternativo"
+          [(value)]="alt"
+          [required]="resourceType() === 'IMAGEN_EDITORIAL'"
+        />
+      }
+      @if (kind() === 'scene') {
+        <app-input-field
+          class="sm:col-span-2"
+          inputId="child-alt"
+          label="Texto alternativo"
+          [(value)]="alt"
+        />
+      }
+      @if (kind() === 'statistic') {
+        <app-input-field
+          inputId="child-value"
+          label="Valor"
+          type="number"
+          [(value)]="text"
+          required
+        /><app-input-field
+          inputId="child-label"
+          label="Etiqueta"
+          [(value)]="label"
+          required
+        /><app-input-field
+          inputId="child-prefix"
+          label="Prefijo"
+          [(value)]="prefix"
+        /><app-input-field inputId="child-suffix" label="Sufijo" [(value)]="suffix" />
+      }
+      <app-input-field
+        inputId="child-order"
+        label="Orden"
+        type="number"
+        [(value)]="order"
+        required
+      /><label class="flex items-center gap-3 self-end py-3 text-body-sm"
+        ><input
+          class="form-choice"
+          type="checkbox"
+          [checked]="active()"
+          (change)="toggleActive($event)"
+        />Activo</label
+      >
+      @if (activeLimitReached()) {
+        <p class="sm:col-span-2 text-body-sm text-error">
+          Desactiva otra acción antes de activar esta.
+        </p>
+      }
+      <div class="sm:col-span-2 flex justify-end gap-2">
+        <app-button variant="secondary" size="small" (click)="formOpen.set(false)"
+          >Cancelar</app-button
+        ><app-button size="small" [disabled]="invalid()" [loading]="saving()" (click)="submit()"
+          >Guardar</app-button
+        >
+      </div>
+    </section>
+  }
+</app-modal>

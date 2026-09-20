@@ -1,3 +1,5 @@
+import { CompanyStatisticResponse } from './company-statistic.model';
+
 export interface SocialNetworkResponse {
   id: string;
   nombre: string;
@@ -25,6 +27,7 @@ export interface CompanyResponse {
   valores: string | null;
   resumenNosotros: string | null;
   redesSociales: SocialNetworkResponse[] | null;
+  estadisticas: CompanyStatisticResponse[] | null;
   fechaCreacion: string | null;
   fechaActualizacion: string | null;
 }

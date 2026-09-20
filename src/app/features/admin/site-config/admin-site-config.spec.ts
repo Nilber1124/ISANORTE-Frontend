@@ -24,12 +24,14 @@ const company: CompanyResponse = {
   valores: null,
   resumenNosotros: null,
   redesSociales: null,
+  estadisticas: null,
   fechaCreacion: null,
   fechaActualizacion: null,
 };
 
 const config: SiteConfigResponse = {
   id: 'config-1',
+  clave: 'isanorte',
   tituloSitio: 'ISANORTE',
   descripcionSitio: 'Descripción',
   logoUrl: 'https://example.com/logo.png',

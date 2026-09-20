@@ -1,4 +1,5 @@
 export interface SiteConfigUpdateRequest {
+  clave?: string | null;
   tituloSitio?: string | null;
   descripcionSitio?: string | null;
   logoUrl?: string | null;

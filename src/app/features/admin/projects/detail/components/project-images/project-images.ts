@@ -48,6 +48,7 @@ export class ProjectImages {
   readonly imageToDelete = signal<ProjectImageResponse | null>(null);
   readonly url = signal('');
   readonly titulo = signal('');
+  readonly alt = signal('');
   readonly descripcion = signal('');
   readonly tipo = signal<ProjectImageType>(ProjectImageType.GENERAL);
   readonly esPrincipal = signal(false);
@@ -67,6 +68,7 @@ export class ProjectImages {
     this.editingImageId.set(null);
     this.url.set('');
     this.titulo.set('');
+    this.alt.set('');
     this.descripcion.set('');
     this.tipo.set(ProjectImageType.GENERAL);
     this.esPrincipal.set(false);
@@ -80,6 +82,7 @@ export class ProjectImages {
     this.editingImageId.set(image.id);
     this.url.set(image.url);
     this.titulo.set(image.titulo ?? '');
+    this.alt.set(image.alt ?? '');
     this.descripcion.set(image.descripcion ?? '');
     this.tipo.set(image.tipo);
     this.esPrincipal.set(image.esPrincipal === true);
@@ -101,6 +104,7 @@ export class ProjectImages {
       request: {
         url: this.url().trim(),
         titulo: this.optionalValue(this.titulo()),
+        alt: this.optionalValue(this.alt()),
         descripcion: this.optionalValue(this.descripcion()),
         tipo: this.tipo(),
         esPrincipal: this.esPrincipal(),

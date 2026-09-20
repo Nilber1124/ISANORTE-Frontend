@@ -5,6 +5,8 @@ export interface ServiceUpdateRequest {
   descripcion: string;
   icono?: string | null;
   imagenUrl?: string | null;
+  etiqueta?: string | null;
+  imagenAlt?: string | null;
   activo: boolean;
   destacado: boolean;
   orden: number;

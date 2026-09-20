@@ -2,6 +2,7 @@ export enum LandingSectionType {
   HERO = 'HERO',
   EMPRESA = 'EMPRESA',
   SERVICIOS = 'SERVICIOS',
+  UNIDAD_NEGOCIO = 'UNIDAD_NEGOCIO',
   PROYECTOS = 'PROYECTOS',
   CONTACTO = 'CONTACTO',
   CTA = 'CTA',

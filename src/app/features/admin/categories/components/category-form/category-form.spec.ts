@@ -11,9 +11,12 @@ const unit: BusinessUnitResponse = {
   descripcion: null,
   icono: null,
   imagenUrl: null,
+  imagenAlt: null,
   activo: true,
+  destacado: false,
   orden: 1,
   empresa: { id: 'company-1', nombreComercial: 'ISANORTE' },
+  recursos: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };

@@ -28,6 +28,7 @@ const company: CompanyResponse = {
   valores: null,
   resumenNosotros: null,
   redesSociales: null,
+  estadisticas: null,
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -38,9 +39,12 @@ const unit: BusinessUnitResponse = {
   descripcion: null,
   icono: null,
   imagenUrl: null,
+  imagenAlt: null,
   activo: true,
+  destacado: false,
   orden: 1,
   empresa: { id: company.id, nombreComercial: company.nombreComercial },
+  recursos: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -50,7 +54,9 @@ const createRequest: BusinessUnitCreateRequest = {
   descripcion: null,
   icono: null,
   imagenUrl: null,
+  imagenAlt: null,
   activo: true,
+  destacado: false,
   orden: null,
   empresaId: company.id,
 };
@@ -60,7 +66,9 @@ const updateRequest: BusinessUnitUpdateRequest = {
   descripcion: null,
   icono: null,
   imagenUrl: null,
+  imagenAlt: null,
   activo: false,
+  destacado: false,
   orden: 0,
   empresaId: company.id,
 };

@@ -78,9 +78,7 @@ export const routes: Routes = [
       {
         path: 'landing',
         loadComponent: () =>
-          import('./features/admin/landing/admin-landing').then(
-            ({ AdminLanding }) => AdminLanding,
-          ),
+          import('./features/admin/landing/admin-landing').then(({ AdminLanding }) => AdminLanding),
         data: { title: 'Landing' },
       },
       {
@@ -89,6 +87,16 @@ export const routes: Routes = [
           import('./features/admin/site-config/admin-site-config').then(
             ({ AdminSiteConfig }) => AdminSiteConfig,
           ),
+      },
+      {
+        path: 'contenido',
+        loadComponent: () =>
+          import('./features/admin/content/admin-content').then(({ AdminContent }) => AdminContent),
+      },
+      {
+        path: 'contacto',
+        loadComponent: () =>
+          import('./features/admin/contact/admin-contact').then(({ AdminContact }) => AdminContact),
       },
     ],
   },

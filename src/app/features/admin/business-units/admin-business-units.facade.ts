@@ -7,6 +7,10 @@ import { finalize } from 'rxjs';
 import { BusinessUnitCreateRequest } from '../../../data/models/business-unit/business-unit-create-request.model';
 import { BusinessUnitResponse } from '../../../data/models/business-unit/business-unit-response.model';
 import { BusinessUnitUpdateRequest } from '../../../data/models/business-unit/business-unit-update-request.model';
+import {
+  BusinessUnitResourceRequest,
+  BusinessUnitResourceResponse,
+} from '../../../data/models/business-unit/business-unit-resource.model';
 import { CompanyResponse } from '../../../data/models/company/company-response.model';
 import { BusinessUnitApiService } from '../../../data/services/business-unit-api.service';
 import { CompanyApiService } from '../../../data/services/company-api.service';
@@ -31,6 +35,8 @@ export class AdminBusinessUnitsFacade {
   private readonly _selectedBusinessUnit = signal<BusinessUnitResponse | null>(null);
   private readonly _formMode = signal<BusinessUnitFormMode>('create');
   private readonly _formOpen = signal(false);
+  private readonly _managedBusinessUnit = signal<BusinessUnitResponse | null>(null);
+  private readonly _childSaving = signal(false);
 
   readonly businessUnits = this._businessUnits.asReadonly();
   readonly companies = this._companies.asReadonly();
@@ -43,6 +49,8 @@ export class AdminBusinessUnitsFacade {
   readonly selectedBusinessUnit = this._selectedBusinessUnit.asReadonly();
   readonly formMode = this._formMode.asReadonly();
   readonly formOpen = this._formOpen.asReadonly();
+  readonly managedBusinessUnit = this._managedBusinessUnit.asReadonly();
+  readonly childSaving = this._childSaving.asReadonly();
 
   load(): void {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -146,6 +154,70 @@ export class AdminBusinessUnitsFacade {
     this._error.set(null);
     this._success.set(null);
   }
+  openResources(unit: BusinessUnitResponse): void {
+    this.clearFeedback();
+    this._managedBusinessUnit.set(unit);
+  }
+  closeResources(): void {
+    if (!this._childSaving()) this._managedBusinessUnit.set(null);
+  }
+  saveResource(request: BusinessUnitResourceRequest, id: string | null): void {
+    const unit = this._managedBusinessUnit();
+    if (!unit || this._childSaving()) return;
+    this._childSaving.set(true);
+    this.clearFeedback();
+    const operation = id
+      ? this.businessUnitApi.updateResource(unit.id, id, request)
+      : this.businessUnitApi.createResource(unit.id, request);
+    operation
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._childSaving.set(false)),
+      )
+      .subscribe({
+        next: (resource) =>
+          this.updateResources(unit, this.upsertResource(unit.recursos, resource)),
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+  deleteResource(id: string): void {
+    const unit = this._managedBusinessUnit();
+    if (!unit || this._childSaving()) return;
+    this._childSaving.set(true);
+    this.businessUnitApi
+      .deleteResource(unit.id, id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._childSaving.set(false)),
+      )
+      .subscribe({
+        next: () =>
+          this.updateResources(
+            unit,
+            unit.recursos.filter((item) => item.id !== id),
+          ),
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+  private upsertResource(
+    items: readonly BusinessUnitResourceResponse[],
+    saved: BusinessUnitResourceResponse,
+  ): BusinessUnitResourceResponse[] {
+    return [
+      ...(items.some((item) => item.id === saved.id)
+        ? items.map((item) => (item.id === saved.id ? saved : item))
+        : [...items, saved]),
+    ].sort((a, b) => a.orden - b.orden);
+  }
+  private updateResources(
+    unit: BusinessUnitResponse,
+    recursos: BusinessUnitResourceResponse[],
+  ): void {
+    const updated = { ...unit, recursos };
+    this.upsertBusinessUnit(updated);
+    this._managedBusinessUnit.set(updated);
+    this._success.set('Recursos actualizados correctamente.');
+  }
 
   private loadBusinessUnits(): void {
     this._loading.set(true);
@@ -203,7 +275,7 @@ export class AdminBusinessUnitsFacade {
       if (error.status === 400) return 'Revisa los datos ingresados e inténtalo nuevamente.';
       if (error.status === 404) return 'La unidad de negocio o la empresa ya no existe.';
       if (error.status === 409)
-        return 'No se pudo guardar la unidad porque existe un conflicto con sus datos.';
+        return 'Existe un conflicto: revisa el slug o si ya hay otra unidad activa destacada.';
     }
     return 'No pudimos guardar el cambio. Comprueba tu conexión e inténtalo nuevamente.';
   }

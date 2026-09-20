@@ -30,12 +30,14 @@ const company: CompanyResponse = {
   valores: null,
   resumenNosotros: null,
   redesSociales: null,
+  estadisticas: null,
   fechaCreacion: null,
   fechaActualizacion: null,
 };
 
 const config: SiteConfigResponse = {
   id: 'config-1',
+  clave: 'isanorte',
   tituloSitio: 'ISANORTE',
   descripcionSitio: 'Construcción y diseño',
   logoUrl: 'https://example.com/logo.png',
@@ -49,10 +51,12 @@ const config: SiteConfigResponse = {
     {
       id: 'section-1',
       tipo: LandingSectionType.HERO,
+      etiqueta: null,
       titulo: 'Hero',
       subtitulo: null,
       contenido: null,
       imagenUrl: null,
+      imagenAlt: null,
       textoBoton: null,
       enlaceBoton: null,
       orden: 1,
@@ -75,6 +79,7 @@ const createRequest: SiteConfigCreateRequest = {
 };
 
 const updateRequest: SiteConfigUpdateRequest = {
+  clave: 'isanorte',
   tituloSitio: 'Sitio actualizado',
   descripcionSitio: null,
   logoUrl: null,
@@ -88,7 +93,11 @@ const updateRequest: SiteConfigUpdateRequest = {
 class SiteConfigApiStub {
   getAllResponse$: Observable<SiteConfigResponse[]> = of([config]);
   createResponse$: Observable<SiteConfigResponse> = of({ ...config, id: 'config-2' });
-  updateResponse$: Observable<SiteConfigResponse> = of({ ...config, ...updateRequest });
+  updateResponse$: Observable<SiteConfigResponse> = of({
+    ...config,
+    ...updateRequest,
+    clave: updateRequest.clave ?? config.clave,
+  });
   getByIdResponse$: Observable<SiteConfigResponse> = of(config);
   getByIdRequests: string[] = [];
   createRequests: SiteConfigCreateRequest[] = [];

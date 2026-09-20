@@ -52,6 +52,7 @@ export class ProjectForm implements OnInit {
   readonly ubicacion = signal('');
   readonly fechaProyecto = signal('');
   readonly descripcion = signal('');
+  readonly orden = signal('0');
   readonly destacado = signal(false);
   readonly activo = signal(true);
   readonly servicioIds = signal<readonly string[]>([]);
@@ -67,6 +68,7 @@ export class ProjectForm implements OnInit {
     this.ubicacion.set(project.ubicacion ?? '');
     this.fechaProyecto.set(project.fechaProyecto ?? '');
     this.descripcion.set(project.descripcion);
+    this.orden.set(String(project.orden));
     this.destacado.set(project.destacado === true);
     this.activo.set(project.activo === true);
     this.servicioIds.set(project.servicios?.map((service) => service.id) ?? []);
@@ -83,6 +85,7 @@ export class ProjectForm implements OnInit {
       ubicacion: this.optionalValue(this.ubicacion()),
       fechaProyecto: this.optionalValue(this.fechaProyecto()),
       descripcion: this.descripcion().trim(),
+      orden: Number(this.orden()),
       destacado: this.destacado(),
       activo: this.activo(),
       servicioIds: [...this.servicioIds()],

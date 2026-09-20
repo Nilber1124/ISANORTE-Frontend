@@ -52,9 +52,11 @@ export class BusinessUnitForm implements OnInit {
   readonly descripcion = signal('');
   readonly icono = signal('');
   readonly imagenUrl = signal('');
+  readonly imagenAlt = signal('');
   readonly empresaId = signal('');
   readonly orden = signal('');
   readonly activo = signal(true);
+  readonly destacado = signal(false);
   readonly submitted = signal(false);
   readonly previewFailed = signal(false);
   readonly companyOptions = computed<readonly SelectOption[]>(() =>
@@ -71,9 +73,11 @@ export class BusinessUnitForm implements OnInit {
       this.descripcion.set(businessUnit.descripcion ?? '');
       this.icono.set(businessUnit.icono ?? '');
       this.imagenUrl.set(businessUnit.imagenUrl ?? '');
+      this.imagenAlt.set(businessUnit.imagenAlt ?? '');
       this.empresaId.set(businessUnit.empresa.id);
       this.orden.set(String(businessUnit.orden ?? 0));
       this.activo.set(businessUnit.activo === true);
+      this.destacado.set(businessUnit.destacado === true);
       return;
     }
     if (this.companies().length === 1) this.empresaId.set(this.companies()[0].id);
@@ -88,7 +92,9 @@ export class BusinessUnitForm implements OnInit {
       descripcion: this.optionalValue(this.descripcion()),
       icono: this.optionalValue(this.icono()),
       imagenUrl: this.optionalValue(this.imagenUrl()),
+      imagenAlt: this.optionalValue(this.imagenAlt()),
       activo: this.activo(),
+      destacado: this.destacado(),
     };
     if (this.mode() === 'create') {
       this.saved.emit({
@@ -119,6 +125,9 @@ export class BusinessUnitForm implements OnInit {
   }
   protected updateActive(event: Event): void {
     this.activo.set((event.target as HTMLInputElement).checked);
+  }
+  protected updateFeatured(event: Event): void {
+    this.destacado.set((event.target as HTMLInputElement).checked);
   }
   private validationErrors(): FormErrors {
     if (!this.submitted()) return {};

@@ -1,7 +1,9 @@
 <header class="mb-8 flex items-center justify-between">
   <div>
     <h1 class="text-h4 font-bold text-text-primary">Empresa</h1>
-    <p class="mt-1 text-body-sm text-text-secondary">Gestiona la información corporativa y redes sociales.</p>
+    <p class="mt-1 text-body-sm text-text-secondary">
+      Gestiona la información corporativa y redes sociales.
+    </p>
   </div>
 </header>
 
@@ -33,7 +35,11 @@
         <div class="rounded-card border border-border bg-surface px-5 py-4">
           <h2 class="text-subtitle font-semibold text-text-primary">{{ cmp.razonSocial }}</h2>
           <p class="mt-1 text-body-sm text-text-secondary">RUC: {{ cmp.ruc }}</p>
-          <app-button variant="secondary" class="mt-4 w-full" (click)="facade.selectCompany(cmp.id)">
+          <app-button
+            variant="secondary"
+            class="mt-4 w-full"
+            (click)="facade.selectCompany(cmp.id)"
+          >
             Administrar
           </app-button>
         </div>
@@ -45,7 +51,9 @@
         <section class="rounded-card border border-border bg-surface p-5">
           <div class="flex items-center justify-between border-b border-border pb-4">
             <h2 class="text-subtitle font-semibold text-text-primary">Información general</h2>
-            <app-button variant="secondary" size="small" (click)="facade.openCompanyEdit()">Editar datos</app-button>
+            <app-button variant="secondary" size="small" (click)="facade.openCompanyEdit()"
+              >Editar datos</app-button
+            >
           </div>
           <div class="grid gap-y-4 pt-4 sm:grid-cols-2">
             <div>
@@ -62,13 +70,30 @@
             </div>
             <div>
               <p class="text-caption font-medium text-text-muted">Horario de atención</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.horarioAtencion || '-' }}</p>
+              <p class="mt-1 text-body-sm text-text-primary">
+                {{ company.horarioAtencion || '-' }}
+              </p>
             </div>
+          </div>
+        </section>
+        <section class="rounded-card border border-border bg-surface p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-subtitle font-semibold text-text-primary">Estadísticas</h2>
+              <p class="mt-1 text-body-sm text-text-muted">
+                {{ (company.estadisticas ?? []).length }} registros. Ej.: +120 PROYECTOS ENTREGADOS.
+              </p>
+            </div>
+            <app-button variant="secondary" size="small" (click)="facade.openStatistics()"
+              >Administrar</app-button
+            >
           </div>
         </section>
 
         <section class="rounded-card border border-border bg-surface p-5">
-          <h2 class="border-b border-border pb-4 text-subtitle font-semibold text-text-primary">Contacto y Ubicación</h2>
+          <h2 class="border-b border-border pb-4 text-subtitle font-semibold text-text-primary">
+            Contacto y Ubicación
+          </h2>
           <div class="grid gap-y-4 pt-4 sm:grid-cols-2">
             <div class="sm:col-span-2">
               <p class="text-caption font-medium text-text-muted">Dirección</p>
@@ -92,7 +117,9 @@
             </div>
             <div>
               <p class="text-caption font-medium text-text-muted">Teléfono secundario</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.telefonoSecundario || '-' }}</p>
+              <p class="mt-1 text-body-sm text-text-primary">
+                {{ company.telefonoSecundario || '-' }}
+              </p>
             </div>
             <div>
               <p class="text-caption font-medium text-text-muted">WhatsApp</p>
@@ -100,25 +127,35 @@
             </div>
           </div>
         </section>
-        
+
         <section class="rounded-card border border-border bg-surface p-5">
-          <h2 class="border-b border-border pb-4 text-subtitle font-semibold text-text-primary">Contenido corporativo</h2>
+          <h2 class="border-b border-border pb-4 text-subtitle font-semibold text-text-primary">
+            Contenido corporativo
+          </h2>
           <div class="space-y-4 pt-4">
             <div>
               <p class="text-caption font-medium text-text-muted">Resumen Nosotros</p>
-              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">{{ company.resumenNosotros || '-' }}</p>
+              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">
+                {{ company.resumenNosotros || '-' }}
+              </p>
             </div>
             <div class="border-t border-border pt-4">
               <p class="text-caption font-medium text-text-muted">Misión</p>
-              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">{{ company.mision || '-' }}</p>
+              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">
+                {{ company.mision || '-' }}
+              </p>
             </div>
             <div class="border-t border-border pt-4">
               <p class="text-caption font-medium text-text-muted">Visión</p>
-              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">{{ company.vision || '-' }}</p>
+              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">
+                {{ company.vision || '-' }}
+              </p>
             </div>
             <div class="border-t border-border pt-4">
               <p class="text-caption font-medium text-text-muted">Valores</p>
-              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">{{ company.valores || '-' }}</p>
+              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">
+                {{ company.valores || '-' }}
+              </p>
             </div>
           </div>
         </section>
@@ -128,20 +165,31 @@
         <section class="rounded-card border border-border bg-surface p-5">
           <div class="flex items-center justify-between border-b border-border pb-4">
             <h2 class="text-subtitle font-semibold text-text-primary">Redes sociales</h2>
-            <app-button variant="secondary" size="small" (click)="facade.openSocialNetworkCreate()">Agregar</app-button>
+            <app-button variant="secondary" size="small" (click)="facade.openSocialNetworkCreate()"
+              >Agregar</app-button
+            >
           </div>
-          
+
           <div class="space-y-3 pt-4">
             @for (net of sortedNetworks; track net.id) {
-              <div class="flex items-center justify-between rounded-control border border-border p-3 transition-colors hover:border-primary/30">
+              <div
+                class="flex items-center justify-between rounded-control border border-border p-3 transition-colors hover:border-primary/30"
+              >
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-2">
-                    <p class="truncate text-body-sm font-medium text-text-primary" [title]="net.nombre">{{ net.nombre }}</p>
+                    <p
+                      class="truncate text-body-sm font-medium text-text-primary"
+                      [title]="net.nombre"
+                    >
+                      {{ net.nombre }}
+                    </p>
                     @if (!net.activo) {
                       <app-badge variant="neutral" class="shrink-0">Inactiva</app-badge>
                     }
                   </div>
-                  <p class="truncate text-caption text-text-muted" [title]="net.url">{{ net.url }}</p>
+                  <p class="truncate text-caption text-text-muted" [title]="net.url">
+                    {{ net.url }}
+                  </p>
                 </div>
                 <div class="ml-3 flex shrink-0 gap-1">
                   <button
@@ -163,13 +211,27 @@
                 </div>
               </div>
             } @empty {
-              <p class="text-center text-body-sm text-text-muted">No hay redes sociales registradas.</p>
+              <p class="text-center text-body-sm text-text-muted">
+                No hay redes sociales registradas.
+              </p>
             }
           </div>
         </section>
       </div>
     </div>
   }
+}
+@if (facade.statisticsOpen() && facade.company(); as company) {
+  <app-dynamic-child-manager
+    kind="statistic"
+    [parentName]="company.nombreComercial"
+    [items]="company.estadisticas ?? []"
+    [saving]="facade.savingStatistic()"
+    [error]="facade.error()"
+    (closed)="facade.closeStatistics()"
+    (saved)="saveStatistic($event)"
+    (deleted)="facade.deleteStatistic($event)"
+  />
 }
 
 @if (facade.companyFormOpen()) {
@@ -196,7 +258,11 @@
   <app-modal
     modalId="delete-network-modal"
     title="Eliminar red social"
-    [description]="'¿Estás seguro de que deseas eliminar la red social ' + net.nombre + '? Esta acción no se puede deshacer.'"
+    [description]="
+      '¿Estás seguro de que deseas eliminar la red social ' +
+      net.nombre +
+      '? Esta acción no se puede deshacer.'
+    "
     size="small"
     [open]="true"
     [loading]="facade.deletingSocialNetworkId() === net.id"

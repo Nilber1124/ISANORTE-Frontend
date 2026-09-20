@@ -44,6 +44,13 @@
       [rows]="3"
       [disabled]="submitting()"
     />
+    <app-input-field
+      class="sm:col-span-2"
+      inputId="service-label"
+      label="Etiqueta"
+      [(value)]="etiqueta"
+      [disabled]="submitting()"
+    />
     <app-textarea-field
       class="sm:col-span-2"
       inputId="service-description"
@@ -79,6 +86,13 @@
       [value]="imagenUrl()"
       (valueChange)="updateImageUrl($event)"
       placeholder="https://..."
+      [disabled]="submitting()"
+    />
+    <app-input-field
+      class="sm:col-span-2"
+      inputId="service-image-alt"
+      label="Texto alternativo de la imagen"
+      [(value)]="imagenAlt"
       [disabled]="submitting()"
     />
 

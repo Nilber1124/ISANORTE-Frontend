@@ -17,7 +17,10 @@ import { SiteConfigResponse } from '../../../../../data/models/site-config/site-
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { Modal } from '../../../../../shared/components/modal/modal';
-import { SelectField, SelectOption } from '../../../../../shared/components/select-field/select-field';
+import {
+  SelectField,
+  SelectOption,
+} from '../../../../../shared/components/select-field/select-field';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 import { LandingFormMode } from '../../admin-landing.facade';
 
@@ -40,9 +43,11 @@ export class LandingSectionForm {
 
   readonly tipo = signal<string>(LandingSectionType.PERSONALIZADA);
   readonly titulo = signal<string>('');
+  readonly etiqueta = signal<string>('');
   readonly subtitulo = signal<string>('');
   readonly contenido = signal<string>('');
   readonly imagenUrl = signal<string>('');
+  readonly imagenAlt = signal<string>('');
   readonly textoBoton = signal<string>('');
   readonly enlaceBoton = signal<string>('');
   readonly orden = signal<string>('0');
@@ -55,7 +60,7 @@ export class LandingSectionForm {
     this.siteConfigurations().map((c) => ({
       value: c.id,
       label: c.tituloSitio || 'Configuración de sitio',
-    }))
+    })),
   );
 
   readonly typeOptions: SelectOption[] = [
@@ -63,6 +68,7 @@ export class LandingSectionForm {
     { value: LandingSectionType.EMPRESA, label: 'Empresa' },
     { value: LandingSectionType.SERVICIOS, label: 'Servicios' },
     { value: LandingSectionType.PROYECTOS, label: 'Proyectos' },
+    { value: LandingSectionType.UNIDAD_NEGOCIO, label: 'Unidad de negocio' },
     { value: LandingSectionType.CONTACTO, label: 'Contacto' },
     { value: LandingSectionType.CTA, label: 'Llamada a la acción' },
     { value: LandingSectionType.PERSONALIZADA, label: 'Personalizada' },
@@ -85,10 +91,12 @@ export class LandingSectionForm {
       const createReq: LandingSectionCreateRequest = {
         configuracionSitioId: this.configuracionSitioId(),
         tipo: this.tipo() as LandingSectionType,
+        etiqueta: this.etiqueta().trim() || null,
         titulo: this.titulo().trim() || null,
         subtitulo: this.subtitulo().trim() || null,
         contenido: this.contenido().trim() || null,
         imagenUrl: this.imagenUrl().trim() || null,
+        imagenAlt: this.imagenAlt().trim() || null,
         textoBoton: this.textoBoton().trim() || null,
         enlaceBoton: this.enlaceBoton().trim() || null,
         orden: this.orden() ? parseInt(this.orden(), 10) : 0,
@@ -99,10 +107,12 @@ export class LandingSectionForm {
       const updateReq: LandingSectionUpdateRequest = {
         configuracionSitioId: this.initialData()!.configuracionSitioId,
         tipo: this.tipo() as LandingSectionType,
+        etiqueta: this.etiqueta().trim() || null,
         titulo: this.titulo().trim() || null,
         subtitulo: this.subtitulo().trim() || null,
         contenido: this.contenido().trim() || null,
         imagenUrl: this.imagenUrl().trim() || null,
+        imagenAlt: this.imagenAlt().trim() || null,
         textoBoton: this.textoBoton().trim() || null,
         enlaceBoton: this.enlaceBoton().trim() || null,
         orden: this.orden() ? parseInt(this.orden(), 10) : 0,
@@ -121,10 +131,12 @@ export class LandingSectionForm {
     const data = this.initialData();
     if (data) {
       this.tipo.set(data.tipo);
+      this.etiqueta.set(data.etiqueta || '');
       this.titulo.set(data.titulo || '');
       this.subtitulo.set(data.subtitulo || '');
       this.contenido.set(data.contenido || '');
       this.imagenUrl.set(data.imagenUrl || '');
+      this.imagenAlt.set(data.imagenAlt || '');
       this.textoBoton.set(data.textoBoton || '');
       this.enlaceBoton.set(data.enlaceBoton || '');
       this.orden.set(data.orden != null ? data.orden.toString() : '0');
@@ -132,15 +144,17 @@ export class LandingSectionForm {
       this.configuracionSitioId.set(data.configuracionSitioId);
     } else {
       this.tipo.set(LandingSectionType.PERSONALIZADA);
+      this.etiqueta.set('');
       this.titulo.set('');
       this.subtitulo.set('');
       this.contenido.set('');
       this.imagenUrl.set('');
+      this.imagenAlt.set('');
       this.textoBoton.set('');
       this.enlaceBoton.set('');
       this.orden.set('0');
       this.visible.set(true);
-      
+
       const configs = this.siteConfigurations();
       if (configs.length > 0) {
         this.configuracionSitioId.set(configs[0].id);

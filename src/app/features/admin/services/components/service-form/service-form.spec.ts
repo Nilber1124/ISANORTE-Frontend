@@ -11,9 +11,12 @@ const service: ServiceResponse = {
   descripcion: 'Diseño y planificación',
   icono: 'architecture',
   imagenUrl: 'https://example.com/service.jpg',
+  etiqueta: null,
+  imagenAlt: null,
   activo: false,
   destacado: false,
   orden: 0,
+  beneficios: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };

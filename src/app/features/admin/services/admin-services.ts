@@ -9,10 +9,15 @@ import { Loading } from '../../../shared/components/loading/loading';
 import { Modal } from '../../../shared/components/modal/modal';
 import { AdminServicesFacade } from './admin-services.facade';
 import { ServiceForm, ServiceFormSubmission } from './components/service-form/service-form';
+import { ServiceBenefitRequest } from '../../../data/models/service/service-benefit.model';
+import {
+  DynamicChildManager,
+  DynamicChildSave,
+} from '../shared/dynamic-child-manager/dynamic-child-manager';
 
 @Component({
   selector: 'app-admin-services',
-  imports: [Alert, Badge, Button, EmptyState, Loading, Modal, ServiceForm],
+  imports: [Alert, Badge, Button, DynamicChildManager, EmptyState, Loading, Modal, ServiceForm],
   providers: [AdminServicesFacade],
   templateUrl: './admin-services.html',
   styleUrl: './admin-services.css',
@@ -52,5 +57,8 @@ export class AdminServices {
   protected closeDeactivation(): void {
     if (this.facade.changingActiveId() !== null) return;
     this.serviceToDeactivate.set(null);
+  }
+  protected saveBenefit(event: DynamicChildSave): void {
+    this.facade.saveBenefit(event.request as ServiceBenefitRequest, event.id);
   }
 }

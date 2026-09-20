@@ -14,6 +14,7 @@ import { AdminLandingFacade } from './admin-landing.facade';
 
 const mockSiteConfig: SiteConfigResponse = {
   id: 'site-1',
+  clave: 'isanorte',
   tituloSitio: 'ISANORTE',
   descripcionSitio: null,
   logoUrl: null,
@@ -30,15 +31,19 @@ const mockSiteConfig: SiteConfigResponse = {
 const mockSection: LandingSectionResponse = {
   id: 'sec-1',
   tipo: LandingSectionType.PERSONALIZADA,
+  etiqueta: null,
   titulo: 'Test Section',
   subtitulo: null,
   contenido: null,
   imagenUrl: null,
+  imagenAlt: null,
   textoBoton: null,
   enlaceBoton: null,
   orden: 1,
   visible: true,
   configuracionSitioId: 'site-1',
+  escenas: [],
+  acciones: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -53,7 +58,9 @@ class LandingApiStub {
   updateRequests: Array<{ id: string; request: LandingSectionUpdateRequest }> = [];
   visibilityRequests: Array<{ id: string; request: VisibilityRequest }> = [];
 
-  getAll() { return this.getAllResponse$; }
+  getAll() {
+    return this.getAllResponse$;
+  }
   create(request: LandingSectionCreateRequest) {
     this.createRequests.push(request);
     return this.createResponse$;
@@ -70,7 +77,9 @@ class LandingApiStub {
 
 class SiteConfigApiStub {
   getAllResponse$: Observable<SiteConfigResponse[]> = of([mockSiteConfig]);
-  getAll() { return this.getAllResponse$; }
+  getAll() {
+    return this.getAllResponse$;
+  }
 }
 
 describe('AdminLandingFacade', () => {
@@ -113,7 +122,9 @@ describe('AdminLandingFacade', () => {
   });
 
   describe('Creación', () => {
-    beforeEach(() => { facade.load(); });
+    beforeEach(() => {
+      facade.load();
+    });
 
     it('debe bloquear la apertura de creación si no hay configuración', () => {
       configApi.getAllResponse$ = of([]);
@@ -153,7 +164,9 @@ describe('AdminLandingFacade', () => {
   });
 
   describe('Edición', () => {
-    beforeEach(() => { facade.load(); });
+    beforeEach(() => {
+      facade.load();
+    });
 
     it('debe actualizar manteniendo orden=0 y configuracionSitioId', () => {
       facade.openEdit(mockSection);
@@ -168,40 +181,64 @@ describe('AdminLandingFacade', () => {
       expect(landingApi.updateRequests.length).toBe(1);
       expect(landingApi.updateRequests[0].request.orden).toBe(0);
       expect(landingApi.updateRequests[0].request.visible).toBe(false);
-      expect(landingApi.updateRequests[0].request.configuracionSitioId).toBe(mockSection.configuracionSitioId);
+      expect(landingApi.updateRequests[0].request.configuracionSitioId).toBe(
+        mockSection.configuracionSitioId,
+      );
       expect(facade.formOpen()).toBe(false);
     });
   });
 
   describe('Visibilidad', () => {
-    beforeEach(() => { facade.load(); });
+    beforeEach(() => {
+      facade.load();
+    });
 
     it('debe cambiar visibilidad a false (PATCH)', () => {
       facade.changeVisibility(mockSection, false);
-      expect(landingApi.visibilityRequests).toEqual([{ id: mockSection.id, request: { visible: false } }]);
-      expect(facade.sections().find(s => s.id === mockSection.id)?.visible).toBe(false);
+      expect(landingApi.visibilityRequests).toEqual([
+        { id: mockSection.id, request: { visible: false } },
+      ]);
+      expect(facade.sections().find((s) => s.id === mockSection.id)?.visible).toBe(false);
       expect(facade.changingVisibilityId()).toBeNull();
     });
   });
 
   describe('Manejo de Errores HTTP', () => {
-    beforeEach(() => { facade.load(); facade.openEdit(mockSection); });
+    beforeEach(() => {
+      facade.load();
+      facade.openEdit(mockSection);
+    });
 
     it('maneja 400', () => {
       landingApi.updateResponse$ = throwError(() => new HttpErrorResponse({ status: 400 }));
-      facade.update({ configuracionSitioId: 'site-1', tipo: LandingSectionType.HERO, orden: 1, visible: true });
+      facade.update({
+        configuracionSitioId: 'site-1',
+        tipo: LandingSectionType.HERO,
+        orden: 1,
+        visible: true,
+      });
       expect(facade.error()).toBe('Revisa los datos ingresados e inténtalo nuevamente.');
     });
 
     it('maneja 404', () => {
       landingApi.updateResponse$ = throwError(() => new HttpErrorResponse({ status: 404 }));
-      facade.update({ configuracionSitioId: 'site-1', tipo: LandingSectionType.HERO, orden: 1, visible: true });
+      facade.update({
+        configuracionSitioId: 'site-1',
+        tipo: LandingSectionType.HERO,
+        orden: 1,
+        visible: true,
+      });
       expect(facade.error()).toBe('La sección o configuración solicitada ya no existe.');
     });
 
     it('maneja 409', () => {
       landingApi.updateResponse$ = throwError(() => new HttpErrorResponse({ status: 409 }));
-      facade.update({ configuracionSitioId: 'site-1', tipo: LandingSectionType.HERO, orden: 1, visible: true });
+      facade.update({
+        configuracionSitioId: 'site-1',
+        tipo: LandingSectionType.HERO,
+        orden: 1,
+        visible: true,
+      });
       expect(facade.error()).toBe('No se pudo guardar porque existe un conflicto de integridad.');
     });
   });

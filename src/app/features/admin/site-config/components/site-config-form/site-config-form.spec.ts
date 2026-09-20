@@ -22,12 +22,14 @@ const company: CompanyResponse = {
   valores: null,
   resumenNosotros: null,
   redesSociales: null,
+  estadisticas: null,
   fechaCreacion: null,
   fechaActualizacion: null,
 };
 
 const config: SiteConfigResponse = {
   id: 'config-1',
+  clave: 'isanorte',
   tituloSitio: 'ISANORTE',
   descripcionSitio: 'Descripción',
   logoUrl: 'https://example.com/logo.png',
@@ -99,6 +101,19 @@ describe('SiteConfigForm', () => {
     ).not.toBeNull();
   });
 
+  it('rejects a public key outside the backend pattern', async () => {
+    const component = await createForm('edit', [company], config);
+    const saved: SiteConfigFormSubmission[] = [];
+    component.saved.subscribe((value) => saved.push(value));
+    component.clave.set('ISA Norte');
+    Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'))
+      .find((item) => item.textContent?.includes('Guardar cambios'))
+      ?.click();
+    fixture.detectChanges();
+    expect(saved).toEqual([]);
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('minúsculas');
+  });
+
   it('shows the company read-only and emits only update fields on edit', async () => {
     const component = await createForm('edit', [company], config);
     const saved: SiteConfigFormSubmission[] = [];
@@ -112,6 +127,7 @@ describe('SiteConfigForm', () => {
     expect(saved[0].mode).toBe('edit');
     if (saved[0].mode === 'edit') {
       expect(Object.keys(saved[0].request).sort()).toEqual([
+        'clave',
         'colorPrimario',
         'colorSecundario',
         'descripcionSitio',
@@ -122,6 +138,7 @@ describe('SiteConfigForm', () => {
         'tituloSitio',
       ]);
       expect(saved[0].request.textoPiePagina).toBe(' Pie exacto ');
+      expect(saved[0].request.clave).toBe('isanorte');
     }
   });
 

@@ -17,6 +17,7 @@ const project: ProjectResponse = {
   descripcion: 'Proyecto',
   destacado: true,
   activo: true,
+  orden: 1,
   servicios: [{ id: 'service-1', nombre: 'Arquitectura', slug: 'arquitectura' }],
   imagenes: [],
   fechaCreacion: null,

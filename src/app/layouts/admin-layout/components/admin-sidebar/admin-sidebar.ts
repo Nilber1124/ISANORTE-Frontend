@@ -27,6 +27,8 @@ export class AdminSidebar {
     { label: 'Unidades de negocio', route: '/admin/unidades-negocio' },
     { label: 'Empresa', route: '/admin/empresa' },
     { label: 'Landing', route: '/admin/landing' },
+    { label: 'Contenido', route: '/admin/contenido' },
+    { label: 'Contacto', route: '/admin/contacto' },
     { label: 'Configuración', route: '/admin/configuracion' },
   ];
 }

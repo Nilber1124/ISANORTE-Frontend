@@ -103,6 +103,11 @@
                     >Editar</app-button
                   ><app-button
                     size="small"
+                    variant="ghost"
+                    (click)="facade.openResources(businessUnit)"
+                    >Recursos</app-button
+                  ><app-button
+                    size="small"
                     variant="secondary"
                     [loading]="facade.changingActiveId() === businessUnit.id"
                     [disabled]="facade.submitting() || facade.changingActiveId() !== null"
@@ -128,6 +133,18 @@
     [serverError]="facade.error()"
     (canceled)="facade.closeForm()"
     (saved)="save($event)"
+  />
+}
+@if (facade.managedBusinessUnit(); as unit) {
+  <app-dynamic-child-manager
+    kind="resource"
+    [parentName]="unit.nombre"
+    [items]="unit.recursos"
+    [saving]="facade.childSaving()"
+    [error]="facade.error()"
+    (closed)="facade.closeResources()"
+    (saved)="saveResource($event)"
+    (deleted)="facade.deleteResource($event)"
   />
 }
 @if (businessUnitToDeactivate(); as businessUnit) {

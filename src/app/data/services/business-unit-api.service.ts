@@ -7,6 +7,10 @@ import { BusinessUnitCreateRequest } from '../models/business-unit/business-unit
 import { BusinessUnitResponse } from '../models/business-unit/business-unit-response.model';
 import { BusinessUnitUpdateRequest } from '../models/business-unit/business-unit-update-request.model';
 import { ActiveRequest } from '../models/common/active-request.model';
+import {
+  BusinessUnitResourceRequest,
+  BusinessUnitResourceResponse,
+} from '../models/business-unit/business-unit-resource.model';
 
 @Injectable({ providedIn: 'root' })
 export class BusinessUnitApiService {
@@ -53,5 +57,36 @@ export class BusinessUnitApiService {
       `${this.resourceUrl}/${encodeURIComponent(id)}/activo`,
       request,
     );
+  }
+
+  createResource(
+    unitId: string,
+    request: BusinessUnitResourceRequest,
+  ): Observable<BusinessUnitResourceResponse> {
+    return this.http.post<BusinessUnitResourceResponse>(
+      `${this.unitUrl(unitId)}/recursos`,
+      request,
+    );
+  }
+
+  updateResource(
+    unitId: string,
+    resourceId: string,
+    request: BusinessUnitResourceRequest,
+  ): Observable<BusinessUnitResourceResponse> {
+    return this.http.put<BusinessUnitResourceResponse>(
+      `${this.unitUrl(unitId)}/recursos/${encodeURIComponent(resourceId)}`,
+      request,
+    );
+  }
+
+  deleteResource(unitId: string, resourceId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.unitUrl(unitId)}/recursos/${encodeURIComponent(resourceId)}`,
+    );
+  }
+
+  private unitUrl(id: string): string {
+    return `${this.resourceUrl}/${encodeURIComponent(id)}`;
   }
 }

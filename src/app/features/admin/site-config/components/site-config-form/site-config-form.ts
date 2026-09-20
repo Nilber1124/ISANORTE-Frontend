@@ -45,6 +45,8 @@ export class SiteConfigForm implements OnInit {
   readonly saved = output<SiteConfigFormSubmission>();
 
   readonly tituloSitio = signal('');
+  readonly clave = signal('');
+  readonly claveError = signal<string | undefined>(undefined);
   readonly descripcionSitio = signal('');
   readonly logoUrl = signal('');
   readonly logoBlancoUrl = signal('');
@@ -67,6 +69,7 @@ export class SiteConfigForm implements OnInit {
     const config = this.config();
     if (this.mode() === 'edit' && config) {
       this.tituloSitio.set(config.tituloSitio ?? '');
+      this.clave.set(config.clave ?? '');
       this.descripcionSitio.set(config.descripcionSitio ?? '');
       this.logoUrl.set(config.logoUrl ?? '');
       this.logoBlancoUrl.set(config.logoBlancoUrl ?? '');
@@ -81,6 +84,12 @@ export class SiteConfigForm implements OnInit {
 
   protected submit(): void {
     if (this.submitting()) return;
+    const key = this.clave().trim();
+    if (key && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(key)) {
+      this.claveError.set('Usa minúsculas, números y guiones simples; por ejemplo, isanorte.');
+      return;
+    }
+    this.claveError.set(undefined);
     if (this.mode() === 'create') {
       if (!this.hasCompanies() || !this.empresaId()) {
         this.empresaError.set('Selecciona una empresa.');
@@ -113,6 +122,7 @@ export class SiteConfigForm implements OnInit {
   private editableFields(): SiteConfigUpdateRequest {
     return {
       tituloSitio: this.optionalValue(this.tituloSitio()),
+      clave: this.optionalValue(this.clave()),
       descripcionSitio: this.optionalValue(this.descripcionSitio()),
       logoUrl: this.optionalValue(this.logoUrl()),
       logoBlancoUrl: this.optionalValue(this.logoBlancoUrl()),

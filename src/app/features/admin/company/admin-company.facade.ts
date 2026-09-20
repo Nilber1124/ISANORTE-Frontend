@@ -5,8 +5,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 
 import { CompanyCreateRequest } from '../../../data/models/company/company-create-request.model';
-import { CompanyResponse, SocialNetworkResponse } from '../../../data/models/company/company-response.model';
+import {
+  CompanyResponse,
+  SocialNetworkResponse,
+} from '../../../data/models/company/company-response.model';
 import { CompanyUpdateRequest } from '../../../data/models/company/company-update-request.model';
+import {
+  CompanyStatisticRequest,
+  CompanyStatisticResponse,
+} from '../../../data/models/company/company-statistic.model';
 import { SocialNetworkRequest } from '../../../data/models/company/social-network-request.model';
 import { CompanyApiService } from '../../../data/services/company-api.service';
 
@@ -32,6 +39,8 @@ export class AdminCompanyFacade {
   private readonly _selectedSocialNetwork = signal<SocialNetworkResponse | null>(null);
   private readonly _savingSocialNetwork = signal(false);
   private readonly _deletingSocialNetworkId = signal<string | null>(null);
+  private readonly _statisticsOpen = signal(false);
+  private readonly _savingStatistic = signal(false);
 
   readonly companies = this._companies.asReadonly();
   readonly company = computed(() => {
@@ -54,6 +63,8 @@ export class AdminCompanyFacade {
   readonly selectedSocialNetwork = this._selectedSocialNetwork.asReadonly();
   readonly savingSocialNetwork = this._savingSocialNetwork.asReadonly();
   readonly deletingSocialNetworkId = this._deletingSocialNetworkId.asReadonly();
+  readonly statisticsOpen = this._statisticsOpen.asReadonly();
+  readonly savingStatistic = this._savingStatistic.asReadonly();
 
   load(): void {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -72,7 +83,8 @@ export class AdminCompanyFacade {
             this._selectedCompanyId.set(companies[0].id);
           }
         },
-        error: () => this._error.set('No pudimos cargar la información de empresa. Comprueba tu conexión.'),
+        error: () =>
+          this._error.set('No pudimos cargar la información de empresa. Comprueba tu conexión.'),
       });
   }
 
@@ -235,6 +247,72 @@ export class AdminCompanyFacade {
     this._error.set(null);
     this._success.set(null);
   }
+  openStatistics(): void {
+    this.clearFeedback();
+    this._statisticsOpen.set(true);
+  }
+  closeStatistics(): void {
+    if (!this._savingStatistic()) this._statisticsOpen.set(false);
+  }
+  saveStatistic(request: CompanyStatisticRequest, id: string | null): void {
+    const company = this.company();
+    if (!company || this._savingStatistic()) return;
+    this._savingStatistic.set(true);
+    this.clearFeedback();
+    const operation = id
+      ? this.companyApi.updateStatistic(company.id, id, request)
+      : this.companyApi.createStatistic(company.id, request);
+    operation
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._savingStatistic.set(false)),
+      )
+      .subscribe({
+        next: (statistic) =>
+          this.updateStatistics(
+            company,
+            this.upsertStatistic(company.estadisticas ?? [], statistic),
+          ),
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+  deleteStatistic(id: string): void {
+    const company = this.company();
+    if (!company || this._savingStatistic()) return;
+    this._savingStatistic.set(true);
+    this.companyApi
+      .deleteStatistic(company.id, id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._savingStatistic.set(false)),
+      )
+      .subscribe({
+        next: () =>
+          this.updateStatistics(
+            company,
+            (company.estadisticas ?? []).filter((item) => item.id !== id),
+          ),
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+  private upsertStatistic(
+    items: readonly CompanyStatisticResponse[],
+    saved: CompanyStatisticResponse,
+  ): CompanyStatisticResponse[] {
+    return [
+      ...(items.some((item) => item.id === saved.id)
+        ? items.map((item) => (item.id === saved.id ? saved : item))
+        : [...items, saved]),
+    ].sort((a, b) => a.orden - b.orden);
+  }
+  private updateStatistics(
+    company: CompanyResponse,
+    estadisticas: CompanyStatisticResponse[],
+  ): void {
+    const updated = { ...company, estadisticas };
+    this.upsertCompany(updated);
+    this._success.set('Estadísticas actualizadas correctamente.');
+  }
 
   private upsertCompany(company: CompanyResponse): void {
     const all = this._companies();
@@ -249,11 +327,13 @@ export class AdminCompanyFacade {
     const nextNetworks = currentNetworks.some((n) => n.id === network.id)
       ? currentNetworks.map((n) => (n.id === network.id ? network : n))
       : [...currentNetworks, network];
-    
+
     const sortedNetworks = [...nextNetworks].sort(
-      (a, b) => (a.orden ?? Number.MAX_SAFE_INTEGER) - (b.orden ?? Number.MAX_SAFE_INTEGER) || a.nombre.localeCompare(b.nombre)
+      (a, b) =>
+        (a.orden ?? Number.MAX_SAFE_INTEGER) - (b.orden ?? Number.MAX_SAFE_INTEGER) ||
+        a.nombre.localeCompare(b.nombre),
     );
-    
+
     this.upsertCompany({ ...company, redesSociales: sortedNetworks });
   }
 
@@ -267,7 +347,8 @@ export class AdminCompanyFacade {
     if (error instanceof HttpErrorResponse) {
       if (error.status === 400) return 'Revisa los datos ingresados e inténtalo nuevamente.';
       if (error.status === 404) return 'La empresa o red social solicitada ya no existe.';
-      if (error.status === 409) return 'No se pudo guardar porque existe un conflicto (ej. RUC duplicado).';
+      if (error.status === 409)
+        return 'No se pudo guardar porque existe un conflicto (ej. RUC duplicado).';
     }
     return 'No pudimos guardar el cambio. Comprueba tu conexión e inténtalo nuevamente.';
   }

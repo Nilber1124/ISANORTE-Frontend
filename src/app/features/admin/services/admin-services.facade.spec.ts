@@ -18,9 +18,12 @@ const service: ServiceResponse = {
   descripcion: 'Descripción',
   icono: 'architecture',
   imagenUrl: null,
+  etiqueta: null,
+  imagenAlt: null,
   activo: true,
   destacado: true,
   orden: 1,
+  beneficios: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };

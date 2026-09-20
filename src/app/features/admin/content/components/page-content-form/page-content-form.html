@@ -1,0 +1,116 @@
+<app-modal
+  modalId="page-content-form"
+  [title]="content() ? 'Editar contenido' : 'Nuevo contenido'"
+  description="La página y el sitio forman su identidad y no cambian después de crear."
+  size="large"
+  [open]="true"
+  [loading]="saving()"
+  (closed)="closed.emit()"
+>
+  <form class="grid gap-5 sm:grid-cols-2" (submit)="submit(); $event.preventDefault()">
+    <label class="form-label"
+      >Sitio<select
+        class="form-control mt-2"
+        [value]="configuracionSitioId()"
+        [disabled]="!!content() || saving()"
+        (change)="configuracionSitioId.set($any($event.target).value)"
+      >
+        @for (config of configurations(); track config.id) {
+          <option [value]="config.id">{{ config.clave || config.tituloSitio || config.id }}</option>
+        }
+      </select></label
+    >
+    <label class="form-label"
+      >Página<select
+        class="form-control mt-2"
+        [value]="pagina()"
+        [disabled]="!!content() || saving()"
+        (change)="updatePage($event)"
+      >
+        @for (type of pageTypes; track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select></label
+    >
+    <app-input-field inputId="content-eyebrow" label="Eyebrow" [(value)]="eyebrow" />
+    <app-input-field inputId="content-title" label="Título" [(value)]="titulo" />
+    <app-textarea-field
+      class="sm:col-span-2"
+      inputId="content-introduction"
+      label="Introducción"
+      [(value)]="introduccion"
+      [rows]="3"
+    />
+    <app-textarea-field
+      class="sm:col-span-2"
+      inputId="content-description"
+      label="Descripción"
+      [(value)]="descripcion"
+      [rows]="5"
+    />
+    <app-input-field inputId="content-image" label="Imagen URL" type="url" [(value)]="imagenUrl" />
+    <app-input-field inputId="content-image-alt" label="Texto alternativo" [(value)]="imagenAlt" />
+    <app-input-field
+      class="sm:col-span-2"
+      inputId="content-background"
+      label="Imagen de fondo URL"
+      type="url"
+      [(value)]="imagenFondoUrl"
+    />
+    <section class="sm:col-span-2 rounded-card border border-border p-4">
+      <h3 class="text-body-sm font-semibold">Tags ordenados</h3>
+      <div class="mt-3 flex gap-2">
+        <app-input-field
+          class="flex-1"
+          inputId="content-tag"
+          label="Nuevo tag"
+          [(value)]="tagDraft"
+        /><app-button class="self-end" variant="secondary" type="button" (click)="addTag()">{{
+          editingTagIndex() === null ? 'Agregar' : 'Guardar tag'
+        }}</app-button>
+      </div>
+      <div class="mt-3 space-y-2">
+        @for (tag of tags(); track $index) {
+          <div class="flex items-center gap-2 rounded-control bg-surface-soft px-3 py-2">
+            <span class="flex-1 text-body-sm">{{ tag }}</span
+            ><app-button size="small" variant="ghost" type="button" (click)="editTag($index)"
+              >Editar</app-button
+            ><app-button
+              size="small"
+              variant="ghost"
+              type="button"
+              [disabled]="$first"
+              (click)="moveTag($index, -1)"
+              >Subir</app-button
+            ><app-button
+              size="small"
+              variant="ghost"
+              type="button"
+              [disabled]="$last"
+              (click)="moveTag($index, 1)"
+              >Bajar</app-button
+            ><app-button size="small" variant="ghost" type="button" (click)="removeTag($index)"
+              >Quitar</app-button
+            >
+          </div>
+        } @empty {
+          <p class="text-body-sm text-text-muted">
+            Sin tags. Son opcionales y se usan principalmente en Nosotros.
+          </p>
+        }
+      </div>
+    </section>
+    <label class="sm:col-span-2 flex items-center gap-3 text-body-sm"
+      ><input
+        class="form-choice"
+        type="checkbox"
+        [checked]="activo()"
+        (change)="updateActive($event)"
+      />Contenido activo</label
+    >
+  </form>
+  <div modal-actions class="flex w-full justify-end gap-3">
+    <app-button variant="secondary" (click)="closed.emit()">Cancelar</app-button
+    ><app-button [loading]="saving()" (click)="submit()">Guardar</app-button>
+  </div>
+</app-modal>

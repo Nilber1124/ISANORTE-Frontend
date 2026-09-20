@@ -13,9 +13,12 @@ const service: ServiceResponse = {
   descripcion: 'Descripción',
   icono: 'architecture',
   imagenUrl: null,
+  etiqueta: null,
+  imagenAlt: null,
   activo: true,
   destacado: true,
   orden: 1,
+  beneficios: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -30,6 +33,8 @@ class FacadeStub {
   readonly selectedService = signal<ServiceResponse | null>(null);
   readonly formMode = signal<ServiceFormMode>('create');
   readonly formOpen = signal(false);
+  readonly managedService = signal<ServiceResponse | null>(null);
+  readonly childSaving = signal(false);
   createCalls = 0;
   edits: ServiceResponse[] = [];
   activeChanges: Array<{ service: ServiceResponse; active: boolean }> = [];
@@ -47,6 +52,10 @@ class FacadeStub {
     this.activeChanges.push({ service: value, active });
   }
   clearFeedback(): void {}
+  openBenefits(): void {}
+  closeBenefits(): void {}
+  saveBenefit(): void {}
+  deleteBenefit(): void {}
 }
 
 describe('AdminServices', () => {
