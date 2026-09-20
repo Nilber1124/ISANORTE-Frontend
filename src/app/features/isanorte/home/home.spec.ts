@@ -50,6 +50,20 @@ class CarouselStub {
 const backendHome: PublicHomeResponse = {
   secciones: [
     {
+      tipo: PublicHomeSectionType.PROYECTOS,
+      etiqueta: 'PROYECTOS DESDE POSTGRESQL',
+      titulo: 'Obras destacadas API',
+      subtitulo: null,
+      contenido: null,
+      imagenUrl: null,
+      imagenAlt: null,
+      textoBoton: null,
+      enlaceBoton: null,
+      orden: 3,
+      escenas: [],
+      acciones: [{ texto: 'VER PROYECTOS API', enlace: '#', orden: 0 }],
+    },
+    {
       tipo: PublicHomeSectionType.SERVICIOS,
       etiqueta: 'Servicios primero',
       titulo: 'No usar como Hero',
@@ -62,6 +76,20 @@ const backendHome: PublicHomeResponse = {
       orden: 0,
       escenas: [],
       acciones: [{ texto: 'VER SERVICIOS API', enlace: '#', orden: 0 }],
+    },
+    {
+      tipo: PublicHomeSectionType.CTA,
+      etiqueta: null,
+      titulo: 'CTA final desde PostgreSQL',
+      subtitulo: 'Subtítulo CTA que no usa este diseño',
+      contenido: 'Descripción final entregada por el backend.',
+      imagenUrl: '/cta-backend.jpg',
+      imagenAlt: 'Imagen decorativa del CTA',
+      textoBoton: null,
+      enlaceBoton: null,
+      orden: 4,
+      escenas: [],
+      acciones: [{ texto: 'CONTACTAR DESDE API', enlace: '#contacto', orden: 0 }],
     },
     {
       tipo: PublicHomeSectionType.HERO,
@@ -139,7 +167,29 @@ const backendHome: PublicHomeResponse = {
       beneficios: [],
     },
   ],
-  proyectos: [],
+  proyectos: [
+    {
+      nombre: 'Torre API',
+      slug: 'torre-api',
+      ubicacion: 'Centro financiero',
+      fechaProyecto: 'Proyecto 2023',
+      descripcion: 'Descripcion que la card no necesita',
+      orden: 2,
+      imagenes: [{ url: '/project-tower.jpg', alt: null, esPrincipal: false, orden: 0 }],
+    },
+    {
+      nombre: 'Residencia API',
+      slug: 'residencia-api',
+      ubicacion: 'Valle API',
+      fechaProyecto: '2026-05-10',
+      descripcion: 'Otra descripcion que no se renderiza',
+      orden: 0,
+      imagenes: [
+        { url: '/project-secondary.jpg', alt: 'Imagen secundaria', esPrincipal: false, orden: 0 },
+        { url: '/project-main.jpg', alt: 'Residencia terminada', esPrincipal: true, orden: 1 },
+      ],
+    },
+  ],
   unidadDestacada: {
     nombre: 'Unidad API',
     slug: 'unidad-api',
@@ -315,6 +365,51 @@ describe('ISANORTE Home', () => {
     ).toBeNull();
   });
 
+  it('renders the dynamic Projects section and keeps the marquee presentation', () => {
+    const fixture = TestBed.createComponent(Home);
+    http.expectOne('/api/publico/sitios/isanorte/home').flush(backendHome);
+    fixture.detectChanges();
+
+    const section = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-home-projects]',
+    ) as HTMLElement | null;
+    expect(section?.textContent).toContain('PROYECTOS DESDE POSTGRESQL');
+    expect(section?.textContent).toContain('Obras destacadas API');
+    expect(section?.textContent).toContain('VER PROYECTOS API');
+    expect(section?.querySelector('app-button a')?.getAttribute('href')).toBe('/proyectos');
+
+    const names = Array.from(section?.querySelectorAll('h3') ?? []).map((item) =>
+      item.textContent?.trim(),
+    );
+    expect(names).toEqual(['Residencia API', 'Torre API']);
+    expect(section?.textContent).toContain('Valle API - 2026');
+    expect(section?.textContent).toContain('Centro financiero - Proyecto 2023');
+    expect(section?.textContent).not.toContain('Descripcion que la card no necesita');
+
+    const image = section?.querySelector('[role="img"]') as HTMLElement | null;
+    expect(image?.getAttribute('aria-label')).toBe('Residencia terminada');
+    expect(image?.style.backgroundImage).toContain('/project-main.jpg');
+    expect(section?.innerHTML).toContain('/project-tower.jpg');
+    expect(section?.querySelector('app-card a')).toBeNull();
+
+    const carousels = fixture.debugElement.queryAll(By.directive(CarouselStub));
+    const projectsCarousel = carousels[1].componentInstance as CarouselStub;
+    expect(projectsCarousel.variant()).toBe('marquee');
+    expect(projectsCarousel.items().map((item) => item.id)).toEqual([
+      'residencia-api',
+      'torre-api',
+    ]);
+    expect(projectsCarousel.items()).toHaveLength(2);
+  });
+
+  it('hides the complete Projects block after a successful empty response', () => {
+    const fixture = TestBed.createComponent(Home);
+    http.expectOne('/api/publico/sitios/isanorte/home').flush({ ...backendHome, proyectos: [] });
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-home-projects]')).toBeNull();
+  });
+
   it('renders Hero actions in backend order with the existing visual slots', () => {
     const fixture = TestBed.createComponent(Home);
     http.expectOne('/api/publico/sitios/isanorte/home').flush(backendHome);
@@ -328,6 +423,63 @@ describe('ISANORTE Home', () => {
       'Secundaria API',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual(['#cotizar', '#contacto']);
+  });
+
+  it('renders backend CTA copy, decorative background and functional action', () => {
+    const fixture = TestBed.createComponent(Home);
+    http.expectOne('/api/publico/sitios/isanorte/home').flush(backendHome);
+    fixture.detectChanges();
+
+    const section = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-home-cta]',
+    ) as HTMLElement | null;
+    expect(section?.querySelector('h2')?.textContent).toContain('CTA final desde PostgreSQL');
+    expect(section?.querySelector('p')?.textContent).toContain(
+      'Descripción final entregada por el backend.',
+    );
+    expect(section?.textContent).not.toContain('Subtítulo CTA que no usa este diseño');
+
+    const background = section?.querySelector('[aria-hidden="true"]') as HTMLElement | null;
+    expect(background?.style.backgroundImage).toContain('/cta-backend.jpg');
+    expect(background?.getAttribute('role')).toBeNull();
+    expect(background?.getAttribute('aria-label')).toBeNull();
+
+    const action = section?.querySelector('app-button a');
+    expect(action?.textContent).toContain('CONTACTAR DESDE API');
+    expect(action?.getAttribute('href')).toBe('/contacto');
+    expect(section?.textContent).not.toContain('¿Tienes un proyecto en mente?');
+  });
+
+  it('hides the complete CTA after a successful response without a CTA section', () => {
+    const fixture = TestBed.createComponent(Home);
+    http.expectOne('/api/publico/sitios/isanorte/home').flush({
+      ...backendHome,
+      secciones: backendHome.secciones.filter(
+        (section) => section.tipo !== PublicHomeSectionType.CTA,
+      ),
+    });
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-home-cta]')).toBeNull();
+  });
+
+  it('renders CTA content without inventing a button after a successful empty action list', () => {
+    const fixture = TestBed.createComponent(Home);
+    http.expectOne('/api/publico/sitios/isanorte/home').flush({
+      ...backendHome,
+      secciones: backendHome.secciones.map((section) =>
+        section.tipo === PublicHomeSectionType.CTA
+          ? { ...section, imagenUrl: null, acciones: [] }
+          : section,
+      ),
+    });
+    fixture.detectChanges();
+
+    const section = (fixture.nativeElement as HTMLElement).querySelector('[data-home-cta]');
+    expect(section?.textContent).toContain('CTA final desde PostgreSQL');
+    expect(section?.querySelector('app-button')).toBeNull();
+    const background = section?.querySelector('[aria-hidden="true"]') as HTMLElement | null;
+    expect(background?.style.backgroundImage).toBe('');
   });
 
   it('uses the single transitional fallback when the public request fails', () => {
@@ -344,24 +496,30 @@ describe('ISANORTE Home', () => {
     expect(element.textContent).toContain('ISADECOR');
     expect(element.querySelector('a[href="/isadecor"]')).toBeTruthy();
     expect(element.querySelector('a[href="/isadecor/catalogo"]')).toBeTruthy();
+    expect(element.textContent).toContain('Residencia Aura');
+    expect(element.textContent).toContain('Edificio Tech-Corporate');
+    expect(element.querySelector('[data-home-projects] a[href="/proyectos"]')).toBeTruthy();
+    expect(element.querySelector('[data-home-cta]')?.textContent).toContain(
+      '¿Tienes un proyecto en mente?',
+    );
+    expect(element.querySelector('[data-home-cta] a[href="/contacto"]')).toBeTruthy();
     const tour = fixture.debugElement.query(By.directive(CinematicTourStub))
       .componentInstance as CinematicTourStub;
     expect(tour.scenes()).toHaveLength(5);
   });
 
-  it('removes Trust Strip while preserving the remaining static Home baseline', () => {
+  it('keeps Trust Strip removed and does not duplicate the baseline CTA on success', () => {
     const fixture = TestBed.createComponent(Home);
     http.expectOne('/api/publico/sitios/isanorte/home').flush(backendHome);
     fixture.detectChanges();
 
-    const component = fixture.componentInstance;
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).not.toContain('RESPALDADO POR PRIMERAS MARCAS');
     expect(text).not.toContain('Google');
-    expect(component.projects.map((project) => project.title)).toEqual([
-      'Residencia Aura',
-      'Edificio Tech-Corporate',
-    ]);
-    expect(component.preFooterData.title).toBe('¿Tienes un proyecto en mente?');
+    expect(text).toContain('CTA final desde PostgreSQL');
+    expect(text).not.toContain('¿Tienes un proyecto en mente?');
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('[data-home-cta]')).toHaveLength(
+      1,
+    );
   });
 });

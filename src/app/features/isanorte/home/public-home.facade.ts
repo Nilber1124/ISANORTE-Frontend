@@ -23,6 +23,14 @@ import {
   HomeServicesHeaderView,
   LEGACY_HOME_SERVICE_CARD_LINK,
 } from './home-services-fallback';
+import {
+  HOME_PROJECTS_FALLBACK,
+  HomeProjectCardView,
+  HomeProjectsActionView,
+  HomeProjectsHeaderView,
+  PUBLIC_PROJECTS_PATH,
+} from './home-projects-fallback';
+import { HOME_CTA_FALLBACK, HomeCtaActionView, HomeCtaCopyView } from './home-cta-fallback';
 
 export interface HomeBusinessUnitActionView {
   label: string;
@@ -231,6 +239,128 @@ export class PublicHomeFacade {
     () => this.businessUnitSection() !== null && this.featuredBusinessUnit() !== null,
   );
 
+  private readonly useProjectsFallback = computed(
+    () => this._home() === null && this._error() !== null,
+  );
+
+  readonly projectsSection = computed(() => {
+    const home = this._home();
+    if (home === null) {
+      return this.useProjectsFallback() ? HOME_PROJECTS_FALLBACK.section : null;
+    }
+
+    return (
+      home.secciones.find((section) => section.tipo === PublicHomeSectionType.PROYECTOS) ?? null
+    );
+  });
+
+  readonly projectsHeader = computed<HomeProjectsHeaderView | null>(() => {
+    const section = this.projectsSection();
+    if (section === null) return null;
+    if (this.useProjectsFallback()) return HOME_PROJECTS_FALLBACK.header;
+
+    return {
+      eyebrow: section.etiqueta ?? '',
+      title: section.titulo ?? '',
+    };
+  });
+
+  readonly projectsAction = computed<HomeProjectsActionView | null>(() => {
+    if (this.useProjectsFallback()) return HOME_PROJECTS_FALLBACK.action;
+
+    const section = this.projectsSection();
+    if (section === null) return null;
+
+    const action = [...section.acciones].sort((left, right) => left.orden - right.orden)[0];
+    return action ? { label: action.texto, url: PUBLIC_PROJECTS_PATH, order: action.orden } : null;
+  });
+
+  readonly projects = computed<readonly HomeProjectCardView[]>(() => {
+    const home = this._home();
+    if (home === null) {
+      return this.useProjectsFallback() ? HOME_PROJECTS_FALLBACK.projects : [];
+    }
+
+    return home.proyectos
+      .map((project, sourceIndex) => ({ project, sourceIndex }))
+      .sort(
+        (left, right) =>
+          left.project.orden - right.project.orden || left.sourceIndex - right.sourceIndex,
+      )
+      .map(({ project }) => {
+        const images = project.imagenes
+          .map((image, sourceIndex) => ({ image, sourceIndex }))
+          .sort(
+            (left, right) =>
+              left.image.orden - right.image.orden || left.sourceIndex - right.sourceIndex,
+          )
+          .map(({ image }) => image);
+        const image = images.find((candidate) => candidate.esPrincipal) ?? images[0] ?? null;
+        const location = this.optionalText(project.ubicacion);
+        const dateLabel = this.projectDateLabel(project.fechaProyecto);
+
+        return {
+          id: project.slug,
+          slug: project.slug,
+          name: project.nombre,
+          location,
+          dateLabel,
+          metadata: [location, dateLabel]
+            .filter((value): value is string => value !== null)
+            .join(' - '),
+          imageUrl: image?.url ?? null,
+          imageAlt: image?.alt ?? null,
+          order: project.orden,
+        };
+      });
+  });
+
+  readonly showProjects = computed(
+    () => this.projectsHeader() !== null && this.projects().length > 0,
+  );
+
+  readonly ctaSection = computed(
+    () =>
+      this._home()?.secciones.find((section) => section.tipo === PublicHomeSectionType.CTA) ?? null,
+  );
+
+  readonly ctaCopy = computed<HomeCtaCopyView | null>(() => {
+    if (this._home() === null) return HOME_CTA_FALLBACK.copy;
+
+    const section = this.ctaSection();
+    if (section === null) return null;
+
+    return {
+      title: section.titulo ?? '',
+      // El baseline migrado y el diseño actual corresponden la descripción con `contenido`.
+      description: section.contenido ?? '',
+    };
+  });
+
+  readonly ctaBackground = computed<string | null>(() => {
+    if (this._home() === null) return HOME_CTA_FALLBACK.backgroundUrl;
+    return this.ctaSection()?.imagenUrl ?? null;
+  });
+
+  readonly ctaAction = computed<HomeCtaActionView | null>(() => {
+    if (this._home() === null) return HOME_CTA_FALLBACK.action;
+
+    const section = this.ctaSection();
+    if (section === null) return null;
+
+    const action = [...section.acciones].sort((left, right) => left.orden - right.orden)[0];
+    if (!action) return null;
+
+    return {
+      label: action.texto,
+      persistedUrl: action.enlace,
+      url: this.resolveCtaUrl(action.enlace),
+      order: action.orden,
+    };
+  });
+
+  readonly showCta = computed(() => this._home() === null || this.ctaSection() !== null);
+
   load(): void {
     if (this.requestInFlight) return;
 
@@ -255,5 +385,22 @@ export class PublicHomeFacade {
           );
         },
       });
+  }
+
+  private optionalText(value: string | null): string | null {
+    const normalized = value?.trim();
+    return normalized ? normalized : null;
+  }
+
+  private projectDateLabel(value: string | null): string | null {
+    const normalized = this.optionalText(value);
+    if (normalized === null) return null;
+
+    const isoDate = /^(\d{4})-\d{2}-\d{2}(?:T.*)?$/.exec(normalized);
+    return isoDate?.[1] ?? normalized;
+  }
+
+  private resolveCtaUrl(url: string): string {
+    return url.trim().toLowerCase() === '#contacto' ? '/contacto' : url;
   }
 }

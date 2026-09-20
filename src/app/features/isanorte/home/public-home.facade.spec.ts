@@ -9,7 +9,9 @@ import {
 } from '../../../data/models/public-content/public-home.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { HOME_BUSINESS_UNIT_FALLBACK } from './home-business-unit-fallback';
+import { HOME_CTA_FALLBACK } from './home-cta-fallback';
 import { HOME_HERO_FALLBACK } from './home-hero-fallback';
+import { HOME_PROJECTS_FALLBACK } from './home-projects-fallback';
 import { HOME_SERVICES_FALLBACK } from './home-services-fallback';
 import { PublicHomeFacade } from './public-home.facade';
 
@@ -68,8 +70,44 @@ const businessUnitSection: PublicHomeSection = {
   ],
 };
 
+const projectsSection: PublicHomeSection = {
+  tipo: PublicHomeSectionType.PROYECTOS,
+  etiqueta: 'PROYECTOS API',
+  titulo: 'Obras desde API',
+  subtitulo: null,
+  contenido: null,
+  imagenUrl: null,
+  imagenAlt: null,
+  textoBoton: null,
+  enlaceBoton: null,
+  orden: 3,
+  escenas: [],
+  acciones: [
+    { texto: 'Accion posterior', enlace: '/ignorada', orden: 5 },
+    { texto: 'Ver todos desde API', enlace: '#', orden: 0 },
+  ],
+};
+
+const ctaSection: PublicHomeSection = {
+  tipo: PublicHomeSectionType.CTA,
+  etiqueta: null,
+  titulo: 'CTA desde API',
+  subtitulo: 'Subtítulo que no corresponde al diseño actual',
+  contenido: 'Descripción CTA desde API',
+  imagenUrl: '/cta-api.jpg',
+  imagenAlt: 'Alt no usado porque el fondo es decorativo',
+  textoBoton: null,
+  enlaceBoton: null,
+  orden: 4,
+  escenas: [],
+  acciones: [
+    { texto: 'Acción posterior', enlace: '/posterior', orden: 5 },
+    { texto: 'Contactar API', enlace: '#contacto', orden: 0 },
+  ],
+};
+
 const homeResponse: PublicHomeResponse = {
-  secciones: [servicesSection, heroSection, businessUnitSection],
+  secciones: [projectsSection, ctaSection, servicesSection, heroSection, businessUnitSection],
   servicios: [
     {
       nombre: 'Servicio dos',
@@ -96,7 +134,30 @@ const homeResponse: PublicHomeResponse = {
       beneficios: [],
     },
   ],
-  proyectos: [],
+  proyectos: [
+    {
+      nombre: 'Proyecto dos',
+      slug: 'proyecto-dos',
+      ubicacion: null,
+      fechaProyecto: 'Proyecto 2023',
+      descripcion: 'Descripcion dos',
+      orden: 2,
+      imagenes: [{ url: '/dos.jpg', alt: null, esPrincipal: false, orden: 0 }],
+    },
+    {
+      nombre: 'Proyecto cero',
+      slug: 'proyecto-cero',
+      ubicacion: 'Quito',
+      fechaProyecto: '2026-05-10',
+      descripcion: 'Descripcion cero',
+      orden: 0,
+      imagenes: [
+        { url: '/fallback-image.jpg', alt: 'Fallback', esPrincipal: false, orden: 0 },
+        { url: '/principal-late.jpg', alt: 'Principal tardia', esPrincipal: true, orden: 3 },
+        { url: '/principal.jpg', alt: 'Principal', esPrincipal: true, orden: 1 },
+      ],
+    },
+  ],
   unidadDestacada: {
     nombre: 'Unidad Demo',
     slug: 'unidad-demo',
@@ -292,6 +353,111 @@ describe('PublicHomeFacade', () => {
     expect(facade.showBusinessUnit()).toBe(false);
   });
 
+  it('derives Projects by type, action and ordered cards without section-index coupling', () => {
+    const response = new Subject<PublicHomeResponse>();
+    api.response$ = response;
+    facade.load();
+    response.next(homeResponse);
+    response.complete();
+
+    expect(facade.projectsSection()).toBe(projectsSection);
+    expect(facade.projectsHeader()).toEqual({
+      eyebrow: 'PROYECTOS API',
+      title: 'Obras desde API',
+    });
+    expect(facade.projectsAction()).toEqual({
+      label: 'Ver todos desde API',
+      url: '/proyectos',
+      order: 0,
+    });
+    expect(facade.projects().map((project) => [project.slug, project.order])).toEqual([
+      ['proyecto-cero', 0],
+      ['proyecto-dos', 2],
+    ]);
+    expect(facade.projects()[0]).toEqual(
+      expect.objectContaining({
+        location: 'Quito',
+        dateLabel: '2026',
+        metadata: 'Quito - 2026',
+        imageUrl: '/principal.jpg',
+        imageAlt: 'Principal',
+      }),
+    );
+    expect(facade.projects()[1]).toEqual(
+      expect.objectContaining({ metadata: 'Proyecto 2023', imageUrl: '/dos.jpg' }),
+    );
+    expect(facade.showProjects()).toBe(true);
+  });
+
+  it('keeps Projects hidden after a successful empty response', () => {
+    const response = new Subject<PublicHomeResponse>();
+    api.response$ = response;
+    facade.load();
+    response.next({ ...homeResponse, proyectos: [] });
+    response.complete();
+
+    expect(facade.projects()).toEqual([]);
+    expect(facade.showProjects()).toBe(false);
+  });
+
+  it('derives CTA by type rather than array position and preserves action order zero', () => {
+    const response = new Subject<PublicHomeResponse>();
+    api.response$ = response;
+    facade.load();
+    response.next(homeResponse);
+    response.complete();
+
+    expect(facade.ctaSection()).toBe(ctaSection);
+    expect(facade.ctaCopy()).toEqual({
+      title: 'CTA desde API',
+      description: 'Descripción CTA desde API',
+    });
+    expect(facade.ctaBackground()).toBe('/cta-api.jpg');
+    expect(facade.ctaAction()).toEqual({
+      label: 'Contactar API',
+      persistedUrl: '#contacto',
+      url: '/contacto',
+      order: 0,
+    });
+    expect(facade.showCta()).toBe(true);
+  });
+
+  it('hides CTA after a successful response without a CTA section', () => {
+    const response = new Subject<PublicHomeResponse>();
+    api.response$ = response;
+    facade.load();
+    response.next({
+      ...homeResponse,
+      secciones: homeResponse.secciones.filter(
+        (section) => section.tipo !== PublicHomeSectionType.CTA,
+      ),
+    });
+    response.complete();
+
+    expect(facade.ctaSection()).toBeNull();
+    expect(facade.ctaCopy()).toBeNull();
+    expect(facade.ctaBackground()).toBeNull();
+    expect(facade.ctaAction()).toBeNull();
+    expect(facade.showCta()).toBe(false);
+  });
+
+  it('keeps CTA content but does not invent an action after a successful empty action list', () => {
+    const response = new Subject<PublicHomeResponse>();
+    api.response$ = response;
+    facade.load();
+    response.next({
+      ...homeResponse,
+      secciones: homeResponse.secciones.map((section) =>
+        section.tipo === PublicHomeSectionType.CTA ? { ...section, acciones: [] } : section,
+      ),
+    });
+    response.complete();
+
+    expect(facade.ctaCopy()?.title).toBe('CTA desde API');
+    expect(facade.ctaAction()).toBeNull();
+    expect(facade.showCta()).toBe(true);
+  });
+
   it('keeps the transitional Hero fallback when the request fails', () => {
     api.response$ = throwError(() => new Error('offline'));
     facade.load();
@@ -309,5 +475,14 @@ describe('PublicHomeFacade', () => {
     expect(facade.businessUnitWebUrl()).toBe('/isadecor');
     expect(facade.businessUnitCatalogUrl()).toBe('/isadecor/catalogo');
     expect(facade.showBusinessUnit()).toBe(true);
+    expect(facade.projectsSection()).toEqual(HOME_PROJECTS_FALLBACK.section);
+    expect(facade.projectsHeader()).toEqual(HOME_PROJECTS_FALLBACK.header);
+    expect(facade.projectsAction()).toEqual(HOME_PROJECTS_FALLBACK.action);
+    expect(facade.projects()).toEqual(HOME_PROJECTS_FALLBACK.projects);
+    expect(facade.showProjects()).toBe(true);
+    expect(facade.ctaCopy()).toEqual(HOME_CTA_FALLBACK.copy);
+    expect(facade.ctaBackground()).toBe(HOME_CTA_FALLBACK.backgroundUrl);
+    expect(facade.ctaAction()).toEqual(HOME_CTA_FALLBACK.action);
+    expect(facade.showCta()).toBe(true);
   });
 });
