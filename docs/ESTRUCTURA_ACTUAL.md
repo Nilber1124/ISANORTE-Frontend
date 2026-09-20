@@ -667,7 +667,7 @@ Admin usa carga diferida. No existe ruta cliente wildcard ni página 404.
 
 Es la pantalla más completa. Incluye hero cinematográfico, franja de marcas, servicios, promoción de ISADECOR, proyectos y CTA final. Reutiliza Button, Badge, Card, Carousel y CinematicTour.
 
-Los textos, tarjetas, imágenes, enlaces, servicios y proyectos siguen definidos como constantes tipadas en `home.ts` y permanecen como fallback visual. `PublicHomeFacade` ya carga los recursos públicos, pero el template todavía no los consume.
+Home consume dinámicamente las secciones editoriales y colecciones de Servicios, Proyectos y CTA mediante `PublicHomeFacade`. Hero, Trust Strip e ISADECOR siguen estáticos. Las constantes anteriores de los tres bloques conectados permanecen únicamente como fallback temporal ante error del recurso o bloqueo SSR por una `API_BASE_URL` relativa.
 
 ### Nosotros
 
@@ -888,7 +888,7 @@ El objetivo es que el contenido comercial pueda administrarse desde backend/base
 
 ### Contenido estático actual
 
-- toda la información de Home de ISANORTE;
+- Hero, Trust Strip e ISADECOR dentro de Home de ISANORTE;
 - identidad, estadísticas, misión, visión y valores de Nosotros;
 - enlaces y CTA de Navbar;
 - empresa, navegación, servicios, contacto, redes y copyright de Footer;
@@ -926,7 +926,28 @@ PublicHomeFacade
 
 `PublicHomeFacade` conserva el orden recibido de `GET /api/secciones-landing/visibles` y localiza opcionalmente `HERO`, `EMPRESA`, `SERVICIOS`, `PROYECTOS`, `CONTACTO`, `CTA` y las secciones `PERSONALIZADA`. También deriva servicios y proyectos destacados únicamente desde el campo real `destacado`. Las cuatro cargas son independientes: el error de un recurso se expone sin descartar las respuestas correctas de los demás.
 
-En esta fase, `home.html`, Navbar y Footer continúan consumiendo sus datos hardcodeados como fallback visual. Las facades se proveen y cargan en `PublicLayout` y `Home`, pero sus respuestas todavía no reemplazan masivamente el HTML. La siguiente fase conectará los componentes y definirá el fallback localizado de cada sección sin modificar Hero, CinematicTour, carruseles ni la composición ISADECOR.
+### Segunda fase: Servicios, Proyectos y CTA dinámicos
+
+Home conecta visualmente estos tres bloques sin modificar su composición:
+
+```text
+SERVICIOS
+  → SeccionLanding(SERVICIOS) + Servicio[]
+
+PROYECTOS
+  → SeccionLanding(PROYECTOS) + Proyecto[]
+
+CTA final
+  → SeccionLanding(CTA)
+```
+
+Una respuesta exitosa es autoritativa: una colección vacía no reactiva contenido demo y la ausencia de una sección visible elimina su bloque. Los fallbacks textuales y de colecciones solo se usan si esa API falla o SSR está bloqueado; las imágenes nulas o fallidas sí usan recursos locales de presentación.
+
+Servicios y Proyectos conservan el orden entregado por sus endpoints públicos. Para Home se toman primero los elementos con `destacado === true`; si no existe ninguno, se usa la colección activa en su orden original. Se muestran como máximo tres para mantener la densidad visual actual. En proyectos se elige primero una imagen con `esPrincipal === true`; en su ausencia, la primera URL válida por `orden`, preservando `orden = 0`.
+
+Las cabeceras utilizan `titulo`, `subtitulo`, `contenido`, `textoBoton` y `enlaceBoton` de la sección correspondiente. Los enlaces conservan rutas, fragmentos y URL HTTP(S), `mailto` o `tel` válidas. Los DTO de Servicio y Proyecto no incluyen una ruta pública de detalle, por lo que sus cards dinámicas no inventan enlaces por slug.
+
+Continúan pendientes de integración visual: Hero, Trust Strip, ISADECOR, Navbar, Footer, Nosotros y las páginas secundarias de Servicios, Proyectos y Contacto.
 
 Mientras `API_BASE_URL` sea relativo, las nuevas facades públicas no intentan resolver `/api` desde Node: marcan `ssrBlocked`, finalizan loading y conservan el HTML estático completo durante prerender. `app.config.server.ts` admite una URL absoluta mediante la variable de entorno `API_BASE_URL`; cuando existe y es HTTP(S), las facades cargan durante SSR y serializan su resultado con `TransferState`, que el navegador restaura y retira sin repetir las peticiones durante la hidratación. Sin esa variable, el navegador carga desde las rutas relativas del mismo origen después de hidratar. El patrón anterior de catálogo y detalle continúa cargando únicamente en browser y no fue modificado.
 
@@ -1130,8 +1151,8 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 | Backend conectado            | Flujos públicos ISADECOR y Admin de categorías, productos, cotizaciones, proyectos, servicios y unidades con facades |
 | Admin                        | Layout, dashboard y módulos de contenido, incluida configuración del sitio; sin autenticación                        |
 | Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                                             |
-| Contenido dinámico desde API | Productos/categorías ISADECOR y primera fase de Empresa, Configuración, Landing, Servicios, Proyectos y Unidades     |
-| Tests                        | 35 archivos spec con 226 casos aprobados                                                                             |
+| Contenido dinámico desde API | ISADECOR y Home: cabeceras/colecciones de Servicios, Proyectos y CTA final                                           |
+| Tests                        | 36 archivos spec con 246 casos aprobados                                                                             |
 | Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                                            |
 | Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server               |
 

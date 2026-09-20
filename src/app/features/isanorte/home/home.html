@@ -47,51 +47,99 @@
 </section>
 
 <!-- Services -->
-<section class="section-space bg-background-soft">
+@if (servicesSectionContent(); as section) {
+  <section class="section-space bg-background-soft" data-testid="home-services">
     <div class="app-container">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <div>
-                <span class="text-eyebrow text-accent block mb-2">{{ 'Nuestros Servicios' | uppercase }}</span>
-                <h2 class="text-heading-2 text-text-primary">{{ 'Soluciones integrales de alta\ningeniería y diseño' }}
-                </h2>
-            </div>
-            <app-button variant="primary" href="#">
-                VER TODOS LOS SERVICIOS
-            </app-button>
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div>
+          @if (section.eyebrow) {
+            <span class="text-eyebrow text-accent block mb-2">{{
+              section.eyebrow | uppercase
+            }}</span>
+          }
+          @if (section.title) {
+            <h2 class="text-heading-2 text-text-primary whitespace-pre-line">
+              {{ section.title }}
+            </h2>
+          }
+          @if (section.content) {
+            <p class="text-body text-text-secondary mt-4 max-w-2xl">{{ section.content }}</p>
+          }
         </div>
+        @if (section.cta; as cta) {
+          <app-button variant="primary" [href]="cta.url">{{ cta.label }}</app-button>
+        }
+      </div>
 
-        <!-- Carousel (Coverflow 3D) -->
-        <app-carousel [items]="services" variant="coverflow" [autoPlayInterval]="4500"
-            ariaLabel="Carrusel de servicios">
-            <ng-template #cardTemplate let-service>
-                <app-card [href]="service.linkUrl" padding="none" class="group h-full">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
-                        [style.backgroundImage]="'url(' + service.bgImageUrl + ')'"></div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-90">
-                    </div>
+      <!-- Carousel (Coverflow 3D) -->
+      @if (serviceCards().length > 0) {
+        <app-carousel
+          [items]="serviceCards()"
+          variant="coverflow"
+          [autoPlayInterval]="4500"
+          ariaLabel="Carrusel de servicios"
+        >
+          <ng-template #cardTemplate let-service>
+            <app-card
+              [href]="service.linkUrl"
+              padding="none"
+              class="group h-full"
+              [attr.data-service-id]="service.id"
+            >
+              <img
+                [src]="service.bgImageUrl"
+                [alt]="service.title"
+                (error)="useFallbackImage($event, '/images/servicios-construccion.jpg')"
+                class="absolute inset-0 size-full object-cover transition-transform duration-entry group-hover:scale-105"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-90"
+              ></div>
 
-                    <div class="absolute inset-0 p-8 flex flex-col justify-end">
-                        <h3
-                            class="text-heading-3 text-white mb-3 group-hover:text-accent transition-colors duration-normal">
-                            {{ service.title }}</h3>
-                        <p class="text-body-sm text-white/70 mb-6">
-                            {{ service.description }}</p>
-                        <div
-                            class="text-caption font-bold text-accent tracking-[0.1em] flex items-center gap-2 uppercase group-hover:text-white transition-colors duration-normal">
-                            LEER MÁS
-                            <svg class="size-4 transform group-hover:translate-x-1 transition-transform duration-normal"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </div>
-                    </div>
-                </app-card>
-            </ng-template>
+              <div class="absolute inset-0 p-8 flex flex-col justify-end">
+                <h3
+                  class="text-heading-3 text-white mb-3 group-hover:text-accent transition-colors duration-normal"
+                >
+                  {{ service.title }}
+                </h3>
+                <p class="text-body-sm text-white/70 mb-6">
+                  {{ service.description }}
+                </p>
+                @if (service.linkUrl) {
+                  <div
+                    class="text-caption font-bold text-accent tracking-[0.1em] flex items-center gap-2 uppercase group-hover:text-white transition-colors duration-normal"
+                  >
+                    LEER MÁS
+                    <svg
+                      class="size-4 transform group-hover:translate-x-1 transition-transform duration-normal"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      ></path>
+                    </svg>
+                  </div>
+                }
+              </div>
+            </app-card>
+          </ng-template>
         </app-carousel>
+      } @else if (facade.servicesState() === 'loading') {
+        <div
+          class="h-[28rem] md:h-[30rem] lg:h-[32rem] rounded-card bg-surface-soft animate-pulse"
+          role="status"
+          aria-label="Cargando servicios"
+        ></div>
+      }
     </div>
-</section>
+  </section>
+}
 
 <!-- Highlight (ISADECOR) -->
 <section data-theme="dark" class="group relative flex min-h-[36rem] items-center justify-center overflow-hidden border-y border-border bg-background-deep section-space lg:min-h-[44rem]">
@@ -142,69 +190,130 @@
 </section>
 
 <!-- Projects -->
-<section class="section-space bg-background">
+@if (projectsSectionContent(); as section) {
+  <section class="section-space bg-background" data-testid="home-projects">
     <div class="app-container">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <div>
-                <span class="text-eyebrow text-accent block mb-2">{{ 'Obra en destacado' | uppercase }}</span>
-                <h2 class="text-heading-2 text-text-primary">{{ 'Excelencia entregada en cada\nmetro cuadrado' }}</h2>
-            </div>
-            <app-button variant="secondary" href="#">
-                VER TODOS LOS PROYECTOS
-            </app-button>
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div>
+          @if (section.eyebrow) {
+            <span class="text-eyebrow text-accent block mb-2">{{
+              section.eyebrow | uppercase
+            }}</span>
+          }
+          @if (section.title) {
+            <h2 class="text-heading-2 text-text-primary whitespace-pre-line">
+              {{ section.title }}
+            </h2>
+          }
+          @if (section.content) {
+            <p class="text-body text-text-secondary mt-4 max-w-2xl">{{ section.content }}</p>
+          }
         </div>
+        @if (section.cta; as cta) {
+          <app-button variant="secondary" [href]="cta.url">{{ cta.label }}</app-button>
+        }
+      </div>
 
-        <!-- Carousel (Marquee infinito) -->
-        <app-carousel [items]="projects" variant="marquee" ariaLabel="Carrusel de proyectos">
-            <ng-template #cardTemplate let-project>
-                <app-card href="#" padding="none" class="group h-full">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
-                        [style.backgroundImage]="'url(' + project.bgImageUrl + ')'"></div>
-                    <div
-                        class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-normal">
-                    </div>
+      <!-- Carousel (Marquee infinito) -->
+      @if (projectCards().length > 0) {
+        <app-carousel [items]="projectCards()" variant="marquee" ariaLabel="Carrusel de proyectos">
+          <ng-template #cardTemplate let-project>
+            <app-card
+              [href]="project.linkUrl"
+              padding="none"
+              class="group h-full"
+              [attr.data-project-id]="project.id"
+            >
+              <img
+                [src]="project.bgImageUrl"
+                [alt]="project.title"
+                (error)="useFallbackImage($event, '/images/residencia-aura.jpg')"
+                class="absolute inset-0 size-full object-cover transition-transform duration-entry group-hover:scale-105"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-normal"
+              ></div>
 
-                    <div
-                        class="absolute inset-x-8 top-8 transform transition-transform duration-normal group-hover:-translate-y-2">
-                        <h3 class="text-heading-3 text-white mb-2">{{ project.title }}</h3>
-                        <p class="text-caption text-white/70 font-semibold tracking-wider uppercase">{{ project.location
-                            }}
-                        </p>
-                    </div>
+              <div
+                class="absolute inset-x-8 top-8 transform transition-transform duration-normal group-hover:-translate-y-2"
+              >
+                <h3 class="text-heading-3 text-white mb-2">{{ project.title }}</h3>
+                @if (project.location) {
+                  <p class="text-caption text-white/70 font-semibold tracking-wider uppercase">
+                    {{ project.location }}
+                  </p>
+                }
+              </div>
 
-                    <div
-                        class="absolute bottom-8 right-8 size-12 bg-accent rounded-full flex items-center justify-center text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-normal shadow-card">
-                        <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </div>
-                </app-card>
-            </ng-template>
+              @if (project.linkUrl) {
+                <div
+                  class="absolute bottom-8 right-8 size-12 bg-accent rounded-full flex items-center justify-center text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-normal shadow-card"
+                >
+                  <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    ></path>
+                  </svg>
+                </div>
+              }
+            </app-card>
+          </ng-template>
         </app-carousel>
+      } @else if (facade.projectsState() === 'loading') {
+        <div
+          class="h-[450px] lg:h-[550px] rounded-card bg-surface-soft animate-pulse"
+          role="status"
+          aria-label="Cargando proyectos"
+        ></div>
+      }
     </div>
-</section>
+  </section>
+}
 
 <!-- Pre-Footer CTA -->
-<section class="bg-background-soft py-16 border-t border-border">
+@if (ctaContent(); as cta) {
+  <section class="bg-background-soft py-16 border-t border-border" data-testid="home-cta">
     <div class="app-container">
+      <div
+        class="relative flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden bg-surface p-8 md:p-12 rounded-panel shadow-card border border-border"
+      >
+        <!-- Fondo: asesora de asesoría -->
+        <img
+          [src]="cta.imageUrl"
+          alt=""
+          aria-hidden="true"
+          (error)="useFallbackImage($event, '/images/asesora-consultoria.jpg')"
+          class="absolute inset-0 size-full object-cover"
+        />
         <div
-            class="relative flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden bg-surface p-8 md:p-12 rounded-panel shadow-card border border-border">
-            <!-- Fondo: asesora de asesoría -->
-            <div class="absolute inset-0 bg-cover bg-center"
-                [style.backgroundImage]="'url(/images/asesora-consultoria.jpg)'"></div>
-            <div class="absolute inset-0 bg-gradient-to-r from-surface via-surface/90 to-surface/25"></div>
+          class="absolute inset-0 bg-gradient-to-r from-surface via-surface/90 to-surface/25"
+        ></div>
 
-            <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 w-full">
-                <div class="text-center lg:text-left">
-                    <h2 class="text-heading-3 text-text-primary mb-3">{{ preFooterData.title }}</h2>
-                    <p class="text-body text-text-secondary max-w-xl">{{ preFooterData.subtitle }}</p>
-                </div>
-                <app-button variant="accent" [href]="preFooterData.cta.url" size="large">
-                    {{ preFooterData.cta.label }}
-                </app-button>
-            </div>
+        <div
+          class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 w-full"
+        >
+          <div class="text-center lg:text-left">
+            @if (cta.title) {
+              <h2 class="text-heading-3 text-text-primary mb-3">{{ cta.title }}</h2>
+            }
+            @if (cta.subtitle) {
+              <p class="text-body text-text-secondary max-w-xl">{{ cta.subtitle }}</p>
+            }
+            @if (cta.content) {
+              <p class="text-body-sm text-text-secondary max-w-xl mt-3">{{ cta.content }}</p>
+            }
+          </div>
+          @if (cta.cta; as button) {
+            <app-button variant="accent" [href]="button.url" size="large">
+              {{ button.label }}
+            </app-button>
+          }
         </div>
+      </div>
     </div>
-</section>
+  </section>
+}

@@ -30,6 +30,10 @@ export interface PublicHomeLoadErrors {
   businessUnits: string | null;
 }
 
+export type PublicHomeResourceState = 'idle' | 'loading' | 'success' | 'error' | 'ssr-blocked';
+
+const HOME_COLLECTION_LIMIT = 3;
+
 const INITIAL_ERRORS: PublicHomeLoadErrors = {
   sections: null,
   services: null,
@@ -43,6 +47,11 @@ interface PublicHomeTransferState {
   projects: readonly ProjectResponse[];
   businessUnits: readonly BusinessUnitResponse[];
   errors: PublicHomeLoadErrors;
+  sectionsState: PublicHomeResourceState;
+  servicesState: PublicHomeResourceState;
+  projectsState: PublicHomeResourceState;
+  businessUnitsState: PublicHomeResourceState;
+  ssrBlocked: boolean;
 }
 
 const PUBLIC_HOME_STATE = makeStateKey<PublicHomeTransferState>('public-home');
@@ -66,6 +75,10 @@ export class PublicHomeFacade {
   private readonly _loaded = signal(false);
   private readonly _errors = signal<PublicHomeLoadErrors>(INITIAL_ERRORS);
   private readonly _ssrBlocked = signal(false);
+  private readonly _sectionsState = signal<PublicHomeResourceState>('idle');
+  private readonly _servicesState = signal<PublicHomeResourceState>('idle');
+  private readonly _projectsState = signal<PublicHomeResourceState>('idle');
+  private readonly _businessUnitsState = signal<PublicHomeResourceState>('idle');
 
   private pendingRequests = 0;
   private requestInFlight = false;
@@ -78,6 +91,10 @@ export class PublicHomeFacade {
   readonly loaded = this._loaded.asReadonly();
   readonly errors = this._errors.asReadonly();
   readonly ssrBlocked = this._ssrBlocked.asReadonly();
+  readonly sectionsState = this._sectionsState.asReadonly();
+  readonly servicesState = this._servicesState.asReadonly();
+  readonly projectsState = this._projectsState.asReadonly();
+  readonly businessUnitsState = this._businessUnitsState.asReadonly();
 
   readonly heroSection = computed(() => this.findSection(LandingSectionType.HERO));
   readonly companySection = computed(() => this.findSection(LandingSectionType.EMPRESA));
@@ -94,6 +111,14 @@ export class PublicHomeFacade {
   readonly featuredProjects = computed(() =>
     this._projects().filter((project) => project.destacado === true),
   );
+  readonly homeServices = computed(() => {
+    const featured = this.featuredServices();
+    return (featured.length > 0 ? featured : this._services()).slice(0, HOME_COLLECTION_LIMIT);
+  });
+  readonly homeProjects = computed(() => {
+    const featured = this.featuredProjects();
+    return (featured.length > 0 ? featured : this._projects()).slice(0, HOME_COLLECTION_LIMIT);
+  });
   readonly isEmpty = computed(
     () =>
       this._loaded() &&
@@ -112,20 +137,28 @@ export class PublicHomeFacade {
   load(): void {
     if (this.requestInFlight) return;
 
-    if (this.restoreTransferredState()) return;
+    const restoredState = this.restoreTransferredState();
+    if (restoredState && !this._ssrBlocked()) return;
 
     if (!this.canRequestOnCurrentPlatform()) {
-      this._ssrBlocked.set(true);
-      this._loading.set(false);
+      this.markSsrBlocked();
+      this.writeTransferState();
       return;
     }
 
+    const preservesSsrFallback = restoredState && this._ssrBlocked();
     this.requestInFlight = true;
     this.pendingRequests = 4;
     this._loading.set(true);
     this._loaded.set(false);
-    this._ssrBlocked.set(false);
     this._errors.set(INITIAL_ERRORS);
+
+    if (!preservesSsrFallback) {
+      this._sectionsState.set('loading');
+      this._servicesState.set('loading');
+      this._projectsState.set('loading');
+      this._businessUnitsState.set('loading');
+    }
 
     this.landingSectionApi
       .getVisible()
@@ -134,8 +167,14 @@ export class PublicHomeFacade {
         finalize(() => this.finishRequest()),
       )
       .subscribe({
-        next: (sections) => this._sections.set(sections),
-        error: () => this.setError('sections', 'No pudimos cargar las secciones públicas.'),
+        next: (sections) => {
+          this._sections.set(sections);
+          this._sectionsState.set('success');
+        },
+        error: () => {
+          this._sectionsState.set('error');
+          this.setError('sections', 'No pudimos cargar las secciones públicas.');
+        },
       });
 
     this.serviceApi
@@ -145,8 +184,14 @@ export class PublicHomeFacade {
         finalize(() => this.finishRequest()),
       )
       .subscribe({
-        next: (services) => this._services.set(services),
-        error: () => this.setError('services', 'No pudimos cargar los servicios activos.'),
+        next: (services) => {
+          this._services.set(services);
+          this._servicesState.set('success');
+        },
+        error: () => {
+          this._servicesState.set('error');
+          this.setError('services', 'No pudimos cargar los servicios activos.');
+        },
       });
 
     this.projectApi
@@ -156,8 +201,14 @@ export class PublicHomeFacade {
         finalize(() => this.finishRequest()),
       )
       .subscribe({
-        next: (projects) => this._projects.set(projects),
-        error: () => this.setError('projects', 'No pudimos cargar los proyectos activos.'),
+        next: (projects) => {
+          this._projects.set(projects);
+          this._projectsState.set('success');
+        },
+        error: () => {
+          this._projectsState.set('error');
+          this.setError('projects', 'No pudimos cargar los proyectos activos.');
+        },
       });
 
     this.businessUnitApi
@@ -167,10 +218,30 @@ export class PublicHomeFacade {
         finalize(() => this.finishRequest()),
       )
       .subscribe({
-        next: (businessUnits) => this._businessUnits.set(businessUnits),
-        error: () =>
-          this.setError('businessUnits', 'No pudimos cargar las unidades de negocio activas.'),
+        next: (businessUnits) => {
+          this._businessUnits.set(businessUnits);
+          this._businessUnitsState.set('success');
+        },
+        error: () => {
+          this._businessUnitsState.set('error');
+          this.setError('businessUnits', 'No pudimos cargar las unidades de negocio activas.');
+        },
       });
+  }
+
+  projectImage(project: ProjectResponse): string | null {
+    const orderedImages = [...(project.imagenes ?? [])]
+      .filter((image) => image.url.trim().length > 0)
+      .sort(
+        (first, second) =>
+          (first.orden ?? Number.MAX_SAFE_INTEGER) - (second.orden ?? Number.MAX_SAFE_INTEGER),
+      );
+
+    return (
+      orderedImages.find((image) => image.esPrincipal === true)?.url ??
+      orderedImages[0]?.url ??
+      null
+    );
   }
 
   private findSection(type: LandingSectionType): LandingSectionResponse | null {
@@ -199,6 +270,11 @@ export class PublicHomeFacade {
       projects: [],
       businessUnits: [],
       errors: INITIAL_ERRORS,
+      sectionsState: 'idle',
+      servicesState: 'idle',
+      projectsState: 'idle',
+      businessUnitsState: 'idle',
+      ssrBlocked: false,
     });
     this.transferState.remove(PUBLIC_HOME_STATE);
 
@@ -207,9 +283,24 @@ export class PublicHomeFacade {
     this._projects.set(state.projects);
     this._businessUnits.set(state.businessUnits);
     this._errors.set(state.errors);
-    this._loading.set(false);
-    this._loaded.set(true);
+    this._sectionsState.set(state.sectionsState);
+    this._servicesState.set(state.servicesState);
+    this._projectsState.set(state.projectsState);
+    this._businessUnitsState.set(state.businessUnitsState);
+    this._ssrBlocked.set(state.ssrBlocked);
+    this._loading.set(state.ssrBlocked);
+    this._loaded.set(!state.ssrBlocked);
     return true;
+  }
+
+  private markSsrBlocked(): void {
+    this._ssrBlocked.set(true);
+    this._sectionsState.set('ssr-blocked');
+    this._servicesState.set('ssr-blocked');
+    this._projectsState.set('ssr-blocked');
+    this._businessUnitsState.set('ssr-blocked');
+    this._loading.set(false);
+    this._loaded.set(false);
   }
 
   private setError(resource: keyof PublicHomeLoadErrors, message: string): void {
@@ -221,17 +312,27 @@ export class PublicHomeFacade {
     if (this.pendingRequests > 0) return;
 
     this.requestInFlight = false;
+    this._ssrBlocked.set(false);
     this._loading.set(false);
     this._loaded.set(true);
 
-    if (isPlatformServer(this.platformId)) {
-      this.transferState.set(PUBLIC_HOME_STATE, {
-        sections: this._sections(),
-        services: this._services(),
-        projects: this._projects(),
-        businessUnits: this._businessUnits(),
-        errors: this._errors(),
-      });
-    }
+    this.writeTransferState();
+  }
+
+  private writeTransferState(): void {
+    if (!isPlatformServer(this.platformId)) return;
+
+    this.transferState.set(PUBLIC_HOME_STATE, {
+      sections: this._sections(),
+      services: this._services(),
+      projects: this._projects(),
+      businessUnits: this._businessUnits(),
+      errors: this._errors(),
+      sectionsState: this._sectionsState(),
+      servicesState: this._servicesState(),
+      projectsState: this._projectsState(),
+      businessUnitsState: this._businessUnitsState(),
+      ssrBlocked: this._ssrBlocked(),
+    });
   }
 }

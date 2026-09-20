@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+
+import { LandingSectionResponse } from '../../../data/models/landing-section/landing-section-response.model';
 
 // Shared Components
 import { Badge } from '../../../shared/components/badge/badge';
@@ -10,7 +12,7 @@ import {
   CinematicTour,
   CinematicScene,
 } from '../../../shared/components/cinematic-tour/cinematic-tour';
-import { PublicHomeFacade } from './public-home.facade';
+import { PublicHomeFacade, PublicHomeResourceState } from './public-home.facade';
 
 // Interfaces
 export interface HeroData {
@@ -30,7 +32,7 @@ export interface ServiceCard {
   title: string;
   description: string;
   bgImageUrl: string;
-  linkUrl: string;
+  linkUrl?: string;
 }
 export interface HighlightGalleryItem {
   id: string;
@@ -51,12 +53,32 @@ export interface ProjectCard {
   title: string;
   location: string;
   bgImageUrl: string;
+  linkUrl?: string;
 }
 export interface PreFooterData {
   title: string;
   subtitle: string;
   cta: { label: string; url: string };
 }
+
+interface HomeSectionContent {
+  eyebrow: string | null;
+  title: string | null;
+  content: string | null;
+  cta: { label: string; url: string } | null;
+}
+
+interface HomeCtaContent {
+  title: string | null;
+  subtitle: string | null;
+  content: string | null;
+  imageUrl: string;
+  cta: { label: string; url: string } | null;
+}
+
+const SERVICE_FALLBACK_IMAGE = '/images/servicios-construccion.jpg';
+const PROJECT_FALLBACK_IMAGE = '/images/residencia-aura.jpg';
+const CTA_FALLBACK_IMAGE = '/images/asesora-consultoria.jpg';
 @Component({
   imports: [CommonModule, Button, Card, Badge, Carousel, CinematicTour],
   providers: [PublicHomeFacade],
@@ -104,7 +126,7 @@ export class Home {
     ],
   };
 
-  readonly services: ServiceCard[] = [
+  readonly fallbackServices: ServiceCard[] = [
     {
       id: '1',
       title: 'Construcción Obra Civil',
@@ -149,12 +171,13 @@ export class Home {
     secondaryBtn: { label: 'DESCARGAR CATÁLOGO (PDF)', url: '#catalogo' },
   };
 
-  readonly projects: ProjectCard[] = [
+  readonly fallbackProjects: ProjectCard[] = [
     {
       id: 'p1',
       title: 'Residencia Aura',
       location: 'Valle de los Chillos, Quito - Proyecto 2024',
       bgImageUrl: '/images/residencia-aura.jpg',
+      linkUrl: '#',
     },
     {
       id: 'p2',
@@ -162,6 +185,7 @@ export class Home {
       location: 'Sector Financiero, Quito - Proyecto 2023',
       bgImageUrl:
         'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop',
+      linkUrl: '#',
     },
   ];
 
@@ -172,7 +196,142 @@ export class Home {
     cta: { label: 'SOLICITAR ASESORÍA GRATUITA', url: '#contacto' },
   };
 
+  readonly servicesSectionContent = computed<HomeSectionContent | null>(() => {
+    if (this.usesFallback(this.facade.sectionsState())) {
+      return {
+        eyebrow: 'Nuestros Servicios',
+        title: 'Soluciones integrales de alta\ningeniería y diseño',
+        content: null,
+        cta: { label: 'VER TODOS LOS SERVICIOS', url: '#' },
+      };
+    }
+
+    return this.facade.sectionsState() === 'success'
+      ? this.mapSectionContent(this.facade.servicesSection())
+      : null;
+  });
+
+  readonly serviceCards = computed<readonly ServiceCard[]>(() => {
+    if (this.usesFallback(this.facade.servicesState())) return this.fallbackServices;
+    if (this.facade.servicesState() !== 'success') return [];
+
+    return this.facade.homeServices().map((service) => ({
+      id: service.id,
+      title: service.nombre,
+      description: service.resumen?.trim() || service.descripcion,
+      bgImageUrl: this.safeImageUrl(service.imagenUrl, SERVICE_FALLBACK_IMAGE),
+    }));
+  });
+
+  readonly projectsSectionContent = computed<HomeSectionContent | null>(() => {
+    if (this.usesFallback(this.facade.sectionsState())) {
+      return {
+        eyebrow: 'Obra en destacado',
+        title: 'Excelencia entregada en cada\nmetro cuadrado',
+        content: null,
+        cta: { label: 'VER TODOS LOS PROYECTOS', url: '#' },
+      };
+    }
+
+    return this.facade.sectionsState() === 'success'
+      ? this.mapSectionContent(this.facade.projectsSection())
+      : null;
+  });
+
+  readonly projectCards = computed<readonly ProjectCard[]>(() => {
+    if (this.usesFallback(this.facade.projectsState())) return this.fallbackProjects;
+    if (this.facade.projectsState() !== 'success') return [];
+
+    return this.facade.homeProjects().map((project) => ({
+      id: project.id,
+      title: project.nombre,
+      location: [project.ubicacion?.trim(), project.fechaProyecto?.trim(), project.cliente?.trim()]
+        .filter((value): value is string => Boolean(value))
+        .join(' · '),
+      bgImageUrl: this.safeImageUrl(this.facade.projectImage(project), PROJECT_FALLBACK_IMAGE),
+    }));
+  });
+
+  readonly ctaContent = computed<HomeCtaContent | null>(() => {
+    if (this.usesFallback(this.facade.sectionsState())) {
+      return {
+        title: this.preFooterData.title,
+        subtitle: this.preFooterData.subtitle,
+        content: null,
+        imageUrl: CTA_FALLBACK_IMAGE,
+        cta: this.preFooterData.cta,
+      };
+    }
+
+    if (this.facade.sectionsState() !== 'success') return null;
+    const section = this.facade.ctaSection();
+    if (section === null) return null;
+
+    return {
+      title: section.titulo,
+      subtitle: section.subtitulo,
+      content: section.contenido,
+      imageUrl: this.safeImageUrl(section.imagenUrl, CTA_FALLBACK_IMAGE),
+      cta: this.mapCta(section),
+    };
+  });
+
   constructor() {
     this.facade.load();
+  }
+
+  protected useFallbackImage(event: Event, fallbackUrl: string): void {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement) || image.dataset['fallbackApplied'] === 'true') return;
+
+    image.dataset['fallbackApplied'] = 'true';
+    image.src = fallbackUrl;
+  }
+
+  private mapSectionContent(section: LandingSectionResponse | null): HomeSectionContent | null {
+    if (section === null) return null;
+
+    return {
+      eyebrow: section.subtitulo,
+      title: section.titulo,
+      content: section.contenido,
+      cta: this.mapCta(section),
+    };
+  }
+
+  private mapCta(section: LandingSectionResponse): { label: string; url: string } | null {
+    const label = section.textoBoton?.trim();
+    const url = this.safeLink(section.enlaceBoton);
+    return label && url ? { label, url } : null;
+  }
+
+  private safeLink(value: string | null): string | null {
+    const link = value?.trim();
+    if (!link) return null;
+    if (link.startsWith('/') || link.startsWith('#')) return link;
+
+    try {
+      const url = new URL(link);
+      return ['http:', 'https:', 'mailto:', 'tel:'].includes(url.protocol) ? link : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private safeImageUrl(value: string | null, fallbackUrl: string): string {
+    const imageUrl = value?.trim();
+    if (!imageUrl) return fallbackUrl;
+    if (imageUrl.startsWith('/')) return imageUrl;
+
+    try {
+      const url = new URL(imageUrl);
+      return url.protocol === 'http:' || url.protocol === 'https:' ? imageUrl : fallbackUrl;
+    } catch {
+      return fallbackUrl;
+    }
+  }
+
+  private usesFallback(state: PublicHomeResourceState): boolean {
+    return state === 'error' || state === 'ssr-blocked';
   }
 }

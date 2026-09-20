@@ -1,10 +1,12 @@
-import { PLATFORM_ID } from '@angular/core';
+import { PLATFORM_ID, TransferState } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
+import { API_BASE_URL } from '../../../core/config/api.config';
 import { BusinessUnitResponse } from '../../../data/models/business-unit/business-unit-response.model';
 import { LandingSectionResponse } from '../../../data/models/landing-section/landing-section-response.model';
 import { LandingSectionType } from '../../../data/models/landing-section/landing-section-type.enum';
+import { ProjectImageType } from '../../../data/models/project/project-image-type.enum';
 import { ProjectResponse } from '../../../data/models/project/project-response.model';
 import { ServiceResponse } from '../../../data/models/service/service-response.model';
 import { BusinessUnitApiService } from '../../../data/services/business-unit-api.service';
@@ -200,6 +202,98 @@ describe('PublicHomeFacade', () => {
     expect(facade.featuredProjects()).toEqual([project]);
   });
 
+  it('uses ordered active services when none is featured and keeps order zero', () => {
+    const orderedServices = [
+      { ...service, id: 'service-0', orden: 0, destacado: false },
+      { ...service, id: 'service-1', orden: 1, destacado: null },
+    ];
+    serviceApi.response$ = of(orderedServices);
+    facade.load();
+    expect(facade.homeServices()).toEqual(orderedServices);
+    expect(facade.homeServices()[0].orden).toBe(0);
+  });
+
+  it('limits Home services to the first three featured items without reordering', () => {
+    const services = [0, 1, 2, 3].map((orden) => ({
+      ...service,
+      id: `service-${orden}`,
+      orden,
+      destacado: true,
+    }));
+    serviceApi.response$ = of(services);
+    facade.load();
+    expect(facade.homeServices().map(({ id }) => id)).toEqual([
+      'service-0',
+      'service-1',
+      'service-2',
+    ]);
+  });
+
+  it('uses ordered active projects when none is featured', () => {
+    const projects = [
+      { ...project, id: 'project-0', destacado: false },
+      { ...project, id: 'project-1', destacado: null },
+    ];
+    projectApi.response$ = of(projects);
+    facade.load();
+    expect(facade.homeProjects()).toEqual(projects);
+  });
+
+  it('prefers the principal project image over earlier ordered images', () => {
+    const withImages: ProjectResponse = {
+      ...project,
+      imagenes: [
+        {
+          id: 'image-1',
+          url: '/images/first.jpg',
+          titulo: null,
+          descripcion: null,
+          tipo: ProjectImageType.GENERAL,
+          esPrincipal: false,
+          orden: 0,
+        },
+        {
+          id: 'image-2',
+          url: '/images/principal.jpg',
+          titulo: null,
+          descripcion: null,
+          tipo: ProjectImageType.GENERAL,
+          esPrincipal: true,
+          orden: 2,
+        },
+      ],
+    };
+    expect(facade.projectImage(withImages)).toBe('/images/principal.jpg');
+  });
+
+  it('uses the first ordered valid image and returns null with no images', () => {
+    const withImages: ProjectResponse = {
+      ...project,
+      imagenes: [
+        {
+          id: 'image-2',
+          url: '/images/second.jpg',
+          titulo: null,
+          descripcion: null,
+          tipo: ProjectImageType.GENERAL,
+          esPrincipal: false,
+          orden: 2,
+        },
+        {
+          id: 'image-0',
+          url: '/images/zero.jpg',
+          titulo: null,
+          descripcion: null,
+          tipo: ProjectImageType.GENERAL,
+          esPrincipal: null,
+          orden: 0,
+        },
+      ],
+    };
+    expect(facade.projectImage(withImages)).toBe('/images/zero.jpg');
+    expect(facade.projectImage(project)).toBeNull();
+  });
+
   it('keeps successful resources available when projects fail', () => {
     projectApi.response$ = throwError(() => new Error('offline'));
     facade.load();
@@ -219,6 +313,9 @@ describe('PublicHomeFacade', () => {
     facade.load();
     expect(facade.loading()).toBe(false);
     expect(facade.isEmpty()).toBe(true);
+    expect(facade.sectionsState()).toBe('success');
+    expect(facade.servicesState()).toBe('success');
+    expect(facade.projectsState()).toBe('success');
   });
 
   it('preserves backend order and does not mutate source arrays', () => {
@@ -244,5 +341,60 @@ describe('PublicHomeFacade', () => {
     projects$.complete();
     expect(facade.loading()).toBe(false);
     expect(facade.loaded()).toBe(true);
+  });
+});
+
+describe('PublicHomeFacade TransferState', () => {
+  it('restores SSR data in the browser without repeating public requests', () => {
+    const transferState = new TransferState();
+
+    TestBed.configureTestingModule({
+      providers: [
+        PublicHomeFacade,
+        LandingSectionApiStub,
+        ServiceApiStub,
+        ProjectApiStub,
+        BusinessUnitApiStub,
+        { provide: LandingSectionApiService, useExisting: LandingSectionApiStub },
+        { provide: ServiceApiService, useExisting: ServiceApiStub },
+        { provide: ProjectApiService, useExisting: ProjectApiStub },
+        { provide: BusinessUnitApiService, useExisting: BusinessUnitApiStub },
+        { provide: TransferState, useValue: transferState },
+        { provide: PLATFORM_ID, useValue: 'server' },
+        { provide: API_BASE_URL, useValue: 'http://backend.example' },
+      ],
+    });
+    TestBed.inject(PublicHomeFacade).load();
+    expect(transferState.isEmpty).toBe(false);
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        PublicHomeFacade,
+        LandingSectionApiStub,
+        ServiceApiStub,
+        ProjectApiStub,
+        BusinessUnitApiStub,
+        { provide: LandingSectionApiService, useExisting: LandingSectionApiStub },
+        { provide: ServiceApiService, useExisting: ServiceApiStub },
+        { provide: ProjectApiService, useExisting: ProjectApiStub },
+        { provide: BusinessUnitApiService, useExisting: BusinessUnitApiStub },
+        { provide: TransferState, useValue: transferState },
+        { provide: PLATFORM_ID, useValue: 'browser' },
+      ],
+    });
+    const browserLandingApi = TestBed.inject(LandingSectionApiStub);
+    const browserServiceApi = TestBed.inject(ServiceApiStub);
+    const browserProjectApi = TestBed.inject(ProjectApiStub);
+    const browserBusinessUnitApi = TestBed.inject(BusinessUnitApiStub);
+    const browserFacade = TestBed.inject(PublicHomeFacade);
+    browserFacade.load();
+
+    expect(browserFacade.services()).toEqual([service]);
+    expect(browserFacade.projects()).toEqual([project]);
+    expect(browserLandingApi.visibleCalls).toBe(0);
+    expect(browserServiceApi.activeCalls).toBe(0);
+    expect(browserProjectApi.activeCalls).toBe(0);
+    expect(browserBusinessUnitApi.activeCalls).toBe(0);
   });
 });
