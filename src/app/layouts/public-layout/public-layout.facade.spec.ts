@@ -1,7 +1,8 @@
-import { PLATFORM_ID } from '@angular/core';
+import { PLATFORM_ID, TransferState } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
+import { API_BASE_URL } from '../../core/config/api.config';
 import { BusinessUnitResponse } from '../../data/models/business-unit/business-unit-response.model';
 import { CompanyResponse } from '../../data/models/company/company-response.model';
 import { SiteConfigResponse } from '../../data/models/site-config/site-config-response.model';
@@ -184,6 +185,9 @@ describe('PublicLayoutFacade', () => {
     expect(facade.errors().company).not.toBeNull();
     expect(facade.error()).toContain('empresa');
     expect(facade.loading()).toBe(false);
+    expect(facade.companyState()).toBe('error');
+    expect(facade.siteConfigState()).toBe('success');
+    expect(facade.businessUnitsState()).toBe('success');
   });
 
   it('exposes loading and empty after all requests finish', () => {
@@ -200,5 +204,84 @@ describe('PublicLayoutFacade', () => {
     expect(facade.loading()).toBe(false);
     expect(facade.loaded()).toBe(true);
     expect(facade.isEmpty()).toBe(true);
+    expect(facade.companyState()).toBe('success');
+    expect(facade.siteConfigState()).toBe('success');
+    expect(facade.businessUnitsState()).toBe('success');
+  });
+});
+
+describe('PublicLayoutFacade SSR state', () => {
+  it('transfers an SSR-blocked state so hydration can preserve the technical fallback', () => {
+    const transferState = new TransferState();
+    TestBed.configureTestingModule({
+      providers: [
+        PublicLayoutFacade,
+        CompanyApiStub,
+        SiteConfigApiStub,
+        BusinessUnitApiStub,
+        { provide: CompanyApiService, useExisting: CompanyApiStub },
+        { provide: SiteConfigApiService, useExisting: SiteConfigApiStub },
+        { provide: BusinessUnitApiService, useExisting: BusinessUnitApiStub },
+        { provide: TransferState, useValue: transferState },
+        { provide: PLATFORM_ID, useValue: 'server' },
+        { provide: API_BASE_URL, useValue: '' },
+      ],
+    });
+
+    const facade = TestBed.inject(PublicLayoutFacade);
+    facade.load();
+
+    expect(facade.ssrBlocked()).toBe(true);
+    expect(facade.companyState()).toBe('ssr-blocked');
+    expect(facade.siteConfigState()).toBe('ssr-blocked');
+    expect(facade.businessUnitsState()).toBe('ssr-blocked');
+    expect(transferState.isEmpty).toBe(false);
+  });
+
+  it('restores absolute-URL SSR data without repeating requests in the browser', () => {
+    const transferState = new TransferState();
+    TestBed.configureTestingModule({
+      providers: [
+        PublicLayoutFacade,
+        CompanyApiStub,
+        SiteConfigApiStub,
+        BusinessUnitApiStub,
+        { provide: CompanyApiService, useExisting: CompanyApiStub },
+        { provide: SiteConfigApiService, useExisting: SiteConfigApiStub },
+        { provide: BusinessUnitApiService, useExisting: BusinessUnitApiStub },
+        { provide: TransferState, useValue: transferState },
+        { provide: PLATFORM_ID, useValue: 'server' },
+        { provide: API_BASE_URL, useValue: 'http://backend.example' },
+      ],
+    });
+    TestBed.inject(PublicLayoutFacade).load();
+    expect(transferState.isEmpty).toBe(false);
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        PublicLayoutFacade,
+        CompanyApiStub,
+        SiteConfigApiStub,
+        BusinessUnitApiStub,
+        { provide: CompanyApiService, useExisting: CompanyApiStub },
+        { provide: SiteConfigApiService, useExisting: SiteConfigApiStub },
+        { provide: BusinessUnitApiService, useExisting: BusinessUnitApiStub },
+        { provide: TransferState, useValue: transferState },
+        { provide: PLATFORM_ID, useValue: 'browser' },
+      ],
+    });
+    const browserCompanyApi = TestBed.inject(CompanyApiStub);
+    const browserSiteConfigApi = TestBed.inject(SiteConfigApiStub);
+    const browserBusinessUnitApi = TestBed.inject(BusinessUnitApiStub);
+    const browserFacade = TestBed.inject(PublicLayoutFacade);
+    browserFacade.load();
+
+    expect(browserFacade.company()).toEqual(company);
+    expect(browserFacade.siteConfig()).toEqual(siteConfig);
+    expect(browserFacade.businessUnits()).toEqual([businessUnit]);
+    expect(browserCompanyApi.calls).toBe(0);
+    expect(browserSiteConfigApi.calls).toBe(0);
+    expect(browserBusinessUnitApi.activeCalls).toBe(0);
   });
 });

@@ -26,6 +26,8 @@ export interface PublicLayoutLoadErrors {
   businessUnits: string | null;
 }
 
+export type PublicLayoutResourceState = 'idle' | 'loading' | 'success' | 'error' | 'ssr-blocked';
+
 const INITIAL_ERRORS: PublicLayoutLoadErrors = {
   company: null,
   siteConfig: null,
@@ -37,6 +39,10 @@ interface PublicLayoutTransferState {
   siteConfigs: readonly SiteConfigResponse[];
   businessUnits: readonly BusinessUnitResponse[];
   errors: PublicLayoutLoadErrors;
+  companyState: PublicLayoutResourceState;
+  siteConfigState: PublicLayoutResourceState;
+  businessUnitsState: PublicLayoutResourceState;
+  ssrBlocked: boolean;
 }
 
 const PUBLIC_LAYOUT_STATE = makeStateKey<PublicLayoutTransferState>('public-layout');
@@ -58,6 +64,9 @@ export class PublicLayoutFacade {
   private readonly _loaded = signal(false);
   private readonly _errors = signal<PublicLayoutLoadErrors>(INITIAL_ERRORS);
   private readonly _ssrBlocked = signal(false);
+  private readonly _companyState = signal<PublicLayoutResourceState>('idle');
+  private readonly _siteConfigState = signal<PublicLayoutResourceState>('idle');
+  private readonly _businessUnitsState = signal<PublicLayoutResourceState>('idle');
 
   private pendingRequests = 0;
   private requestInFlight = false;
@@ -69,6 +78,9 @@ export class PublicLayoutFacade {
   readonly loaded = this._loaded.asReadonly();
   readonly errors = this._errors.asReadonly();
   readonly ssrBlocked = this._ssrBlocked.asReadonly();
+  readonly companyState = this._companyState.asReadonly();
+  readonly siteConfigState = this._siteConfigState.asReadonly();
+  readonly businessUnitsState = this._businessUnitsState.asReadonly();
 
   readonly company = computed(() => (this._companies().length === 1 ? this._companies()[0] : null));
   readonly siteConfig = computed(() =>
@@ -93,20 +105,27 @@ export class PublicLayoutFacade {
   load(): void {
     if (this.requestInFlight) return;
 
-    if (this.restoreTransferredState()) return;
+    const restoredState = this.restoreTransferredState();
+    if (restoredState && !this._ssrBlocked()) return;
 
     if (!this.canRequestOnCurrentPlatform()) {
-      this._ssrBlocked.set(true);
-      this._loading.set(false);
+      this.markSsrBlocked();
+      this.writeTransferState();
       return;
     }
 
+    const preservesSsrFallback = restoredState && this._ssrBlocked();
     this.requestInFlight = true;
     this.pendingRequests = 3;
     this._loading.set(true);
     this._loaded.set(false);
-    this._ssrBlocked.set(false);
     this._errors.set(INITIAL_ERRORS);
+
+    if (!preservesSsrFallback) {
+      this._companyState.set('loading');
+      this._siteConfigState.set('loading');
+      this._businessUnitsState.set('loading');
+    }
 
     this.companyApi
       .getAll()
@@ -115,8 +134,14 @@ export class PublicLayoutFacade {
         finalize(() => this.finishRequest()),
       )
       .subscribe({
-        next: (companies) => this._companies.set(companies),
-        error: () => this.setError('company', 'No pudimos cargar la información de la empresa.'),
+        next: (companies) => {
+          this._companies.set(companies);
+          this._companyState.set('success');
+        },
+        error: () => {
+          this._companyState.set('error');
+          this.setError('company', 'No pudimos cargar la información de la empresa.');
+        },
       });
 
     this.siteConfigApi
@@ -126,9 +151,14 @@ export class PublicLayoutFacade {
         finalize(() => this.finishRequest()),
       )
       .subscribe({
-        next: (siteConfigs) => this._siteConfigs.set(siteConfigs),
-        error: () =>
-          this.setError('siteConfig', 'No pudimos cargar la configuración pública del sitio.'),
+        next: (siteConfigs) => {
+          this._siteConfigs.set(siteConfigs);
+          this._siteConfigState.set('success');
+        },
+        error: () => {
+          this._siteConfigState.set('error');
+          this.setError('siteConfig', 'No pudimos cargar la configuración pública del sitio.');
+        },
       });
 
     this.businessUnitApi
@@ -138,9 +168,14 @@ export class PublicLayoutFacade {
         finalize(() => this.finishRequest()),
       )
       .subscribe({
-        next: (businessUnits) => this._businessUnits.set(businessUnits),
-        error: () =>
-          this.setError('businessUnits', 'No pudimos cargar las unidades de negocio activas.'),
+        next: (businessUnits) => {
+          this._businessUnits.set(businessUnits);
+          this._businessUnitsState.set('success');
+        },
+        error: () => {
+          this._businessUnitsState.set('error');
+          this.setError('businessUnits', 'No pudimos cargar las unidades de negocio activas.');
+        },
       });
   }
 
@@ -165,6 +200,10 @@ export class PublicLayoutFacade {
       siteConfigs: [],
       businessUnits: [],
       errors: INITIAL_ERRORS,
+      companyState: 'idle',
+      siteConfigState: 'idle',
+      businessUnitsState: 'idle',
+      ssrBlocked: false,
     });
     this.transferState.remove(PUBLIC_LAYOUT_STATE);
 
@@ -172,9 +211,22 @@ export class PublicLayoutFacade {
     this._siteConfigs.set(state.siteConfigs);
     this._businessUnits.set(state.businessUnits);
     this._errors.set(state.errors);
-    this._loading.set(false);
-    this._loaded.set(true);
+    this._companyState.set(state.companyState);
+    this._siteConfigState.set(state.siteConfigState);
+    this._businessUnitsState.set(state.businessUnitsState);
+    this._ssrBlocked.set(state.ssrBlocked);
+    this._loading.set(state.ssrBlocked);
+    this._loaded.set(!state.ssrBlocked);
     return true;
+  }
+
+  private markSsrBlocked(): void {
+    this._ssrBlocked.set(true);
+    this._companyState.set('ssr-blocked');
+    this._siteConfigState.set('ssr-blocked');
+    this._businessUnitsState.set('ssr-blocked');
+    this._loading.set(false);
+    this._loaded.set(false);
   }
 
   private setError(resource: keyof PublicLayoutLoadErrors, message: string): void {
@@ -186,16 +238,25 @@ export class PublicLayoutFacade {
     if (this.pendingRequests > 0) return;
 
     this.requestInFlight = false;
+    this._ssrBlocked.set(false);
     this._loading.set(false);
     this._loaded.set(true);
 
-    if (isPlatformServer(this.platformId)) {
-      this.transferState.set(PUBLIC_LAYOUT_STATE, {
-        companies: this._companies(),
-        siteConfigs: this._siteConfigs(),
-        businessUnits: this._businessUnits(),
-        errors: this._errors(),
-      });
-    }
+    this.writeTransferState();
+  }
+
+  private writeTransferState(): void {
+    if (!isPlatformServer(this.platformId)) return;
+
+    this.transferState.set(PUBLIC_LAYOUT_STATE, {
+      companies: this._companies(),
+      siteConfigs: this._siteConfigs(),
+      businessUnits: this._businessUnits(),
+      errors: this._errors(),
+      companyState: this._companyState(),
+      siteConfigState: this._siteConfigState(),
+      businessUnitsState: this._businessUnitsState(),
+      ssrBlocked: this._ssrBlocked(),
+    });
   }
 }

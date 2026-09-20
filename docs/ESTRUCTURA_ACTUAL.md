@@ -890,8 +890,7 @@ El objetivo es que el contenido comercial pueda administrarse desde backend/base
 
 - Hero, Trust Strip e ISADECOR dentro de Home de ISANORTE;
 - identidad, estadísticas, misión, visión y valores de Nosotros;
-- enlaces y CTA de Navbar;
-- empresa, navegación, servicios, contacto, redes y copyright de Footer;
+- rutas principales de Navbar y Footer, que pertenecen a la estructura Angular;
 - rutas e imágenes públicas;
 - textos placeholder de Servicios, Proyectos, Contacto e ISADECOR.
 
@@ -900,10 +899,11 @@ El objetivo es que el contenido comercial pueda administrarse desde backend/base
 - Productos publicados del catálogo ISADECOR mediante `GET /api/productos/publicados`.
 - Categorías activas del catálogo ISADECOR mediante `GET /api/categorias/activas`.
 - Producto publicado por slug mediante `GET /api/productos/publicados/slug/{slug}`.
+- identidad, contacto, redes y texto de pie de Navbar/Footer mediante `PublicLayoutFacade`.
 
 ### Primera fase de integración dinámica de la web pública
 
-La infraestructura pública incorpora dos facades, sin sustituir todavía la composición visual ni el contenido estático de Home, Navbar o Footer:
+La infraestructura pública incorpora dos facades. Las fases posteriores conectan progresivamente sus datos sin sustituir las composiciones visuales:
 
 ```text
 PublicLayout
@@ -947,7 +947,35 @@ Servicios y Proyectos conservan el orden entregado por sus endpoints públicos. 
 
 Las cabeceras utilizan `titulo`, `subtitulo`, `contenido`, `textoBoton` y `enlaceBoton` de la sección correspondiente. Los enlaces conservan rutas, fragmentos y URL HTTP(S), `mailto` o `tel` válidas. Los DTO de Servicio y Proyecto no incluyen una ruta pública de detalle, por lo que sus cards dinámicas no inventan enlaces por slug.
 
-Continúan pendientes de integración visual: Hero, Trust Strip, ISADECOR, Navbar, Footer, Nosotros y las páginas secundarias de Servicios, Proyectos y Contacto.
+Continúan pendientes de integración visual: Hero, Trust Strip, ISADECOR de Home, Nosotros y las páginas secundarias de Servicios, Proyectos y Contacto.
+
+### Tercera fase: Navbar y Footer dinámicos
+
+`PublicLayoutFacade` alimenta ambos componentes sin convertir la navegación en contenido administrable:
+
+```text
+PublicLayoutFacade
+  ├── Empresa
+  ├── Configuración del sitio
+  └── Unidades de negocio activas
+
+Navbar
+  ├── Empresa + Configuración
+  └── rutas definidas por Angular
+
+Footer
+  ├── Empresa + Configuración
+  ├── redes sociales activas
+  └── rutas definidas por Angular
+```
+
+Navbar obtiene el nombre desde `Empresa.nombreComercial` y, en su ausencia, desde `ConfiguracionSitio.tituloSitio`. El logo usa `logoUrl`; si no existe o falla conserva el monograma visual. Inicio, Nosotros, Servicios, Proyectos y Contacto siguen declarados en Angular. ISADECOR solo aparece cuando `GET /api/unidades-negocio/activas` contiene el slug real `isadecor`; la ruta `/isadecor` no se genera desde backend. En error o bloqueo SSR se conserva temporalmente el CTA anterior. El menú móvil comparte esas rutas, expone `aria-expanded`/`aria-controls`, cierra al seleccionar una ruta y responde a Escape.
+
+Footer usa `nombreComercial`, `resumenNosotros`, dirección, ciudad, teléfono, email, WhatsApp y redes de la única Empresa resuelta. Las redes requieren `activo === true`, conservan `orden = 0`, ordenan ascendentemente y convierten únicamente claves textuales conocidas a abreviaturas seguras; nunca renderizan HTML o SVG recibido del backend. Teléfono y correo son accionables con `tel:` y `mailto:`. WhatsApp acepta una URL HTTPS oficial o construye `wa.me` a partir del número recibido sin añadir prefijo de país.
+
+En el footer oscuro se prefiere `logoBlancoUrl` y después `logoUrl`. `textoPiePagina` se muestra sin reescritura; cuando es nulo se presenta un copyright mínimo con el año calculado en Angular. La antigua colección local de servicios se eliminó: el Footer mantiene únicamente el enlace estructural `/servicios`, por lo que `PublicLayoutFacade` no incorpora `ServiceApiService`.
+
+Las respuestas exitosas son autoritativas: campos nulos, colecciones vacías o ausencia de ISADECOR no recuperan datos demo. Los textos y contactos anteriores solo permanecen como fallback técnico ante error, bloqueo SSR o una respuesta múltiple ambigua ya detectada por la facade. Con cero resultados se mantiene únicamente una presentación segura —monograma y año— sin seleccionar ni inventar una entidad. Los estados `companyState`, `siteConfigState` y `businessUnitsState` también viajan por `TransferState`, incluido `ssr-blocked`, para mantener estable el primer árbol hidratado.
 
 Mientras `API_BASE_URL` sea relativo, las nuevas facades públicas no intentan resolver `/api` desde Node: marcan `ssrBlocked`, finalizan loading y conservan el HTML estático completo durante prerender. `app.config.server.ts` admite una URL absoluta mediante la variable de entorno `API_BASE_URL`; cuando existe y es HTTP(S), las facades cargan durante SSR y serializan su resultado con `TransferState`, que el navegador restaura y retira sin repetir las peticiones durante la hidratación. Sin esa variable, el navegador carga desde las rutas relativas del mismo origen después de hidratar. El patrón anterior de catálogo y detalle continúa cargando únicamente en browser y no fue modificado.
 
@@ -1152,7 +1180,7 @@ Estas observaciones no se corrigieron porque esta tarea es únicamente documenta
 | Admin                        | Layout, dashboard y módulos de contenido, incluida configuración del sitio; sin autenticación                        |
 | Animaciones                  | CSS + GSAP en Carousel, CinematicTour y RevealStagger; sin ScrollTrigger                                             |
 | Contenido dinámico desde API | ISADECOR y Home: cabeceras/colecciones de Servicios, Proyectos y CTA final                                           |
-| Tests                        | 36 archivos spec con 246 casos aprobados                                                                             |
+| Tests                        | 38 archivos spec con 270 casos aprobados                                                                             |
 | Carga de rutas               | Públicas eager; Admin usa `loadComponent`                                                                            |
 | Build verificado             | Correcto; bundles browser/server, 18 rutas estáticas prerenderizadas y detalle dinámico en modo Server               |
 
