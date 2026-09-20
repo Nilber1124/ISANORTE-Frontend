@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Shared Components
@@ -6,24 +6,10 @@ import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Card } from '../../../shared/components/card/card';
 import { Carousel } from '../../../shared/components/carousel/carousel';
-import {
-  CinematicTour,
-  CinematicScene,
-} from '../../../shared/components/cinematic-tour/cinematic-tour';
+import { CinematicTour } from '../../../shared/components/cinematic-tour/cinematic-tour';
+import { PublicHomeFacade } from './public-home.facade';
 
 // Interfaces
-export interface HeroData {
-  tag: string;
-  title: string;
-  subtitle: string;
-  bgImageUrl: string;
-  primaryBtn: { label: string; url: string };
-  secondaryBtn: { label: string; url: string };
-}
-export interface TrustStripData {
-  text: string;
-  logos: { url: string; alt: string }[];
-}
 export interface ServiceCard {
   id: string;
   title: string;
@@ -59,46 +45,13 @@ export interface PreFooterData {
 @Component({
   imports: [CommonModule, Button, Card, Badge, Carousel, CinematicTour],
   selector: 'app-isanorte-home',
+  providers: [PublicHomeFacade],
   styleUrl: './home.css',
   templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
-  readonly heroData: HeroData = {
-    tag: 'EMPRESA DE ARQUITECTURA Y CONSTRUCCIÓN',
-    title: 'Transformamos espacios\nen experiencias',
-    subtitle: 'Soluciones profesionales para construcción, obra civil y acabados.',
-    bgImageUrl: '/images/recorrido-exterior.jpg',
-    primaryBtn: { label: 'SOLICITAR COTIZACIÓN', url: '#cotizar' },
-    secondaryBtn: { label: 'HABLA CON UN ASESOR', url: '#contacto' },
-  };
-
-  readonly heroScenes: CinematicScene[] = [
-    { id: 'exterior', imageUrl: '/images/recorrido-exterior.jpg' },
-    { id: 'sala', imageUrl: '/images/recorrido-sala.jpg' },
-    { id: 'cocina', imageUrl: '/images/recorrido-cocina.jpg' },
-    { id: 'bano', imageUrl: '/images/recorrido-bano.jpg' },
-    { id: 'dormitorio', imageUrl: '/images/recorrido-dormitorio.jpg' },
-  ];
-
-  readonly trustStripData: TrustStripData = {
-    text: 'RESPALDADO POR PRIMERAS MARCAS DE DISEÑO Y COMPRA',
-    logos: [
-      {
-        url: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg',
-        alt: 'Google',
-      },
-      { url: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg', alt: 'Amazon' },
-      {
-        url: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg',
-        alt: 'Netflix',
-      },
-      {
-        url: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg',
-        alt: 'Microsoft',
-      },
-    ],
-  };
+  readonly facade = inject(PublicHomeFacade);
 
   readonly services: ServiceCard[] = [
     {
@@ -167,4 +120,8 @@ export class Home {
       'Ofrecemos asesoría técnica integral sin costo para la estimación inicial de tu obra o acabados.',
     cta: { label: 'SOLICITAR ASESORÍA GRATUITA', url: '#contacto' },
   };
+
+  constructor() {
+    this.facade.load();
+  }
 }
