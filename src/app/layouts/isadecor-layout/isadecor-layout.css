@@ -1,0 +1,13 @@
+:host {
+  display: block;
+
+  --accent-isadecor: #0d9488;
+  --accent-isadecor-hover: #0f766e;
+  --accent-isadecor-strong: #115e59;
+  --accent-isadecor-contrast: #ffffff;
+
+  --theme-accent: var(--accent-isadecor);
+  --theme-accent-hover: var(--accent-isadecor-hover);
+  --theme-accent-strong: var(--accent-isadecor-strong);
+  --theme-accent-contrast: var(--accent-isadecor-contrast);
+}

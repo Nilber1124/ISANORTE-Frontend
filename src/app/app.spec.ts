@@ -33,11 +33,23 @@ describe('App', () => {
       'servicios',
       'proyectos',
       'contacto',
-      'isadecor/catalogo',
-      'isadecor/cotizacion',
-      'isadecor/productos/:slug',
-      'isadecor',
     ]);
+  });
+
+  it('should keep ISADECOR routes isolated from the public layout', () => {
+    const isadecorRoute = routes.find((route) => route.path === 'isadecor');
+    const publicRoute = routes.find((route) => route.path === '');
+
+    expect(isadecorRoute?.component).toBeTruthy();
+    expect(isadecorRoute?.component).not.toBe(publicRoute?.component);
+    expect(isadecorRoute?.loadComponent).toBeUndefined();
+    expect(isadecorRoute?.children?.map((route) => route.path)).toEqual([
+      '',
+      'catalogo',
+      'cotizacion',
+      'productos/:slug',
+    ]);
+    expect(publicRoute?.children?.some((route) => route.path?.startsWith('isadecor'))).toBe(false);
   });
 
   it('should keep admin routes isolated from the public layout', () => {

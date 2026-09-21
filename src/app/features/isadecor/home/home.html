@@ -1,1 +1,175 @@
-<p>landing works!</p>
+<main class="bg-background">
+  <section
+    class="relative isolate flex min-h-[70vh] items-center overflow-hidden bg-background-deep"
+    aria-label="Bienvenida a ISADECOR"
+  >
+    <div class="absolute inset-0 -z-10 overflow-hidden">
+      <img
+        [src]="hero.backgroundImageUrl"
+        alt=""
+        class="h-full w-full object-cover"
+        fetchpriority="high"
+      />
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-background-deep via-background-deep/85 to-background-deep/40"
+        aria-hidden="true"
+      ></div>
+    </div>
+
+    <div class="app-container py-20 sm:py-24 lg:py-28">
+      <div class="max-w-2xl animate-fade-in-up">
+        <p class="text-eyebrow font-semibold uppercase text-accent">{{ hero.kicker }}</p>
+        <h1 class="mt-4 text-display text-white">{{ hero.title }}</h1>
+        <p class="mt-6 max-w-xl text-body-lg text-text-secondary">{{ hero.description }}</p>
+        <div class="mt-9 flex flex-wrap gap-4">
+          <app-button variant="accent" size="large" [href]="hero.primaryCta.url">
+            {{ hero.primaryCta.label }}
+          </app-button>
+          <app-button variant="secondary" size="large" [href]="hero.secondaryCta.url">
+            {{ hero.secondaryCta.label }}
+          </app-button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="app-container py-14 sm:py-16 lg:py-20" aria-labelledby="catalog-highlight-title">
+    <app-section-title
+      id="catalog-highlight-title"
+      eyebrow="Catálogo"
+      title="Colecciones destacadas"
+      description="Los acabados más buscados para darle identidad y estilo a tus interiores."
+      alignment="center"
+    />
+
+    <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      @for (category of featuredCategories(); track category.id) {
+        <a
+          [routerLink]="catalogUrl"
+          class="group flex h-full flex-col overflow-hidden rounded-card border border-border bg-surface shadow-card transition-all duration-normal hover:-translate-y-1 hover:border-border-strong hover:shadow-floating focus-visible:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        >
+          <div class="aspect-[4/3] overflow-hidden">
+            <img
+              [src]="category.imageUrl"
+              [alt]="category.title"
+              loading="lazy"
+              class="h-full w-full object-cover transition-transform duration-normal ease-out group-hover:scale-105"
+            />
+          </div>
+          <div class="flex flex-1 flex-col p-5 sm:p-6">
+            <h3 class="text-heading-3 text-text-primary">{{ category.title }}</h3>
+            <p class="mt-2 flex-1 text-body-sm text-text-secondary">{{ category.description }}</p>
+            <span class="mt-4 inline-flex items-center gap-2 text-body-sm font-semibold text-accent">
+              Ver en el catálogo
+              <svg
+                class="size-4 transition-transform duration-normal group-hover:translate-x-0.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M5 12h14m-6-6l6 6-6 6"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                />
+              </svg>
+            </span>
+          </div>
+        </a>
+      }
+    </div>
+  </section>
+
+  <section
+    class="border-y border-border bg-background-soft py-14 sm:py-16 lg:py-20"
+    aria-labelledby="featured-products-title"
+  >
+    <div class="app-container">
+      <app-section-title
+        id="featured-products-title"
+        eyebrow="Productos"
+        title="Productos destacados"
+        description="Una selección de productos publicados que puedes adaptar a tu proyecto."
+        alignment="center"
+      />
+
+      <div class="mt-10">
+        @if (isBrowser()) {
+          @if (facade.loading()) {
+            <div class="rounded-panel border border-border bg-surface py-12 sm:py-16">
+              <app-loading label="Cargando productos destacados" size="large" />
+            </div>
+          } @else if (facade.error()) {
+            <div class="mx-auto max-w-3xl">
+              <app-alert variant="error" title="No se pudieron cargar los productos">
+                <p>{{ facade.error() }}</p>
+              </app-alert>
+            </div>
+          } @else if (featuredProducts().length === 0) {
+            <app-empty-state
+              emptyStateId="home-products-empty"
+              title="Aún no hay productos publicados"
+              description="Vuelve pronto para descubrir las novedades de ISADECOR."
+            />
+          } @else {
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              @for (product of featuredProducts(); track product.id) {
+                <app-product-card [product]="product" />
+              }
+            </div>
+          }
+        } @else {
+          <div
+            class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            aria-hidden="true"
+          >
+            @for (skeleton of productSkeletons; track skeleton) {
+              <div class="animate-pulse overflow-hidden rounded-card border border-border bg-surface shadow-card">
+                <div class="aspect-[4/3] bg-background-muted"></div>
+                <div class="space-y-3 p-5">
+                  <div class="h-4 w-3/4 rounded-control bg-background-muted"></div>
+                  <div class="h-3 w-1/2 rounded-control bg-background-muted"></div>
+                  <div class="h-3 w-2/3 rounded-control bg-background-muted"></div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mt-10 text-center">
+        <app-button variant="secondary" size="large" [href]="catalogUrl">
+          Ver todo el catálogo
+        </app-button>
+      </div>
+    </div>
+  </section>
+
+  <section class="app-container py-14 sm:py-16 lg:py-20" aria-labelledby="quote-title">
+    <div
+      class="grid overflow-hidden rounded-panel border border-border bg-surface shadow-card lg:grid-cols-2"
+    >
+      <div class="relative min-h-64 lg:min-h-80">
+        <img
+          [src]="quote.imageUrl"
+          [alt]="quote.title"
+          loading="lazy"
+          class="absolute inset-0 h-full w-full object-cover"
+        />
+      </div>
+      <div class="flex items-center p-6 sm:p-10 lg:p-14">
+        <div>
+          <h2 id="quote-title" class="text-heading-1 text-text-primary">{{ quote.title }}</h2>
+          <p class="mt-4 text-body text-text-secondary">{{ quote.description }}</p>
+          <div class="mt-8">
+            <app-button variant="accent" size="large" [href]="quote.url">
+              {{ quote.ctaLabel }}
+            </app-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

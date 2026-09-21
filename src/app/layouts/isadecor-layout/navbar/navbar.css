@@ -1,0 +1,6 @@
+nav.isadecor-shell {
+  --theme-accent: var(--accent-isadecor);
+  --theme-accent-hover: var(--accent-isadecor-hover);
+  --theme-accent-strong: var(--accent-isadecor-strong);
+  --theme-accent-contrast: var(--accent-isadecor-contrast);
+}

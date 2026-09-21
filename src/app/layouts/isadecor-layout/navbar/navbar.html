@@ -1,0 +1,72 @@
+<nav data-theme="dark" aria-label="Navegación ISADECOR"
+  class="isadecor-shell sticky top-0 z-50 border-b border-border bg-background-deep">
+  <div class="app-container flex items-center justify-between gap-6 py-4">
+    <a routerLink="/isadecor" class="flex items-center gap-3" (click)="closeMenu()">
+      <div class="size-9 flex items-center justify-center rounded-control bg-accent font-bold text-accent-contrast">
+        ID
+      </div>
+      <div class="flex flex-col">
+        <span class="text-lg font-bold leading-none tracking-widest text-white">ISADECOR</span>
+        <span class="mt-1 text-[9px] leading-tight tracking-[0.2em] text-white/50">ACABADOS &amp; REVESTIMIENTOS</span>
+      </div>
+    </a>
+
+    <div class="hidden flex-1 items-center justify-center gap-8 lg:flex">
+      @for (link of links; track link.url + link.label) {
+      <a [routerLink]="link.url" routerLinkActive="text-white" ariaCurrentWhenActive="page" #rla="routerLinkActive"
+        [routerLinkActiveOptions]="{ exact: link.exact ?? false }"
+        class="group relative text-body-sm font-medium transition-colors text-white/60 hover:text-white">
+        {{ link.label }}
+        <span
+          class="absolute -bottom-2 left-0 h-[2px] w-4 origin-left bg-accent transition-transform duration-normal group-hover:scale-x-100"
+          [ngClass]="rla.isActive ? 'scale-x-100' : 'scale-x-0'" aria-hidden="true"></span>
+      </a>
+      }
+    </div>
+
+    <div class="hidden lg:block">
+      <a routerLink="/isadecor/cotizacion"
+        class="inline-flex min-h-10 items-center justify-center gap-2 rounded-button bg-accent px-4 py-2 text-body-sm font-semibold text-accent-contrast transition-colors duration-normal hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+        Cotizar ahora
+      </a>
+    </div>
+
+    <button type="button"
+      class="inline-flex size-10 items-center justify-center rounded-control border border-border-strong text-white transition-colors duration-normal hover:bg-surface-soft lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      [attr.aria-expanded]="menuOpen()" aria-controls="isadecor-menu"
+      [attr.aria-label]="menuOpen() ? 'Cerrar menú' : 'Abrir menú'" (click)="toggleMenu()">
+      @if (menuOpen()) {
+      <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+          stroke-width="2" />
+      </svg>
+      } @else {
+      <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+          stroke-width="2" />
+      </svg>
+      }
+    </button>
+  </div>
+
+  @if (menuOpen()) {
+  <div id="isadecor-menu" class="border-t border-border bg-background-deep px-6 pb-6 pt-3 lg:hidden">
+    <ul class="space-y-1">
+      @for (link of links; track link.url + link.label) {
+      <li>
+        <a [routerLink]="link.url" (click)="closeMenu()"
+          class="block rounded-button px-3 py-2.5 text-body-sm font-medium text-white/70 transition-colors duration-normal hover:bg-surface-soft hover:text-white">
+          {{ link.label }}
+        </a>
+      </li>
+      }
+      <li class="pt-2">
+        <a routerLink="/isadecor/cotizacion" (click)="closeMenu()"
+          class="block rounded-button bg-accent px-3 py-2.5 text-center text-body-sm font-semibold text-accent-contrast transition-colors duration-normal hover:bg-accent-hover">
+          Cotizar ahora
+        </a>
+      </li>
+    </ul>
+  </div>
+  }
+</nav>

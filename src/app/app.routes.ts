@@ -8,6 +8,7 @@ import { Contact } from './features/isanorte/contact/contact';
 import { Home as IsanorteHome } from './features/isanorte/home/home';
 import { Projects } from './features/isanorte/projects/projects';
 import { Services } from './features/isanorte/services/services';
+import { IsadecorLayout } from './layouts/isadecor-layout/isadecor-layout';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 
 export const routes: Routes = [
@@ -109,10 +110,16 @@ export const routes: Routes = [
       { path: 'servicios', component: Services },
       { path: 'proyectos', component: Projects },
       { path: 'contacto', component: Contact },
-      { path: 'isadecor/catalogo', component: Catalog },
-      { path: 'isadecor/cotizacion', component: Quote },
-      { path: 'isadecor/productos/:slug', component: ProductDetail },
-      { path: 'isadecor', component: IsadecorHome },
+    ],
+  },
+  {
+    path: 'isadecor',
+    component: IsadecorLayout,
+    children: [
+      { path: '', component: IsadecorHome },
+      { path: 'catalogo', component: Catalog },
+      { path: 'cotizacion', component: Quote },
+      { path: 'productos/:slug', component: ProductDetail },
     ],
   },
 ];
