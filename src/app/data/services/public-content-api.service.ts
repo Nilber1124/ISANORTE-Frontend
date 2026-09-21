@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../../core/config/api.config';
 import { PublicHomeResponse } from '../models/public-content/public-home.model';
+import { PublicPageResponse, PublicPageType } from '../models/public-content/public-page.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
 
 @Injectable({ providedIn: 'root' })
@@ -19,5 +20,11 @@ export class PublicContentApiService {
 
   getSite(siteKey: string): Observable<PublicSiteResponse> {
     return this.http.get<PublicSiteResponse>(`${this.resourceUrl}/${encodeURIComponent(siteKey)}`);
+  }
+
+  getPage(siteKey: string, page: PublicPageType): Observable<PublicPageResponse> {
+    return this.http.get<PublicPageResponse>(
+      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/paginas/${encodeURIComponent(page)}`,
+    );
   }
 }

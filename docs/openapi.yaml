@@ -2899,6 +2899,9 @@ components:
         seo:
           allOf: [{$ref: '#/components/schemas/PublicSeo'}]
           nullable: true
+        empresa:
+          allOf: [{$ref: '#/components/schemas/PublicEmpresaNosotros'}]
+          nullable: true
     PublicContenidoPagina:
       type: object
       properties:
@@ -2918,6 +2921,22 @@ components:
         description: {type: string}
         ogImageUrl: {type: string, nullable: true}
         robots: {$ref: '#/components/schemas/RobotsSeo'}
+    PublicEmpresaNosotros:
+      description: Datos corporativos expuestos únicamente al solicitar la página NOSOTROS.
+      properties:
+        mision: {type: string, nullable: true}
+        vision: {type: string, nullable: true}
+        valores: {type: string, nullable: true}
+        estadisticas:
+          type: array
+          items: {$ref: '#/components/schemas/PublicEstadisticaEmpresa'}
+    PublicEstadisticaEmpresa:
+      properties:
+        valor: {type: number, format: decimal}
+        prefijo: {type: string, nullable: true}
+        sufijo: {type: string, nullable: true}
+        etiqueta: {type: string}
+        orden: {type: integer}
     PublicBusinessUnitResponse:
       type: object
       description: Unidad activa perteneciente a la empresa del sitio, recursos activos y SEO opcional.

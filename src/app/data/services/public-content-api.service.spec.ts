@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { API_BASE_URL } from '../../core/config/api.config';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
+import { PublicPageResponse, PublicPageType } from '../models/public-content/public-page.model';
 import { PublicContentApiService } from './public-content-api.service';
 
 const siteResponse: PublicSiteResponse = {
@@ -28,6 +29,22 @@ const siteResponse: PublicSiteResponse = {
   },
   redes: [],
   unidades: [],
+};
+
+const aboutPageResponse: PublicPageResponse = {
+  contenido: {
+    pagina: PublicPageType.NOSOTROS,
+    eyebrow: 'NOSOTROS',
+    titulo: 'Título desde API',
+    introduccion: null,
+    descripcion: null,
+    imagenUrl: null,
+    imagenAlt: null,
+    imagenFondoUrl: null,
+    tags: [],
+  },
+  seo: null,
+  empresa: null,
 };
 
 describe('PublicContentApiService', () => {
@@ -67,5 +84,18 @@ describe('PublicContentApiService', () => {
     request.flush(siteResponse);
 
     expect(result).toEqual(siteResponse);
+  });
+
+  it('uses the canonical public Page path, encodes the site key and returns the typed payload', () => {
+    let result: PublicPageResponse | undefined;
+    api.getPage('isanorte central', PublicPageType.NOSOTROS).subscribe((page) => (result = page));
+
+    const request = http.expectOne(
+      'https://backend.example/api/publico/sitios/isanorte%20central/paginas/NOSOTROS',
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush(aboutPageResponse);
+
+    expect(result).toEqual(aboutPageResponse);
   });
 });
