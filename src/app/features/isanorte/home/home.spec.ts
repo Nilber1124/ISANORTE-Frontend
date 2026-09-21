@@ -234,6 +234,23 @@ const backendHome: PublicHomeResponse = {
 describe('ISANORTE Home', () => {
   let http: HttpTestingController;
 
+  const renderedSectionOrder = (element: HTMLElement): string[] =>
+    Array.from(
+      element.querySelectorAll(
+        '[data-home-hero], [data-home-services], [data-home-business-unit], [data-home-projects], [data-home-cta]',
+      ),
+    ).map((section) =>
+      section.hasAttribute('data-home-hero')
+        ? 'HERO'
+        : section.hasAttribute('data-home-services')
+          ? 'SERVICIOS'
+          : section.hasAttribute('data-home-business-unit')
+            ? 'UNIDAD_NEGOCIO'
+            : section.hasAttribute('data-home-projects')
+              ? 'PROYECTOS'
+              : 'CTA',
+    );
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Home],
@@ -319,8 +336,7 @@ describe('ISANORTE Home', () => {
     expect(section?.textContent).toContain('Unidad API');
     expect(section?.textContent).toContain('Descripción dinámica de la unidad API.');
     expect(section?.textContent).toContain('CONOCER UNIDAD API');
-    expect(section?.textContent).toContain('VER CATÁLOGO');
-    expect(section?.textContent).not.toContain('Descargar catálogo');
+    expect(section?.textContent).toContain('Descargar catálogo (PDF)');
 
     const background = section?.querySelector('[aria-hidden="true"]') as HTMLElement | null;
     expect(background?.style.backgroundImage).toContain('/unit-background.jpg');
@@ -416,7 +432,7 @@ describe('ISANORTE Home', () => {
     fixture.detectChanges();
 
     const links = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll('section:first-of-type app-button a'),
+      (fixture.nativeElement as HTMLElement).querySelectorAll('[data-home-hero] app-button a'),
     );
     expect(links.map((link) => link.textContent?.trim())).toEqual([
       'Primaria API',
@@ -482,7 +498,7 @@ describe('ISANORTE Home', () => {
     expect(background?.style.backgroundImage).toBe('');
   });
 
-  it('uses the single transitional fallback when the public request fails', () => {
+  it('renders a neutral error state without restoring commercial fallback content', () => {
     const fixture = TestBed.createComponent(Home);
     http
       .expectOne('/api/publico/sitios/isanorte/home')
@@ -490,22 +506,161 @@ describe('ISANORTE Home', () => {
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).toContain('Transformamos espacios');
-    expect(element.textContent).toContain('SOLICITAR COTIZACIÓN');
-    expect(element.textContent).toContain('Construcción Obra Civil');
-    expect(element.textContent).toContain('ISADECOR');
-    expect(element.querySelector('a[href="/isadecor"]')).toBeTruthy();
-    expect(element.querySelector('a[href="/isadecor/catalogo"]')).toBeTruthy();
-    expect(element.textContent).toContain('Residencia Aura');
-    expect(element.textContent).toContain('Edificio Tech-Corporate');
-    expect(element.querySelector('[data-home-projects] a[href="/proyectos"]')).toBeTruthy();
-    expect(element.querySelector('[data-home-cta]')?.textContent).toContain(
-      '¿Tienes un proyecto en mente?',
-    );
-    expect(element.querySelector('[data-home-cta] a[href="/contacto"]')).toBeTruthy();
-    const tour = fixture.debugElement.query(By.directive(CinematicTourStub))
-      .componentInstance as CinematicTourStub;
-    expect(tour.scenes()).toHaveLength(5);
+    expect(element.querySelector('[data-home-error]')).toBeTruthy();
+    expect(element.textContent).toContain('No pudimos cargar');
+    expect(renderedSectionOrder(element)).toEqual([]);
+    expect(element.textContent).not.toContain('Transformamos espacios');
+    expect(element.textContent).not.toContain('Construcción Obra Civil');
+    expect(element.textContent).not.toContain('Residencia Aura');
+    expect(element.textContent).not.toContain('¿Tienes un proyecto en mente?');
+  });
+
+  it('shows only a neutral loading container before the Home response arrives', () => {
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('[data-home-loading]')).toBeTruthy();
+    expect(element.querySelector('[data-home-error]')).toBeNull();
+    expect(renderedSectionOrder(element)).toEqual([]);
+    expect(element.textContent).not.toContain('Transformamos espacios');
+
+    http.expectOne('/api/publico/sitios/isanorte/home').flush(backendHome);
+  });
+
+  it('renders sections in the backend order, including Services before Hero and CTA before Projects', () => {
+    const fixture = TestBed.createComponent(Home);
+    const order: Record<PublicHomeSectionType, number> = {
+      [PublicHomeSectionType.HERO]: 4,
+      [PublicHomeSectionType.SERVICIOS]: 0,
+      [PublicHomeSectionType.UNIDAD_NEGOCIO]: 3,
+      [PublicHomeSectionType.PROYECTOS]: 2,
+      [PublicHomeSectionType.CTA]: 1,
+      [PublicHomeSectionType.EMPRESA]: 9,
+      [PublicHomeSectionType.CONTACTO]: 9,
+      [PublicHomeSectionType.PERSONALIZADA]: 9,
+    };
+    http.expectOne('/api/publico/sitios/isanorte/home').flush({
+      ...backendHome,
+      secciones: backendHome.secciones.map((section) => ({
+        ...section,
+        orden: order[section.tipo],
+      })),
+    });
+    fixture.detectChanges();
+
+    expect(renderedSectionOrder(fixture.nativeElement as HTMLElement)).toEqual([
+      'SERVICIOS',
+      'CTA',
+      'PROYECTOS',
+      'UNIDAD_NEGOCIO',
+      'HERO',
+    ]);
+  });
+
+  it('preserves the normal zero-to-four order in the real rendered DOM', () => {
+    const fixture = TestBed.createComponent(Home);
+    const order: Partial<Record<PublicHomeSectionType, number>> = {
+      [PublicHomeSectionType.HERO]: 0,
+      [PublicHomeSectionType.SERVICIOS]: 1,
+      [PublicHomeSectionType.UNIDAD_NEGOCIO]: 2,
+      [PublicHomeSectionType.PROYECTOS]: 3,
+      [PublicHomeSectionType.CTA]: 4,
+    };
+    http.expectOne('/api/publico/sitios/isanorte/home').flush({
+      ...backendHome,
+      secciones: backendHome.secciones.map((section) => ({
+        ...section,
+        orden: order[section.tipo] ?? section.orden,
+      })),
+    });
+    fixture.detectChanges();
+
+    expect(renderedSectionOrder(fixture.nativeElement as HTMLElement)).toEqual([
+      'HERO',
+      'SERVICIOS',
+      'UNIDAD_NEGOCIO',
+      'PROYECTOS',
+      'CTA',
+    ]);
+  });
+
+  it('uses a deterministic type tie-breaker in the real rendered order', () => {
+    const fixture = TestBed.createComponent(Home);
+    http.expectOne('/api/publico/sitios/isanorte/home').flush({
+      ...backendHome,
+      secciones: backendHome.secciones.map((section) => ({ ...section, orden: 0 })),
+    });
+    fixture.detectChanges();
+
+    expect(renderedSectionOrder(fixture.nativeElement as HTMLElement)).toEqual([
+      'CTA',
+      'HERO',
+      'PROYECTOS',
+      'SERVICIOS',
+      'UNIDAD_NEGOCIO',
+    ]);
+  });
+
+  it('renders no block for absent sections or legacy section types', () => {
+    const fixture = TestBed.createComponent(Home);
+    http.expectOne('/api/publico/sitios/isanorte/home').flush({
+      ...backendHome,
+      secciones: [
+        {
+          ...backendHome.secciones[0],
+          tipo: PublicHomeSectionType.PERSONALIZADA,
+          orden: 0,
+        },
+        { ...backendHome.secciones[0], tipo: PublicHomeSectionType.EMPRESA, orden: 1 },
+        { ...backendHome.secciones[0], tipo: PublicHomeSectionType.CONTACTO, orden: 2 },
+      ],
+    });
+    fixture.detectChanges();
+
+    expect(renderedSectionOrder(fixture.nativeElement as HTMLElement)).toEqual([]);
+  });
+
+  it('removes each omitted supported section without replacing it with a fallback', () => {
+    const cases: [PublicHomeSectionType, string][] = [
+      [PublicHomeSectionType.HERO, '[data-home-hero]'],
+      [PublicHomeSectionType.SERVICIOS, '[data-home-services]'],
+      [PublicHomeSectionType.UNIDAD_NEGOCIO, '[data-home-business-unit]'],
+      [PublicHomeSectionType.PROYECTOS, '[data-home-projects]'],
+      [PublicHomeSectionType.CTA, '[data-home-cta]'],
+    ];
+
+    for (const [type, selector] of cases) {
+      const fixture = TestBed.createComponent(Home);
+      http.expectOne('/api/publico/sitios/isanorte/home').flush({
+        ...backendHome,
+        secciones: backendHome.secciones.filter((section) => section.tipo !== type),
+      });
+      fixture.detectChanges();
+      expect((fixture.nativeElement as HTMLElement).querySelector(selector)).toBeNull();
+      fixture.destroy();
+    }
+  });
+
+  it('renders only the deterministic first section when a supported type is duplicated', () => {
+    const fixture = TestBed.createComponent(Home);
+    const hero = backendHome.secciones.find(
+      (section) => section.tipo === PublicHomeSectionType.HERO,
+    )!;
+    http.expectOne('/api/publico/sitios/isanorte/home').flush({
+      ...backendHome,
+      secciones: [
+        { ...hero, titulo: 'Zulu Hero', orden: 0 },
+        { ...hero, titulo: 'Alpha Hero', orden: 0 },
+      ],
+    });
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(renderedSectionOrder(element)).toEqual(['HERO']);
+    expect(element.querySelectorAll('[data-home-hero]')).toHaveLength(1);
+    expect(element.textContent).toContain('Alpha Hero');
+    expect(element.textContent).not.toContain('Zulu Hero');
   });
 
   it('keeps Trust Strip removed and does not duplicate the baseline CTA on success', () => {

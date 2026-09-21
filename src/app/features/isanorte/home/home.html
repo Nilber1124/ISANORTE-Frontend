@@ -1,332 +1,377 @@
-<!-- Hero Section -->
-@if (facade.hero(); as hero) {
-  <section class="relative min-h-[85vh] flex flex-col justify-center overflow-hidden">
-    <!-- Recorrido cinematográfico arquitectónico (GSAP) -->
-    <app-cinematic-tour [scenes]="facade.heroScenes()"></app-cinematic-tour>
-
-    <!-- Darker Overlay for better text contrast -->
-    <div class="absolute inset-0 bg-black/60"></div>
-
-    <div class="relative z-10 app-container">
-      <div class="max-w-4xl">
-        <!-- Outline transparent badge with orange text/border instead of solid -->
-        <div
-          class="inline-flex items-center px-4 py-1.5 rounded-full border border-accent text-accent text-caption font-semibold uppercase tracking-wider mb-8 animate-fade-in-up"
-        >
-          {{ hero.tag }}
-        </div>
-
-        <h1
-          class="text-display-xl text-white mb-6 whitespace-pre-line animate-fade-in-up"
-          style="animation-delay: 100ms"
-        >
-          {{ hero.title }}
-        </h1>
-        <p
-          class="text-body-lg text-white/80 mb-10 max-w-2xl animate-fade-in-up"
-          style="animation-delay: 200ms"
-        >
-          {{ hero.subtitle }}
-        </p>
-
-        <div class="flex flex-wrap gap-4 animate-fade-in-up" style="animation-delay: 300ms">
-          <!-- Solamente botones -->
-          @if (facade.heroActions()[0]; as primaryAction) {
-            <app-button variant="accent" [href]="primaryAction.url" size="large">
-              {{ primaryAction.label }}
-            </app-button>
-          }
-          @if (facade.heroActions()[1]; as secondaryAction) {
-            <app-button variant="primary" [href]="secondaryAction.url" size="large">
-              {{ secondaryAction.label }}
-            </app-button>
-          }
-        </div>
-      </div>
-    </div>
-  </section>
-}
-
-<!-- Services -->
-@if (facade.showServices() && facade.servicesHeader(); as servicesHeader) {
-  <section class="section-space bg-background-soft" data-home-services>
-    <div class="app-container">
-      <!-- Header -->
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-        <div>
-          <span class="text-eyebrow text-accent block mb-2">{{
-            servicesHeader.eyebrow | uppercase
-          }}</span>
-          <h2 class="text-heading-2 text-text-primary">
-            {{ servicesHeader.title }}
-          </h2>
-        </div>
-        @if (facade.servicesAction(); as servicesAction) {
-          <app-button variant="primary" [href]="servicesAction.url">
-            {{ servicesAction.label }}
-          </app-button>
-        }
-      </div>
-
-      <!-- Carousel (Coverflow 3D) -->
-      <app-carousel
-        [items]="facade.services()"
-        variant="coverflow"
-        [autoPlayInterval]="4500"
-        ariaLabel="Carrusel de servicios"
-      >
-        <ng-template #cardTemplate let-service>
-          <app-card
-            [href]="service.linkUrl"
-            [ariaLabel]="service.name"
-            padding="none"
-            class="group h-full"
+@if (facade.loading()) {
+  <div
+    class="min-h-[50vh]"
+    data-home-loading
+    role="status"
+    aria-live="polite"
+    aria-label="Cargando contenido"
+  ></div>
+} @else if (facade.error(); as error) {
+  <div class="app-container py-12" data-home-error>
+    <app-alert variant="neutral">{{ error }}</app-alert>
+  </div>
+} @else {
+  @for (section of facade.orderedSections(); track section.tipo) {
+    @switch (section.tipo) {
+      @case (sectionType.HERO) {
+        <!-- Hero Section -->
+        @if (facade.hero(); as hero) {
+          <section
+            class="relative min-h-[85vh] flex flex-col justify-center overflow-hidden"
+            data-home-hero
           >
-            <div
-              class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
-              [style.backgroundImage]="service.imageUrl ? 'url(' + service.imageUrl + ')' : null"
-              [attr.role]="service.imageAlt ? 'img' : null"
-              [attr.aria-label]="service.imageAlt"
-              [attr.aria-hidden]="service.imageAlt ? null : 'true'"
-            ></div>
-            <div
-              class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-90"
-            ></div>
+            <!-- Recorrido cinematográfico arquitectónico (GSAP) -->
+            <app-cinematic-tour [scenes]="facade.heroScenes()"></app-cinematic-tour>
 
-            <div class="absolute inset-0 p-8 flex flex-col justify-end">
-              <h3
-                class="text-heading-3 text-white mb-3 group-hover:text-accent transition-colors duration-normal"
-              >
-                {{ service.name }}
-              </h3>
-              <p class="text-body-sm text-white/70 mb-6">
-                {{ service.summary }}
-              </p>
-              <div
-                class="text-caption font-bold text-accent tracking-[0.1em] flex items-center gap-2 uppercase group-hover:text-white transition-colors duration-normal"
-              >
-                LEER MÁS
-                <svg
-                  class="size-4 transform group-hover:translate-x-1 transition-transform duration-normal"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            <!-- Darker Overlay for better text contrast -->
+            <div class="absolute inset-0 bg-black/60"></div>
+
+            <div class="relative z-10 app-container">
+              <div class="max-w-4xl">
+                <!-- Outline transparent badge with orange text/border instead of solid -->
+                <div
+                  class="inline-flex items-center px-4 py-1.5 rounded-full border border-accent text-accent text-caption font-semibold uppercase tracking-wider mb-8 animate-fade-in-up"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  ></path>
-                </svg>
+                  {{ hero.tag }}
+                </div>
+
+                <h1
+                  class="text-display-xl text-white mb-6 whitespace-pre-line animate-fade-in-up"
+                  style="animation-delay: 100ms"
+                >
+                  {{ hero.title }}
+                </h1>
+                <p
+                  class="text-body-lg text-white/80 mb-10 max-w-2xl animate-fade-in-up"
+                  style="animation-delay: 200ms"
+                >
+                  {{ hero.subtitle }}
+                </p>
+
+                <div class="flex flex-wrap gap-4 animate-fade-in-up" style="animation-delay: 300ms">
+                  <!-- Solamente botones -->
+                  @if (facade.heroActions()[0]; as primaryAction) {
+                    <app-button variant="accent" [href]="primaryAction.url" size="large">
+                      {{ primaryAction.label }}
+                    </app-button>
+                  }
+                  @if (facade.heroActions()[1]; as secondaryAction) {
+                    <app-button variant="primary" [href]="secondaryAction.url" size="large">
+                      {{ secondaryAction.label }}
+                    </app-button>
+                  }
+                </div>
               </div>
             </div>
-          </app-card>
-        </ng-template>
-      </app-carousel>
-    </div>
-  </section>
-}
-
-<!-- Highlight (unidad de negocio destacada) -->
-@if (facade.showBusinessUnit()) {
-  @if (facade.featuredBusinessUnit(); as businessUnit) {
-    @if (facade.businessUnitSection(); as businessUnitSection) {
-      <section
-        data-theme="dark"
-        data-home-business-unit
-        class="group relative flex min-h-[36rem] items-center justify-center overflow-hidden border-y border-border bg-background-deep section-space lg:min-h-[44rem]"
-      >
-        <!-- Fondo ambiental de la unidad -->
-        <div class="absolute inset-0 z-0">
-          <div
-            class="absolute inset-0 bg-cover bg-center transition-transform duration-[3000ms] ease-[var(--ease-standard)] group-hover:scale-105"
-            [style.backgroundImage]="
-              facade.businessUnitBackground()?.url
-                ? 'url(' + facade.businessUnitBackground()?.url + ')'
-                : null
-            "
-            aria-hidden="true"
-          ></div>
-          <div class="absolute inset-0 bg-background-deep/90"></div>
-          <div
-            class="absolute inset-0 bg-gradient-to-t from-background-deep via-background-deep/20 to-background-deep/60"
-          ></div>
-        </div>
-
-        <!-- Primera imagen editorial, superior derecha (escritorio) -->
-        @if (facade.businessUnitEditorialImages()[0]; as topEditorialImage) {
-          <div
-            class="animate-float-subtle group absolute top-6 right-4 hidden h-64 w-44 overflow-hidden rounded-panel border border-border-strong shadow-floating md:top-8 md:right-8 md:block lg:h-96 lg:w-64 lg:right-12"
-            [style.animation-delay]="'1.5s'"
-          >
-            <div
-              class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
-              [style.backgroundImage]="'url(' + topEditorialImage.url + ')'"
-              [attr.role]="topEditorialImage.alt ? 'img' : null"
-              [attr.aria-label]="topEditorialImage.alt"
-              [attr.aria-hidden]="topEditorialImage.alt ? null : 'true'"
-            ></div>
-          </div>
+          </section>
         }
+      }
 
-        <!-- Imágenes editoriales restantes con desfase (escritorio) -->
-        @if (facade.businessUnitEditorialImages().length > 1) {
-          <div class="absolute bottom-0 left-0 z-0 hidden items-end gap-5 pl-4 md:flex lg:pl-8">
-            @for (
-              item of facade.businessUnitEditorialImages().slice(1, 3);
-              track item.orden + ':' + item.url;
-              let i = $index
-            ) {
-              <div
-                class="animate-float-subtle group relative overflow-hidden rounded-t-panel border border-border-strong shadow-floating"
-                [class.h-96]="i % 2 === 0"
-                [class.w-72]="i % 2 === 0"
-                [class.h-64]="i % 2 !== 0"
-                [class.w-52]="i % 2 !== 0"
-                [style.animation-delay]="i * 700 + 'ms'"
-              >
-                <div
-                  class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
-                  [style.backgroundImage]="'url(' + item.url + ')'"
-                  [attr.role]="item.alt ? 'img' : null"
-                  [attr.aria-label]="item.alt"
-                  [attr.aria-hidden]="item.alt ? null : 'true'"
-                ></div>
+      @case (sectionType.SERVICIOS) {
+        <!-- Services -->
+        @if (facade.showServices() && facade.servicesHeader(); as servicesHeader) {
+          <section class="section-space bg-background-soft" data-home-services>
+            <div class="app-container">
+              <!-- Header -->
+              <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                <div>
+                  <span class="text-eyebrow text-accent block mb-2">{{
+                    servicesHeader.eyebrow | uppercase
+                  }}</span>
+                  <h2 class="text-heading-2 text-text-primary">
+                    {{ servicesHeader.title }}
+                  </h2>
+                </div>
+                @if (facade.servicesAction(); as servicesAction) {
+                  <app-button variant="primary" [href]="servicesAction.url">
+                    {{ servicesAction.label }}
+                  </app-button>
+                }
               </div>
-            }
-          </div>
+
+              <!-- Carousel (Coverflow 3D) -->
+              <app-carousel
+                [items]="facade.services()"
+                variant="coverflow"
+                [autoPlayInterval]="4500"
+                ariaLabel="Carrusel de servicios"
+              >
+                <ng-template #cardTemplate let-service>
+                  <app-card
+                    [href]="service.linkUrl"
+                    [ariaLabel]="service.name"
+                    padding="none"
+                    class="group h-full"
+                  >
+                    <div
+                      class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
+                      [style.backgroundImage]="
+                        service.imageUrl ? 'url(' + service.imageUrl + ')' : null
+                      "
+                      [attr.role]="service.imageAlt ? 'img' : null"
+                      [attr.aria-label]="service.imageAlt"
+                      [attr.aria-hidden]="service.imageAlt ? null : 'true'"
+                    ></div>
+                    <div
+                      class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-90"
+                    ></div>
+
+                    <div class="absolute inset-0 p-8 flex flex-col justify-end">
+                      <h3
+                        class="text-heading-3 text-white mb-3 group-hover:text-accent transition-colors duration-normal"
+                      >
+                        {{ service.name }}
+                      </h3>
+                      <p class="text-body-sm text-white/70 mb-6">
+                        {{ service.summary }}
+                      </p>
+                      <div
+                        class="text-caption font-bold text-accent tracking-[0.1em] flex items-center gap-2 uppercase group-hover:text-white transition-colors duration-normal"
+                      >
+                        LEER MÁS
+                        <svg
+                          class="size-4 transform group-hover:translate-x-1 transition-transform duration-normal"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3"
+                          ></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </app-card>
+                </ng-template>
+              </app-carousel>
+            </div>
+          </section>
         }
+      }
 
-        <!-- Contenido central -->
-        <div class="app-container relative z-10 flex flex-col items-center text-center">
-          @if (businessUnitSection.etiqueta; as eyebrow) {
-            <app-badge variant="accent" class="mb-6">{{ eyebrow }}</app-badge>
+      @case (sectionType.UNIDAD_NEGOCIO) {
+        <!-- Highlight (unidad de negocio destacada) -->
+        @if (facade.showBusinessUnit()) {
+          @if (facade.featuredBusinessUnit(); as businessUnit) {
+            @if (facade.businessUnitSection(); as businessUnitSection) {
+              <section
+                data-theme="dark"
+                data-home-business-unit
+                class="group relative flex min-h-[36rem] items-center justify-center overflow-hidden border-y border-border bg-background-deep section-space lg:min-h-[44rem]"
+              >
+                <!-- Fondo ambiental de la unidad -->
+                <div class="absolute inset-0 z-0">
+                  <div
+                    class="absolute inset-0 bg-cover bg-center transition-transform duration-[3000ms] ease-[var(--ease-standard)] group-hover:scale-105"
+                    [style.backgroundImage]="
+                      facade.businessUnitBackground()?.url
+                        ? 'url(' + facade.businessUnitBackground()?.url + ')'
+                        : null
+                    "
+                    aria-hidden="true"
+                  ></div>
+                  <div class="absolute inset-0 bg-background-deep/90"></div>
+                  <div
+                    class="absolute inset-0 bg-gradient-to-t from-background-deep via-background-deep/20 to-background-deep/60"
+                  ></div>
+                </div>
+
+                <!-- Primera imagen editorial, superior derecha (escritorio) -->
+                @if (facade.businessUnitEditorialImages()[0]; as topEditorialImage) {
+                  <div
+                    class="animate-float-subtle group absolute top-6 right-4 hidden h-64 w-44 overflow-hidden rounded-panel border border-border-strong shadow-floating md:top-8 md:right-8 md:block lg:h-96 lg:w-64 lg:right-12"
+                    [style.animation-delay]="'1.5s'"
+                  >
+                    <div
+                      class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
+                      [style.backgroundImage]="'url(' + topEditorialImage.url + ')'"
+                      [attr.role]="topEditorialImage.alt ? 'img' : null"
+                      [attr.aria-label]="topEditorialImage.alt"
+                      [attr.aria-hidden]="topEditorialImage.alt ? null : 'true'"
+                    ></div>
+                  </div>
+                }
+
+                <!-- Imágenes editoriales restantes con desfase (escritorio) -->
+                @if (facade.businessUnitEditorialImages().length > 1) {
+                  <div
+                    class="absolute bottom-0 left-0 z-0 hidden items-end gap-5 pl-4 md:flex lg:pl-8"
+                  >
+                    @for (
+                      item of facade.businessUnitEditorialImages().slice(1, 3);
+                      track item.orden + ':' + item.url;
+                      let i = $index
+                    ) {
+                      <div
+                        class="animate-float-subtle group relative overflow-hidden rounded-t-panel border border-border-strong shadow-floating"
+                        [class.h-96]="i % 2 === 0"
+                        [class.w-72]="i % 2 === 0"
+                        [class.h-64]="i % 2 !== 0"
+                        [class.w-52]="i % 2 !== 0"
+                        [style.animation-delay]="i * 700 + 'ms'"
+                      >
+                        <div
+                          class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
+                          [style.backgroundImage]="'url(' + item.url + ')'"
+                          [attr.role]="item.alt ? 'img' : null"
+                          [attr.aria-label]="item.alt"
+                          [attr.aria-hidden]="item.alt ? null : 'true'"
+                        ></div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Contenido central -->
+                <div class="app-container relative z-10 flex flex-col items-center text-center">
+                  @if (businessUnitSection.etiqueta; as eyebrow) {
+                    <app-badge variant="accent" class="mb-6">{{ eyebrow }}</app-badge>
+                  }
+                  <h2
+                    class="text-display text-text-primary mb-6 whitespace-pre-line drop-shadow-md"
+                  >
+                    {{ businessUnit.nombre }}
+                  </h2>
+                  <p class="text-body-lg text-text-muted mb-10 max-w-xl">
+                    {{ businessUnit.descripcion }}
+                  </p>
+
+                  <div class="flex flex-wrap justify-center gap-4">
+                    @if (facade.businessUnitPrimaryAction(); as primaryAction) {
+                      <app-button variant="accent" [href]="primaryAction.url" size="large">
+                        {{ primaryAction.label }}
+                      </app-button>
+                    }
+                    @if (facade.businessUnitCatalogAction(); as catalogAction) {
+                      <app-button variant="ghost" [href]="catalogAction.url" size="large">
+                        {{ catalogAction.label }}
+                      </app-button>
+                    }
+                  </div>
+                </div>
+              </section>
+            }
           }
-          <h2 class="text-display text-text-primary mb-6 whitespace-pre-line drop-shadow-md">
-            {{ businessUnit.nombre }}
-          </h2>
-          <p class="text-body-lg text-text-muted mb-10 max-w-xl">
-            {{ businessUnit.descripcion }}
-          </p>
+        }
+      }
 
-          <div class="flex flex-wrap justify-center gap-4">
-            @if (facade.businessUnitPrimaryAction(); as primaryAction) {
-              <app-button variant="accent" [href]="primaryAction.url" size="large">
-                {{ primaryAction.label }}
-              </app-button>
-            }
-            @if (facade.businessUnitCatalogAction(); as catalogAction) {
-              <app-button variant="ghost" [href]="catalogAction.url" size="large">
-                {{ catalogAction.label }}
-              </app-button>
-            }
-          </div>
-        </div>
-      </section>
+      @case (sectionType.PROYECTOS) {
+        <!-- Projects -->
+        @if (facade.showProjects() && facade.projectsHeader(); as projectsHeader) {
+          <section class="section-space bg-background" data-home-projects>
+            <div class="app-container">
+              <!-- Header -->
+              <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                <div>
+                  <span class="text-eyebrow text-accent block mb-2">{{
+                    projectsHeader.eyebrow | uppercase
+                  }}</span>
+                  <h2 class="text-heading-2 text-text-primary whitespace-pre-line">
+                    {{ projectsHeader.title }}
+                  </h2>
+                </div>
+                @if (facade.projectsAction(); as projectsAction) {
+                  <app-button variant="secondary" [href]="projectsAction.url">
+                    {{ projectsAction.label }}
+                  </app-button>
+                }
+              </div>
+
+              <!-- Carousel (Marquee infinito) -->
+              <app-carousel
+                [items]="facade.projects()"
+                variant="marquee"
+                ariaLabel="Carrusel de proyectos"
+              >
+                <ng-template #cardTemplate let-project>
+                  <app-card padding="none" class="group h-full">
+                    <div
+                      class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
+                      [style.backgroundImage]="
+                        project.imageUrl ? 'url(' + project.imageUrl + ')' : null
+                      "
+                      [attr.role]="project.imageAlt ? 'img' : null"
+                      [attr.aria-label]="project.imageAlt"
+                      [attr.aria-hidden]="project.imageAlt ? null : 'true'"
+                    ></div>
+                    <div
+                      class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-normal"
+                    ></div>
+
+                    <div
+                      class="absolute inset-x-8 top-8 transform transition-transform duration-normal group-hover:-translate-y-2"
+                    >
+                      <h3 class="text-heading-3 text-white mb-2">{{ project.name }}</h3>
+                      @if (project.metadata) {
+                        <p
+                          class="text-caption text-white/70 font-semibold tracking-wider uppercase"
+                        >
+                          {{ project.metadata }}
+                        </p>
+                      }
+                    </div>
+
+                    <div
+                      class="absolute bottom-8 right-8 size-12 bg-accent rounded-full flex items-center justify-center text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-normal shadow-card"
+                    >
+                      <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        ></path>
+                      </svg>
+                    </div>
+                  </app-card>
+                </ng-template>
+              </app-carousel>
+            </div>
+          </section>
+        }
+      }
+
+      @case (sectionType.CTA) {
+        <!-- Pre-Footer CTA -->
+        @if (facade.showCta() && facade.ctaCopy(); as ctaCopy) {
+          <section class="bg-background-soft py-16 border-t border-border" data-home-cta>
+            <div class="app-container">
+              <div
+                class="relative flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden bg-surface p-8 md:p-12 rounded-panel shadow-card border border-border"
+              >
+                <!-- Fondo decorativo del CTA -->
+                <div
+                  class="absolute inset-0 bg-cover bg-center"
+                  [style.backgroundImage]="
+                    facade.ctaBackground() ? 'url(' + facade.ctaBackground() + ')' : null
+                  "
+                  aria-hidden="true"
+                ></div>
+                <div
+                  class="absolute inset-0 bg-gradient-to-r from-surface via-surface/90 to-surface/25"
+                ></div>
+
+                <div
+                  class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 w-full"
+                >
+                  <div class="text-center lg:text-left">
+                    <h2 class="text-heading-3 text-text-primary mb-3">{{ ctaCopy.title }}</h2>
+                    <p class="text-body text-text-secondary max-w-xl">{{ ctaCopy.description }}</p>
+                  </div>
+                  @if (facade.ctaAction(); as ctaAction) {
+                    <app-button variant="accent" [href]="ctaAction.url" size="large">
+                      {{ ctaAction.label }}
+                    </app-button>
+                  }
+                </div>
+              </div>
+            </div>
+          </section>
+        }
+      }
     }
   }
-}
-
-<!-- Projects -->
-@if (facade.showProjects() && facade.projectsHeader(); as projectsHeader) {
-  <section class="section-space bg-background" data-home-projects>
-    <div class="app-container">
-      <!-- Header -->
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-        <div>
-          <span class="text-eyebrow text-accent block mb-2">{{
-            projectsHeader.eyebrow | uppercase
-          }}</span>
-          <h2 class="text-heading-2 text-text-primary whitespace-pre-line">
-            {{ projectsHeader.title }}
-          </h2>
-        </div>
-        @if (facade.projectsAction(); as projectsAction) {
-          <app-button variant="secondary" [href]="projectsAction.url">
-            {{ projectsAction.label }}
-          </app-button>
-        }
-      </div>
-
-      <!-- Carousel (Marquee infinito) -->
-      <app-carousel [items]="facade.projects()" variant="marquee" ariaLabel="Carrusel de proyectos">
-        <ng-template #cardTemplate let-project>
-          <app-card padding="none" class="group h-full">
-            <div
-              class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
-              [style.backgroundImage]="project.imageUrl ? 'url(' + project.imageUrl + ')' : null"
-              [attr.role]="project.imageAlt ? 'img' : null"
-              [attr.aria-label]="project.imageAlt"
-              [attr.aria-hidden]="project.imageAlt ? null : 'true'"
-            ></div>
-            <div
-              class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-normal"
-            ></div>
-
-            <div
-              class="absolute inset-x-8 top-8 transform transition-transform duration-normal group-hover:-translate-y-2"
-            >
-              <h3 class="text-heading-3 text-white mb-2">{{ project.name }}</h3>
-              @if (project.metadata) {
-                <p class="text-caption text-white/70 font-semibold tracking-wider uppercase">
-                  {{ project.metadata }}
-                </p>
-              }
-            </div>
-
-            <div
-              class="absolute bottom-8 right-8 size-12 bg-accent rounded-full flex items-center justify-center text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-normal shadow-card"
-            >
-              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                ></path>
-              </svg>
-            </div>
-          </app-card>
-        </ng-template>
-      </app-carousel>
-    </div>
-  </section>
-}
-
-<!-- Pre-Footer CTA -->
-@if (facade.showCta() && facade.ctaCopy(); as ctaCopy) {
-  <section class="bg-background-soft py-16 border-t border-border" data-home-cta>
-    <div class="app-container">
-      <div
-        class="relative flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden bg-surface p-8 md:p-12 rounded-panel shadow-card border border-border"
-      >
-        <!-- Fondo decorativo del CTA -->
-        <div
-          class="absolute inset-0 bg-cover bg-center"
-          [style.backgroundImage]="
-            facade.ctaBackground() ? 'url(' + facade.ctaBackground() + ')' : null
-          "
-          aria-hidden="true"
-        ></div>
-        <div
-          class="absolute inset-0 bg-gradient-to-r from-surface via-surface/90 to-surface/25"
-        ></div>
-
-        <div
-          class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 w-full"
-        >
-          <div class="text-center lg:text-left">
-            <h2 class="text-heading-3 text-text-primary mb-3">{{ ctaCopy.title }}</h2>
-            <p class="text-body text-text-secondary max-w-xl">{{ ctaCopy.description }}</p>
-          </div>
-          @if (facade.ctaAction(); as ctaAction) {
-            <app-button variant="accent" [href]="ctaAction.url" size="large">
-              {{ ctaAction.label }}
-            </app-button>
-          }
-        </div>
-      </div>
-    </div>
-  </section>
 }

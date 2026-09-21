@@ -8,11 +8,6 @@ import {
   PublicHomeSectionType,
 } from '../../../data/models/public-content/public-home.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
-import { HOME_BUSINESS_UNIT_FALLBACK } from './home-business-unit-fallback';
-import { HOME_CTA_FALLBACK } from './home-cta-fallback';
-import { HOME_HERO_FALLBACK } from './home-hero-fallback';
-import { HOME_PROJECTS_FALLBACK } from './home-projects-fallback';
-import { HOME_SERVICES_FALLBACK } from './home-services-fallback';
 import { PublicHomeFacade } from './public-home.facade';
 
 const heroSection: PublicHomeSection = {
@@ -336,7 +331,7 @@ describe('PublicHomeFacade', () => {
       url: '/unidad-demo',
     });
     expect(facade.businessUnitCatalogAction()).toEqual({
-      label: 'VER CATÁLOGO',
+      label: 'Descargar catálogo PDF',
       url: '/unidad-demo/catalogo',
     });
     expect(facade.showBusinessUnit()).toBe(true);
@@ -458,31 +453,88 @@ describe('PublicHomeFacade', () => {
     expect(facade.showCta()).toBe(true);
   });
 
-  it('keeps the transitional Hero fallback when the request fails', () => {
+  it('orders supported sections, preserves order zero and ignores legacy types', () => {
+    const response = new Subject<PublicHomeResponse>();
+    api.response$ = response;
+    facade.load();
+    response.next({
+      ...homeResponse,
+      secciones: [
+        { ...heroSection, orden: 4 },
+        { ...servicesSection, orden: 0 },
+        { ...ctaSection, orden: 2 },
+        { ...projectsSection, orden: 3 },
+        { ...businessUnitSection, orden: 1 },
+        { ...servicesSection, tipo: PublicHomeSectionType.EMPRESA, orden: -1 },
+        { ...ctaSection, tipo: PublicHomeSectionType.CONTACTO, orden: -2 },
+        { ...heroSection, tipo: PublicHomeSectionType.PERSONALIZADA, orden: -3 },
+      ],
+    });
+    response.complete();
+
+    expect(facade.orderedSections().map((section) => [section.tipo, section.orden])).toEqual([
+      [PublicHomeSectionType.SERVICIOS, 0],
+      [PublicHomeSectionType.UNIDAD_NEGOCIO, 1],
+      [PublicHomeSectionType.CTA, 2],
+      [PublicHomeSectionType.PROYECTOS, 3],
+      [PublicHomeSectionType.HERO, 4],
+    ]);
+  });
+
+  it('uses type and content as deterministic tie-breakers and keeps one section per type', () => {
+    const response = new Subject<PublicHomeResponse>();
+    api.response$ = response;
+    facade.load();
+    response.next({
+      ...homeResponse,
+      secciones: [
+        { ...heroSection, titulo: 'Zulu duplicado', orden: 0 },
+        { ...projectsSection, orden: 0 },
+        { ...ctaSection, orden: 0 },
+        { ...heroSection, titulo: 'Alpha elegido', orden: 0 },
+      ],
+    });
+    response.complete();
+
+    expect(facade.orderedSections().map((section) => section.tipo)).toEqual([
+      PublicHomeSectionType.CTA,
+      PublicHomeSectionType.HERO,
+      PublicHomeSectionType.PROYECTOS,
+    ]);
+    expect(facade.hero()?.title).toBe('Alpha elegido');
+    expect(facade.orderedSections().filter((section) => section.tipo === 'HERO')).toHaveLength(1);
+  });
+
+  it('exposes no commercial sections while loading', () => {
+    facade.load();
+
+    expect(facade.loading()).toBe(true);
+    expect(facade.orderedSections()).toEqual([]);
+    expect(facade.hero()).toBeNull();
+    expect(facade.services()).toEqual([]);
+    expect(facade.featuredBusinessUnit()).toBeNull();
+    expect(facade.projects()).toEqual([]);
+    expect(facade.ctaCopy()).toBeNull();
+  });
+
+  it('exposes an error without restoring transitional commercial fallbacks', () => {
     api.response$ = throwError(() => new Error('offline'));
     facade.load();
 
     expect(facade.loading()).toBe(false);
-    expect(facade.error()).toContain('versión local');
-    expect(facade.hero()).toEqual(HOME_HERO_FALLBACK.content);
-    expect(facade.heroScenes()).toEqual(HOME_HERO_FALLBACK.scenes);
-    expect(facade.heroActions()).toEqual(HOME_HERO_FALLBACK.actions);
-    expect(facade.servicesHeader()).toEqual(HOME_SERVICES_FALLBACK.header);
-    expect(facade.services()).toEqual(HOME_SERVICES_FALLBACK.services);
-    expect(facade.showServices()).toBe(true);
-    expect(facade.businessUnitSection()).toEqual(HOME_BUSINESS_UNIT_FALLBACK.section);
-    expect(facade.featuredBusinessUnit()).toEqual(HOME_BUSINESS_UNIT_FALLBACK.unit);
-    expect(facade.businessUnitWebUrl()).toBe('/isadecor');
-    expect(facade.businessUnitCatalogUrl()).toBe('/isadecor/catalogo');
-    expect(facade.showBusinessUnit()).toBe(true);
-    expect(facade.projectsSection()).toEqual(HOME_PROJECTS_FALLBACK.section);
-    expect(facade.projectsHeader()).toEqual(HOME_PROJECTS_FALLBACK.header);
-    expect(facade.projectsAction()).toEqual(HOME_PROJECTS_FALLBACK.action);
-    expect(facade.projects()).toEqual(HOME_PROJECTS_FALLBACK.projects);
-    expect(facade.showProjects()).toBe(true);
-    expect(facade.ctaCopy()).toEqual(HOME_CTA_FALLBACK.copy);
-    expect(facade.ctaBackground()).toBe(HOME_CTA_FALLBACK.backgroundUrl);
-    expect(facade.ctaAction()).toEqual(HOME_CTA_FALLBACK.action);
-    expect(facade.showCta()).toBe(true);
+    expect(facade.error()).toContain('No pudimos cargar');
+    expect(facade.orderedSections()).toEqual([]);
+    expect(facade.hero()).toBeNull();
+    expect(facade.heroScenes()).toEqual([]);
+    expect(facade.heroActions()).toEqual([]);
+    expect(facade.services()).toEqual([]);
+    expect(facade.showServices()).toBe(false);
+    expect(facade.featuredBusinessUnit()).toBeNull();
+    expect(facade.showBusinessUnit()).toBe(false);
+    expect(facade.projects()).toEqual([]);
+    expect(facade.showProjects()).toBe(false);
+    expect(facade.ctaCopy()).toBeNull();
+    expect(facade.ctaAction()).toBeNull();
+    expect(facade.showCta()).toBe(false);
   });
 });

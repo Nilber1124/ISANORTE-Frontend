@@ -7,35 +7,34 @@ import {
   PublicBusinessUnitResourceType,
   PublicHomeAction,
   PublicHomeResponse,
+  PublicHomeSection,
   PublicHomeSectionType,
 } from '../../../data/models/public-content/public-home.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { CinematicScene } from '../../../shared/components/cinematic-tour/cinematic-tour';
-import { HOME_HERO_FALLBACK, HeroActionViewData, HeroViewData } from './home-hero-fallback';
 import {
-  BUSINESS_UNIT_WEB_CATALOG_LABEL,
-  HOME_BUSINESS_UNIT_FALLBACK,
-} from './home-business-unit-fallback';
-import {
-  HOME_SERVICES_FALLBACK,
-  HomeServiceActionView,
-  HomeServiceCardView,
-  HomeServicesHeaderView,
-  LEGACY_HOME_SERVICE_CARD_LINK,
-} from './home-services-fallback';
-import {
-  HOME_PROJECTS_FALLBACK,
+  HeroActionViewData,
+  HeroViewData,
+  HomeBusinessUnitActionView,
+  HomeCtaActionView,
+  HomeCtaCopyView,
   HomeProjectCardView,
   HomeProjectsActionView,
   HomeProjectsHeaderView,
+  HomeServiceActionView,
+  HomeServiceCardView,
+  HomeServicesHeaderView,
   PUBLIC_PROJECTS_PATH,
-} from './home-projects-fallback';
-import { HOME_CTA_FALLBACK, HomeCtaActionView, HomeCtaCopyView } from './home-cta-fallback';
+  PUBLIC_SERVICES_PATH,
+} from './home-view.model';
 
-export interface HomeBusinessUnitActionView {
-  label: string;
-  url: string;
-}
+const SUPPORTED_HOME_SECTION_TYPES = new Set<PublicHomeSectionType>([
+  PublicHomeSectionType.HERO,
+  PublicHomeSectionType.SERVICIOS,
+  PublicHomeSectionType.UNIDAD_NEGOCIO,
+  PublicHomeSectionType.PROYECTOS,
+  PublicHomeSectionType.CTA,
+]);
 
 @Injectable()
 export class PublicHomeFacade {
@@ -50,90 +49,78 @@ export class PublicHomeFacade {
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
 
-  readonly heroSection = computed(
-    () =>
-      this._home()?.secciones.find((section) => section.tipo === PublicHomeSectionType.HERO) ??
-      null,
-  );
+  /**
+   * Renderer cerrado de Home: ignora tipos legacy, ordena defensivamente y
+   * conserva una sola sección por tipo. El contrato público no expone el ID,
+   * por lo que la firma de contenido es el último desempate determinista.
+   */
+  readonly orderedSections = computed<readonly PublicHomeSection[]>(() => {
+    const sections = this._home()?.secciones ?? [];
+    const seenTypes = new Set<PublicHomeSectionType>();
+
+    return [...sections]
+      .filter((section) => SUPPORTED_HOME_SECTION_TYPES.has(section.tipo))
+      .sort(
+        (left, right) =>
+          left.orden - right.orden ||
+          left.tipo.localeCompare(right.tipo) ||
+          this.sectionContentKey(left).localeCompare(this.sectionContentKey(right)),
+      )
+      .filter((section) => {
+        if (seenTypes.has(section.tipo)) return false;
+        seenTypes.add(section.tipo);
+        return true;
+      });
+  });
+
+  readonly heroSection = computed(() => this.sectionByType(PublicHomeSectionType.HERO));
 
   readonly hero = computed<HeroViewData | null>(() => {
-    const home = this._home();
-    if (home === null) return HOME_HERO_FALLBACK.content;
-
     const section = this.heroSection();
-    if (section === null) return null;
-
-    return {
-      tag: section.etiqueta ?? '',
-      title: section.titulo ?? '',
-      subtitle: section.subtitulo ?? '',
-    };
+    return section
+      ? {
+          tag: section.etiqueta ?? '',
+          title: section.titulo ?? '',
+          subtitle: section.subtitulo ?? '',
+        }
+      : null;
   });
 
   readonly heroScenes = computed<readonly CinematicScene[]>(() => {
-    const home = this._home();
-    if (home === null) return HOME_HERO_FALLBACK.scenes;
-
     const section = this.heroSection();
     if (section === null) return [];
 
     return [...section.escenas]
-      .sort((left, right) => left.orden - right.orden)
+      .sort(
+        (left, right) => left.orden - right.orden || left.imagenUrl.localeCompare(right.imagenUrl),
+      )
       .map((scene, index) => ({
         id: `hero-scene-${scene.orden}-${index}`,
         imageUrl: scene.imagenUrl,
       }));
   });
 
-  readonly heroActions = computed<readonly HeroActionViewData[]>(() => {
-    const home = this._home();
-    if (home === null) return HOME_HERO_FALLBACK.actions;
-
-    const section = this.heroSection();
-    if (section === null) return [];
-
-    return [...section.acciones]
-      .sort((left, right) => left.orden - right.orden)
+  readonly heroActions = computed<readonly HeroActionViewData[]>(() =>
+    this.orderedActions(this.heroSection()?.acciones ?? [])
       .slice(0, 2)
-      .map((action) => ({ label: action.texto, url: action.enlace, order: action.orden }));
-  });
-
-  readonly servicesSection = computed(
-    () =>
-      this._home()?.secciones.find((section) => section.tipo === PublicHomeSectionType.SERVICIOS) ??
-      null,
+      .map((action) => ({ label: action.texto, url: action.enlace, order: action.orden })),
   );
 
+  readonly servicesSection = computed(() => this.sectionByType(PublicHomeSectionType.SERVICIOS));
+
   readonly servicesHeader = computed<HomeServicesHeaderView | null>(() => {
-    const home = this._home();
-    if (home === null) return HOME_SERVICES_FALLBACK.header;
-
     const section = this.servicesSection();
-    if (section === null) return null;
-
-    return {
-      eyebrow: section.etiqueta ?? '',
-      title: section.titulo ?? '',
-    };
+    return section ? { eyebrow: section.etiqueta ?? '', title: section.titulo ?? '' } : null;
   });
 
   readonly servicesAction = computed<HomeServiceActionView | null>(() => {
-    const home = this._home();
-    if (home === null) return HOME_SERVICES_FALLBACK.action;
-
-    const section = this.servicesSection();
-    if (section === null) return null;
-
-    const action = [...section.acciones].sort((left, right) => left.orden - right.orden)[0];
+    const action = this.orderedActions(this.servicesSection()?.acciones ?? [])[0];
     return action ? { label: action.texto, url: action.enlace, order: action.orden } : null;
   });
 
-  readonly services = computed<readonly HomeServiceCardView[]>(() => {
-    const home = this._home();
-    if (home === null) return HOME_SERVICES_FALLBACK.services;
-
-    return [...home.servicios]
-      .sort((left, right) => left.orden - right.orden)
+  readonly services = computed<readonly HomeServiceCardView[]>(() =>
+    [...(this._home()?.servicios ?? [])]
+      .sort((left, right) => left.orden - right.orden || left.slug.localeCompare(right.slug))
       .map((service) => ({
         id: service.slug,
         slug: service.slug,
@@ -141,43 +128,27 @@ export class PublicHomeFacade {
         summary: service.resumen ?? '',
         imageUrl: service.imagenUrl,
         imageAlt: service.imagenAlt,
-        linkUrl: LEGACY_HOME_SERVICE_CARD_LINK,
+        linkUrl: PUBLIC_SERVICES_PATH,
         order: service.orden,
-      }));
-  });
+      })),
+  );
 
   readonly showServices = computed(
-    () => this.servicesHeader() !== null && this.services().length > 0,
+    () => this.servicesSection() !== null && this.services().length > 0,
   );
 
-  private readonly useBusinessUnitFallback = computed(
-    () => this._home() === null && this._error() !== null,
+  readonly businessUnitSection = computed(() =>
+    this.sectionByType(PublicHomeSectionType.UNIDAD_NEGOCIO),
   );
 
-  readonly businessUnitSection = computed(() => {
-    const home = this._home();
-    if (home === null) {
-      return this.useBusinessUnitFallback() ? HOME_BUSINESS_UNIT_FALLBACK.section : null;
-    }
-
-    return (
-      home.secciones.find((section) => section.tipo === PublicHomeSectionType.UNIDAD_NEGOCIO) ??
-      null
-    );
-  });
-
-  readonly featuredBusinessUnit = computed(() => {
-    const home = this._home();
-    if (home === null) {
-      return this.useBusinessUnitFallback() ? HOME_BUSINESS_UNIT_FALLBACK.unit : null;
-    }
-
-    return home.unidadDestacada;
-  });
+  readonly featuredBusinessUnit = computed(() => this._home()?.unidadDestacada ?? null);
 
   private readonly orderedBusinessUnitResources = computed(() =>
     [...(this.featuredBusinessUnit()?.recursos ?? [])].sort(
-      (left, right) => left.orden - right.orden,
+      (left, right) =>
+        left.orden - right.orden ||
+        left.tipo.localeCompare(right.tipo) ||
+        left.url.localeCompare(right.url),
     ),
   );
 
@@ -202,9 +173,7 @@ export class PublicHomeFacade {
   );
 
   readonly businessUnitActions = computed<readonly PublicHomeAction[]>(() =>
-    [...(this.businessUnitSection()?.acciones ?? [])].sort(
-      (left, right) => left.orden - right.orden,
-    ),
+    this.orderedActions(this.businessUnitSection()?.acciones ?? []),
   );
 
   readonly businessUnitWebUrl = computed(() => {
@@ -225,76 +194,33 @@ export class PublicHomeFacade {
 
   readonly businessUnitCatalogAction = computed<HomeBusinessUnitActionView | null>(() => {
     const url = this.businessUnitCatalogUrl();
-    if (url === null) return null;
-
     const action = this.businessUnitActions()[1];
-    const isDownloadAction = action ? /descargar|pdf/i.test(action.texto) : false;
-    return {
-      label: action && !isDownloadAction ? action.texto : BUSINESS_UNIT_WEB_CATALOG_LABEL,
-      url,
-    };
+    return url && action ? { label: action.texto, url } : null;
   });
 
   readonly showBusinessUnit = computed(
     () => this.businessUnitSection() !== null && this.featuredBusinessUnit() !== null,
   );
 
-  private readonly useProjectsFallback = computed(
-    () => this._home() === null && this._error() !== null,
-  );
-
-  readonly projectsSection = computed(() => {
-    const home = this._home();
-    if (home === null) {
-      return this.useProjectsFallback() ? HOME_PROJECTS_FALLBACK.section : null;
-    }
-
-    return (
-      home.secciones.find((section) => section.tipo === PublicHomeSectionType.PROYECTOS) ?? null
-    );
-  });
+  readonly projectsSection = computed(() => this.sectionByType(PublicHomeSectionType.PROYECTOS));
 
   readonly projectsHeader = computed<HomeProjectsHeaderView | null>(() => {
     const section = this.projectsSection();
-    if (section === null) return null;
-    if (this.useProjectsFallback()) return HOME_PROJECTS_FALLBACK.header;
-
-    return {
-      eyebrow: section.etiqueta ?? '',
-      title: section.titulo ?? '',
-    };
+    return section ? { eyebrow: section.etiqueta ?? '', title: section.titulo ?? '' } : null;
   });
 
   readonly projectsAction = computed<HomeProjectsActionView | null>(() => {
-    if (this.useProjectsFallback()) return HOME_PROJECTS_FALLBACK.action;
-
-    const section = this.projectsSection();
-    if (section === null) return null;
-
-    const action = [...section.acciones].sort((left, right) => left.orden - right.orden)[0];
+    const action = this.orderedActions(this.projectsSection()?.acciones ?? [])[0];
     return action ? { label: action.texto, url: PUBLIC_PROJECTS_PATH, order: action.orden } : null;
   });
 
-  readonly projects = computed<readonly HomeProjectCardView[]>(() => {
-    const home = this._home();
-    if (home === null) {
-      return this.useProjectsFallback() ? HOME_PROJECTS_FALLBACK.projects : [];
-    }
-
-    return home.proyectos
-      .map((project, sourceIndex) => ({ project, sourceIndex }))
-      .sort(
-        (left, right) =>
-          left.project.orden - right.project.orden || left.sourceIndex - right.sourceIndex,
-      )
-      .map(({ project }) => {
-        const images = project.imagenes
-          .map((image, sourceIndex) => ({ image, sourceIndex }))
-          .sort(
-            (left, right) =>
-              left.image.orden - right.image.orden || left.sourceIndex - right.sourceIndex,
-          )
-          .map(({ image }) => image);
+  readonly projects = computed<readonly HomeProjectCardView[]>(() =>
+    [...(this._home()?.proyectos ?? [])]
+      .sort((left, right) => left.orden - right.orden || left.slug.localeCompare(right.slug))
+      .map((project) => {
+        const images = [...project.imagenes].sort(
+          (left, right) => left.orden - right.orden || left.url.localeCompare(right.url),
+        );
         const image = images.find((candidate) => candidate.esPrincipal) ?? images[0] ?? null;
         const location = this.optionalText(project.ubicacion);
         const dateLabel = this.projectDateLabel(project.fechaProyecto);
@@ -312,43 +238,30 @@ export class PublicHomeFacade {
           imageAlt: image?.alt ?? null,
           order: project.orden,
         };
-      });
-  });
+      }),
+  );
 
   readonly showProjects = computed(
-    () => this.projectsHeader() !== null && this.projects().length > 0,
+    () => this.projectsSection() !== null && this.projects().length > 0,
   );
 
-  readonly ctaSection = computed(
-    () =>
-      this._home()?.secciones.find((section) => section.tipo === PublicHomeSectionType.CTA) ?? null,
-  );
+  readonly ctaSection = computed(() => this.sectionByType(PublicHomeSectionType.CTA));
 
   readonly ctaCopy = computed<HomeCtaCopyView | null>(() => {
-    if (this._home() === null) return HOME_CTA_FALLBACK.copy;
-
     const section = this.ctaSection();
-    if (section === null) return null;
-
-    return {
-      title: section.titulo ?? '',
-      // El baseline migrado y el diseño actual corresponden la descripción con `contenido`.
-      description: section.contenido ?? '',
-    };
+    return section
+      ? {
+          title: section.titulo ?? '',
+          // La jerarquía visual migrada corresponde la descripción con `contenido`.
+          description: section.contenido ?? '',
+        }
+      : null;
   });
 
-  readonly ctaBackground = computed<string | null>(() => {
-    if (this._home() === null) return HOME_CTA_FALLBACK.backgroundUrl;
-    return this.ctaSection()?.imagenUrl ?? null;
-  });
+  readonly ctaBackground = computed(() => this.ctaSection()?.imagenUrl ?? null);
 
   readonly ctaAction = computed<HomeCtaActionView | null>(() => {
-    if (this._home() === null) return HOME_CTA_FALLBACK.action;
-
-    const section = this.ctaSection();
-    if (section === null) return null;
-
-    const action = [...section.acciones].sort((left, right) => left.orden - right.orden)[0];
+    const action = this.orderedActions(this.ctaSection()?.acciones ?? [])[0];
     if (!action) return null;
 
     return {
@@ -359,7 +272,7 @@ export class PublicHomeFacade {
     };
   });
 
-  readonly showCta = computed(() => this._home() === null || this.ctaSection() !== null);
+  readonly showCta = computed(() => this.ctaSection() !== null);
 
   load(): void {
     if (this.requestInFlight) return;
@@ -380,11 +293,47 @@ export class PublicHomeFacade {
       .subscribe({
         next: (home) => this._home.set(home),
         error: () => {
-          this._error.set(
-            'No pudimos cargar el contenido actualizado. Mostramos temporalmente la versión local.',
-          );
+          this._home.set(null);
+          this._error.set('No pudimos cargar el contenido de la página de inicio.');
         },
       });
+  }
+
+  private sectionByType(type: PublicHomeSectionType): PublicHomeSection | null {
+    return this.orderedSections().find((section) => section.tipo === type) ?? null;
+  }
+
+  private orderedActions(actions: readonly PublicHomeAction[]): PublicHomeAction[] {
+    return [...actions].sort(
+      (left, right) =>
+        left.orden - right.orden ||
+        left.texto.localeCompare(right.texto) ||
+        left.enlace.localeCompare(right.enlace),
+    );
+  }
+
+  private sectionContentKey(section: PublicHomeSection): string {
+    return [
+      section.etiqueta,
+      section.titulo,
+      section.subtitulo,
+      section.contenido,
+      section.imagenUrl,
+      section.imagenAlt,
+      section.textoBoton,
+      section.enlaceBoton,
+      JSON.stringify(
+        [...section.escenas].sort(
+          (left, right) =>
+            left.orden - right.orden ||
+            left.imagenUrl.localeCompare(right.imagenUrl) ||
+            (left.alt ?? '').localeCompare(right.alt ?? ''),
+        ),
+      ),
+      JSON.stringify(this.orderedActions(section.acciones)),
+    ]
+      .map((value) => value ?? '')
+      .join('\u0000');
   }
 
   private optionalText(value: string | null): string | null {
