@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 
 import { CompanyCreateRequest } from '../../../../../data/models/company/company-create-request.model';
 import { CompanyResponse } from '../../../../../data/models/company/company-response.model';
@@ -8,6 +8,9 @@ import { InputField } from '../../../../../shared/components/input-field/input-f
 import { Modal } from '../../../../../shared/components/modal/modal';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 import { CompanyFormMode } from '../../admin-company.facade';
+
+export type CompanySection = 'legal' | 'contacto' | 'nosotros';
+export type CompanyTab = CompanySection;
 
 export interface CompanyFormSubmission {
   mode: CompanyFormMode;
@@ -23,10 +26,46 @@ export interface CompanyFormSubmission {
 export class CompanyForm {
   readonly mode = input.required<CompanyFormMode>();
   readonly initialData = input<CompanyResponse | null>(null);
+  readonly section = input<CompanySection>('legal');
+  readonly initialTab = input<CompanySection>('legal');
+  readonly showLegalTab = input<boolean>(true);
+  readonly onlyAbout = input<boolean>(false);
   readonly submitting = input<boolean>(false);
   
   readonly saved = output<CompanyFormSubmission>();
   readonly canceled = output<void>();
+
+  readonly activeSection = computed(() => this.section() || this.initialTab() || 'legal');
+
+  readonly modalTitle = computed(() => {
+    if (this.mode() === 'create') return 'Nueva empresa';
+    switch (this.activeSection()) {
+      case 'legal':
+        return 'Editar identidad & datos fiscales';
+      case 'contacto':
+        return 'Editar ubicación & canales de contacto';
+      case 'nosotros':
+      default:
+        return this.onlyAbout() ? 'Editar textos de Nosotros' : 'Editar filosofía corporativa';
+    }
+  });
+
+  readonly modalDescription = computed(() => {
+    if (this.mode() === 'create') {
+      return 'Ingresa los datos requeridos para registrar la empresa.';
+    }
+    switch (this.activeSection()) {
+      case 'legal':
+        return 'Razón social, nombre comercial y RUC registrados ante la entidad tributaria.';
+      case 'contacto':
+        return 'Canales de atención, teléfonos, correo electrónico y dirección física.';
+      case 'nosotros':
+      default:
+        return this.onlyAbout()
+          ? 'Resumen de presentación, misión, visión y valores para la web pública.'
+          : 'Resumen institucional, misión, visión y valores corporativos.';
+    }
+  });
 
   readonly razonSocial = signal('');
   readonly nombreComercial = signal('');
@@ -47,6 +86,9 @@ export class CompanyForm {
   readonly razonSocialError = signal<string | undefined>(undefined);
   readonly nombreComercialError = signal<string | undefined>(undefined);
   readonly rucError = signal<string | undefined>(undefined);
+
+  readonly hasLegalError = () =>
+    !!this.razonSocialError() || !!this.nombreComercialError() || !!this.rucError();
 
   constructor() {
     effect(() => {
@@ -70,7 +112,6 @@ export class CompanyForm {
       } else {
         this.reset();
       }
-      this.clearErrors();
     });
   }
 
@@ -78,21 +119,23 @@ export class CompanyForm {
     if (this.submitting()) return;
     this.clearErrors();
     
-    let hasError = false;
-    if (!this.razonSocial().trim()) {
-      this.razonSocialError.set('La razón social es obligatoria.');
-      hasError = true;
+    // Solo validar campos legales requeridos si estamos editando esa sección o creando una empresa nueva
+    if (this.activeSection() === 'legal' || this.mode() === 'create') {
+      let hasError = false;
+      if (!this.razonSocial().trim()) {
+        this.razonSocialError.set('La razón social es obligatoria.');
+        hasError = true;
+      }
+      if (!this.nombreComercial().trim()) {
+        this.nombreComercialError.set('El nombre comercial es obligatorio.');
+        hasError = true;
+      }
+      if (!this.ruc().trim()) {
+        this.rucError.set('El RUC es obligatorio.');
+        hasError = true;
+      }
+      if (hasError) return;
     }
-    if (!this.nombreComercial().trim()) {
-      this.nombreComercialError.set('El nombre comercial es obligatorio.');
-      hasError = true;
-    }
-    if (!this.ruc().trim()) {
-      this.rucError.set('El RUC es obligatorio.');
-      hasError = true;
-    }
-    
-    if (hasError) return;
 
     const request: CompanyCreateRequest | CompanyUpdateRequest = {
       razonSocial: this.razonSocial().trim(),

@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { LandingSectionResponse } from '../../../data/models/landing-section/landing-section-response.model';
@@ -83,9 +84,18 @@ describe('AdminLanding', () => {
     await TestBed.configureTestingModule({
       imports: [AdminLanding],
       providers: [
+        provideHttpClient(),
+        provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { queryParams: of({}) },
+          useValue: {
+            snapshot: {
+              queryParamMap: {
+                get: (key: string) => null,
+              },
+            },
+            queryParams: of({}),
+          },
         },
       ],
     })
@@ -103,6 +113,13 @@ describe('AdminLanding', () => {
   it('debe crearse correctamente', () => {
     fixture.detectChanges();
     expect(component).toBeTruthy();
+  });
+
+  it('debe tener la pestaña de secciones activa por defecto y mostrar las 6 pestañas', () => {
+    fixture.detectChanges();
+    expect(component.activeTab()).toBe('secciones');
+    const tabs = fixture.nativeElement.querySelectorAll('button[role="tab"]');
+    expect(tabs.length).toBe(6);
   });
 
   it('debe mostrar mensaje de falta de configuración', () => {
@@ -134,4 +151,15 @@ describe('AdminLanding', () => {
     expect(text).toContain('PERSONALIZADA');
     expect(text).toContain('Oculta');
   });
+
+  it('debe permitir cambiar de pestaña', () => {
+    fixture.detectChanges();
+    const tabs = fixture.nativeElement.querySelectorAll('button[role="tab"]');
+    tabs[1].click();
+    fixture.detectChanges();
+
+    expect(component.activeTab()).toBe('nosotros');
+    expect(fixture.nativeElement.querySelector('#panel-nosotros')).toBeTruthy();
+  });
 });
+

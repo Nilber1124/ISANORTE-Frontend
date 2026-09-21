@@ -5,6 +5,12 @@ export interface AdminNavigationItem {
   label: string;
   route: string;
   exact?: boolean;
+  badge?: string;
+}
+
+export interface AdminNavigationGroup {
+  title: string;
+  items: readonly AdminNavigationItem[];
 }
 
 @Component({
@@ -17,18 +23,34 @@ export class AdminSidebar {
   readonly open = input(false);
   readonly navigationSelected = output<void>();
 
-  readonly navigationItems: readonly AdminNavigationItem[] = [
-    { label: 'Dashboard', route: '/admin', exact: true },
-    { label: 'Categorías', route: '/admin/categorias' },
-    { label: 'Productos', route: '/admin/productos' },
-    { label: 'Cotizaciones', route: '/admin/cotizaciones' },
-    { label: 'Proyectos', route: '/admin/proyectos' },
-    { label: 'Servicios', route: '/admin/servicios' },
-    { label: 'Unidades de negocio', route: '/admin/unidades-negocio' },
-    { label: 'Empresa', route: '/admin/empresa' },
-    { label: 'Landing', route: '/admin/landing' },
-    { label: 'Contenido', route: '/admin/contenido' },
-    { label: 'Contacto', route: '/admin/contacto' },
-    { label: 'Configuración', route: '/admin/configuracion' },
+  readonly navigationGroups: readonly AdminNavigationGroup[] = [
+    {
+      title: 'Principal',
+      items: [{ label: 'Dashboard', route: '/admin', exact: true }],
+    },
+    {
+      title: 'Web ISANORTE',
+      items: [{ label: 'Landing', route: '/admin/landing', badge: 'Hub' }],
+    },
+    {
+      title: 'Tienda ISADECOR',
+      items: [
+        { label: 'Categorías', route: '/admin/categorias' },
+        { label: 'Productos', route: '/admin/productos' },
+        { label: 'Cotizaciones', route: '/admin/cotizaciones' },
+      ],
+    },
+    {
+      title: 'Configuración',
+      items: [
+        { label: 'Empresa', route: '/admin/empresa' },
+        { label: 'Unidades de negocio', route: '/admin/unidades-negocio' },
+        { label: 'Configuración', route: '/admin/configuracion' },
+      ],
+    },
   ];
+
+  readonly navigationItems: readonly AdminNavigationItem[] = this.navigationGroups.flatMap(
+    (group) => group.items,
+  );
 }

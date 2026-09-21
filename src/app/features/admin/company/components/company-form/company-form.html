@@ -1,119 +1,157 @@
 <app-modal
   modalId="company-form-modal"
-  [title]="mode() === 'create' ? 'Nueva empresa' : 'Editar empresa'"
-  description="Completa los datos corporativos de la empresa."
-  size="large"
+  [title]="modalTitle()"
+  [description]="modalDescription()"
+  size="medium"
   [open]="true"
   [loading]="submitting()"
   (closed)="canceled.emit()"
 >
   <form id="company-form" (submit)="submit(); $event.preventDefault()" novalidate>
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <app-input-field
-        inputId="company-razon-social"
-        label="Razón social"
-        [(value)]="razonSocial"
-        [error]="razonSocialError()"
-        [disabled]="submitting()"
-        required
-      />
-      <app-input-field
-        inputId="company-nombre-comercial"
-        label="Nombre comercial"
-        [(value)]="nombreComercial"
-        [error]="nombreComercialError()"
-        [disabled]="submitting()"
-        required
-      />
-      <app-input-field
-        inputId="company-ruc"
-        label="RUC"
-        [(value)]="ruc"
-        [error]="rucError()"
-        [disabled]="submitting()"
-        required
-      />
-      
-      <app-input-field
-        inputId="company-direccion"
-        label="Dirección"
-        [(value)]="direccion"
-        [disabled]="submitting()"
-      />
-      <app-input-field
-        inputId="company-ciudad"
-        label="Ciudad"
-        [(value)]="ciudad"
-        [disabled]="submitting()"
-      />
-      
-      <app-input-field
-        inputId="company-telefono"
-        label="Teléfono"
-        [(value)]="telefono"
-        [disabled]="submitting()"
-      />
-      <app-input-field
-        inputId="company-telefono-sec"
-        label="Teléfono secundario"
-        [(value)]="telefonoSecundario"
-        [disabled]="submitting()"
-      />
-      <app-input-field
-        inputId="company-whatsapp"
-        label="WhatsApp"
-        [(value)]="whatsapp"
-        [disabled]="submitting()"
-      />
-      <app-input-field
-        inputId="company-horario"
-        label="Horario de atención"
-        [(value)]="horarioAtencion"
-        [disabled]="submitting()"
-      />
+    @switch (activeSection()) {
+      @case ('nosotros') {
+        <div class="space-y-4">
+          <p class="text-caption text-text-muted">
+            Textos editoriales visibles en la sección Nosotros de la web pública.
+          </p>
+          <app-textarea-field
+            inputId="company-resumen"
+            label="Resumen Nosotros (Presentación)"
+            helperText="Párrafo principal sobre la empresa que se muestra en la web."
+            [(value)]="resumenNosotros"
+            [disabled]="submitting()"
+            [rows]="3"
+          />
+          <div class="grid gap-4 sm:grid-cols-2">
+            <app-textarea-field
+              inputId="company-mision"
+              label="Misión"
+              [(value)]="mision"
+              [disabled]="submitting()"
+              [rows]="3"
+            />
+            <app-textarea-field
+              inputId="company-vision"
+              label="Visión"
+              [(value)]="vision"
+              [disabled]="submitting()"
+              [rows]="3"
+            />
+          </div>
+          <app-textarea-field
+            inputId="company-valores"
+            label="Valores corporativos"
+            helperText="Principios y valores que rigen a la empresa."
+            [(value)]="valores"
+            [disabled]="submitting()"
+            [rows]="2"
+          />
+        </div>
+      }
 
-      <app-input-field
-        inputId="company-email"
-        type="email"
-        label="Email"
-        [(value)]="email"
-        [disabled]="submitting()"
-      />
-      <app-input-field
-        inputId="company-email-ventas"
-        type="email"
-        label="Email de ventas"
-        [(value)]="emailVentas"
-        [disabled]="submitting()"
-      />
-    </div>
+      @case ('contacto') {
+        <div class="space-y-4">
+          <p class="text-caption text-text-muted">
+            Canales de comunicación oficiales que se muestran en el pie de página y sección de contacto.
+          </p>
+          <div class="grid gap-4 sm:grid-cols-3">
+            <app-input-field
+              inputId="company-telefono"
+              label="Teléfono principal"
+              [(value)]="telefono"
+              [disabled]="submitting()"
+            />
+            <app-input-field
+              inputId="company-telefono-sec"
+              label="Teléfono secundario"
+              [(value)]="telefonoSecundario"
+              [disabled]="submitting()"
+            />
+            <app-input-field
+              inputId="company-whatsapp"
+              label="WhatsApp"
+              [(value)]="whatsapp"
+              [disabled]="submitting()"
+            />
+          </div>
 
-    <div class="mt-6 grid gap-4 lg:grid-cols-2">
-      <app-textarea-field
-        inputId="company-resumen"
-        label="Resumen Nosotros"
-        [(value)]="resumenNosotros"
-        [disabled]="submitting()"
-      />
-      <app-textarea-field
-        inputId="company-mision"
-        label="Misión"
-        [(value)]="mision"
-        [disabled]="submitting()"
-      />
-      <app-textarea-field
-        inputId="company-vision"
-        label="Visión"
-        [(value)]="vision"
-        [disabled]="submitting()"
-      />
-      <app-textarea-field
-        inputId="company-valores"
-        label="Valores"
-        [(value)]="valores"
-        [disabled]="submitting()"
-      />
-    </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <app-input-field
+              inputId="company-email"
+              type="email"
+              label="Email general"
+              [(value)]="email"
+              [disabled]="submitting()"
+            />
+            <app-input-field
+              inputId="company-email-ventas"
+              type="email"
+              label="Email de ventas"
+              [(value)]="emailVentas"
+              [disabled]="submitting()"
+            />
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div class="sm:col-span-2">
+              <app-input-field
+                inputId="company-direccion"
+                label="Dirección"
+                [(value)]="direccion"
+                [disabled]="submitting()"
+              />
+            </div>
+            <app-input-field
+              inputId="company-ciudad"
+              label="Ciudad"
+              [(value)]="ciudad"
+              [disabled]="submitting()"
+            />
+          </div>
+
+          <app-input-field
+            inputId="company-horario"
+            label="Horario de atención"
+            [(value)]="horarioAtencion"
+            [disabled]="submitting()"
+          />
+        </div>
+      }
+
+      @case ('legal') {
+        <div class="space-y-4">
+          <p class="text-caption text-text-muted">
+            Información fiscal y legal de la personería jurídica.
+          </p>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <app-input-field
+              inputId="company-razon-social"
+              label="Razón social"
+              [(value)]="razonSocial"
+              [error]="razonSocialError()"
+              [disabled]="submitting()"
+              required
+            />
+            <app-input-field
+              inputId="company-nombre-comercial"
+              label="Nombre comercial"
+              [(value)]="nombreComercial"
+              [error]="nombreComercialError()"
+              [disabled]="submitting()"
+              required
+            />
+          </div>
+          <app-input-field
+            inputId="company-ruc"
+            label="RUC"
+            [(value)]="ruc"
+            [error]="rucError()"
+            [disabled]="submitting()"
+            required
+          />
+        </div>
+      }
+    }
   </form>
 
   <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -130,7 +168,7 @@
       [disabled]="submitting()"
       (click)="submit()"
     >
-      {{ mode() === 'create' ? 'Registrar' : 'Guardar' }}
+      {{ mode() === 'create' ? 'Registrar' : 'Guardar cambios' }}
     </app-button>
   </div>
 </app-modal>

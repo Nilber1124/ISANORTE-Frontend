@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, afterNextRender, inject, input, signal } from '@angular/core';
 
 import {
   CompanyResponse,
@@ -11,7 +11,7 @@ import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../shared/components/loading/loading';
 import { Modal } from '../../../shared/components/modal/modal';
 import { AdminCompanyFacade } from './admin-company.facade';
-import { CompanyForm, CompanyFormSubmission } from './components/company-form/company-form';
+import { CompanyForm, CompanyFormSubmission, CompanyTab } from './components/company-form/company-form';
 import {
   SocialNetworkForm,
   SocialNetworkFormSubmission,
@@ -42,10 +42,18 @@ import {
 })
 export class AdminCompany {
   readonly facade = inject(AdminCompanyFacade);
+  readonly showLegalData = input(true);
+  readonly onlyAbout = input(false);
   readonly networkToDelete = signal<SocialNetworkResponse | null>(null);
+  readonly activeFormTab = signal<CompanyTab>('legal');
 
   constructor() {
     afterNextRender(() => this.facade.load());
+  }
+
+  protected openEditSection(tab: CompanyTab): void {
+    this.activeFormTab.set(tab);
+    this.facade.openCompanyEdit();
   }
 
   protected saveCompany(submission: CompanyFormSubmission): void {

@@ -1,8 +1,14 @@
-<header class="mb-8 flex items-center justify-between">
+<header class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
   <div>
-    <h1 class="text-h4 font-bold text-text-primary">Empresa</h1>
-    <p class="mt-1 text-body-sm text-text-secondary">
-      Gestiona la información corporativa y redes sociales.
+    <h2 class="text-heading-2 font-bold text-text-primary">
+      {{ onlyAbout() ? 'Nosotros' : 'Empresa' }}
+    </h2>
+    <p class="text-body-sm text-text-secondary">
+      {{
+        onlyAbout()
+          ? 'Configura la presentación editorial, misión, visión, valores y estadísticas que se presentan en la web.'
+          : 'Configura la identidad corporativa, misión, visión, canales de contacto y estadísticas que se presentan en la web.'
+      }}
     </p>
   </div>
 </header>
@@ -46,178 +52,321 @@
       }
     </div>
   } @else if (facade.company(); as company) {
-    <div class="grid items-start gap-6 lg:grid-cols-3">
-      <div class="space-y-6 lg:col-span-2">
-        <section class="rounded-card border border-border bg-surface p-5">
-          <div class="flex items-center justify-between border-b border-border pb-4">
-            <h2 class="text-subtitle font-semibold text-text-primary">Información general</h2>
-            <app-button variant="secondary" size="small" (click)="facade.openCompanyEdit()"
-              >Editar datos</app-button
-            >
-          </div>
-          <div class="grid gap-y-4 pt-4 sm:grid-cols-2">
+    <div class="space-y-6">
+      @if (onlyAbout()) {
+        <!-- Modo Landing: Solo contenido editorial de Nosotros y Estadísticas -->
+        <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4">
             <div>
-              <p class="text-caption font-medium text-text-muted">Razón social</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.razonSocial }}</p>
-            </div>
-            <div>
-              <p class="text-caption font-medium text-text-muted">Nombre comercial</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.nombreComercial }}</p>
-            </div>
-            <div>
-              <p class="text-caption font-medium text-text-muted">RUC</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.ruc }}</p>
-            </div>
-            <div>
-              <p class="text-caption font-medium text-text-muted">Horario de atención</p>
-              <p class="mt-1 text-body-sm text-text-primary">
-                {{ company.horarioAtencion || '-' }}
-              </p>
-            </div>
-          </div>
-        </section>
-        <section class="rounded-card border border-border bg-surface p-5">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-subtitle font-semibold text-text-primary">Estadísticas</h2>
-              <p class="mt-1 text-body-sm text-text-muted">
-                {{ (company.estadisticas ?? []).length }} registros. Ej.: +120 PROYECTOS ENTREGADOS.
-              </p>
-            </div>
-            <app-button variant="secondary" size="small" (click)="facade.openStatistics()"
-              >Administrar</app-button
-            >
-          </div>
-        </section>
-
-        <section class="rounded-card border border-border bg-surface p-5">
-          <h2 class="border-b border-border pb-4 text-subtitle font-semibold text-text-primary">
-            Contacto y Ubicación
-          </h2>
-          <div class="grid gap-y-4 pt-4 sm:grid-cols-2">
-            <div class="sm:col-span-2">
-              <p class="text-caption font-medium text-text-muted">Dirección</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.direccion || '-' }}</p>
-            </div>
-            <div>
-              <p class="text-caption font-medium text-text-muted">Ciudad</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.ciudad || '-' }}</p>
-            </div>
-            <div>
-              <p class="text-caption font-medium text-text-muted">Email</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.email || '-' }}</p>
-            </div>
-            <div>
-              <p class="text-caption font-medium text-text-muted">Email de ventas</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.emailVentas || '-' }}</p>
-            </div>
-            <div>
-              <p class="text-caption font-medium text-text-muted">Teléfono principal</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.telefono || '-' }}</p>
-            </div>
-            <div>
-              <p class="text-caption font-medium text-text-muted">Teléfono secundario</p>
-              <p class="mt-1 text-body-sm text-text-primary">
-                {{ company.telefonoSecundario || '-' }}
-              </p>
-            </div>
-            <div>
-              <p class="text-caption font-medium text-text-muted">WhatsApp</p>
-              <p class="mt-1 text-body-sm text-text-primary">{{ company.whatsapp || '-' }}</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="rounded-card border border-border bg-surface p-5">
-          <h2 class="border-b border-border pb-4 text-subtitle font-semibold text-text-primary">
-            Contenido corporativo
-          </h2>
-          <div class="space-y-4 pt-4">
-            <div>
-              <p class="text-caption font-medium text-text-muted">Resumen Nosotros</p>
-              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">
-                {{ company.resumenNosotros || '-' }}
-              </p>
-            </div>
-            <div class="border-t border-border pt-4">
-              <p class="text-caption font-medium text-text-muted">Misión</p>
-              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">
-                {{ company.mision || '-' }}
-              </p>
-            </div>
-            <div class="border-t border-border pt-4">
-              <p class="text-caption font-medium text-text-muted">Visión</p>
-              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">
-                {{ company.vision || '-' }}
-              </p>
-            </div>
-            <div class="border-t border-border pt-4">
-              <p class="text-caption font-medium text-text-muted">Valores</p>
-              <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-secondary">
-                {{ company.valores || '-' }}
-              </p>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="space-y-6">
-        <section class="rounded-card border border-border bg-surface p-5">
-          <div class="flex items-center justify-between border-b border-border pb-4">
-            <h2 class="text-subtitle font-semibold text-text-primary">Redes sociales</h2>
-            <app-button variant="secondary" size="small" (click)="facade.openSocialNetworkCreate()"
-              >Agregar</app-button
-            >
-          </div>
-
-          <div class="space-y-3 pt-4">
-            @for (net of sortedNetworks; track net.id) {
-              <div
-                class="flex items-center justify-between rounded-control border border-border p-3 transition-colors hover:border-primary/30"
-              >
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-2">
-                    <p
-                      class="truncate text-body-sm font-medium text-text-primary"
-                      [title]="net.nombre"
-                    >
-                      {{ net.nombre }}
-                    </p>
-                    @if (!net.activo) {
-                      <app-badge variant="neutral" class="shrink-0">Inactiva</app-badge>
-                    }
-                  </div>
-                  <p class="truncate text-caption text-text-muted" [title]="net.url">
-                    {{ net.url }}
-                  </p>
-                </div>
-                <div class="ml-3 flex shrink-0 gap-1">
-                  <button
-                    type="button"
-                    class="rounded p-1.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-primary"
-                    aria-label="Editar"
-                    (click)="facade.openSocialNetworkEdit(net)"
-                  >
-                    <span class="icon-[tabler--pencil] size-4"></span>
-                  </button>
-                  <button
-                    type="button"
-                    class="rounded p-1.5 text-text-muted transition-colors hover:bg-error/10 hover:text-error"
-                    aria-label="Eliminar"
-                    (click)="requestDeleteNetwork(net)"
-                  >
-                    <span class="icon-[tabler--trash] size-4"></span>
-                  </button>
-                </div>
+              <div class="flex items-center gap-2">
+                <span class="rounded bg-accent/15 px-2 py-0.5 text-caption font-bold uppercase tracking-wider text-accent">Página Pública</span>
+                <h3 class="text-subtitle font-bold text-text-primary">Contenido de "Nosotros"</h3>
               </div>
-            } @empty {
-              <p class="text-center text-body-sm text-text-muted">
-                No hay redes sociales registradas.
+              <p class="mt-1 text-caption text-text-muted">
+                Textos editoriales que ven los usuarios en la sección Nosotros de la web pública.
               </p>
+            </div>
+            <app-button variant="primary" size="small" (click)="openEditSection('nosotros')">
+              Editar textos web
+            </app-button>
+          </div>
+
+          <div class="mt-5 space-y-5">
+            <!-- Resumen Nosotros -->
+            <div class="rounded-control border border-border/80 bg-background-soft p-4">
+              <p class="text-caption font-semibold uppercase tracking-wider text-text-muted">Resumen Nosotros (Presentación)</p>
+              <p class="mt-2 whitespace-pre-wrap text-body text-text-primary leading-relaxed">
+                {{ company.resumenNosotros || 'Sin resumen registrado. Haz clic en "Editar textos web" para agregarlo.' }}
+              </p>
+            </div>
+
+            <!-- Misión y Visión -->
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="rounded-control border border-border p-4 bg-surface">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="size-2 rounded-full bg-accent"></span>
+                  <p class="text-caption font-semibold uppercase tracking-wider text-text-primary">Misión</p>
+                </div>
+                <p class="whitespace-pre-wrap text-body-sm text-text-secondary leading-relaxed">
+                  {{ company.mision || 'Sin misión registrada.' }}
+                </p>
+              </div>
+
+              <div class="rounded-control border border-border p-4 bg-surface">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="size-2 rounded-full bg-accent"></span>
+                  <p class="text-caption font-semibold uppercase tracking-wider text-text-primary">Visión</p>
+                </div>
+                <p class="whitespace-pre-wrap text-body-sm text-text-secondary leading-relaxed">
+                  {{ company.vision || 'Sin visión registrada.' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Valores -->
+            @if (company.valores) {
+              <div class="rounded-control border border-border p-4 bg-surface">
+                <p class="text-caption font-semibold uppercase tracking-wider text-text-muted mb-2">Valores Corporativos</p>
+                <p class="whitespace-pre-wrap text-body-sm text-text-secondary leading-relaxed">
+                  {{ company.valores }}
+                </p>
+              </div>
             }
           </div>
         </section>
-      </div>
+
+        <!-- Estadísticas de Impacto para Nosotros -->
+        <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="rounded bg-brand/10 px-2 py-0.5 text-caption font-bold uppercase tracking-wider text-text-primary">Métricas</span>
+                <h3 class="text-subtitle font-bold text-text-primary">Estadísticas de Impacto</h3>
+              </div>
+              <p class="mt-1 text-caption text-text-muted">
+                Cifras numéricas destacadas en la web para transmitir solidez y confianza.
+              </p>
+            </div>
+            <app-button variant="secondary" size="small" (click)="facade.openStatistics()">
+              Gestionar estadísticas
+            </app-button>
+          </div>
+
+          <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            @for (stat of company.estadisticas; track stat.id) {
+              <div class="rounded-control border border-border bg-background-soft p-4 text-center">
+                <p class="text-heading-2 font-bold text-accent">
+                  {{ stat.prefijo || '' }}{{ stat.valor }}{{ stat.sufijo || '' }}
+                </p>
+                <p class="mt-1 text-caption font-medium uppercase tracking-wider text-text-muted">
+                  {{ stat.etiqueta }}
+                </p>
+              </div>
+            } @empty {
+              <div class="col-span-full py-6 text-center text-body-sm text-text-muted">
+                No hay estadísticas registradas todavía. Haz clic en "Gestionar estadísticas" para agregar cifras como "+120 Proyectos", "15 Años", etc.
+              </div>
+            }
+          </div>
+        </section>
+      } @else {
+        <!-- Modo Empresa: Entidad Empresa según la API (/api/empresa) -->
+
+        <!-- 1. Identidad Corporativa & Datos Fiscales -->
+        <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="rounded bg-brand/10 px-2 py-0.5 text-caption font-bold uppercase tracking-wider text-text-primary">Entidad Legal</span>
+                <h3 class="text-subtitle font-bold text-text-primary">Identidad Corporativa & Datos Fiscales</h3>
+              </div>
+              <p class="mt-1 text-caption text-text-muted">
+                Razón social, nombre comercial y RUC registrados en la entidad tributaria.
+              </p>
+            </div>
+            <app-button variant="secondary" size="small" (click)="openEditSection('legal')">
+              Editar identidad
+            </app-button>
+          </div>
+
+          <div class="grid gap-y-4 pt-5 sm:grid-cols-3">
+            <div>
+              <p class="text-caption font-medium text-text-muted">Razón social</p>
+              <p class="mt-1 text-body font-semibold text-text-primary">{{ company.razonSocial }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Nombre comercial</p>
+              <p class="mt-1 text-body font-semibold text-text-primary">{{ company.nombreComercial }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">RUC</p>
+              <p class="mt-1 font-mono text-body font-semibold text-text-primary">{{ company.ruc }}</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Ubicación & Canales de Contacto -->
+        <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
+          <div class="flex items-center justify-between border-b border-border pb-4">
+            <div>
+              <h3 class="text-subtitle font-bold text-text-primary">Ubicación & Canales de Contacto</h3>
+              <p class="mt-0.5 text-caption text-text-muted">Canales oficiales de atención, comunicación y dirección de la empresa.</p>
+            </div>
+            <app-button variant="secondary" size="small" (click)="openEditSection('contacto')">
+              Editar contacto
+            </app-button>
+          </div>
+
+          <div class="grid gap-4 pt-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <p class="text-caption font-medium text-text-muted">Teléfono principal</p>
+              <p class="mt-1 text-body-sm font-medium text-text-primary">{{ company.telefono || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Teléfono secundario</p>
+              <p class="mt-1 text-body-sm font-medium text-text-primary">{{ company.telefonoSecundario || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">WhatsApp</p>
+              <p class="mt-1 text-body-sm font-medium text-text-primary">{{ company.whatsapp || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Email general</p>
+              <p class="mt-1 text-body-sm font-medium text-text-primary">{{ company.email || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Email de ventas</p>
+              <p class="mt-1 text-body-sm font-medium text-text-primary">{{ company.emailVentas || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-caption font-medium text-text-muted">Horario de atención</p>
+              <p class="mt-1 text-body-sm font-medium text-text-primary">{{ company.horarioAtencion || '-' }}</p>
+            </div>
+            <div class="sm:col-span-2 lg:col-span-3">
+              <p class="text-caption font-medium text-text-muted">Dirección física</p>
+              <p class="mt-1 text-body-sm font-medium text-text-primary">{{ company.direccion || '-' }}{{ company.ciudad ? ', ' + company.ciudad : '' }}</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Filosofía Corporativa -->
+        <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
+          <div class="flex items-center justify-between border-b border-border pb-4">
+            <div>
+              <h3 class="text-subtitle font-bold text-text-primary">Filosofía Corporativa</h3>
+              <p class="mt-0.5 text-caption text-text-muted">Resumen institucional, misión, visión y principios de la organización.</p>
+            </div>
+            <app-button variant="secondary" size="small" (click)="openEditSection('nosotros')">
+              Editar filosofía
+            </app-button>
+          </div>
+
+          <div class="mt-5 space-y-4">
+            @if (company.resumenNosotros) {
+              <div class="rounded-control border border-border/80 bg-background-soft p-4">
+                <p class="text-caption font-semibold uppercase tracking-wider text-text-muted">Resumen Institucional</p>
+                <p class="mt-1 whitespace-pre-wrap text-body-sm text-text-primary leading-relaxed">
+                  {{ company.resumenNosotros }}
+                </p>
+              </div>
+            }
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="rounded-control border border-border p-4 bg-surface">
+                <p class="text-caption font-semibold uppercase tracking-wider text-text-muted mb-1">Misión</p>
+                <p class="whitespace-pre-wrap text-body-sm text-text-secondary leading-relaxed">
+                  {{ company.mision || 'Sin misión registrada.' }}
+                </p>
+              </div>
+              <div class="rounded-control border border-border p-4 bg-surface">
+                <p class="text-caption font-semibold uppercase tracking-wider text-text-muted mb-1">Visión</p>
+                <p class="whitespace-pre-wrap text-body-sm text-text-secondary leading-relaxed">
+                  {{ company.vision || 'Sin visión registrada.' }}
+                </p>
+              </div>
+            </div>
+            @if (company.valores) {
+              <div class="rounded-control border border-border p-4 bg-surface">
+                <p class="text-caption font-semibold uppercase tracking-wider text-text-muted mb-1">Valores</p>
+                <p class="whitespace-pre-wrap text-body-sm text-text-secondary leading-relaxed">
+                  {{ company.valores }}
+                </p>
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- 4. Sub-recursos de Empresa: Redes Sociales & Estadísticas -->
+        <div class="grid items-start gap-6 lg:grid-cols-2">
+          <!-- Redes Sociales -->
+          <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
+            <div class="flex items-center justify-between border-b border-border pb-4">
+              <div>
+                <h3 class="text-subtitle font-bold text-text-primary">Redes Sociales</h3>
+                <p class="mt-0.5 text-caption text-text-muted">Canales oficiales de la empresa.</p>
+              </div>
+              <app-button variant="secondary" size="small" (click)="facade.openSocialNetworkCreate()">
+                Agregar red
+              </app-button>
+            </div>
+
+            <div class="space-y-3 pt-5">
+              @for (net of sortedNetworks; track net.id) {
+                <div class="flex items-center justify-between rounded-control border border-border p-3 transition-colors hover:bg-surface-hover">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <p class="truncate text-body-sm font-medium text-text-primary" [title]="net.nombre">
+                        {{ net.nombre }}
+                      </p>
+                      @if (!net.activo) {
+                        <app-badge variant="neutral" class="shrink-0">Inactiva</app-badge>
+                      }
+                    </div>
+                    <p class="truncate text-caption text-text-muted" [title]="net.url">
+                      {{ net.url }}
+                    </p>
+                  </div>
+                  <div class="ml-3 flex shrink-0 gap-1">
+                    <button
+                      type="button"
+                      class="rounded p-1.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                      aria-label="Editar"
+                      (click)="facade.openSocialNetworkEdit(net)"
+                    >
+                      <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded p-1.5 text-text-muted transition-colors hover:bg-error/10 hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                      aria-label="Eliminar"
+                      (click)="requestDeleteNetwork(net)"
+                    >
+                      <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              } @empty {
+                <p class="py-6 text-center text-body-sm text-text-muted">
+                  No hay redes sociales registradas.
+                </p>
+              }
+            </div>
+          </section>
+
+          <!-- Estadísticas Corporativas -->
+          <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
+            <div class="flex items-center justify-between border-b border-border pb-4">
+              <div>
+                <h3 class="text-subtitle font-bold text-text-primary">Estadísticas</h3>
+                <p class="mt-0.5 text-caption text-text-muted">Métricas e indicadores clave de la empresa.</p>
+              </div>
+              <app-button variant="secondary" size="small" (click)="facade.openStatistics()">
+                Gestionar estadísticas
+              </app-button>
+            </div>
+
+            <div class="mt-5 grid grid-cols-2 gap-3">
+              @for (stat of company.estadisticas; track stat.id) {
+                <div class="rounded-control border border-border bg-background-soft p-3 text-center">
+                  <p class="text-heading-3 font-bold text-accent">
+                    {{ stat.prefijo || '' }}{{ stat.valor }}{{ stat.sufijo || '' }}
+                  </p>
+                  <p class="mt-1 text-caption font-medium uppercase tracking-wider text-text-muted">
+                    {{ stat.etiqueta }}
+                  </p>
+                </div>
+              } @empty {
+                <div class="col-span-full py-6 text-center text-body-sm text-text-muted">
+                  No hay estadísticas registradas.
+                </div>
+              }
+            </div>
+          </section>
+        </div>
+      }
     </div>
   }
 }
@@ -238,6 +387,8 @@
   <app-company-form
     [mode]="facade.companyFormMode()"
     [initialData]="facade.company()"
+    [section]="activeFormTab()"
+    [onlyAbout]="onlyAbout()"
     [submitting]="facade.submitting()"
     (saved)="saveCompany($event)"
     (canceled)="facade.closeCompanyForm()"

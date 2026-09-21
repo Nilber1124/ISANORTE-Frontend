@@ -30,6 +30,7 @@ export interface HomeServiceCardView {
   imageAlt: string | null;
   linkUrl: string;
   order: number;
+  benefits?: readonly string[];
 }
 
 export interface HomeBusinessUnitActionView {

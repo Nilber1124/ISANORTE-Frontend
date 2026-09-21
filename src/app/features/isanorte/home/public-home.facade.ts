@@ -10,11 +10,20 @@ import {
   PublicHomeSection,
   PublicHomeSectionType,
 } from '../../../data/models/public-content/public-home.model';
+import { PublicCompanyStatistic } from '../../../data/models/public-content/public-page.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { CinematicScene } from '../../../shared/components/cinematic-tour/cinematic-tour';
 import { HOME_HERO_FALLBACK, HeroActionViewData, HeroViewData } from './home-hero-fallback';
+import { HOME_PROJECTS_FALLBACK } from './home-projects-fallback';
+import { HOME_CTA_FALLBACK } from './home-cta-fallback';
+import { HOME_STATISTICS_FALLBACK } from './home-statistics-fallback';
 import {
   HomeBusinessUnitActionView,
+  HomeCtaActionView,
+  HomeCtaCopyView,
+  HomeProjectCardView,
+  HomeProjectsActionView,
+  HomeProjectsHeaderView,
   HomeServiceActionView,
   HomeServiceCardView,
   HomeServicesHeaderView,
@@ -103,6 +112,7 @@ export class PublicHomeFacade {
         // La baseline no tiene detalle /servicios/:slug; conserva su enlace sin destino.
         linkUrl: '#',
         order: service.orden,
+        benefits: service.beneficios ?? [],
       })),
   );
 
@@ -167,6 +177,86 @@ export class PublicHomeFacade {
       this.businessUnitSection() !== null &&
       this.featuredBusinessUnit() !== null,
   );
+
+  readonly projectsSection = computed(() => this.sectionByType(PublicHomeSectionType.PROYECTOS));
+
+  readonly projectsHeader = computed<HomeProjectsHeaderView>(() => {
+    const section = this.projectsSection();
+    return {
+      eyebrow: section?.etiqueta ?? HOME_PROJECTS_FALLBACK.header.eyebrow,
+      title: section?.titulo ?? HOME_PROJECTS_FALLBACK.header.title,
+    };
+  });
+
+  readonly projectsAction = computed<HomeProjectsActionView>(() => {
+    const action = this.orderedActions(this.projectsSection()?.acciones ?? [])[0];
+    return action
+      ? { label: action.texto, url: action.enlace, order: action.orden }
+      : HOME_PROJECTS_FALLBACK.action;
+  });
+
+  readonly projects = computed<readonly HomeProjectCardView[]>(() => {
+    const rawProjects = this._home()?.proyectos;
+    if (!rawProjects || rawProjects.length === 0) {
+      return HOME_PROJECTS_FALLBACK.projects;
+    }
+    return [...rawProjects]
+      .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre))
+      .map((project) => {
+        const mainImg = project.imagenes?.find((img) => img.esPrincipal) ?? project.imagenes?.[0];
+        const metadata = [project.ubicacion, project.fechaProyecto].filter(Boolean).join(' - ');
+        return {
+          id: project.slug,
+          slug: project.slug,
+          name: project.nombre,
+          location: project.ubicacion ?? null,
+          dateLabel: project.fechaProyecto ?? null,
+          metadata: metadata || project.nombre,
+          imageUrl: mainImg?.url ?? null,
+          imageAlt: mainImg?.alt ?? project.nombre,
+          order: project.orden,
+        };
+      });
+  });
+
+  readonly showProjects = computed(() => this.projects().length > 0);
+
+  readonly ctaSection = computed(() => this.sectionByType(PublicHomeSectionType.CTA));
+
+  readonly ctaAction = computed<HomeCtaActionView>(() => {
+    const action = this.orderedActions(this.ctaSection()?.acciones ?? [])[0];
+    return action
+      ? {
+          label: action.texto,
+          url: action.enlace,
+          persistedUrl: action.enlace,
+          order: action.orden,
+        }
+      : HOME_CTA_FALLBACK.action;
+  });
+
+  readonly cta = computed(() => {
+    const section = this.ctaSection();
+    if (!section && this._home() === null) {
+      return HOME_CTA_FALLBACK;
+    }
+    return {
+      copy: {
+        title: section?.titulo || HOME_CTA_FALLBACK.copy.title,
+        description: section?.subtitulo || section?.contenido || HOME_CTA_FALLBACK.copy.description,
+      },
+      action: this.ctaAction(),
+      bgImageUrl: section?.imagenUrl || HOME_CTA_FALLBACK.bgImageUrl,
+    };
+  });
+
+  readonly companySection = computed(() => this.sectionByType(PublicHomeSectionType.EMPRESA));
+
+  readonly statistics = computed<readonly PublicCompanyStatistic[]>(() => {
+    return HOME_STATISTICS_FALLBACK;
+  });
+
+  readonly showStatistics = computed(() => this.statistics().length > 0);
 
   load(): void {
     if (this.requestInFlight) return;

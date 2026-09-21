@@ -191,6 +191,7 @@ describe('PublicHomeFacade', () => {
       imageAlt: 'Alt dos',
       linkUrl: '#',
       order: 2,
+      benefits: [],
     });
     expect(facade.showServices()).toBe(true);
   });
@@ -278,5 +279,58 @@ describe('PublicHomeFacade', () => {
     expect(facade.showServices()).toBe(false);
     expect(facade.featuredBusinessUnit()).toBeNull();
     expect(facade.showBusinessUnit()).toBe(false);
+  });
+
+  it('derives dynamic projects from Home response and falls back when empty', () => {
+    const source = new Subject<PublicHomeResponse>();
+    api.response$ = source;
+    facade.load();
+    source.next({
+      ...response,
+      proyectos: [
+        {
+          nombre: 'Edificio Alpha',
+          slug: 'edificio-alpha',
+          ubicacion: 'Quito Norte',
+          fechaProyecto: '2025',
+          descripcion: 'Edificio de oficinas',
+          orden: 1,
+          imagenes: [{ url: '/alpha.jpg', alt: 'Alpha', esPrincipal: true, orden: 0 }],
+        },
+      ],
+    });
+    source.complete();
+
+    expect(facade.projects()).toHaveLength(1);
+    expect(facade.projects()[0].name).toBe('Edificio Alpha');
+    expect(facade.projects()[0].metadata).toBe('Quito Norte - 2025');
+    expect(facade.projects()[0].imageUrl).toBe('/alpha.jpg');
+    expect(facade.showProjects()).toBe(true);
+  });
+
+  it('derives CTA section and statistics correctly', () => {
+    const source = new Subject<PublicHomeResponse>();
+    api.response$ = source;
+    facade.load();
+    source.next({
+      ...response,
+      secciones: [
+        ...response.secciones,
+        section(PublicHomeSectionType.CTA, {
+          titulo: '¿Listo para transformar tu espacio?',
+          subtitulo: 'Agenda una llamada con nuestro equipo técnico.',
+          imagenUrl: '/cta-bg.jpg',
+          acciones: [{ texto: 'CONTACTAR AHORA', enlace: '/contacto', orden: 0 }],
+        }),
+      ],
+    });
+    source.complete();
+
+    expect(facade.cta().copy.title).toBe('¿Listo para transformar tu espacio?');
+    expect(facade.cta().copy.description).toBe('Agenda una llamada con nuestro equipo técnico.');
+    expect(facade.cta().action.label).toBe('CONTACTAR AHORA');
+    expect(facade.cta().bgImageUrl).toBe('/cta-bg.jpg');
+    expect(facade.statistics().length).toBeGreaterThan(0);
+    expect(facade.showStatistics()).toBe(true);
   });
 });

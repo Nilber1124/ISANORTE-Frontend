@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import { PublicSiteFacade } from '../../public-layout/public-site.facade';
 
 export interface IsadecorFooterLink {
   label: string;
@@ -14,13 +16,14 @@ export interface IsadecorFooterLink {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Footer {
+  readonly facade = inject(PublicSiteFacade);
+
   readonly description =
     'Acabados y revestimientos para interiores: paneles WPC, planchas SPC y cielos rasos PVC para elevar el confort y la estética de tus espacios.';
 
   readonly navigation: IsadecorFooterLink[] = [
     { label: 'Inicio', url: '/isadecor' },
     { label: 'Catálogo', url: '/isadecor/catalogo' },
-    { label: 'Productos', url: '/isadecor/catalogo' },
     { label: 'Cotización', url: '/isadecor/cotizacion' },
   ];
 
@@ -29,12 +32,6 @@ export class Footer {
     { label: 'Planchas SPC', url: '/isadecor/catalogo' },
     { label: 'Cielos rasos PVC', url: '/isadecor/catalogo' },
   ];
-
-  readonly contact = {
-    email: 'hola@isanorte.com',
-    phone: '+593 (0) 999 999 999',
-    address: 'Quito, Ecuador',
-  };
 
   readonly copyright = '© 2025 ISADECOR. Todos los derechos reservados.';
 }

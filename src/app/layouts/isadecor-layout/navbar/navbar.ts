@@ -19,7 +19,6 @@ export class Navbar {
   readonly links: IsadecorNavLink[] = [
     { label: 'Inicio', url: '/isadecor', exact: true },
     { label: 'Catálogo', url: '/isadecor/catalogo' },
-    { label: 'Productos', url: '/isadecor/catalogo' },
     { label: 'Cotización', url: '/isadecor/cotizacion' },
   ];
 

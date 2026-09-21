@@ -17,7 +17,7 @@ describe('AdminLayout', () => {
     expect(element.querySelector('app-admin-sidebar')).toBeTruthy();
     expect(element.querySelector('h1')?.textContent).toContain('Panel administrativo');
     expect(element.querySelectorAll('nav[aria-label="Navegación administrativa"] a')).toHaveLength(
-      12,
+      8,
     );
   });
 
