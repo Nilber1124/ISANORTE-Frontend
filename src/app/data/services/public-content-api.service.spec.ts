@@ -3,6 +3,11 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { API_BASE_URL } from '../../core/config/api.config';
+import {
+  PublicContactRequest,
+  PublicContactRequestStatus,
+  PublicContactResponse,
+} from '../models/contact/public-contact-request.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
 import { PublicPageResponse, PublicPageType } from '../models/public-content/public-page.model';
 import { PublicContentApiService } from './public-content-api.service';
@@ -45,6 +50,57 @@ const aboutPageResponse: PublicPageResponse = {
   },
   seo: null,
   empresa: null,
+  servicios: null,
+  proyectos: null,
+};
+
+const servicesPageResponse: PublicPageResponse = {
+  ...aboutPageResponse,
+  contenido: { ...aboutPageResponse.contenido, pagina: PublicPageType.SERVICIOS },
+  servicios: [
+    {
+      nombre: 'Servicio API',
+      slug: 'servicio-api',
+      etiqueta: null,
+      resumen: null,
+      descripcion: 'Descripción API',
+      imagenUrl: null,
+      imagenAlt: null,
+      orden: 0,
+      beneficios: [{ texto: 'Beneficio API', orden: 0 }],
+    },
+  ],
+};
+
+const projectsPageResponse: PublicPageResponse = {
+  ...aboutPageResponse,
+  contenido: { ...aboutPageResponse.contenido, pagina: PublicPageType.PROYECTOS },
+  proyectos: [
+    {
+      nombre: 'Proyecto API',
+      slug: 'proyecto-api',
+      descripcion: null,
+      ubicacion: null,
+      fechaProyecto: null,
+      orden: 0,
+      imagenes: [{ url: '/proyecto.jpg', alt: null, esPrincipal: true, orden: 0 }],
+      servicios: [{ nombre: 'Servicio API', slug: 'servicio-api' }],
+    },
+  ],
+};
+
+const publicContactRequest: PublicContactRequest = {
+  nombre: 'Persona de prueba',
+  email: 'persona@example.com',
+  telefono: '+51 999 111 222',
+  empresa: null,
+  mensaje: 'Mensaje de prueba',
+};
+
+const publicContactResponse: PublicContactResponse = {
+  id: 'c31c49b0-8a7c-4c7c-8c1a-9d9e25c5cb99',
+  estado: PublicContactRequestStatus.NUEVA,
+  fechaCreacion: '2026-09-21T12:00:00',
 };
 
 describe('PublicContentApiService', () => {
@@ -97,5 +153,43 @@ describe('PublicContentApiService', () => {
     request.flush(aboutPageResponse);
 
     expect(result).toEqual(aboutPageResponse);
+  });
+
+  it('returns the typed public Services catalogue from the page aggregate', () => {
+    let result: PublicPageResponse | undefined;
+    api.getPage('isanorte central', PublicPageType.SERVICIOS).subscribe((page) => (result = page));
+
+    const request = http.expectOne(
+      'https://backend.example/api/publico/sitios/isanorte%20central/paginas/SERVICIOS',
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush(servicesPageResponse);
+
+    expect(result?.servicios?.[0]).toEqual(servicesPageResponse.servicios?.[0]);
+  });
+
+  it('returns typed public projects, images and associated services from the page aggregate', () => {
+    let result: PublicPageResponse | undefined;
+    api.getPage('isanorte central', PublicPageType.PROYECTOS).subscribe((page) => (result = page));
+
+    const request = http.expectOne(
+      'https://backend.example/api/publico/sitios/isanorte%20central/paginas/PROYECTOS',
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush(projectsPageResponse);
+
+    expect(result?.proyectos?.[0]).toEqual(projectsPageResponse.proyectos?.[0]);
+  });
+
+  it('posts only the typed public contact request and returns its public confirmation', () => {
+    let result: PublicContactResponse | undefined;
+    api.submitContact(publicContactRequest).subscribe((response) => (result = response));
+
+    const request = http.expectOne('https://backend.example/api/publico/contacto');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(publicContactRequest);
+    request.flush(publicContactResponse, { status: 201, statusText: 'Created' });
+
+    expect(result).toEqual(publicContactResponse);
   });
 });

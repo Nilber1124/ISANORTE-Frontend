@@ -37,6 +37,8 @@ const response: PublicPageResponse = {
       { valor: 15, prefijo: '+', sufijo: null, etiqueta: 'AÑOS', orden: 1 },
     ],
   },
+  servicios: null,
+  proyectos: null,
 };
 
 class PublicContentApiStub {

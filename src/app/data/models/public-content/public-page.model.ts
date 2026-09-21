@@ -44,8 +44,55 @@ export interface PublicCompanyAbout {
   estadisticas: PublicCompanyStatistic[];
 }
 
+/** Beneficio editorial público de un servicio, sin identidad ni estado administrativo. */
+export interface PublicServiceBenefit {
+  texto: string;
+  orden: number;
+}
+
+/** Servicio editorial público usado exclusivamente por la página Servicios. */
+export interface PublicService {
+  nombre: string;
+  slug: string;
+  etiqueta: string | null;
+  resumen: string | null;
+  descripcion: string | null;
+  imagenUrl: string | null;
+  imagenAlt: string | null;
+  orden: number;
+  beneficios: PublicServiceBenefit[];
+}
+
+/** Servicio mínimo asociado a un proyecto, usado para filtros públicos. */
+export interface PublicProjectService {
+  nombre: string;
+  slug: string;
+}
+
+/** Imagen editorial pública de un proyecto, sin identidad administrativa. */
+export interface PublicProjectImage {
+  url: string;
+  alt: string | null;
+  esPrincipal: boolean;
+  orden: number;
+}
+
+/** Proyecto editorial público usado exclusivamente por la página Proyectos. */
+export interface PublicProject {
+  nombre: string;
+  slug: string;
+  descripcion: string | null;
+  ubicacion: string | null;
+  fechaProyecto: string | null;
+  orden: number;
+  imagenes: PublicProjectImage[];
+  servicios: PublicProjectService[];
+}
+
 export interface PublicPageResponse {
   contenido: PublicPageContent;
   seo: PublicPageSeo | null;
   empresa: PublicCompanyAbout | null;
+  servicios: PublicService[] | null;
+  proyectos: PublicProject[] | null;
 }

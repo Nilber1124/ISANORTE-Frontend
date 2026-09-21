@@ -2902,6 +2902,14 @@ components:
         empresa:
           allOf: [{$ref: '#/components/schemas/PublicEmpresaNosotros'}]
           nullable: true
+        servicios:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/PublicServiceResponse'}
+        proyectos:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/PublicProjectResponse'}
     PublicContenidoPagina:
       type: object
       properties:
@@ -2937,6 +2945,49 @@ components:
         sufijo: {type: string, nullable: true}
         etiqueta: {type: string}
         orden: {type: integer}
+    PublicServiceResponse:
+      description: Servicio editorial público usado por la página SERVICIOS.
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+        etiqueta: {type: string, nullable: true}
+        resumen: {type: string, nullable: true}
+        descripcion: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        orden: {type: integer}
+        beneficios:
+          type: array
+          items: {$ref: '#/components/schemas/PublicServiceBenefitResponse'}
+    PublicServiceBenefitResponse:
+      properties:
+        texto: {type: string}
+        orden: {type: integer}
+    PublicProjectResponse:
+      description: Proyecto editorial público usado por la página PROYECTOS.
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+        descripcion: {type: string, nullable: true}
+        ubicacion: {type: string, nullable: true}
+        fechaProyecto: {type: string, nullable: true, description: Texto editorial libre del dominio actual.}
+        orden: {type: integer}
+        imagenes:
+          type: array
+          items: {$ref: '#/components/schemas/PublicProjectImageResponse'}
+        servicios:
+          type: array
+          items: {$ref: '#/components/schemas/PublicProjectServiceResponse'}
+    PublicProjectImageResponse:
+      properties:
+        url: {type: string}
+        alt: {type: string, nullable: true}
+        esPrincipal: {type: boolean}
+        orden: {type: integer}
+    PublicProjectServiceResponse:
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
     PublicBusinessUnitResponse:
       type: object
       description: Unidad activa perteneciente a la empresa del sitio, recursos activos y SEO opcional.

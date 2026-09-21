@@ -1,99 +1,107 @@
-<section class="section-space bg-background-soft">
-  <div class="app-container">
-    <p class="mb-10 flex items-center gap-3 text-eyebrow uppercase text-text-secondary">
-      <span class="h-px w-6 bg-accent" aria-hidden="true"></span>
-      {{ header.eyebrow }}
-    </p>
+@if (facade.loading()) {
+  <div class="app-container flex min-h-[50vh] items-center justify-center" data-contact-loading>
+    <p class="text-body text-text-secondary" role="status">Cargando contenido…</p>
+  </div>
+} @else {
+  <section class="section-space bg-background-soft">
+    <div class="app-container">
+      @if (facade.error(); as error) {
+        <app-alert class="mb-10" variant="error" title="Contacto" data-contact-page-error>{{ error }}</app-alert>
+      }
+      @if (facade.content(); as content) {
+        @if (content.eyebrow) {
+          <p class="mb-10 flex items-center gap-3 text-eyebrow uppercase text-text-secondary">
+            <span class="h-px w-6 bg-accent" aria-hidden="true"></span>
+            {{ content.eyebrow }}
+          </p>
+        }
+        <div class="items-start lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16">
+          <div class="animate-fade-in-up">
+            @if (content.titulo) {
+              <h1 class="text-display text-text-primary">{{ content.titulo }}</h1>
+            }
+            @if (content.introduccion) {
+              <p class="mt-6 max-w-[52ch] text-body-lg text-text-secondary">{{ content.introduccion }}</p>
+            }
+            @if (content.descripcion) {
+              <p class="mt-6 max-w-[52ch] text-body text-text-secondary">{{ content.descripcion }}</p>
+            }
+            <ng-container [ngTemplateOutlet]="contactChannels" />
+          </div>
+          <ng-container [ngTemplateOutlet]="contactForm" />
+        </div>
+      } @else {
+        <div class="items-start lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16">
+          <div><ng-container [ngTemplateOutlet]="contactChannels" /></div>
+          <ng-container [ngTemplateOutlet]="contactForm" />
+        </div>
+      }
+    </div>
+  </section>
+}
 
-    <div class="items-start lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16">
-      <!-- Columna izquierda: información de contacto -->
-      <div class="animate-fade-in-up">
-        <h1 class="text-display text-text-primary">{{ header.title }}</h1>
-        <p class="mt-6 max-w-[52ch] text-body-lg text-text-secondary">
-          {{ header.description }}
-        </p>
-
-        <div class="mt-10 flex flex-col gap-4">
-          @for (channel of channels; track channel.id) {
-          <app-card class="block">
-            <div class="flex items-start gap-4">
-              <span
-                class="flex size-11 flex-none items-center justify-center rounded-control bg-accent/10 text-accent-strong"
-                aria-hidden="true">
-                @switch (channel.icon) {
+<ng-template #contactChannels>
+  @if (channels().length > 0) {
+    <div class="mt-10 flex flex-col gap-4" data-contact-channels>
+      @for (channel of channels(); track channel.id) {
+        <app-card class="block">
+          <div class="flex items-start gap-4">
+            <span class="flex size-11 flex-none items-center justify-center rounded-control bg-accent/10 text-accent-strong" aria-hidden="true">
+              @switch (channel.icon) {
                 @case ('chat') {
-                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z"></path>
-                </svg>
+                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z"></path></svg>
                 }
                 @case ('mail') {
-                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="5" width="18" height="14" rx="2"></rect>
-                  <path d="m4 7 8 6 8-6"></path>
-                </svg>
+                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path></svg>
+                }
+                @case ('phone') {
+                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h3l1.5 4.25-2 1.35a12 12 0 0 0 5.85 5.85l1.35-2 4.25 1.5v3A2.5 2.5 0 0 1 18 20C10.27 20 4 13.73 4 6a2.5 2.5 0 0 1 2.5-2.5Z"></path></svg>
                 }
                 @default {
-                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 21s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11Z"></path>
-                  <circle cx="12" cy="10" r="2.5"></circle>
-                </svg>
+                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
                 }
-                }
-              </span>
-
-              <div class="min-w-0">
-                <p class="text-eyebrow uppercase text-text-muted">{{ channel.label }}</p>
+              }
+            </span>
+            <div class="min-w-0">
+              <p class="text-eyebrow uppercase text-text-muted">{{ channel.label }}</p>
+              @if (channel.href) {
+                <a [href]="channel.href" class="mt-1 block text-heading-4 text-text-primary hover:text-accent transition-colors">{{ channel.value }}</a>
+              } @else {
                 <p class="mt-1 text-heading-4 text-text-primary">{{ channel.value }}</p>
-                <p class="mt-1 text-body-sm text-text-secondary">{{ channel.hint }}</p>
-              </div>
+              }
             </div>
-          </app-card>
-          }
-        </div>
-      </div>
-
-      <!-- Columna derecha: formulario -->
-      <app-card class="mt-10 block lg:mt-0" padding="large">
-        <h2 class="text-heading-3 text-text-primary">{{ form.title }}</h2>
-        <p class="mt-2 text-body text-text-secondary">{{ form.description }}</p>
-
-        @if (sent()) {
-        <app-alert class="mt-6 block" variant="success" [title]="form.successTitle" dismissible
-          (dismissed)="sent.set(false)">
-          {{ form.successMessage }}
-        </app-alert>
-        }
-
-        <form class="mt-6 flex flex-col gap-5" (submit)="onSubmit($event)" novalidate>
-          <app-input-field inputId="contact-name" [label]="form.name.label" [placeholder]="form.name.placeholder"
-            name="name" autocomplete="name" [(value)]="name" [required]="true" [error]="nameError()"
-            (blurred)="nameTouched.set(true)" />
-
-          <app-input-field inputId="contact-email" type="email" [label]="form.email.label"
-            [placeholder]="form.email.placeholder" name="email" autocomplete="email" inputMode="email" [(value)]="email"
-            [required]="true" [error]="emailError()" (blurred)="emailTouched.set(true)" />
-
-          <app-input-field inputId="contact-phone" type="tel" [label]="form.phone.label"
-            [placeholder]="form.phone.placeholder" name="phone" autocomplete="tel" inputMode="tel" [(value)]="phone"
-            [required]="true" [error]="phoneError()" (blurred)="phoneTouched.set(true)" />
-
-          <app-input-field inputId="contact-company" [label]="form.company.label"
-            [placeholder]="form.company.placeholder" name="company" autocomplete="organization" [(value)]="company" />
-
-          <app-textarea-field inputId="contact-message" [label]="form.message.label"
-            [placeholder]="form.message.placeholder" name="message" [(value)]="message" [rows]="5" [required]="true"
-            [error]="messageError()" (blurred)="messageTouched.set(true)" />
-
-          <div class="mt-2 [&>app-button]:w-full [&_button]:w-full">
-            <app-button variant="accent" size="large" type="submit">
-              {{ form.submitLabel }} &rarr;
-            </app-button>
           </div>
-        </form>
-      </app-card>
+        </app-card>
+      }
     </div>
-  </div>
-</section>
+  }
+</ng-template>
+
+<ng-template #contactForm>
+  <app-card class="mt-10 block lg:mt-0" padding="large" data-contact-form>
+    <h2 class="text-heading-3 text-text-primary">Enviar mensaje</h2>
+    <p class="mt-2 text-body text-text-secondary">Completa el formulario para contactar al equipo.</p>
+
+    @if (facade.submitSuccess()) {
+      <app-alert class="mt-6 block" variant="success" title="Mensaje enviado" dismissible (dismissed)="facade.dismissSubmitSuccess()">
+        Tu mensaje fue enviado correctamente.
+      </app-alert>
+    }
+    @if (facade.submitError(); as error) {
+      <app-alert class="mt-6 block" variant="error" title="No fue posible enviar el mensaje">{{ error }}</app-alert>
+    }
+
+    <form class="mt-6 flex flex-col gap-5" (submit)="submit($event)" novalidate>
+      <app-input-field inputId="contact-name" label="Nombre completo" placeholder="Ej. Carlos Mendoza" name="nombre" autocomplete="name" [(value)]="facade.nombre" [required]="true" [maxLength]="150" [disabled]="facade.submitting()" [error]="facade.nombreError()" (blurred)="facade.nombreTouched.set(true)" />
+      <app-input-field inputId="contact-email" type="email" label="Correo electrónico" placeholder="carlos@ejemplo.com" name="email" autocomplete="email" inputMode="email" [(value)]="facade.email" [required]="true" [maxLength]="180" [disabled]="facade.submitting()" [error]="facade.emailError()" (blurred)="facade.emailTouched.set(true)" />
+      <app-input-field inputId="contact-phone" type="tel" label="Teléfono de contacto" placeholder="Ej. 312 456 7890" name="telefono" autocomplete="tel" inputMode="tel" [(value)]="facade.telefono" [required]="true" [maxLength]="30" [disabled]="facade.submitting()" [error]="facade.telefonoError()" (blurred)="facade.telefonoTouched.set(true)" />
+      <app-input-field inputId="contact-company" label="Empresa / Constructora (opcional)" placeholder="Nombre de la empresa" name="empresa" autocomplete="organization" [(value)]="facade.empresa" [maxLength]="180" [disabled]="facade.submitting()" [error]="facade.empresaError()" (blurred)="facade.empresaTouched.set(true)" />
+      <app-textarea-field inputId="contact-message" label="Cuéntanos sobre tu proyecto" placeholder="Describe tu proyecto, ubicación, alcance o servicios requeridos" name="mensaje" [(value)]="facade.mensaje" [rows]="5" [required]="true" [maxLength]="5000" [disabled]="facade.submitting()" [error]="facade.mensajeError()" (blurred)="facade.mensajeTouched.set(true)" />
+      <div class="mt-2 [&>app-button]:w-full [&_button]:w-full">
+        <app-button variant="accent" size="large" type="submit" [loading]="facade.submitting()" [disabled]="facade.submitting()">
+          ENVIAR SOLICITUD &rarr;
+        </app-button>
+      </div>
+    </form>
+  </app-card>
+</ng-template>
