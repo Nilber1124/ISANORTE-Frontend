@@ -136,7 +136,8 @@
         class="sm:col-span-2"
         inputId="product-business-unit"
         label="Unidad de negocio"
-        [(value)]="unidadNegocioId"
+        [value]="unidadNegocioId()"
+        (valueChange)="updateBusinessUnit($event)"
         [options]="businessUnitOptions()"
         [loading]="loadingFormData()"
         [error]="errors().unidadNegocioId"
@@ -146,11 +147,11 @@
       <fieldset class="sm:col-span-2" [disabled]="loadingFormData() || submitting()">
         <legend class="mb-2 text-body-sm font-semibold text-text-primary">Categorías</legend>
         <p id="product-categories-help" class="mb-3 text-caption text-text-muted">
-          La selección es opcional y admite varias categorías.
+          La selección es opcional; incluye categorías globales y de la unidad seleccionada.
         </p>
         @if (loadingFormData()) {
           <p class="text-body-sm text-text-muted" role="status">Cargando categorías…</p>
-        } @else if (categories().length === 0) {
+        } @else if (availableCategories().length === 0) {
           <p
             class="rounded-control border border-border bg-surface-soft p-4 text-body-sm text-text-muted"
           >
@@ -161,7 +162,7 @@
             class="grid gap-2 rounded-control border border-border bg-surface-soft p-3 sm:grid-cols-2"
             aria-describedby="product-categories-help"
           >
-            @for (category of categories(); track category.id) {
+            @for (category of availableCategories(); track category.id) {
               <label
                 class="flex min-h-11 items-center gap-3 rounded-control px-3 py-2 text-body-sm text-text-secondary transition-colors hover:bg-surface-hover"
               >

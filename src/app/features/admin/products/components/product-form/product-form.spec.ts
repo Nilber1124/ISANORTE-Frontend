@@ -23,6 +23,12 @@ const unit: BusinessUnitResponse = {
   fechaCreacion: null,
   fechaActualizacion: null,
 };
+const otherUnit: BusinessUnitResponse = {
+  ...unit,
+  id: 'unit-2',
+  nombre: 'Academia',
+  slug: 'academia',
+};
 const category: CategoryResponse = {
   id: 'category-1',
   nombre: 'Wall Panels',
@@ -34,6 +40,20 @@ const category: CategoryResponse = {
   unidadNegocio: { id: unit.id, nombre: unit.nombre, slug: unit.slug },
   fechaCreacion: null,
   fechaActualizacion: null,
+};
+const globalCategory: CategoryResponse = {
+  ...category,
+  id: 'category-global',
+  nombre: 'Global',
+  slug: 'global',
+  unidadNegocio: null,
+};
+const foreignCategory: CategoryResponse = {
+  ...category,
+  id: 'category-foreign',
+  nombre: 'Academia',
+  slug: 'academia',
+  unidadNegocio: { id: otherUnit.id, nombre: otherUnit.nombre, slug: otherUnit.slug },
 };
 const product: ProductResponse = {
   id: 'product-1',
@@ -157,5 +177,29 @@ describe('ProductForm', () => {
     fixture.componentRef.setInput('submitting', true);
     fixture.detectChanges();
     expect(saveButton(element).disabled).toBe(true);
+  });
+
+  it('only exposes compatible and global categories, clearing invalid selections on unit change', async () => {
+    await render();
+    fixture.componentRef.setInput('businessUnits', [unit, otherUnit]);
+    fixture.componentRef.setInput('categories', [category, globalCategory, foreignCategory]);
+    fixture.componentInstance.categoriaIds.set([category.id, globalCategory.id, foreignCategory.id]);
+
+    const updateBusinessUnit = fixture.componentInstance as unknown as {
+      updateBusinessUnit(value: string): void;
+    };
+    updateBusinessUnit.updateBusinessUnit(unit.id);
+    expect(fixture.componentInstance.availableCategories().map((item) => item.id)).toEqual([
+      category.id,
+      globalCategory.id,
+    ]);
+    expect(fixture.componentInstance.categoriaIds()).toEqual([category.id, globalCategory.id]);
+
+    updateBusinessUnit.updateBusinessUnit(otherUnit.id);
+    expect(fixture.componentInstance.availableCategories().map((item) => item.id)).toEqual([
+      globalCategory.id,
+      foreignCategory.id,
+    ]);
+    expect(fixture.componentInstance.categoriaIds()).toEqual([globalCategory.id]);
   });
 });

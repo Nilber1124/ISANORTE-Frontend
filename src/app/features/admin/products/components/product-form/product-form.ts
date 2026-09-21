@@ -80,6 +80,14 @@ export class ProductForm implements OnInit {
     { value: '', label: 'Selecciona una unidad' },
     ...this.businessUnits().map((unit) => ({ value: unit.id, label: unit.nombre })),
   ]);
+  readonly availableCategories = computed<readonly CategoryResponse[]>(() => {
+    const businessUnitId = this.unidadNegocioId();
+    return this.categories().filter(
+      (category) =>
+        category.unidadNegocio === null ||
+        (businessUnitId !== '' && category.unidadNegocio.id === businessUnitId),
+    );
+  });
   readonly availabilityOptions: readonly SelectOption[] = [
     { value: ProductAvailability.DISPONIBLE, label: 'Disponible' },
     { value: ProductAvailability.AGOTADO, label: 'Agotado' },
@@ -112,6 +120,7 @@ export class ProductForm implements OnInit {
     this.descripcionSeo.set(product.descripcionSeo ?? '');
     this.unidadNegocioId.set(product.unidadNegocio.id);
     this.categoriaIds.set(product.categorias?.map((category) => category.id) ?? []);
+    this.removeIncompatibleCategories();
   }
 
   protected submit(): void {
@@ -156,6 +165,11 @@ export class ProductForm implements OnInit {
     this.estado.set(value as ProductPublicationStatus);
   }
 
+  protected updateBusinessUnit(value: string): void {
+    this.unidadNegocioId.set(value);
+    this.removeIncompatibleCategories();
+  }
+
   protected updateCategory(categoryId: string, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     this.categoriaIds.update((ids) =>
@@ -165,6 +179,11 @@ export class ProductForm implements OnInit {
 
   protected categorySelected(categoryId: string): boolean {
     return this.categoriaIds().includes(categoryId);
+  }
+
+  private removeIncompatibleCategories(): void {
+    const availableIds = new Set(this.availableCategories().map((category) => category.id));
+    this.categoriaIds.update((ids) => ids.filter((id) => availableIds.has(id)));
   }
 
   private validationErrors(): ProductFormErrors {
