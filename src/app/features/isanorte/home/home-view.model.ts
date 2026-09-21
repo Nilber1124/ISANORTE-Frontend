@@ -35,6 +35,7 @@ export interface HomeServiceCardView {
 export interface HomeBusinessUnitActionView {
   label: string;
   url: string;
+  order: number;
 }
 
 export interface HomeProjectsHeaderView {
