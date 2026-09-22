@@ -44,6 +44,14 @@ export const routes: Routes = [
           import('./features/admin/quotes/admin-quotes').then(({ AdminQuotes }) => AdminQuotes),
       },
       {
+        path: 'isadecor-landing',
+        loadComponent: () =>
+          import('./features/admin/isadecor-landing/admin-isadecor-landing').then(
+            ({ AdminIsadecorLanding }) => AdminIsadecorLanding,
+          ),
+        data: { title: 'Accesos Rápidos ISADECOR' },
+      },
+      {
         path: 'proyectos',
         loadComponent: () =>
           import('./features/admin/projects/admin-projects').then(

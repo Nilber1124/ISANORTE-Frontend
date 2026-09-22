@@ -142,6 +142,19 @@ describe('CatalogFacade', () => {
     expect(facade.filteredProducts()).toEqual([lamp]);
   });
 
+  it('filters products by category slug and resolves it to category id', () => {
+    const furniture = createProduct('product-1', 'Mesa de nogal', 'MES-001', categories[0]);
+    const lamp = createProduct('product-2', 'Lámpara de pie', 'LAM-001', categories[1]);
+    productApi.response$ = of([furniture, lamp]);
+    categoryApi.response$ = of(categories);
+    facade.load();
+
+    facade.setSelectedCategory('iluminacion');
+
+    expect(facade.selectedCategory()).toBe(categories[1].id);
+    expect(facade.filteredProducts()).toEqual([lamp]);
+  });
+
   it('searches textual product fields ignoring case and repeated spaces', () => {
     const furniture = createProduct('product-1', 'Mesa de nogal', 'MES-001', categories[0]);
     const lamp = createProduct('product-2', 'Lámpara de pie', 'LAM-001', categories[1]);
@@ -163,5 +176,81 @@ describe('CatalogFacade', () => {
     expect(facade.products()).toEqual([]);
     expect(facade.loading()).toBe(false);
     expect(facade.error()).toContain('No pudimos cargar el catálogo');
+  });
+
+  it('sorts products by price ascending and descending', () => {
+    const cheap = {
+      ...createProduct('product-1', 'Panel Económico', 'PAN-01', categories[0]),
+      precioBase: 50,
+    };
+    const expensive = {
+      ...createProduct('product-2', 'Mármol Importado', 'MAR-01', categories[0]),
+      precioBase: 250,
+    };
+    productApi.response$ = of([expensive, cheap]);
+    categoryApi.response$ = of(categories);
+    facade.load();
+
+    facade.setSortOption('price-asc');
+    expect(facade.filteredProducts()[0].id).toBe('product-1');
+    expect(facade.filteredProducts()[1].id).toBe('product-2');
+
+    facade.setSortOption('price-desc');
+    expect(facade.filteredProducts()[0].id).toBe('product-2');
+    expect(facade.filteredProducts()[1].id).toBe('product-1');
+  });
+
+  it('filters products by discount and stock toggles', () => {
+    const discounted = {
+      ...createProduct('product-1', 'Panel Oferta', 'PAN-01', categories[0]),
+      descuentoPorcentaje: 20,
+      disponibilidad: ProductAvailability.DISPONIBLE,
+    };
+    const outOfStock = {
+      ...createProduct('product-2', 'Panel Agotado', 'PAN-02', categories[0]),
+      descuentoPorcentaje: null,
+      disponibilidad: ProductAvailability.AGOTADO,
+    };
+    productApi.response$ = of([discounted, outOfStock]);
+    categoryApi.response$ = of(categories);
+    facade.load();
+
+    facade.toggleOnlyDiscount();
+    expect(facade.filteredProducts()).toEqual([discounted]);
+
+    facade.toggleOnlyDiscount();
+    facade.toggleOnlyInStock();
+    expect(facade.filteredProducts()).toEqual([discounted]);
+  });
+
+  it('computes category product counts correctly', () => {
+    const p1 = createProduct('product-1', 'Panel A', 'PAN-01', categories[0]);
+    const p2 = createProduct('product-2', 'Lámpara B', 'LAM-01', categories[1]);
+    productApi.response$ = of([p1, p2]);
+    categoryApi.response$ = of(categories);
+    facade.load();
+
+    expect(facade.getCategoryCount(categories[0].id)).toBe(1);
+    expect(facade.getCategoryCount(categories[1].id)).toBe(1);
+    expect(facade.getCategoryCount('non-existent')).toBe(0);
+  });
+
+  it('resets all filters, toggles and sort option on clearFilters()', () => {
+    facade.setSelectedCategory('cat-1');
+    facade.setSearchTerm('mármol');
+    facade.setSortOption('price-desc');
+    facade.toggleOnlyDiscount();
+    facade.toggleOnlyInStock();
+
+    expect(facade.hasActiveFilters()).toBe(true);
+
+    facade.clearFilters();
+
+    expect(facade.selectedCategory()).toBeNull();
+    expect(facade.searchTerm()).toBe('');
+    expect(facade.sortOption()).toBe('featured');
+    expect(facade.onlyDiscount()).toBe(false);
+    expect(facade.onlyInStock()).toBe(false);
+    expect(facade.hasActiveFilters()).toBe(false);
   });
 });

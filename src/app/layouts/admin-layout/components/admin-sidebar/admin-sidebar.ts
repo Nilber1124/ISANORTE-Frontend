@@ -38,6 +38,7 @@ export class AdminSidebar {
         { label: 'Categorías', route: '/admin/categorias' },
         { label: 'Productos', route: '/admin/productos' },
         { label: 'Cotizaciones', route: '/admin/cotizaciones' },
+        { label: 'Accesos Rápidos', route: '/admin/isadecor-landing' },
       ],
     },
     {

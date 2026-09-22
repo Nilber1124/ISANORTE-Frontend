@@ -44,77 +44,96 @@
 
 <!-- Servicios: contenido dinámico de la misma respuesta Home. -->
 <ng-template #servicesSection let-services let-header="header" let-action="action">
-  <section class="section-space bg-background-soft" data-home-services>
-    <div class="app-container">
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+  <section class="section-space bg-background-soft overflow-hidden" data-home-services>
+    <div class="max-w-[96rem] mx-auto px-4 sm:px-6 md:px-10 lg:px-14">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
         <div>
-          <span class="text-eyebrow text-accent block mb-2">{{ header.eyebrow | uppercase }}</span>
-          <h2 class="text-heading-2 text-text-primary">{{ header.title }}</h2>
+          <div class="inline-flex items-center gap-2 text-eyebrow text-accent uppercase tracking-widest mb-2.5 font-semibold">
+            <span class="size-2 rounded-full bg-accent"></span>
+            <span>{{ header.eyebrow | uppercase }}</span>
+          </div>
+          <h2 class="text-heading-2 text-text-primary whitespace-pre-line">{{ header.title }}</h2>
         </div>
         @if (action) {
           <app-button variant="primary" [href]="action.url">{{ action.label }}</app-button>
         }
       </div>
+
       <app-carousel
         [items]="services"
         variant="coverflow"
         [autoPlayInterval]="4500"
         ariaLabel="Carrusel de servicios"
       >
-        <ng-template #cardTemplate let-service>
+        <ng-template #cardTemplate let-service let-index="index" let-total="total" let-isActive="isActive">
           <app-card
             [href]="service.linkUrl"
             [ariaLabel]="service.name"
             padding="none"
-            class="group h-full"
+            class="group h-full relative overflow-hidden"
           >
             <div
-              class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
+              class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
               [style.backgroundImage]="service.imageUrl ? 'url(' + service.imageUrl + ')' : null"
               [attr.role]="service.imageAlt ? 'img' : null"
               [attr.aria-label]="service.imageAlt"
               [attr.aria-hidden]="service.imageAlt ? null : 'true'"
             ></div>
             <div
-              class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-90"
+              class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 via-50% to-black/20"
             ></div>
-            <div class="absolute inset-0 p-8 flex flex-col justify-end">
+            <div
+              class="absolute inset-0 bg-black/40 backdrop-blur-[0.5px] transition-opacity duration-500"
+              [class.opacity-0]="isActive !== false"
+              [class.pointer-events-none]="isActive !== false"
+            ></div>
+            <div class="absolute top-6 inset-x-6 md:inset-x-8 flex items-center justify-between z-10">
+              <span
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption font-mono uppercase tracking-widest bg-black/45 backdrop-blur-md text-white/90 border border-white/15 shadow-sm"
+              >
+                0{{ index + 1 }} · SERVICIO
+              </span>
+              <span
+                class="size-2 rounded-full transition-colors duration-300"
+                [class.bg-accent]="isActive !== false"
+                [class.bg-white/30]="isActive === false"
+              ></span>
+            </div>
+            <div class="absolute inset-0 p-6 md:p-8 flex flex-col justify-end z-10">
               <h3
-                class="text-heading-3 text-white mb-3 group-hover:text-accent transition-colors duration-normal"
+                class="text-heading-3 md:text-heading-2 text-white mb-2.5 font-bold tracking-tight group-hover:text-accent transition-colors duration-normal"
               >
                 {{ service.name }}
               </h3>
-              <p class="text-body-sm text-white/70 mb-6">{{ service.summary }}</p>
+              <p
+                class="text-body-sm md:text-body text-white/80 line-clamp-2 leading-relaxed transition-all duration-300"
+                [class.opacity-0]="isActive === false"
+                [class.max-h-0]="isActive === false"
+                [class.overflow-hidden]="isActive === false"
+              >
+                {{ service.summary }}
+              </p>
               @if (service.benefits && service.benefits.length > 0) {
-                <ul class="mb-5 space-y-1.5 border-t border-white/10 pt-3">
+                <ul
+                  class="mt-4 space-y-2 border-t border-white/15 pt-4 transition-all duration-500"
+                  [class.opacity-0]="isActive === false"
+                  [class.max-h-0]="isActive === false"
+                  [class.overflow-hidden]="isActive === false"
+                >
                   @for (benefit of service.benefits.slice(0, 3); track $index) {
-                    <li class="flex items-center gap-2 text-caption text-white/90">
-                      <svg class="size-3.5 text-accent shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                      </svg>
+                    <li class="flex items-center gap-2.5 text-caption md:text-body-sm text-white/95">
+                      <span
+                        class="size-5 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center shrink-0"
+                      >
+                        <svg class="size-3 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </span>
                       <span class="truncate">{{ benefit }}</span>
                     </li>
                   }
                 </ul>
               }
-              <div
-                class="text-caption font-bold text-accent tracking-[0.1em] flex items-center gap-2 uppercase group-hover:text-white transition-colors duration-normal"
-              >
-                LEER MÁS
-                <svg
-                  class="size-4 transform group-hover:translate-x-1 transition-transform duration-normal"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  ></path>
-                </svg>
-              </div>
             </div>
           </app-card>
         </ng-template>
@@ -235,7 +254,7 @@
 <!-- Projects: dinámico desde la API con fallback -->
 @if (facade.showProjects()) {
   <section class="section-space bg-background" data-home-projects>
-    <div class="app-container">
+    <div class="max-w-[96rem] mx-auto px-4 sm:px-6 md:px-10 lg:px-14">
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
         <div>
           <span class="text-eyebrow text-accent block mb-2">{{
@@ -316,7 +335,7 @@
 <!-- Pre-Footer CTA: dinámico desde sección CTA -->
 @if (preFooterData(); as cta) {
   <section class="bg-background-soft py-16 border-t border-border" data-home-cta>
-    <div class="app-container">
+    <div class="max-w-[96rem] mx-auto px-4 sm:px-6 md:px-10 lg:px-14">
       <div
         class="relative flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden bg-surface p-8 md:p-12 rounded-panel shadow-card border border-border"
       >

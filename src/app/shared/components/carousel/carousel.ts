@@ -32,6 +32,7 @@ export interface CarouselCardContext {
   $implicit: CarouselItem;
   index: number;
   total: number;
+  isActive?: boolean;
 }
 
 /**
@@ -61,6 +62,8 @@ export class Carousel {
   readonly autoPlayInterval = input(4000);
   readonly pauseOnHover = input(true);
   readonly ariaLabel = input('Carrusel de contenido');
+  readonly showControls = input(true);
+  readonly showIndicators = input(true);
 
   protected readonly cardTemplate = contentChild.required<TemplateRef<CarouselCardContext>>('cardTemplate');
   protected readonly marqueeCopies = [0, 1, 2, 3];
@@ -68,7 +71,7 @@ export class Carousel {
   private readonly cards = viewChildren<ElementRef<HTMLElement>>('card');
   private readonly track = viewChild<ElementRef<HTMLElement>>('track');
 
-  private readonly current = signal(0);
+  readonly current = signal(0);
 
   private gsap?: GsapType;
   private marqueeTween?: GsapTween;
@@ -77,6 +80,7 @@ export class Carousel {
   private canHover = true;
   private hovered = false;
   private dragging = false;
+  private hasDragged = false;
   private xStart = 0;
   private xEnd = 0;
 
@@ -129,7 +133,22 @@ export class Carousel {
     }
   }
 
-  private advance(delta: number): void {
+  goTo(index: number): void {
+    const total = this.cards().length;
+    if (total < 2 || index < 0 || index >= total) return;
+    this.current.set(index);
+    this.arrange(true);
+  }
+
+  next(): void {
+    this.advance(1);
+  }
+
+  prev(): void {
+    this.advance(-1);
+  }
+
+  advance(delta: number): void {
     const total = this.cards().length;
     if (total < 2) return;
     this.current.update((index) => (index + delta + total) % total);
@@ -150,15 +169,15 @@ export class Carousel {
 
       const distance = Math.min(1, Math.abs(offset));
       const target = {
-        xPercent: offset * 50,
-        rotationY: offset * 25,
-        scale: 1 - distance * 0.18,
-        opacity: 1 - distance * 0.35,
+        xPercent: offset * 28,
+        rotationY: offset * 6,
+        scale: 1 - distance * 0.08,
+        opacity: 1 - distance * 0.25,
         zIndex: 100 - Math.abs(offset),
       };
 
       if (animated) {
-        gsap.to(element, { ...target, duration: 0.8, ease: 'power2.out' });
+        gsap.to(element, { ...target, duration: 0.75, ease: 'power2.out' });
       } else {
         gsap.set(element, target);
       }
@@ -182,8 +201,17 @@ export class Carousel {
   }
 
   /* ------------------------------------------------------------------ *
-   * Interacción (pausa al hacer hover + arrastre en coverflow)
+   * Interacción (pausa al hacer hover + arrastre y clic en coverflow)
    * ------------------------------------------------------------------ */
+
+  protected onCardClick(index: number, event: MouseEvent): void {
+    if (this.hasDragged) return;
+    if (index !== this.current()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.goTo(index);
+    }
+  }
 
   protected onMouseEnter(): void {
     if (!this.canHover || !this.pauseOnHover()) return;
@@ -199,18 +227,26 @@ export class Carousel {
 
   protected onPointerDown(event: PointerEvent): void {
     this.dragging = true;
+    this.hasDragged = false;
     this.xStart = event.clientX;
     this.xEnd = event.clientX;
     this.stopAutoPlay();
   }
 
   protected onPointerMove(event: PointerEvent): void {
+    if (!this.dragging) return;
     this.xEnd = event.clientX;
+    if (Math.abs(this.xEnd - this.xStart) > 8) {
+      this.hasDragged = true;
+    }
   }
 
   protected onPointerEnd(): void {
     this.endDrag();
     if (!this.hovered) this.startAutoPlay();
+    setTimeout(() => {
+      this.hasDragged = false;
+    }, 60);
   }
 
   private endDrag(): void {

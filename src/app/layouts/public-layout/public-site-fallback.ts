@@ -6,9 +6,9 @@ export const PUBLIC_SITE_ERROR_FALLBACK: PublicSiteResponse = {
   clave: PUBLIC_SITE_KEY,
   tituloSitio: 'ISANORTE',
   descripcionSitio: null,
-  logoUrl: null,
-  logoBlancoUrl: null,
-  faviconUrl: null,
+  logoUrl: '/images/isanorte-isotipo.svg',
+  logoBlancoUrl: '/images/isanorte-isotipo-white.svg',
+  faviconUrl: '/favicon.svg',
   textoPiePagina: null,
   empresa: {
     nombreComercial: 'ISANORTE',

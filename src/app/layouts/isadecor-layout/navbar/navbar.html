@@ -2,9 +2,7 @@
   class="isadecor-shell sticky top-0 z-50 border-b border-border bg-background-deep">
   <div class="app-container flex items-center justify-between gap-6 py-4">
     <a routerLink="/isadecor" class="flex items-center gap-3" (click)="closeMenu()">
-      <div class="size-9 flex items-center justify-center rounded-control bg-accent font-bold text-accent-contrast">
-        ID
-      </div>
+      <img class="h-9 w-auto max-w-48 object-contain" src="/images/isadecor-isotipo.svg" alt="ISADECOR" />
       <div class="flex flex-col">
         <span class="text-lg font-bold leading-none tracking-widest text-white">ISADECOR</span>
         <span class="mt-1 text-[9px] leading-tight tracking-[0.2em] text-white/50">ACABADOS &amp; REVESTIMIENTOS</span>
@@ -12,8 +10,71 @@
     </a>
 
     <div class="hidden flex-1 items-center justify-center gap-8 lg:flex">
-      @for (link of links; track link.url + link.label) {
-      <a [routerLink]="link.url" routerLinkActive="text-white" ariaCurrentWhenActive="page" #rla="routerLinkActive"
+      @for (link of links(); track link.url + link.label) {
+      @if (link.label === 'Productos') {
+      <div class="relative py-2" (mouseenter)="openProductsDropdown()" (mouseleave)="closeProductsDropdown()">
+        <div class="flex items-center gap-1">
+          <a [routerLink]="link.url" routerLinkActive="text-white" #rla="routerLinkActive"
+            [routerLinkActiveOptions]="{ exact: link.exact ?? false }" (click)="closeProductsDropdown()"
+            class="group relative inline-flex items-center gap-1.5 text-body-sm font-medium transition-colors text-white/70 hover:text-white">
+            <span>{{ link.label }}</span>
+            <span
+              class="absolute -bottom-2.5 left-0 h-[2px] w-full origin-left bg-accent transition-transform duration-normal group-hover:scale-x-100"
+              [ngClass]="rla.isActive ? 'scale-x-100' : 'scale-x-0'" aria-hidden="true"></span>
+          </a>
+          <button type="button" (click)="toggleProductsDropdown()" [attr.aria-expanded]="productsDropdownOpen()"
+            aria-label="Ver categorías de productos"
+            class="inline-flex size-6 items-center justify-center rounded-control text-white/50 transition-all duration-normal hover:text-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent cursor-pointer"
+            [class.rotate-180]="productsDropdownOpen()">
+            <svg class="size-3.5 transition-transform duration-normal" viewBox="0 0 20 20" fill="currentColor"
+              aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Panel desplegable flotante -->
+        <div class="absolute left-0 top-full z-50 pt-2 min-w-[260px] transition-all duration-200"
+          [class.opacity-100]="productsDropdownOpen()" [class.visible]="productsDropdownOpen()"
+          [class.pointer-events-auto]="productsDropdownOpen()" [class.opacity-0]="!productsDropdownOpen()"
+          [class.invisible]="!productsDropdownOpen()" [class.pointer-events-none]="!productsDropdownOpen()"
+          [class.translate-y-0]="productsDropdownOpen()" [class.-translate-y-2]="!productsDropdownOpen()">
+          <div
+            class="overflow-hidden rounded-panel border border-white/15 bg-background-deep/95 p-2 shadow-2xl backdrop-blur-xl">
+            <div class="px-3.5 py-2 border-b border-white/10 mb-1">
+              <span class="text-[10px] font-mono font-semibold uppercase tracking-wider text-accent">
+                Líneas de Producto
+              </span>
+            </div>
+            <ul class="space-y-0.5" role="menu">
+              @for (child of link.children ?? []; track child.label) {
+              <li role="none">
+                <a role="menuitem" [routerLink]="link.url" [queryParams]="child.queryParams"
+                  (click)="closeProductsDropdown()"
+                  class="group/item flex items-center justify-between rounded-control px-3.5 py-2.5 text-caption uppercase tracking-wider font-semibold text-white/75 transition-all duration-fast hover:bg-white/10 hover:text-accent">
+                  <span>{{ child.label }}</span>
+                  <svg
+                    class="size-3.5 text-accent opacity-0 -translate-x-1 transition-all duration-fast group-hover/item:opacity-100 group-hover/item:translate-x-0"
+                    viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd"
+                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                      clip-rule="evenodd" />
+                  </svg>
+                </a>
+              </li>
+              } @empty {
+              <li class="px-3.5 py-3 text-caption text-white/50 text-center">
+                Cargando categorías...
+              </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+      } @else {
+      <a [routerLink]="link.url" routerLinkActive="text-white" #rla="routerLinkActive"
         [routerLinkActiveOptions]="{ exact: link.exact ?? false }"
         class="group relative text-body-sm font-medium transition-colors text-white/60 hover:text-white">
         {{ link.label }}
@@ -21,6 +82,7 @@
           class="absolute -bottom-2 left-0 h-[2px] w-4 origin-left bg-accent transition-transform duration-normal group-hover:scale-x-100"
           [ngClass]="rla.isActive ? 'scale-x-100' : 'scale-x-0'" aria-hidden="true"></span>
       </a>
+      }
       }
     </div>
 
@@ -32,7 +94,7 @@
     </div>
 
     <button type="button"
-      class="inline-flex size-10 items-center justify-center rounded-control border border-border-strong text-white transition-colors duration-normal hover:bg-surface-soft lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      class="inline-flex size-10 items-center justify-center rounded-control border border-border-strong text-white transition-colors duration-normal hover:bg-surface-soft lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus cursor-pointer"
       [attr.aria-expanded]="menuOpen()" aria-controls="isadecor-menu"
       [attr.aria-label]="menuOpen() ? 'Cerrar menú' : 'Abrir menú'" (click)="toggleMenu()">
       @if (menuOpen()) {
@@ -52,12 +114,41 @@
   @if (menuOpen()) {
   <div id="isadecor-menu" class="border-t border-border bg-background-deep px-6 pb-6 pt-3 lg:hidden">
     <ul class="space-y-1">
-      @for (link of links; track link.url + link.label) {
+      @for (link of links(); track link.url + link.label) {
       <li>
-        <a [routerLink]="link.url" (click)="closeMenu()"
-          class="block rounded-button px-3 py-2.5 text-body-sm font-medium text-white/70 transition-colors duration-normal hover:bg-surface-soft hover:text-white">
-          {{ link.label }}
-        </a>
+        <div class="flex items-center justify-between">
+          <a [routerLink]="link.url" (click)="closeMenu()"
+            class="flex-1 rounded-button px-3 py-2.5 text-body-sm font-medium text-white/70 transition-colors duration-normal hover:bg-surface-soft hover:text-white">
+            {{ link.label }}
+          </a>
+          @if (link.label === 'Productos') {
+          <button type="button" (click)="toggleProductsDropdown()"
+            class="p-2.5 text-white/60 hover:text-accent transition-colors cursor-pointer"
+            [attr.aria-expanded]="productsDropdownOpen()" aria-label="Ver subcategorías de productos">
+            <svg class="size-4 transition-transform duration-normal" [class.rotate-180]="productsDropdownOpen()"
+              viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+          }
+        </div>
+
+        @if (link.label === 'Productos' && productsDropdownOpen()) {
+        <ul class="ml-3 my-1 border-l-2 border-accent/40 pl-3 space-y-1">
+          @for (child of link.children ?? []; track child.label) {
+          <li>
+            <a [routerLink]="link.url" [queryParams]="child.queryParams" (click)="closeMenu()"
+              class="block rounded-button px-2.5 py-1.5 text-caption uppercase tracking-wider font-semibold text-white/65 hover:bg-surface-soft hover:text-accent transition-colors">
+              {{ child.label }}
+            </a>
+          </li>
+          } @empty {
+            <li class="px-2.5 py-1.5 text-caption text-white/50">Cargando categorías...</li>
+          }
+        </ul>
+        }
       </li>
       }
       <li class="pt-2">

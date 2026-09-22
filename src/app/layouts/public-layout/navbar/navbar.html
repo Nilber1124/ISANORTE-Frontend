@@ -4,10 +4,11 @@
       @if (facade.brandLogoWhite() || facade.brandLogo(); as logoUrl) {
       <img class="h-9 w-auto max-w-48 object-contain" [src]="logoUrl" [alt]="facade.siteName()" />
       } @else {
-      <div class="size-9 bg-accent flex items-center justify-center font-bold text-white rounded-[4px]"
-        aria-hidden="true">
-        IN
-      </div>
+      <img
+        class="h-9 w-auto max-w-48 object-contain"
+        src="/images/isanorte-isotipo.svg"
+        [alt]="facade.siteName() || 'ISANORTE'"
+      />
       }
       @if (facade.siteName(); as siteName) {
       <div class="flex flex-col">

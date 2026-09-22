@@ -40,6 +40,8 @@ export class ProductCard {
     Math.max((this.product().categorias?.length ?? 0) - this.visibleCategories().length, 0),
   );
 
+  protected readonly variantCount = computed(() => this.product().variantes?.length ?? 0);
+
   protected readonly availability = computed<AvailabilityPresentation>(() => {
     const presentations: Record<ProductAvailability, AvailabilityPresentation> = {
       [ProductAvailability.DISPONIBLE]: { label: 'Disponible', variant: 'success' },

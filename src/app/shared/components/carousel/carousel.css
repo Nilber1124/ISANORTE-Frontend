@@ -1,4 +1,17 @@
 /*
+ * Máscara de desvanecimiento suave para evitar cortes duros en los extremos.
+ */
+.carousel__marquee {
+  mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+}
+
+.carousel__coverflow {
+  mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+}
+
+/*
  * Ajustes estructurales que Tailwind no puede expresar:
  * en `prefers-reduced-motion: reduce` el marquee pasa a modo estático
  * desplazable (`overflow-x: auto`) y se ocultan las copias duplicadas,
