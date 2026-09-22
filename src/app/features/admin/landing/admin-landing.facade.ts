@@ -51,7 +51,9 @@ export class AdminLandingFacade {
     })
       .pipe(
         tap(({ sections, siteConfigs }) => {
-          this.sections.set(sections);
+          this.sections.set(
+            [...sections].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)),
+          );
           this.siteConfigurations.set(siteConfigs);
         }),
         catchError((err: HttpErrorResponse) => {
@@ -95,7 +97,9 @@ export class AdminLandingFacade {
       .create(request)
       .pipe(
         tap((newSection) => {
-          this.sections.update((curr) => [...curr, newSection]);
+          this.sections.update((curr) =>
+            [...curr, newSection].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)),
+          );
           this.success.set('Sección creada exitosamente.');
           this.formOpen.set(false);
           this.selectedSection.set(null);
@@ -121,7 +125,9 @@ export class AdminLandingFacade {
       .pipe(
         tap((updatedSection) => {
           this.sections.update((curr) =>
-            curr.map((s) => (s.id === updatedSection.id ? updatedSection : s)),
+            curr
+              .map((s) => (s.id === updatedSection.id ? updatedSection : s))
+              .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)),
           );
           this.success.set('Sección actualizada exitosamente.');
           this.formOpen.set(false);

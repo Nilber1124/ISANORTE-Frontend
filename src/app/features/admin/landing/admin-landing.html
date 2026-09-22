@@ -7,17 +7,6 @@
         Configura de forma integral y ordenada todas las secciones, contenidos y recursos de la página principal.
       </p>
     </div>
-    @if (activeTab() === 'secciones') {
-      <div class="shrink-0">
-        <app-button
-          variant="primary"
-          (clicked)="facade.openCreate()"
-          [disabled]="facade.loading() || facade.siteConfigurations().length === 0"
-        >
-          Nueva sección
-        </app-button>
-      </div>
-    }
   </header>
 
   <div class="border-b border-border pb-px" role="tablist" aria-label="Pestañas de gestión de landing">
@@ -114,9 +103,6 @@
                   d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"
                 />
               </svg>
-              <div empty-state-actions>
-                <app-button variant="primary" (clicked)="facade.openCreate()"> Nueva sección </app-button>
-              </div>
             </app-empty-state>
           } @else {
             <div class="flow-root">
@@ -128,25 +114,25 @@
                         scope="col"
                         class="py-3.5 pl-4 pr-3 text-body-sm font-semibold text-text-primary sm:pl-6"
                       >
-                        Tipo / Título
+                        Sección en la Web
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-3.5 text-body-sm font-semibold text-text-primary"
                       >
-                        Orden
+                        Posición
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-3.5 text-body-sm font-semibold text-text-primary"
                       >
-                        Visibilidad
+                        Estado
                       </th>
                       <th
                         scope="col"
                         class="px-3 py-3.5 text-body-sm font-semibold text-text-primary"
                       >
-                        Acción (CTA)
+                        Botón Principal (CTA)
                       </th>
                       <th scope="col" class="relative py-3.5 pl-3 pr-4 text-right sm:pr-6">
                         <span class="sr-only">Acciones</span>
@@ -156,14 +142,34 @@
                   <tbody class="divide-y divide-border bg-surface">
                     @for (section of facade.sections(); track section.id) {
                       <tr class="transition-colors duration-fast hover:bg-surface-hover">
-                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-body-sm sm:pl-6">
-                          <div class="font-medium text-text-primary">{{ section.tipo }}</div>
+                        <td class="py-4 pl-4 pr-3 text-body-sm sm:pl-6 max-w-xs">
+                          <div class="flex items-center gap-2">
+                            <span class="font-semibold text-text-primary">
+                              {{ sectionMeta(section.tipo).label }}
+                            </span>
+                            <span class="inline-flex items-center rounded-badge px-2 py-0.5 text-caption font-medium bg-surface-soft border border-border text-text-secondary">
+                              {{ sectionMeta(section.tipo).badge }}
+                            </span>
+                            <span class="sr-only">{{ section.tipo }}</span>
+                          </div>
                           @if (section.titulo) {
-                            <div class="text-text-muted">{{ section.titulo }}</div>
+                            <div class="mt-1 font-medium text-body-sm text-text-secondary truncate">
+                              "{{ section.titulo }}"
+                            </div>
                           }
+                          <p class="mt-0.5 text-caption text-text-muted line-clamp-1">
+                            {{ sectionMeta(section.tipo).description }}
+                          </p>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-body-sm text-text-secondary">
-                          {{ section.orden }}
+                          <span class="inline-flex flex-col">
+                            <span class="font-mono font-semibold text-text-primary">
+                              Orden {{ section.orden }}
+                            </span>
+                            <span class="text-caption text-text-muted">
+                              {{ sectionOrderLabel(section.orden) }}
+                            </span>
+                          </span>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-body-sm text-text-secondary">
                           @if (facade.changingVisibilityId() === section.id) {
@@ -191,53 +197,65 @@
                               Actualizando...
                             </span>
                           } @else {
-                            <app-badge [variant]="section.visible ? 'success' : 'neutral'">
+                            <app-badge [variant]="section.visible ? 'success' : 'neutral'" dot>
                               {{ section.visible ? 'Visible' : 'Oculta' }}
                             </app-badge>
                           }
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-body-sm text-text-secondary">
                           @if (section.textoBoton) {
-                            {{ section.textoBoton }}
+                            <div class="inline-flex flex-col items-start gap-1">
+                              <span class="inline-flex items-center gap-1.5 rounded-button bg-surface-soft border border-border px-2.5 py-1 text-caption font-semibold text-text-primary shadow-xs">
+                                <span>{{ section.textoBoton }}</span>
+                              </span>
+                              @if (section.enlaceBoton) {
+                                <span class="inline-flex items-center gap-1 text-caption font-mono text-text-muted">
+                                  <svg class="size-3 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                                  </svg>
+                                  <span>{{ section.enlaceBoton }}</span>
+                                </span>
+                              }
+                            </div>
                           } @else {
-                            <span class="text-text-muted">-</span>
+                            <span class="text-caption text-text-muted italic">Sin botón configurado</span>
                           }
                         </td>
                         <td
-                          class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-body-sm font-medium sm:pr-6"
+                          class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-body-sm font-medium sm:pr-6"
                         >
-                          <div class="flex items-center justify-end gap-x-4">
-                            <button
-                              type="button"
-                              (click)="facade.changeVisibility(section, !section.visible)"
-                              class="font-medium text-text-secondary hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                              [disabled]="facade.changingVisibilityId() !== null"
-                            >
-                              {{ section.visible ? 'Ocultar' : 'Mostrar' }}
-                            </button>
-                            <button
-                              type="button"
+                          <div class="flex items-center justify-end gap-2">
+                            <app-button
+                              size="small"
+                              variant="ghost"
                               (click)="facade.openEdit(section)"
-                              class="font-medium text-text-secondary hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                             >
                               Editar
-                            </button>
+                            </app-button>
                             @if (section.tipo === 'HERO') {
-                              <button
-                                type="button"
-                                class="font-medium text-text-secondary hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                              <app-button
+                                size="small"
+                                variant="secondary"
                                 (click)="facade.openChildren(section, 'scene')"
                               >
-                                Escenas
-                              </button>
+                                Diapositivas ({{ section.escenas.length }})
+                              </app-button>
                             }
-                            <button
-                              type="button"
-                              class="font-medium text-text-secondary hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                            <app-button
+                              size="small"
+                              variant="secondary"
                               (click)="facade.openChildren(section, 'action')"
                             >
-                              Acciones
-                            </button>
+                              Botones ({{ section.acciones.length }})
+                            </app-button>
+                            <app-button
+                              size="small"
+                              variant="ghost"
+                              [disabled]="facade.changingVisibilityId() !== null"
+                              (click)="facade.changeVisibility(section, !section.visible)"
+                            >
+                              {{ section.visible ? 'Ocultar' : 'Mostrar' }}
+                            </app-button>
                           </div>
                         </td>
                       </tr>

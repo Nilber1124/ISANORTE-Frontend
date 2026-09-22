@@ -38,10 +38,6 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server,
   },
   {
-    path: 'admin/proyectos/:id',
-    renderMode: RenderMode.Server,
-  },
-  {
     path: 'admin/**',
     renderMode: RenderMode.Prerender,
   },

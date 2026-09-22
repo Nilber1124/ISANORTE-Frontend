@@ -11,7 +11,6 @@ const services: ServiceResponse[] = [
     slug: 'arquitectura',
     resumen: null,
     descripcion: 'Diseño',
-    icono: null,
     imagenUrl: null,
     etiqueta: null,
     imagenAlt: null,
@@ -28,7 +27,6 @@ const services: ServiceResponse[] = [
     slug: 'construccion',
     resumen: null,
     descripcion: 'Obra',
-    icono: null,
     imagenUrl: null,
     etiqueta: null,
     imagenAlt: null,
@@ -52,7 +50,8 @@ const project: ProjectResponse = {
   activo: false,
   orden: 0,
   servicios: [{ id: services[0].id, nombre: services[0].nombre, slug: services[0].slug }],
-  imagenes: [],
+  imagenUrl: 'https://images.unsplash.com/photo-1.jpg',
+  imagenAlt: 'Foto representativa',
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -95,7 +94,7 @@ describe('ProjectForm', () => {
     expect(checkboxes.at(-1)?.checked).toBe(false);
   });
 
-  it('emits only service UUIDs and no images on update', async () => {
+  it('emits service UUIDs, imagenUrl and imagenAlt on update', async () => {
     const fixture = await createFixture('edit', project);
     let submission: ProjectFormSubmission | undefined;
     fixture.componentInstance.saved.subscribe((value) => (submission = value));
@@ -105,7 +104,8 @@ describe('ProjectForm', () => {
     expect(submission?.mode).toBe('edit');
     if (submission?.mode === 'edit') {
       expect(submission.request.servicioIds).toEqual([services[0].id]);
-      expect('imagenes' in submission.request).toBe(false);
+      expect(submission.request.imagenUrl).toBe('https://images.unsplash.com/photo-1.jpg');
+      expect(submission.request.imagenAlt).toBe('Foto representativa');
       expect(submission.request.fechaProyecto).toBe('Año 2026');
     }
   });

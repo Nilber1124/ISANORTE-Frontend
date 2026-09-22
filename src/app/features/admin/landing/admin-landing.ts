@@ -19,6 +19,15 @@ import { AdminProjects } from '../projects/admin-projects';
 import { AdminContent } from '../content/admin-content';
 import { AdminContact } from '../contact/admin-contact';
 
+import { LandingSectionResponse } from '../../../data/models/landing-section/landing-section-response.model';
+import { LandingSectionType } from '../../../data/models/landing-section/landing-section-type.enum';
+
+export interface SectionMeta {
+  label: string;
+  badge: string;
+  description: string;
+}
+
 export type LandingTab =
   | 'secciones'
   | 'nosotros'
@@ -114,6 +123,68 @@ export class AdminLanding {
         queryParamsHandling: 'merge',
       });
     }
+  }
+
+  protected sectionMeta(type: string): SectionMeta {
+    switch (type) {
+      case LandingSectionType.HERO:
+        return {
+          label: 'Portada Principal (Hero)',
+          badge: 'Portada',
+          description: 'Carrusel de cabecera con fotografías de bienvenida y mensaje central.',
+        };
+      case LandingSectionType.SERVICIOS:
+        return {
+          label: 'Nuestros Servicios',
+          badge: 'Servicios',
+          description: 'Vitrina de soluciones y especialidades técnicas destacadas.',
+        };
+      case LandingSectionType.UNIDAD_NEGOCIO:
+        return {
+          label: 'Unidad de Negocio (ISADECOR)',
+          badge: 'ISADECOR',
+          description: 'Promoción de la división de acabados y diseño de interiores.',
+        };
+      case LandingSectionType.PROYECTOS:
+        return {
+          label: 'Proyectos Destacados',
+          badge: 'Proyectos',
+          description: 'Portafolio de obras y casos de éxito en la portada.',
+        };
+      case LandingSectionType.CTA:
+        return {
+          label: 'Llamado a la Acción (CTA)',
+          badge: 'Conversión',
+          description: 'Franja de cierre para invitar a cotizaciones o asesoría directa.',
+        };
+      case LandingSectionType.EMPRESA:
+        return {
+          label: 'Acerca de la Empresa',
+          badge: 'Empresa',
+          description: 'Presentación institucional, historia y trayectoria de ISANORTE.',
+        };
+      case LandingSectionType.CONTACTO:
+        return {
+          label: 'Formulario de Contacto',
+          badge: 'Contacto',
+          description: 'Bloque de contacto directo y canales de atención.',
+        };
+      default:
+        return {
+          label: 'Sección Personalizada',
+          badge: 'Personalizada',
+          description: 'Bloque con contenido libre y enlaces a medida.',
+        };
+    }
+  }
+
+  protected sectionOrderLabel(order: number | null | undefined): string {
+    const val = order ?? 0;
+    if (val === 0) return '1ª en la web (Portada)';
+    if (val === 1) return '2ª posición';
+    if (val === 2) return '3ª posición';
+    if (val === 3) return '4ª posición';
+    return `${val + 1}ª posición`;
   }
 
   private isValidTab(tab: string): tab is LandingTab {

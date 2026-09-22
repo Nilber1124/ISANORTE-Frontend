@@ -20,6 +20,7 @@ import {
   ServiceBenefitRequest,
   ServiceBenefitResponse,
 } from '../../../../data/models/service/service-benefit.model';
+import { Badge } from '../../../../shared/components/badge/badge';
 import { Button } from '../../../../shared/components/button/button';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
 import { InputField } from '../../../../shared/components/input-field/input-field';
@@ -45,7 +46,7 @@ export interface DynamicChildSave {
 
 @Component({
   selector: 'app-dynamic-child-manager',
-  imports: [Button, EmptyState, InputField, Modal],
+  imports: [Badge, Button, EmptyState, InputField, Modal],
   templateUrl: './dynamic-child-manager.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -69,26 +70,60 @@ export class DynamicChildManager {
   readonly suffix = signal('');
   readonly order = signal('0');
   readonly active = signal(true);
+  readonly previewFailed = signal(false);
   readonly resourceType = signal<BusinessUnitResourceType>(BusinessUnitResourceType.IMAGEN_FONDO);
   readonly resourceTypes = Object.values(BusinessUnitResourceType);
+
+  protected readonly quickLinks: readonly string[] = [
+    '/servicios',
+    '/proyectos',
+    '/nosotros',
+    '/contacto',
+    '#cotizar',
+    'https://wa.me/51987654321',
+  ];
+
+  protected setQuickLink(link: string): void {
+    this.url.set(link);
+  }
+
   protected title(): string {
     return {
-      scene: 'Escenas Hero',
-      action: 'Acciones / CTA',
-      benefit: 'Beneficios',
-      resource: 'Recursos',
-      statistic: 'Estadísticas',
+      scene: 'Diapositivas de la Portada Principal (Hero)',
+      action: 'Botones y Enlaces de la Sección',
+      benefit: 'Beneficios del Servicio',
+      resource: 'Recursos de la Unidad de Negocio',
+      statistic: 'Estadísticas de la Empresa',
     }[this.kind()];
   }
+
   protected emptyDescription(): string {
     return {
-      scene: 'Este Hero todavía no tiene escenas.',
-      action: 'Esta sección todavía no tiene acciones.',
-      benefit: 'Este servicio todavía no tiene beneficios.',
-      resource: 'Esta unidad todavía no tiene recursos.',
-      statistic: 'Esta empresa todavía no tiene estadísticas.',
+      scene: 'Este Hero todavía no tiene diapositivas configuradas.',
+      action: 'Esta sección todavía no tiene botones adicionales configurados.',
+      benefit: 'Este servicio todavía no tiene beneficios registrados.',
+      resource: 'Esta unidad todavía no tiene recursos registrados.',
+      statistic: 'Esta empresa todavía no tiene estadísticas registradas.',
     }[this.kind()];
   }
+
+  protected asScene(item: DynamicChild): HeroSceneResponse {
+    return item as HeroSceneResponse;
+  }
+
+  protected asAction(item: DynamicChild): LandingActionResponse {
+    return item as LandingActionResponse;
+  }
+
+  protected updateUrl(val: string): void {
+    this.url.set(val);
+    this.previewFailed.set(false);
+  }
+
+  protected markPreviewFailed(): void {
+    this.previewFailed.set(true);
+  }
+
   protected openCreate(): void {
     this.editingId.set(null);
     this.text.set('');
@@ -99,13 +134,16 @@ export class DynamicChildManager {
     this.suffix.set('');
     this.order.set('0');
     this.active.set(true);
+    this.previewFailed.set(false);
     this.resourceType.set(BusinessUnitResourceType.IMAGEN_FONDO);
     this.formOpen.set(true);
   }
+
   protected openEdit(item: DynamicChild): void {
     this.editingId.set(item.id);
     this.order.set(String(item.orden));
     this.active.set(item.activo);
+    this.previewFailed.set(false);
     if (this.kind() === 'scene') {
       const value = item as HeroSceneResponse;
       this.url.set(value.imagenUrl);

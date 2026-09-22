@@ -12,6 +12,7 @@ import { ServiceCreateRequest } from '../../../../../data/models/service/service
 import { ServiceResponse } from '../../../../../data/models/service/service-response.model';
 import { ServiceUpdateRequest } from '../../../../../data/models/service/service-update-request.model';
 import { Alert } from '../../../../../shared/components/alert/alert';
+import { Badge } from '../../../../../shared/components/badge/badge';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { Modal } from '../../../../../shared/components/modal/modal';
@@ -49,7 +50,6 @@ export class ServiceForm implements OnInit {
   readonly resumen = signal('');
   readonly etiqueta = signal('');
   readonly descripcion = signal('');
-  readonly icono = signal('');
   readonly imagenUrl = signal('');
   readonly imagenAlt = signal('');
   readonly orden = signal('');
@@ -68,7 +68,6 @@ export class ServiceForm implements OnInit {
     this.resumen.set(service.resumen ?? '');
     this.etiqueta.set(service.etiqueta ?? '');
     this.descripcion.set(service.descripcion);
-    this.icono.set(service.icono ?? '');
     this.imagenUrl.set(service.imagenUrl ?? '');
     this.imagenAlt.set(service.imagenAlt ?? '');
     this.orden.set(String(service.orden ?? 0));
@@ -86,7 +85,6 @@ export class ServiceForm implements OnInit {
       resumen: this.optionalValue(this.resumen()),
       etiqueta: this.optionalValue(this.etiqueta()),
       descripcion: this.descripcion().trim(),
-      icono: this.optionalValue(this.icono()),
       imagenUrl: this.optionalValue(this.imagenUrl()),
       imagenAlt: this.optionalValue(this.imagenAlt()),
       activo: this.activo(),
@@ -104,6 +102,17 @@ export class ServiceForm implements OnInit {
       return;
     }
     this.saved.emit({ mode: 'edit', request: { ...common, orden: Number(this.orden()) } });
+  }
+
+  protected generateSlug(): void {
+    const s = this.nombre()
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    if (s) this.slug.set(s);
   }
 
   protected updateImageUrl(value: string): void {

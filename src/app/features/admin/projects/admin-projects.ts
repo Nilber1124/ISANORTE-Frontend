@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { ProjectResponse } from '../../../data/models/project/project-response.model';
 import { Alert } from '../../../shared/components/alert/alert';
@@ -13,8 +12,9 @@ import { ProjectForm, ProjectFormSubmission } from './components/project-form/pr
 
 @Component({
   selector: 'app-admin-projects',
-  imports: [Alert, Badge, Button, EmptyState, Loading, Modal, ProjectForm, RouterLink],
+  imports: [Alert, Badge, Button, EmptyState, Loading, Modal, ProjectForm],
   providers: [AdminProjectsFacade],
+
   templateUrl: './admin-projects.html',
   styleUrl: './admin-projects.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

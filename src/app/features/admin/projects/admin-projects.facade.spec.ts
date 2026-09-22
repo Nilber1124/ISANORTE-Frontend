@@ -18,7 +18,6 @@ const service: ServiceResponse = {
   slug: 'arquitectura',
   resumen: null,
   descripcion: 'Diseño',
-  icono: null,
   imagenUrl: null,
   etiqueta: null,
   imagenAlt: null,
@@ -41,7 +40,8 @@ const project: ProjectResponse = {
   activo: true,
   orden: 1,
   servicios: [{ id: service.id, nombre: service.nombre, slug: service.slug }],
-  imagenes: [],
+  imagenUrl: null,
+  imagenAlt: null,
   fechaCreacion: null,
   fechaActualizacion: null,
 };

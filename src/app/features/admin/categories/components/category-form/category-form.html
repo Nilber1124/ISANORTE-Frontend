@@ -1,84 +1,177 @@
 <app-modal
   modalId="category-form-modal"
   [title]="mode() === 'create' ? 'Nueva categoría' : 'Editar categoría'"
-  description="Completa la información que se mostrará y utilizará en el catálogo."
+  description="Define la taxonomía comercial, portada visual y asignación de catálogo."
   size="large"
   [open]="true"
   [loading]="submitting()"
   (closed)="canceled.emit()"
 >
   @if (serverError()) {
-    <app-alert class="mb-6" variant="error" title="No se guardaron los cambios">
+    <app-alert class="mb-5" variant="error" title="No se guardaron los cambios">
       {{ serverError() }}
     </app-alert>
   }
 
-  <form id="category-form" class="grid gap-5 sm:grid-cols-2" (submit)="submit()" novalidate>
-    <app-input-field
-      inputId="category-name"
-      label="Nombre"
-      [(value)]="nombre"
-      [error]="errors().nombre"
-      [disabled]="submitting()"
-      required
-    />
-    <app-input-field
-      inputId="category-slug"
-      label="Slug"
-      [(value)]="slug"
-      helperText="Se utiliza en URLs y debe ser único."
-      [error]="errors().slug"
-      [disabled]="submitting()"
-      required
-    />
-    <app-textarea-field
-      class="sm:col-span-2"
-      inputId="category-description"
-      label="Descripción"
-      [(value)]="descripcion"
-      [rows]="4"
-      [disabled]="submitting()"
-    />
-    <app-input-field
-      class="sm:col-span-2"
-      inputId="category-image-url"
-      label="Imagen URL"
-      type="url"
-      [(value)]="imagenUrl"
-      placeholder="https://..."
-      [disabled]="submitting()"
-    />
-    <app-select-field
-      inputId="category-business-unit"
-      label="Unidad de negocio"
-      [(value)]="unidadNegocioId"
-      [options]="businessUnitOptions()"
-      [loading]="loadingFormData()"
-      [disabled]="submitting()"
-    />
-    <app-input-field
-      inputId="category-order"
-      label="Orden"
-      type="number"
-      inputMode="numeric"
-      [(value)]="orden"
-      [error]="errors().orden"
-      [disabled]="submitting()"
-      required
-    />
-    <label
-      class="flex min-h-12 items-center gap-3 rounded-control border border-border bg-surface-soft px-4 py-3 text-body-sm font-semibold text-text-secondary sm:col-span-2"
-    >
-      <input
-        class="form-choice"
-        type="checkbox"
-        name="category-active"
-        [checked]="activo()"
+  <form id="category-form" class="space-y-5" (submit)="submit()" novalidate>
+    <!-- 1. Identificación y Taxonomía -->
+    <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+      <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+        Identificación de Categoría
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <app-input-field
+          inputId="category-name"
+          label="Nombre de la categoría"
+          [(value)]="nombre"
+          helperText="Nombre comercial visible en menús y filtros (ej: Wall Panels)."
+          [error]="errors().nombre"
+          [disabled]="submitting()"
+          required
+        />
+
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="category-slug" class="form-label mb-0 cursor-pointer">
+              Slug (Ruta web) <span class="text-error" aria-hidden="true">*</span>
+            </label>
+            <button
+              type="button"
+              class="flex items-center gap-1.5 text-caption font-semibold text-primary hover:underline"
+              (click)="generateSlug()"
+            >
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+              </svg>
+              Generar desde nombre
+            </button>
+          </div>
+          <app-input-field
+            inputId="category-slug"
+            label="Slug (Ruta web)"
+            [hideLabel]="true"
+            [(value)]="slug"
+            helperText="Identificador amigable en la URL (ej: wall-panels)."
+            [error]="errors().slug"
+            [disabled]="submitting()"
+            required
+          />
+        </div>
+
+        <app-select-field
+          class="sm:col-span-2"
+          inputId="category-business-unit"
+          label="Unidad de negocio asociada"
+          [value]="unidadNegocioId()"
+          (valueChange)="updateBusinessUnit($event)"
+          [options]="businessUnitOptions()"
+          [loading]="loadingFormData()"
+          [disabled]="submitting()"
+          helperText="Si se deja 'Sin unidad', la categoría estará disponible para todas las marcas del catálogo."
+        />
+
+        <app-textarea-field
+          class="sm:col-span-2"
+          inputId="category-description"
+          label="Descripción o sinopsis comercial"
+          [(value)]="descripcion"
+          helperText="Texto explicativo para la cabecera del catálogo o ficha de la categoría."
+          [rows]="3"
+          [disabled]="submitting()"
+        />
+      </div>
+    </div>
+
+    <!-- 2. Portada e Imagen Representativa -->
+    <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+      <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        Fotografía Representativa
+      </div>
+
+      <app-input-field
+        inputId="category-image-url"
+        label="URL de la imagen"
+        type="url"
+        [value]="imagenUrl()"
+        (valueChange)="updateImageUrl($event)"
+        placeholder="https://..."
+        helperText="Fotografía de cabecera o banner de la categoría (JPG, WebP, PNG)."
         [disabled]="submitting()"
-        (change)="updateActive($event)"
       />
-      Categoría activa
-    </label>
+
+      @if (imagenUrl().trim()) {
+        <div class="space-y-2 pt-1" aria-live="polite">
+          <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
+            Vista previa
+          </span>
+          @if (previewFailed()) {
+            <div
+              class="flex min-h-24 items-center justify-center rounded-xl border border-dashed border-error/50 bg-error/5 p-4 text-center text-body-sm text-error"
+              role="status"
+            >
+              No se pudo previsualizar la imagen. La URL todavía puede guardarse.
+            </div>
+          } @else {
+            <div class="overflow-hidden rounded-xl border border-border bg-surface-soft max-w-sm">
+              <img
+                class="h-36 w-full object-cover"
+                [src]="imagenUrl()"
+                alt="Vista previa de la categoría"
+                (error)="markPreviewFailed()"
+              />
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- 3. Jerarquía y Publicación -->
+    <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+      <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+        <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+        </svg>
+        Orden y Estado
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <app-input-field
+          inputId="category-order"
+          label="Orden de presentación"
+          type="number"
+          inputMode="numeric"
+          [(value)]="orden"
+          helperText="0 se muestra primero; números mayores descienden en la lista."
+          [error]="errors().orden"
+          [disabled]="submitting()"
+          required
+        />
+
+        <label
+          class="flex cursor-pointer items-center justify-between rounded-xl border border-border bg-surface-soft p-3.5 transition-colors hover:bg-surface-hover self-end min-h-12"
+        >
+          <div class="space-y-0.5">
+            <span class="text-body-sm font-semibold text-text-primary">Categoría activa</span>
+            <p class="text-caption text-text-muted">Visible en el catálogo público y filtros.</p>
+          </div>
+          <input
+            class="form-choice h-5 w-5 rounded text-primary focus:ring-primary"
+            type="checkbox"
+            name="category-active"
+            [checked]="activo()"
+            [disabled]="submitting()"
+            (change)="updateActive($event)"
+          />
+        </label>
+      </div>
+    </div>
   </form>
 
   <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">

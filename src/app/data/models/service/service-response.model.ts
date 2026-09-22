@@ -6,7 +6,6 @@ export interface ServiceResponse {
   slug: string;
   resumen: string | null;
   descripcion: string;
-  icono: string | null;
   imagenUrl: string | null;
   etiqueta: string | null;
   imagenAlt: string | null;

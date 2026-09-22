@@ -10,145 +10,231 @@
   <form id="company-form" (submit)="submit(); $event.preventDefault()" novalidate>
     @switch (activeSection()) {
       @case ('nosotros') {
-        <div class="space-y-4">
-          <p class="text-caption text-text-muted">
-            Textos editoriales visibles en la sección Nosotros de la web pública.
-          </p>
-          <app-textarea-field
-            inputId="company-resumen"
-            label="Resumen Nosotros (Presentación)"
-            helperText="Párrafo principal sobre la empresa que se muestra en la web."
-            [(value)]="resumenNosotros"
-            [disabled]="submitting()"
-            [rows]="3"
-          />
-          <div class="grid gap-4 sm:grid-cols-2">
+        <div class="space-y-5">
+          <!-- Presentación institucional -->
+          <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+              <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+              </svg>
+              Manifiesto y Presentación
+            </div>
             <app-textarea-field
-              inputId="company-mision"
-              label="Misión"
-              [(value)]="mision"
+              inputId="company-resumen"
+              label="Resumen institucional (Nosotros)"
+              helperText="Párrafo principal sobre la historia y propósito de la empresa en la web."
+              [(value)]="resumenNosotros"
+              placeholder="Somos una empresa líder en construcción y diseño con más de..."
               [disabled]="submitting()"
-              [rows]="3"
+              [rows]="4"
             />
+          </div>
+
+          <!-- Misión y Visión -->
+          <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+              <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              Propósito y Dirección
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <app-textarea-field
+                inputId="company-mision"
+                label="Misión corporativa"
+                helperText="Nuestra razón de ser y compromiso diario."
+                [(value)]="mision"
+                placeholder="Brindar soluciones integrales de construcción con la más alta calidad..."
+                [disabled]="submitting()"
+                [rows]="3"
+              />
+              <app-textarea-field
+                inputId="company-vision"
+                label="Visión de futuro"
+                helperText="Hacia dónde proyectamos llegar a mediano y largo plazo."
+                [(value)]="vision"
+                placeholder="Ser reconocidos como el grupo empresarial referente en el norte del país..."
+                [disabled]="submitting()"
+                [rows]="3"
+              />
+            </div>
+          </div>
+
+          <!-- Valores -->
+          <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+              <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+              Cultura y Valores
+            </div>
             <app-textarea-field
-              inputId="company-vision"
-              label="Visión"
-              [(value)]="vision"
+              inputId="company-valores"
+              label="Valores corporativos"
+              helperText="Principios rectores (ej: Integridad, Excelencia, Puntualidad, Seguridad)."
+              [(value)]="valores"
+              placeholder="Compromiso con el cliente, Innovación continua, Seguridad operativa..."
               [disabled]="submitting()"
               [rows]="3"
             />
           </div>
-          <app-textarea-field
-            inputId="company-valores"
-            label="Valores corporativos"
-            helperText="Principios y valores que rigen a la empresa."
-            [(value)]="valores"
-            [disabled]="submitting()"
-            [rows]="2"
-          />
         </div>
       }
 
       @case ('contacto') {
-        <div class="space-y-4">
-          <p class="text-caption text-text-muted">
-            Canales de comunicación oficiales que se muestran en el pie de página y sección de contacto.
-          </p>
-          <div class="grid gap-4 sm:grid-cols-3">
-            <app-input-field
-              inputId="company-telefono"
-              label="Teléfono principal"
-              [(value)]="telefono"
-              [disabled]="submitting()"
-            />
-            <app-input-field
-              inputId="company-telefono-sec"
-              label="Teléfono secundario"
-              [(value)]="telefonoSecundario"
-              [disabled]="submitting()"
-            />
-            <app-input-field
-              inputId="company-whatsapp"
-              label="WhatsApp"
-              [(value)]="whatsapp"
-              [disabled]="submitting()"
-            />
-          </div>
-
-          <div class="grid gap-4 sm:grid-cols-2">
-            <app-input-field
-              inputId="company-email"
-              type="email"
-              label="Email general"
-              [(value)]="email"
-              [disabled]="submitting()"
-            />
-            <app-input-field
-              inputId="company-email-ventas"
-              type="email"
-              label="Email de ventas"
-              [(value)]="emailVentas"
-              [disabled]="submitting()"
-            />
-          </div>
-
-          <div class="grid gap-4 sm:grid-cols-3">
-            <div class="sm:col-span-2">
+        <div class="space-y-5">
+          <!-- Canales telefónicos y mensajería -->
+          <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+              <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+              Líneas de Atención
+            </div>
+            <div class="grid gap-4 sm:grid-cols-3">
               <app-input-field
-                inputId="company-direccion"
-                label="Dirección"
-                [(value)]="direccion"
+                inputId="company-telefono"
+                label="Teléfono principal"
+                [(value)]="telefono"
+                placeholder="(01) 234-5678"
+                helperText="Central o recepción."
+                [disabled]="submitting()"
+              />
+              <app-input-field
+                inputId="company-telefono-sec"
+                label="Teléfono secundario"
+                [(value)]="telefonoSecundario"
+                placeholder="+51 987 654 321"
+                helperText="Línea de respaldo."
+                [disabled]="submitting()"
+              />
+              <app-input-field
+                inputId="company-whatsapp"
+                label="Número de WhatsApp"
+                [(value)]="whatsapp"
+                placeholder="+51987654321"
+                helperText="Con código de país (+51)."
                 [disabled]="submitting()"
               />
             </div>
+          </div>
+
+          <!-- Canales de correo electrónico -->
+          <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+              <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              Correos Electrónicos
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <app-input-field
+                inputId="company-email"
+                type="email"
+                label="Email general / Corporativo"
+                [(value)]="email"
+                placeholder="contacto@isanorte.com"
+                helperText="Para informes generales."
+                [disabled]="submitting()"
+              />
+              <app-input-field
+                inputId="company-email-ventas"
+                type="email"
+                label="Email de ventas y cotizaciones"
+                [(value)]="emailVentas"
+                placeholder="ventas@isanorte.com"
+                helperText="Recepción de prospectos."
+                [disabled]="submitting()"
+              />
+            </div>
+          </div>
+
+          <!-- Ubicación física y horarios -->
+          <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+              <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              Ubicación y Horarios de Atención
+            </div>
+            <div class="grid gap-4 sm:grid-cols-3">
+              <div class="sm:col-span-2">
+                <app-input-field
+                  inputId="company-direccion"
+                  label="Dirección de oficina principal"
+                  [(value)]="direccion"
+                  placeholder="Av. Principal 123, Of. 401"
+                  helperText="Dirección física visible en la web."
+                  [disabled]="submitting()"
+                />
+              </div>
+              <app-input-field
+                inputId="company-ciudad"
+                label="Ciudad / Región"
+                [(value)]="ciudad"
+                placeholder="Chiclayo, Lambayeque"
+                helperText="Ubicación geográfica."
+                [disabled]="submitting()"
+              />
+            </div>
+
             <app-input-field
-              inputId="company-ciudad"
-              label="Ciudad"
-              [(value)]="ciudad"
+              inputId="company-horario"
+              label="Horario de atención al público"
+              [(value)]="horarioAtencion"
+              placeholder="Lunes a Viernes: 8:00 am - 6:00 pm | Sábados: 8:00 am - 1:00 pm"
+              helperText="Texto que se muestra en el pie de página y formulario de contacto."
               [disabled]="submitting()"
             />
           </div>
-
-          <app-input-field
-            inputId="company-horario"
-            label="Horario de atención"
-            [(value)]="horarioAtencion"
-            [disabled]="submitting()"
-          />
         </div>
       }
 
       @case ('legal') {
-        <div class="space-y-4">
-          <p class="text-caption text-text-muted">
-            Información fiscal y legal de la personería jurídica.
-          </p>
-          <div class="grid gap-4 sm:grid-cols-2">
+        <div class="space-y-5">
+          <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+              <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              Personería Jurídica y Tributaria
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <app-input-field
+                inputId="company-razon-social"
+                label="Razón social"
+                [(value)]="razonSocial"
+                placeholder="Ej: GRUPO ISANORTE S.A.C."
+                helperText="Nombre legal formal registrado en registros públicos."
+                [error]="razonSocialError()"
+                [disabled]="submitting()"
+                required
+              />
+              <app-input-field
+                inputId="company-nombre-comercial"
+                label="Nombre comercial"
+                [(value)]="nombreComercial"
+                placeholder="Ej: ISANORTE"
+                helperText="Nombre comercial con el que se identifica la marca."
+                [error]="nombreComercialError()"
+                [disabled]="submitting()"
+                required
+              />
+            </div>
+
             <app-input-field
-              inputId="company-razon-social"
-              label="Razón social"
-              [(value)]="razonSocial"
-              [error]="razonSocialError()"
-              [disabled]="submitting()"
-              required
-            />
-            <app-input-field
-              inputId="company-nombre-comercial"
-              label="Nombre comercial"
-              [(value)]="nombreComercial"
-              [error]="nombreComercialError()"
+              inputId="company-ruc"
+              label="Número de RUC"
+              [(value)]="ruc"
+              placeholder="Ej: 20601234567"
+              helperText="Registro Único de Contribuyente (11 dígitos)."
+              [error]="rucError()"
               [disabled]="submitting()"
               required
             />
           </div>
-          <app-input-field
-            inputId="company-ruc"
-            label="RUC"
-            [(value)]="ruc"
-            [error]="rucError()"
-            [disabled]="submitting()"
-            required
-          />
         </div>
       }
     }

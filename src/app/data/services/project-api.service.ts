@@ -5,8 +5,7 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/config/api.config';
 import { ActiveRequest } from '../models/common/active-request.model';
 import { ProjectCreateRequest } from '../models/project/project-create-request.model';
-import { ProjectImageRequest } from '../models/project/project-image-request.model';
-import { ProjectImageResponse, ProjectResponse } from '../models/project/project-response.model';
+import { ProjectResponse } from '../models/project/project-response.model';
 import { ProjectUpdateRequest } from '../models/project/project-update-request.model';
 
 @Injectable({ providedIn: 'root' })
@@ -48,30 +47,6 @@ export class ProjectApiService {
     return this.http.patch<ProjectResponse>(
       `${this.resourceUrl}/${encodeURIComponent(id)}/activo`,
       request,
-    );
-  }
-
-  createImage(projectId: string, request: ProjectImageRequest): Observable<ProjectImageResponse> {
-    return this.http.post<ProjectImageResponse>(
-      `${this.resourceUrl}/${encodeURIComponent(projectId)}/imagenes`,
-      request,
-    );
-  }
-
-  updateImage(
-    projectId: string,
-    imageId: string,
-    request: ProjectImageRequest,
-  ): Observable<ProjectImageResponse> {
-    return this.http.put<ProjectImageResponse>(
-      `${this.resourceUrl}/${encodeURIComponent(projectId)}/imagenes/${encodeURIComponent(imageId)}`,
-      request,
-    );
-  }
-
-  deleteImage(projectId: string, imageId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.resourceUrl}/${encodeURIComponent(projectId)}/imagenes/${encodeURIComponent(imageId)}`,
     );
   }
 }

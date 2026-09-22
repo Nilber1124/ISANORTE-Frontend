@@ -1,14 +1,17 @@
 <app-modal
   modalId="landing-section-modal"
   [open]="open()"
-  [title]="mode() === 'create' ? 'Nueva Sección' : 'Editar Sección'"
+  title="Editar sección de la portada"
+  description="Personaliza los textos, imágenes y botones interactivos que verán los clientes en la página de inicio."
+  size="large"
+  [loading]="submitting()"
   (closed)="closed.emit()"
 >
-  <form (submit)="submit($event)" class="space-y-6">
+  <form (submit)="submit($event)" class="space-y-5">
     @if (mode() === 'create' && hasMultipleConfigs()) {
       <app-select-field
         inputId="config"
-        label="Configuración de Sitio *"
+        label="Configuración de Sitio"
         [options]="configOptions()"
         [(value)]="configuracionSitioId"
         [disabled]="submitting()"
@@ -16,131 +19,393 @@
       />
     }
 
-    <app-select-field
-      inputId="tipo"
-      label="Tipo de Sección *"
-      [options]="typeOptions"
-      [(value)]="tipo"
-      [disabled]="submitting()"
-      [required]="true"
-    />
-
-    <app-input-field
-      inputId="etiqueta"
-      label="Etiqueta"
-      [(value)]="etiqueta"
-      placeholder="Ej. Nuestra experiencia"
-      [disabled]="submitting()"
-    />
-
-    <app-input-field
-      inputId="titulo"
-      label="Título"
-      [(value)]="titulo"
-      placeholder="Ej. Bienvenidos a ISANORTE"
-      [disabled]="submitting()"
-    />
-
-    <app-input-field
-      inputId="subtitulo"
-      label="Subtítulo"
-      [(value)]="subtitulo"
-      placeholder="Ej. Líderes en construcción"
-      [disabled]="submitting()"
-    />
-
-    <app-textarea-field
-      inputId="contenido"
-      label="Contenido"
-      [(value)]="contenido"
-      placeholder="Descripción de la sección..."
-      [disabled]="submitting()"
-      [rows]="3"
-    />
-
-    <div class="space-y-4">
-      <app-input-field
-        inputId="imagenUrl"
-        label="Imagen (URL)"
-        type="url"
-        [(value)]="imagenUrl"
-        placeholder="https://ejemplo.com/imagen.jpg"
-        [disabled]="submitting()"
-      />
-      <app-input-field
-        inputId="imagenAlt"
-        label="Texto alternativo de la imagen"
-        [(value)]="imagenAlt"
-        helperText="Describe la imagen cuando aporte información al contenido."
-        [disabled]="submitting()"
-      />
-      @if (imagenUrl()) {
-        <div
-          class="h-32 w-full overflow-hidden rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center"
-        >
-          <img
-            [src]="imagenUrl()"
-            alt="Vista previa de imagen"
-            class="max-h-full max-w-full object-contain"
-            (error)="imagenUrl.set('')"
-          />
+    <!-- Encabezado contextual de la sección -->
+    <div class="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-surface-soft p-3.5 shadow-xs">
+      <div class="flex items-center gap-3">
+        <span class="flex size-9 shrink-0 items-center justify-center rounded-control bg-accent/15 text-accent font-bold text-caption shadow-xs">
+          #{{ orden() }}
+        </span>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="text-body-sm font-semibold text-text-primary">
+              {{ sectionMeta().label }}
+            </h3>
+            <span class="inline-flex items-center rounded-badge border px-2 py-0.5 text-caption font-medium {{ sectionMeta().color }}">
+              {{ sectionMeta().badge }}
+            </span>
+          </div>
+          <p class="text-caption text-text-muted mt-0.5">
+            Posición actual: Orden {{ orden() }} en la portada web
+          </p>
         </div>
-      }
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <app-input-field
-        inputId="textoBoton"
-        label="Texto del botón (CTA)"
-        [(value)]="textoBoton"
-        placeholder="Ej. Contáctanos"
-        [disabled]="submitting()"
-      />
-      <app-input-field
-        inputId="enlaceBoton"
-        label="Enlace del botón (CTA)"
-        [(value)]="enlaceBoton"
-        placeholder="Ej. /contacto"
-        [disabled]="submitting()"
-      />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-      <app-input-field
-        inputId="orden"
-        label="Orden *"
-        type="number"
-        [(value)]="orden"
-        [required]="true"
-        [disabled]="submitting()"
-      />
-
-      <div class="flex items-center space-x-2 mt-4 md:mt-6">
-        <input
-          type="checkbox"
-          id="visible"
-          name="visible"
-          [checked]="visible()"
-          (change)="handleVisibilityChange($event)"
-          [disabled]="submitting()"
-          class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600"
-        />
-        <label for="visible" class="text-sm font-medium leading-6 text-gray-900">
-          Visible públicamente
-        </label>
+      </div>
+      <div class="flex items-center gap-2">
+        <app-badge [variant]="visible() ? 'success' : 'neutral'" dot>
+          {{ visible() ? 'Visible en la web' : 'Oculta al público' }}
+        </app-badge>
       </div>
     </div>
 
-    <div class="flex items-center justify-end gap-x-3 pt-4 border-t border-gray-200">
-      <app-button
-        type="button"
-        variant="secondary"
-        (clicked)="closed.emit()"
-        [disabled]="submitting()"
-      >
-        Cancelar
-      </app-button>
-      <app-button type="submit" variant="primary" [loading]="submitting()"> Guardar </app-button>
+    <!-- Simulador / Previsualización interactiva en tiempo real -->
+    <div class="overflow-hidden rounded-card border border-border bg-surface shadow-soft transition-all">
+      <div class="flex items-center justify-between border-b border-border bg-background-soft px-4 py-2.5">
+        <div class="flex items-center gap-2">
+          <span class="relative flex size-2">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
+            <span class="relative inline-flex size-2 rounded-full bg-success"></span>
+          </span>
+          <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
+            Simulación en vivo (Así se verá en la web)
+          </span>
+        </div>
+        <span class="text-caption text-text-muted font-medium">
+          {{ imagenUrl().trim() ? 'Con fotografía' : 'Fondo por defecto' }}
+        </span>
+      </div>
+
+      <div class="relative min-h-[160px] p-6 flex flex-col justify-end overflow-hidden">
+        @if (imagenUrl().trim() && !previewFailed()) {
+          <img
+            [src]="imagenUrl()"
+            alt="Fondo de la sección"
+            class="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
+            (error)="markPreviewFailed()"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/30 backdrop-blur-[1px]"></div>
+        } @else {
+          <div class="absolute inset-0 bg-gradient-to-br from-surface-soft via-surface to-background-soft"></div>
+        }
+
+        <div class="relative z-10 space-y-2">
+          @if (etiqueta().trim()) {
+            <p class="text-caption font-bold tracking-widest text-accent uppercase">
+              {{ etiqueta() }}
+            </p>
+          }
+          <h4 class="text-heading-3 font-display text-text-primary leading-tight">
+            {{ titulo().trim() || 'Título principal de la sección' }}
+          </h4>
+          @if (subtitulo().trim()) {
+            <p class="text-body-sm font-medium text-text-secondary">
+              {{ subtitulo() }}
+            </p>
+          }
+          @if (contenido().trim()) {
+            <p class="text-body-sm text-text-muted line-clamp-2 max-w-2xl">
+              {{ contenido() }}
+            </p>
+          }
+          @if (textoBoton().trim()) {
+            <div class="pt-2">
+              <span class="inline-flex items-center gap-2 rounded-button bg-action-primary px-4 py-2 text-body-sm font-semibold text-action-primary-text shadow-sm transition-transform hover:-translate-y-0.5">
+                <span>{{ textoBoton() }}</span>
+                @if (enlaceBoton().trim()) {
+                  <span class="inline-flex items-center gap-1 text-caption font-mono opacity-80">
+                    <svg class="size-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                    </svg>
+                    {{ enlaceBoton() }}
+                  </span>
+                }
+              </span>
+            </div>
+          }
+        </div>
+      </div>
     </div>
+
+    <!-- Navegación por pestañas internas con iconos profesionales SVG -->
+    <div class="border-b border-border" role="tablist" aria-label="Secciones del formulario">
+      <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'textos'"
+          (click)="activeTab.set('textos')"
+          class="flex items-center gap-2 rounded-control px-3.5 py-2 text-body-sm font-medium transition-colors cursor-pointer"
+          [class.bg-action-primary]="activeTab() === 'textos'"
+          [class.text-action-primary-text]="activeTab() === 'textos'"
+          [class.bg-surface]="activeTab() !== 'textos'"
+          [class.text-text-secondary]="activeTab() !== 'textos'"
+          [class.hover:bg-surface-hover]="activeTab() !== 'textos'"
+        >
+          <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+          </svg>
+          <span>Textos y Mensajes</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'imagen'"
+          (click)="activeTab.set('imagen')"
+          class="flex items-center gap-2 rounded-control px-3.5 py-2 text-body-sm font-medium transition-colors cursor-pointer"
+          [class.bg-action-primary]="activeTab() === 'imagen'"
+          [class.text-action-primary-text]="activeTab() === 'imagen'"
+          [class.bg-surface]="activeTab() !== 'imagen'"
+          [class.text-text-secondary]="activeTab() !== 'imagen'"
+          [class.hover:bg-surface-hover]="activeTab() !== 'imagen'"
+        >
+          <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+          </svg>
+          <span>Fotografía</span>
+          @if (imagenUrl().trim()) {
+            <span class="size-2 rounded-full bg-accent"></span>
+          }
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'boton'"
+          (click)="activeTab.set('boton')"
+          class="flex items-center gap-2 rounded-control px-3.5 py-2 text-body-sm font-medium transition-colors cursor-pointer"
+          [class.bg-action-primary]="activeTab() === 'boton'"
+          [class.text-action-primary-text]="activeTab() === 'boton'"
+          [class.bg-surface]="activeTab() !== 'boton'"
+          [class.text-text-secondary]="activeTab() !== 'boton'"
+          [class.hover:bg-surface-hover]="activeTab() !== 'boton'"
+        >
+          <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
+          </svg>
+          <span>Botón Principal (CTA)</span>
+          @if (textoBoton().trim()) {
+            <span class="size-2 rounded-full bg-accent"></span>
+          }
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'ajustes'"
+          (click)="activeTab.set('ajustes')"
+          class="flex items-center gap-2 rounded-control px-3.5 py-2 text-body-sm font-medium transition-colors cursor-pointer"
+          [class.bg-action-primary]="activeTab() === 'ajustes'"
+          [class.text-action-primary-text]="activeTab() === 'ajustes'"
+          [class.bg-surface]="activeTab() !== 'ajustes'"
+          [class.text-text-secondary]="activeTab() !== 'ajustes'"
+          [class.hover:bg-surface-hover]="activeTab() !== 'ajustes'"
+        >
+          <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+          </svg>
+          <span>Posición y Estado</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido de las pestañas -->
+    @switch (activeTab()) {
+      @case ('textos') {
+        <div class="space-y-4 rounded-card border border-border bg-surface p-4">
+          <div class="border-b border-border pb-2">
+            <h4 class="text-body-sm font-semibold text-text-primary">Textos de la sección</h4>
+            <p class="text-caption text-text-muted">Define los mensajes que leerán los clientes en este bloque.</p>
+          </div>
+
+          <app-input-field
+            inputId="etiqueta"
+            label="Etiqueta superior (Eyebrow)"
+            [(value)]="etiqueta"
+            placeholder="Ej: NUESTROS SERVICIOS o EXPERIENCIA"
+            helperText="Texto pequeño en mayúsculas que resalta sobre el título principal."
+            [disabled]="submitting()"
+          />
+
+          <app-input-field
+            inputId="titulo"
+            label="Título principal de la sección"
+            [(value)]="titulo"
+            placeholder="Ej: Transformamos espacios en experiencias"
+            helperText="El encabezado más importante y llamativo de la sección."
+            [disabled]="submitting()"
+          />
+
+          <app-input-field
+            inputId="subtitulo"
+            label="Subtítulo o lema complementario"
+            [(value)]="subtitulo"
+            placeholder="Ej: Soluciones de alta ingeniería y diseño"
+            [disabled]="submitting()"
+          />
+
+          <app-textarea-field
+            inputId="contenido"
+            label="Descripción o contenido detallado"
+            [(value)]="contenido"
+            placeholder="Escribe el mensaje o resumen que acompaña a esta sección..."
+            [disabled]="submitting()"
+            [rows]="3"
+          />
+        </div>
+      }
+
+      @case ('imagen') {
+        <div class="space-y-4 rounded-card border border-border bg-surface p-4">
+          <div class="border-b border-border pb-2">
+            <h4 class="text-body-sm font-semibold text-text-primary">Fotografía o imagen de fondo</h4>
+            <p class="text-caption text-text-muted">Imagen representativa para ambientar visualmente la sección.</p>
+          </div>
+
+          <app-input-field
+            inputId="imagenUrl"
+            label="URL directa de la fotografía"
+            type="url"
+            [value]="imagenUrl()"
+            (valueChange)="updateImageUrl($event)"
+            placeholder="https://ejemplo.com/foto-fondo.jpg"
+            helperText="Ingresa el enlace a la imagen alojada (PNG, JPG, WebP)."
+            [disabled]="submitting()"
+          />
+
+          <app-input-field
+            inputId="imagenAlt"
+            label="Descripción accesible de la foto (Texto Alternativo)"
+            [(value)]="imagenAlt"
+            placeholder="Ej: Arquitecto supervisando obra en obra civil"
+            helperText="Requerido para accesibilidad web y posicionamiento SEO en Google."
+            [disabled]="submitting()"
+          />
+
+          @if (imagenUrl().trim()) {
+            <div class="space-y-2 pt-2" aria-live="polite">
+              <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
+                Vista previa de la fotografía
+              </span>
+              @if (previewFailed()) {
+                <div class="flex min-h-28 items-center justify-center rounded-card border border-dashed border-error/50 bg-error/5 p-4 text-center text-body-sm text-error">
+                  No se pudo cargar la imagen desde la URL ingresada. Verifica que el enlace sea público.
+                </div>
+              } @else {
+                <div class="overflow-hidden rounded-card border border-border bg-surface-soft">
+                  <img
+                    [src]="imagenUrl()"
+                    alt="Vista previa"
+                    class="h-48 w-full object-cover"
+                    (error)="markPreviewFailed()"
+                  />
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @case ('boton') {
+        <div class="space-y-4 rounded-card border border-border bg-surface p-4">
+          <div class="border-b border-border pb-2">
+            <h4 class="text-body-sm font-semibold text-text-primary">Botón Principal (Llamado a la acción)</h4>
+            <p class="text-caption text-text-muted">Invita a los visitantes a navegar o contactarse con un solo clic.</p>
+          </div>
+
+          <app-input-field
+            inputId="textoBoton"
+            label="Texto del botón"
+            [(value)]="textoBoton"
+            placeholder="Ej: Solicitar cotización o Conoce nuestros servicios"
+            [disabled]="submitting()"
+          />
+
+          <app-input-field
+            inputId="enlaceBoton"
+            label="Enlace de destino"
+            [(value)]="enlaceBoton"
+            placeholder="Ej: /servicios o https://wa.me/..."
+            [disabled]="submitting()"
+          />
+
+          <div class="pt-2">
+            <p class="text-caption font-semibold uppercase tracking-wider text-text-muted mb-2">
+              Atajos rápidos de enlaces (Haz clic para aplicar):
+            </p>
+            <div class="flex flex-wrap gap-2">
+              @for (link of quickLinks; track link) {
+                <button
+                  type="button"
+                  (click)="setQuickLink(link)"
+                  class="inline-flex items-center gap-1.5 rounded-button border border-border bg-surface-soft px-3 py-1.5 text-caption font-mono font-medium text-text-secondary transition-all hover:bg-surface-hover hover:text-text-primary hover:border-text-muted cursor-pointer"
+                >
+                  <svg class="size-3 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                  </svg>
+                  <span>{{ link }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      @case ('ajustes') {
+        <div class="space-y-4 rounded-card border border-border bg-surface p-4">
+          <div class="border-b border-border pb-2">
+            <h4 class="text-body-sm font-semibold text-text-primary">Posición y Publicación</h4>
+            <p class="text-caption text-text-muted">Controla el orden y la visibilidad de la sección en la portada.</p>
+          </div>
+
+          <app-select-field
+            inputId="tipo"
+            label="Tipo de sección en la web"
+            [options]="typeOptions"
+            [(value)]="tipo"
+            [disabled]="true"
+            helperText="El tipo de sección define su ubicación y diseño fijo en la web."
+            [required]="true"
+          />
+
+          <app-input-field
+            inputId="orden"
+            label="Orden de aparición en la portada"
+            type="number"
+            [(value)]="orden"
+            helperText="0 se ubica primero en la parte superior (Hero); 1, 2, 3... descienden en la página."
+            [required]="true"
+            [disabled]="submitting()"
+          />
+
+          <div class="pt-2">
+            <label class="flex items-start gap-3 rounded-card border border-border bg-surface-soft p-3.5 cursor-pointer transition-colors hover:bg-surface-hover">
+              <input
+                type="checkbox"
+                id="visible"
+                name="visible"
+                [checked]="visible()"
+                (change)="handleVisibilityChange($event)"
+                [disabled]="submitting()"
+                class="form-choice mt-0.5"
+              />
+              <div>
+                <span class="font-medium text-body-sm text-text-primary">Visible públicamente en la página web</span>
+                <p class="text-caption text-text-muted mt-0.5">
+                  Si se desmarca, la sección permanecerá guardada pero estará totalmente oculta para los visitantes.
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+      }
+    }
   </form>
+
+  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button
+      type="button"
+      variant="secondary"
+      (click)="closed.emit()"
+      [disabled]="submitting()"
+    >
+      Cancelar
+    </app-button>
+    <app-button
+      type="submit"
+      variant="primary"
+      [loading]="submitting()"
+      (click)="submit($event)"
+    >
+      Guardar cambios
+    </app-button>
+  </div>
 </app-modal>

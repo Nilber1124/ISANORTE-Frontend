@@ -47,7 +47,6 @@ export interface PublicHomeService {
   slug: string;
   resumen: string | null;
   descripcion: string;
-  icono: string | null;
   imagenUrl: string | null;
   imagenAlt: string | null;
   etiqueta: string | null;

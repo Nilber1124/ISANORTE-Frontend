@@ -50,13 +50,7 @@ export const routes: Routes = [
             ({ AdminProjects }) => AdminProjects,
           ),
       },
-      {
-        path: 'proyectos/:id',
-        loadComponent: () =>
-          import('./features/admin/projects/detail/admin-project-detail').then(
-            ({ AdminProjectDetail }) => AdminProjectDetail,
-          ),
-      },
+
       {
         path: 'servicios',
         loadComponent: () =>

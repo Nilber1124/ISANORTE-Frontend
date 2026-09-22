@@ -57,13 +57,38 @@ export class CategoryForm implements OnInit {
   readonly unidadNegocioId = signal('');
   readonly orden = signal('0');
   readonly activo = signal(true);
+  readonly previewFailed = signal(false);
   readonly submitted = signal(false);
 
   readonly businessUnitOptions = computed<readonly SelectOption[]>(() => [
-    { value: '', label: 'Sin unidad' },
+    { value: '', label: 'Sin unidad (Categoría global)' },
     ...this.businessUnits().map((unit) => ({ value: unit.id, label: unit.nombre })),
   ]);
   readonly errors = computed<CategoryFormErrors>(() => this.validationErrors());
+
+  protected generateSlug(): void {
+    const s = this.nombre()
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    if (s) this.slug.set(s);
+  }
+
+  protected updateImageUrl(value: string): void {
+    this.imagenUrl.set(value);
+    this.previewFailed.set(false);
+  }
+
+  protected markPreviewFailed(): void {
+    this.previewFailed.set(true);
+  }
+
+  protected updateBusinessUnit(value: string): void {
+    this.unidadNegocioId.set(value);
+  }
 
   ngOnInit(): void {
     const category = this.category();

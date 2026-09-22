@@ -7,162 +7,454 @@
   [loading]="saving()"
   (closed)="closed.emit()"
 >
-  @if (kind() === 'action' && parentType() === 'HERO') {
-    <p class="mb-4 rounded-control bg-surface-soft p-3 text-body-sm">
-      Un Hero admite como máximo 2 acciones activas.
-    </p>
-  }
-  @if (kind() === 'action' && parentType() === 'CTA') {
-    <p class="mb-4 rounded-control bg-surface-soft p-3 text-body-sm">
-      Una sección CTA admite como máximo 1 acción activa.
-    </p>
-  }
   @if (error()) {
-    <p class="mb-4 text-body-sm text-error">{{ error() }}</p>
-  }
-  <div class="mb-4 flex justify-end">
-    <app-button size="small" (click)="openCreate()">Agregar</app-button>
-  </div>
-  @if (items().length === 0) {
-    <app-empty-state
-      emptyStateId="dynamic-child-empty"
-      [title]="emptyDescription()"
-      description="No se insertan datos de demostración automáticamente."
-    />
-  } @else {
-    <div class="space-y-2">
-      @for (item of items(); track item.id) {
-        <div class="flex items-center gap-3 rounded-control border border-border p-3">
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-body-sm font-semibold">{{ itemLabel(item) }}</p>
-            <p class="text-caption text-text-muted">
-              Orden {{ item.orden }} · {{ item.activo ? 'Activo' : 'Inactivo' }}
-            </p>
-          </div>
-          <app-button size="small" variant="ghost" (click)="openEdit(item)">Editar</app-button
-          ><app-button
-            size="small"
-            variant="ghost"
-            [disabled]="saving()"
-            (click)="deleted.emit(item.id)"
-            >Eliminar</app-button
-          >
-        </div>
-      }
+    <div class="mb-4 rounded-card border border-error/30 bg-error/10 p-3 text-body-sm text-error">
+      {{ error() }}
     </div>
   }
-  @if (formOpen()) {
-    <section class="mt-5 grid gap-4 rounded-card border border-border p-4 sm:grid-cols-2">
-      @if (kind() === 'scene' || kind() === 'resource') {
-        <app-input-field
-          class="sm:col-span-2"
-          inputId="child-url"
-          [label]="kind() === 'scene' ? 'Imagen URL' : 'URL'"
-          type="url"
-          [(value)]="url"
-          required
-        />
-      }
-      @if (kind() === 'action') {
-        <app-input-field
-          inputId="child-text"
-          label="Texto"
-          [(value)]="text"
-          required
-        /><app-input-field
-          inputId="child-link"
-          label="Enlace"
-          [(value)]="url"
-          helperText="/, #, https, mailto o tel"
-          required
-        />
-      }
-      @if (kind() === 'benefit') {
-        <app-input-field
-          class="sm:col-span-2"
-          inputId="child-benefit"
-          label="Texto"
-          [(value)]="text"
-          required
-        />
-      }
-      @if (kind() === 'resource') {
-        <label class="form-label"
-          >Tipo<select
-            class="form-control mt-2"
-            [value]="resourceType()"
-            (change)="resourceType.set($any($event.target).value)"
-          >
-            @for (type of resourceTypes; track type) {
-              <option [value]="type">{{ type }}</option>
-            }
-          </select></label
-        ><app-input-field
-          inputId="child-resource-label"
-          label="Etiqueta"
-          [(value)]="label"
-          [helperText]="
-            resourceType() === 'CATALOGO' ? 'Texto recomendado para el enlace o documento.' : ''
-          "
-        /><app-input-field
-          class="sm:col-span-2"
-          inputId="child-alt"
-          label="Texto alternativo"
-          [(value)]="alt"
-          [required]="resourceType() === 'IMAGEN_EDITORIAL'"
-        />
-      }
+
+  <!-- VISTA 1: LISTADO DE REGISTROS -->
+  @if (!formOpen()) {
+    <!-- Mensaje orientativo según el tipo de elemento -->
+    @if (kind() === 'scene') {
+      <div class="mb-4 flex items-start gap-3 rounded-card border border-border bg-surface-soft p-3.5 text-body-sm text-text-secondary">
+        <div class="flex size-7 shrink-0 items-center justify-center rounded-control bg-accent/15 text-accent mt-0.5">
+          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.516 0c.85.493 1.508 1.333 1.508 2.316V18" />
+          </svg>
+        </div>
+        <div>
+          <span class="font-semibold text-text-primary">Carrusel de cabecera:</span>
+          Estas fotografías rotarán de forma continua como fondo interactivo en la portada principal de ISANORTE.
+        </div>
+      </div>
+    }
+    @if (kind() === 'action' && parentType() === 'HERO') {
+      <div class="mb-4 flex items-start gap-3 rounded-card border border-border bg-surface-soft p-3.5 text-body-sm text-text-secondary">
+        <div class="flex size-7 shrink-0 items-center justify-center rounded-control bg-accent/15 text-accent mt-0.5">
+          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+          </svg>
+        </div>
+        <div>
+          <span class="font-semibold text-text-primary">Límite en la portada:</span>
+          La portada principal (Hero) admite como máximo <strong class="text-text-primary">2 botones activos</strong> simultáneamente (ej: "Solicitar cotización" y "Ver servicios").
+        </div>
+      </div>
+    }
+    @if (kind() === 'action' && parentType() === 'CTA') {
+      <div class="mb-4 flex items-start gap-3 rounded-card border border-border bg-surface-soft p-3.5 text-body-sm text-text-secondary">
+        <div class="flex size-7 shrink-0 items-center justify-center rounded-control bg-accent/15 text-accent mt-0.5">
+          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+          </svg>
+        </div>
+        <div>
+          <span class="font-semibold text-text-primary">Límite en el banner:</span>
+          La sección de llamado a la acción (CTA) admite como máximo <strong class="text-text-primary">1 botón activo principal</strong>.
+        </div>
+      </div>
+    }
+
+    <!-- Barra de acciones superior -->
+    <div class="mb-4 flex items-center justify-between gap-2 border-b border-border pb-3">
+      <div>
+        <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
+          {{ items().length }} {{ kind() === 'scene' ? 'diapositivas' : kind() === 'action' ? 'botones' : 'registros' }} en total
+        </span>
+      </div>
+      <app-button size="small" variant="primary" (click)="openCreate()">
+        {{ kind() === 'scene' ? '+ Nueva diapositiva' : kind() === 'action' ? '+ Nuevo botón' : '+ Agregar nuevo' }}
+      </app-button>
+    </div>
+
+    <!-- Lista o estado vacío -->
+    @if (items().length === 0) {
+      <app-empty-state
+        emptyStateId="dynamic-child-empty"
+        [title]="emptyDescription()"
+        description="Agrega el primer elemento haciendo clic en el botón superior para enriquecer esta sección."
+      />
+    } @else {
+      <!-- Tarjetas de Diapositivas (Hero) -->
       @if (kind() === 'scene') {
-        <app-input-field
-          class="sm:col-span-2"
-          inputId="child-alt"
-          label="Texto alternativo"
-          [(value)]="alt"
-        />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          @for (item of items(); track item.id) {
+            <div class="group relative flex flex-col overflow-hidden rounded-card border border-border bg-surface shadow-xs transition-all hover:border-text-muted hover:shadow-card">
+              <!-- Miniatura fotográfica -->
+              <div class="relative aspect-video w-full overflow-hidden bg-surface-soft">
+                <img
+                  [src]="asScene(item).imagenUrl"
+                  [alt]="asScene(item).alt || 'Diapositiva'"
+                  class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  (error)="$any($event.target).style.display = 'none'"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent"></div>
+
+                <!-- Insignias flotantes -->
+                <div class="absolute top-2.5 left-2.5">
+                  <span class="rounded-control bg-background/80 px-2 py-1 text-caption font-mono font-bold text-text-primary backdrop-blur-md shadow-xs">
+                    #{{ item.orden }}
+                  </span>
+                </div>
+                <div class="absolute top-2.5 right-2.5">
+                  <app-badge [variant]="item.activo ? 'success' : 'neutral'" dot>
+                    {{ item.activo ? 'Activa' : 'Oculta' }}
+                  </app-badge>
+                </div>
+              </div>
+
+              <!-- Detalles de la diapositiva -->
+              <div class="p-3.5 flex-1 flex flex-col justify-between gap-3">
+                <div>
+                  <p class="text-body-sm font-semibold text-text-primary line-clamp-1">
+                    {{ asScene(item).alt || 'Fotografía sin descripción' }}
+                  </p>
+                  <p class="mt-1 font-mono text-caption text-text-muted truncate">
+                    {{ asScene(item).imagenUrl }}
+                  </p>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex items-center justify-end gap-2 border-t border-border/60 pt-2.5">
+                  <app-button size="small" variant="ghost" (click)="openEdit(item)">
+                    Editar
+                  </app-button>
+                  <app-button
+                    size="small"
+                    variant="ghost"
+                    [disabled]="saving()"
+                    (click)="deleted.emit(item.id)"
+                  >
+                    Eliminar
+                  </app-button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
       }
-      @if (kind() === 'statistic') {
-        <app-input-field
-          inputId="child-value"
-          label="Valor"
-          type="number"
-          [(value)]="text"
-          required
-        /><app-input-field
-          inputId="child-label"
-          label="Etiqueta"
-          [(value)]="label"
-          required
-        /><app-input-field
-          inputId="child-prefix"
-          label="Prefijo"
-          [(value)]="prefix"
-        /><app-input-field inputId="child-suffix" label="Sufijo" [(value)]="suffix" />
+
+      <!-- Tarjetas de Botones / Acciones -->
+      @else if (kind() === 'action') {
+        <div class="space-y-3">
+          @for (item of items(); track item.id) {
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-surface p-4 shadow-xs transition-all hover:bg-surface-hover">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <span class="flex size-8 shrink-0 items-center justify-center rounded-control bg-surface-soft font-mono font-bold text-caption text-text-secondary border border-border">
+                  #{{ item.orden }}
+                </span>
+
+                <div class="space-y-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="inline-flex items-center gap-1.5 rounded-button bg-action-primary px-3 py-1 text-body-sm font-semibold text-action-primary-text shadow-xs">
+                      <svg class="size-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                      </svg>
+                      <span>{{ asAction(item).texto }}</span>
+                    </span>
+                    <app-badge [variant]="item.activo ? 'success' : 'neutral'" dot>
+                      {{ item.activo ? 'Activo en web' : 'Inactivo' }}
+                    </app-badge>
+                  </div>
+
+                  <p class="text-caption font-mono text-text-muted truncate flex items-center gap-1">
+                    <span>Destino:</span>
+                    <svg class="size-3 shrink-0 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                    </svg>
+                    <span class="text-text-primary font-medium">{{ asAction(item).enlace }}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0">
+                <app-button size="small" variant="ghost" (click)="openEdit(item)">
+                  Editar
+                </app-button>
+                <app-button
+                  size="small"
+                  variant="ghost"
+                  [disabled]="saving()"
+                  (click)="deleted.emit(item.id)"
+                >
+                  Eliminar
+                </app-button>
+              </div>
+            </div>
+          }
+        </div>
       }
-      <app-input-field
-        inputId="child-order"
-        label="Orden"
-        type="number"
-        [(value)]="order"
-        required
-      /><label class="flex items-center gap-3 self-end py-3 text-body-sm"
-        ><input
-          class="form-choice"
-          type="checkbox"
-          [checked]="active()"
-          (change)="toggleActive($event)"
-        />Activo</label
-      >
-      @if (activeLimitReached()) {
-        <p class="sm:col-span-2 text-body-sm text-error">
-          Desactiva otra acción antes de activar esta.
-        </p>
+
+      <!-- Otros tipos de elementos (beneficios, recursos, estadísticas) -->
+      @else {
+        <div class="space-y-2.5">
+          @for (item of items(); track item.id) {
+            <div class="flex items-center justify-between gap-3 rounded-card border border-border bg-surface p-3.5 transition-colors hover:bg-surface-hover">
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-body-sm font-semibold text-text-primary">{{ itemLabel(item) }}</p>
+                <p class="mt-1 text-caption text-text-muted flex items-center gap-2">
+                  <span class="font-mono">Orden #{{ item.orden }}</span>
+                  <span>·</span>
+                  <span [class.text-accent]="item.activo" [class.text-text-muted]="!item.activo" class="font-medium">
+                    {{ item.activo ? 'Activo públicamente' : 'Inactivo' }}
+                  </span>
+                </p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <app-button size="small" variant="ghost" (click)="openEdit(item)">Editar</app-button>
+                <app-button
+                  size="small"
+                  variant="ghost"
+                  [disabled]="saving()"
+                  (click)="deleted.emit(item.id)"
+                >
+                  Eliminar
+                </app-button>
+              </div>
+            </div>
+          }
+        </div>
       }
-      <div class="sm:col-span-2 flex justify-end gap-2">
-        <app-button variant="secondary" size="small" (click)="formOpen.set(false)"
-          >Cancelar</app-button
-        ><app-button size="small" [disabled]="invalid()" [loading]="saving()" (click)="submit()"
-          >Guardar</app-button
+    }
+  }
+
+  <!-- VISTA 2: FORMULARIO DEDICADO DE EDICIÓN O CREACIÓN -->
+  @if (formOpen()) {
+    <section class="space-y-5">
+      <!-- Barra superior de navegación de vuelta -->
+      <div class="flex items-center justify-between border-b border-border pb-3">
+        <button
+          type="button"
+          (click)="formOpen.set(false)"
+          class="group inline-flex items-center gap-2 text-body-sm font-semibold text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
         >
+          <svg class="size-4 shrink-0 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          <span>Volver al listado</span>
+        </button>
+
+        <h4 class="text-body-sm font-semibold text-text-primary">
+          {{ editingId() ? 'Editar ' + (kind() === 'scene' ? 'diapositiva' : kind() === 'action' ? 'botón' : 'elemento') : 'Nueva ' + (kind() === 'scene' ? 'diapositiva' : kind() === 'action' ? 'botón' : 'elemento') }}
+        </h4>
+      </div>
+
+      <!-- Tarjeta del formulario -->
+      <div class="rounded-card border border-border bg-surface p-4 space-y-4">
+        <!-- Campos específicos para Diapositiva (Hero) -->
+        @if (kind() === 'scene') {
+          <app-input-field
+            inputId="child-url"
+            label="URL de la fotografía"
+            type="url"
+            [value]="url()"
+            (valueChange)="updateUrl($event)"
+            placeholder="https://ejemplo.com/fotografia.jpg"
+            helperText="Ingresa el enlace público de la imagen (WebP, JPG, PNG)."
+            required
+          />
+
+          <app-input-field
+            inputId="child-alt"
+            label="Descripción accesible de la foto (Texto alternativo)"
+            [(value)]="alt"
+            placeholder="Ej: Fachada de casa campestre con acabados de madera"
+            helperText="Describe qué se observa en la fotografía para accesibilidad y SEO."
+          />
+
+          @if (url().trim()) {
+            <div class="space-y-1.5" aria-live="polite">
+              <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
+                Vista previa de la fotografía
+              </span>
+              @if (previewFailed()) {
+                <div class="flex min-h-24 items-center justify-center rounded-card border border-dashed border-error/50 bg-error/5 p-3 text-center text-body-sm text-error">
+                  No se pudo cargar la imagen desde la URL ingresada.
+                </div>
+              } @else {
+                <div class="overflow-hidden rounded-card border border-border bg-surface-soft">
+                  <img
+                    [src]="url()"
+                    alt="Vista previa de diapositiva"
+                    class="h-44 w-full object-cover"
+                    (error)="markPreviewFailed()"
+                  />
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- Campos específicos para Botón / Acción -->
+        @if (kind() === 'action') {
+          <app-input-field
+            inputId="child-text"
+            label="Texto visible del botón"
+            [(value)]="text"
+            placeholder="Ej: Solicitar cotización o Ver catálogo"
+            required
+          />
+
+          <app-input-field
+            inputId="child-link"
+            label="Enlace de destino"
+            [(value)]="url"
+            placeholder="Ej: /servicios, /contacto o https://wa.me/..."
+            helperText="Ruta interna de la web o enlace externo a WhatsApp."
+            required
+          />
+
+          <div>
+            <p class="text-caption font-semibold uppercase tracking-wider text-text-muted mb-2">
+              Atajos rápidos (Haz clic para aplicar):
+            </p>
+            <div class="flex flex-wrap gap-2">
+              @for (link of quickLinks; track link) {
+                <button
+                  type="button"
+                  (click)="setQuickLink(link)"
+                  class="inline-flex items-center gap-1.5 rounded-button border border-border bg-surface-soft px-3 py-1.5 text-caption font-mono font-medium text-text-secondary transition-all hover:bg-surface-hover hover:text-text-primary hover:border-text-muted cursor-pointer"
+                >
+                  <svg class="size-3 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                  </svg>
+                  <span>{{ link }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Previsualización del botón -->
+          @if (text().trim()) {
+            <div class="space-y-1.5 pt-2">
+              <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
+                Previsualización del botón:
+              </span>
+              <div>
+                <span class="inline-flex items-center gap-2 rounded-button bg-action-primary px-4 py-2 text-body-sm font-semibold text-action-primary-text shadow-sm">
+                  <span>{{ text() }}</span>
+                  @if (url().trim()) {
+                    <span class="inline-flex items-center gap-1 text-caption font-mono opacity-80">
+                      <svg class="size-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                      </svg>
+                      {{ url() }}
+                    </span>
+                  }
+                </span>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- Beneficios del servicio -->
+        @if (kind() === 'benefit') {
+          <app-input-field
+            inputId="child-benefit"
+            label="Texto del beneficio"
+            [(value)]="text"
+            required
+          />
+        }
+
+        <!-- Recursos de unidad -->
+        @if (kind() === 'resource') {
+          <label class="form-label">
+            Tipo
+            <select
+              class="form-control mt-2"
+              [value]="resourceType()"
+              (change)="resourceType.set($any($event.target).value)"
+            >
+              @for (type of resourceTypes; track type) {
+                <option [value]="type">{{ type }}</option>
+              }
+            </select>
+          </label>
+          <app-input-field
+            inputId="child-resource-label"
+            label="Etiqueta"
+            [(value)]="label"
+            [helperText]="
+              resourceType() === 'CATALOGO' ? 'Texto recomendado para el enlace o documento.' : ''
+            "
+          />
+          <app-input-field
+            inputId="child-alt"
+            label="Texto alternativo"
+            [(value)]="alt"
+            [required]="resourceType() === 'IMAGEN_EDITORIAL'"
+          />
+        }
+
+        <!-- Estadísticas -->
+        @if (kind() === 'statistic') {
+          <div class="grid grid-cols-2 gap-4">
+            <app-input-field
+              inputId="child-value"
+              label="Valor numérico"
+              type="number"
+              [(value)]="text"
+              required
+            />
+            <app-input-field
+              inputId="child-label"
+              label="Etiqueta / Descripción"
+              [(value)]="label"
+              required
+            />
+            <app-input-field
+              inputId="child-prefix"
+              label="Prefijo (ej: +)"
+              [(value)]="prefix"
+            />
+            <app-input-field inputId="child-suffix" label="Sufijo (ej: % o k)" [(value)]="suffix" />
+          </div>
+        }
+
+        <!-- Orden y Estado activo -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border">
+          <app-input-field
+            inputId="child-order"
+            label="Orden de aparición"
+            type="number"
+            [(value)]="order"
+            helperText="Turno de rotación o secuencia (0, 1, 2...)"
+            required
+          />
+
+          <div class="flex items-center sm:pt-6">
+            <label class="flex items-center gap-3 rounded-card border border-border bg-surface-soft p-3 w-full cursor-pointer hover:bg-surface-hover transition-colors">
+              <input
+                class="form-choice"
+                type="checkbox"
+                [checked]="active()"
+                (change)="toggleActive($event)"
+              />
+              <span class="font-medium text-body-sm text-text-primary">Activo en la web</span>
+            </label>
+          </div>
+        </div>
+
+        @if (activeLimitReached()) {
+          <div class="flex items-center gap-2 rounded-card border border-error/40 bg-error/10 p-3 text-body-sm text-error">
+            <svg class="size-4 shrink-0 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            </svg>
+            <span>Has alcanzado el límite de botones activos permitidos en esta sección. Desactiva otro botón antes de activar este.</span>
+          </div>
+        }
+      </div>
+
+      <!-- Botones del formulario -->
+      <div class="flex justify-end gap-2 pt-2">
+        <app-button variant="secondary" size="small" (click)="formOpen.set(false)">
+          Cancelar
+        </app-button>
+        <app-button size="small" [disabled]="invalid()" [loading]="saving()" (click)="submit()">
+          Guardar
+        </app-button>
       </div>
     </section>
   }

@@ -969,65 +969,6 @@ paths:
         '400': {$ref: '#/components/responses/BadRequest'}
         '404': {$ref: '#/components/responses/NotFound'}
         '409': {$ref: '#/components/responses/Conflict'}
-  /api/proyectos/{proyectoId}/imagenes:
-    post:
-      tags: [Proyectos]
-      operationId: crearImagenProyecto
-      summary: Agrega una imagen URL a un proyecto existente
-      description: No carga archivos. El dominio permite más de una imagen con esPrincipal=true.
-      x-access-intent: ADMINISTRATIVO
-      parameters:
-        - $ref: '#/components/parameters/ProyectoId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/ImagenProyectoRequest'}
-      responses:
-        '201':
-          description: Imagen creada y asociada al proyecto
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/ImagenProyectoResponse'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '404': {$ref: '#/components/responses/NotFound'}
-        '409': {$ref: '#/components/responses/Conflict'}
-  /api/proyectos/{proyectoId}/imagenes/{imagenId}:
-    put:
-      tags: [Proyectos]
-      operationId: actualizarImagenProyecto
-      summary: Actualiza una imagen URL perteneciente al proyecto
-      description: Conserva el ID y la FK; no permite mover la imagen a otro proyecto.
-      x-access-intent: ADMINISTRATIVO
-      parameters:
-        - $ref: '#/components/parameters/ProyectoId'
-        - $ref: '#/components/parameters/ImagenId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: {$ref: '#/components/schemas/ImagenProyectoRequest'}
-      responses:
-        '200':
-          description: Imagen actualizada
-          content:
-            application/json:
-              schema: {$ref: '#/components/schemas/ImagenProyectoResponse'}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '404': {$ref: '#/components/responses/NotFound'}
-        '409': {$ref: '#/components/responses/Conflict'}
-    delete:
-      tags: [Proyectos]
-      operationId: eliminarImagenProyecto
-      summary: Elimina una imagen del proyecto mediante orphanRemoval
-      x-access-intent: ADMINISTRATIVO
-      parameters:
-        - $ref: '#/components/parameters/ProyectoId'
-        - $ref: '#/components/parameters/ImagenId'
-      responses:
-        '204': {description: Imagen eliminada}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '404': {$ref: '#/components/responses/NotFound'}
   /api/proyectos/{id}/activo:
     patch:
       tags: [Proyectos]
@@ -1775,9 +1716,6 @@ components:
     TipoDocumentoProducto:
       type: string
       enum: [CATALOGO, FICHA_TECNICA, MANUAL, OTRO]
-    TipoImagenProyecto:
-      type: string
-      enum: [GENERAL, ANTES, DESPUES]
     TipoSeccionLanding:
       type: string
       enum: [HERO, EMPRESA, SERVICIOS, UNIDAD_NEGOCIO, PROYECTOS, CONTACTO, CTA, PERSONALIZADA]
@@ -1890,7 +1828,6 @@ components:
         nombre: {type: string, minLength: 1}
         url: {type: string, minLength: 1}
         icono: {type: string, nullable: true}
-        orden: {type: integer, format: int32, nullable: true}
         activo: {type: boolean, nullable: true}
         orden: {type: integer, minimum: 0, nullable: true}
     ProductoRequest:
@@ -2039,6 +1976,8 @@ components:
         ubicacion: {type: string, nullable: true}
         fechaProyecto: {type: string, nullable: true, description: Texto libre; no tiene formato de fecha validado.}
         descripcion: {type: string, minLength: 1}
+        imagenUrl: {type: string, maxLength: 500, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
         destacado: {type: boolean, nullable: true}
         activo: {type: boolean, nullable: true}
         orden: {type: integer, format: int32, minimum: 0, nullable: true}
@@ -2047,33 +1986,6 @@ components:
           uniqueItems: true
           nullable: true
           items: {type: string, format: uuid}
-        imagenes:
-          type: array
-          nullable: true
-          items: {$ref: '#/components/schemas/ProyectoImagenRequest'}
-    ProyectoImagenRequest:
-      type: object
-      required: [url, tipo]
-      properties:
-        url: {type: string, minLength: 1}
-        titulo: {type: string, nullable: true}
-        descripcion: {type: string, nullable: true}
-        alt: {type: string, nullable: true}
-        tipo: {$ref: '#/components/schemas/TipoImagenProyecto'}
-        esPrincipal: {type: boolean, nullable: true}
-        orden: {type: integer, format: int32, nullable: true}
-    ImagenProyectoRequest:
-      type: object
-      description: DTO administrativo por URL; no acepta id, proyectoId, timestamps ni entidades.
-      required: [url, tipo, esPrincipal, orden]
-      properties:
-        url: {type: string, minLength: 1, maxLength: 500}
-        titulo: {type: string, maxLength: 150, nullable: true}
-        descripcion: {type: string, maxLength: 300, nullable: true}
-        alt: {type: string, maxLength: 300, nullable: true}
-        tipo: {$ref: '#/components/schemas/TipoImagenProyecto'}
-        esPrincipal: {type: boolean}
-        orden: {type: integer, format: int32}
     SeccionLandingRequest:
       type: object
       required: [configuracionSitioId, tipo]
@@ -2098,7 +2010,6 @@ components:
         slug: {type: string, minLength: 1}
         resumen: {type: string, nullable: true}
         descripcion: {type: string, minLength: 1}
-        icono: {type: string, nullable: true}
         imagenUrl: {type: string, nullable: true}
         etiqueta: {type: string, maxLength: 180, nullable: true}
         imagenAlt: {type: string, maxLength: 300, nullable: true}
@@ -2215,7 +2126,6 @@ components:
         categoriaIds: [22222222-2222-4222-8222-222222222222]
     ProyectoUpdateRequest:
       type: object
-      description: No acepta imágenes; conserva la colección existente.
       required: [nombre, slug, descripcion, destacado, activo, orden, servicioIds]
       properties:
         nombre: {type: string, minLength: 1}
@@ -2224,6 +2134,8 @@ components:
         ubicacion: {type: string, nullable: true}
         fechaProyecto: {type: string, nullable: true}
         descripcion: {type: string, minLength: 1}
+        imagenUrl: {type: string, maxLength: 500, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
         destacado: {type: boolean}
         activo: {type: boolean}
         orden: {type: integer, format: int32, minimum: 0}
@@ -2255,7 +2167,6 @@ components:
         slug: {type: string, minLength: 1}
         resumen: {type: string, nullable: true}
         descripcion: {type: string, minLength: 1}
-        icono: {type: string, nullable: true}
         imagenUrl: {type: string, nullable: true}
         etiqueta: {type: string, maxLength: 180, nullable: true}
         imagenAlt: {type: string, maxLength: 300, nullable: true}
@@ -2854,7 +2765,6 @@ components:
         slug: {type: string}
         resumen: {type: string, nullable: true}
         descripcion: {type: string}
-        icono: {type: string, nullable: true}
         imagenUrl: {type: string, nullable: true}
         imagenAlt: {type: string, nullable: true}
         etiqueta: {type: string, nullable: true}
@@ -3005,7 +2915,7 @@ components:
 
     ProyectoResponse:
       type: object
-      required: [id, nombre, slug, cliente, ubicacion, fechaProyecto, descripcion, destacado, activo, orden, servicios, imagenes, fechaCreacion, fechaActualizacion]
+      required: [id, nombre, slug, cliente, ubicacion, fechaProyecto, descripcion, imagenUrl, imagenAlt, destacado, activo, orden, servicios, fechaCreacion, fechaActualizacion]
       properties:
         id: {type: string, format: uuid}
         nombre: {type: string}
@@ -3014,6 +2924,8 @@ components:
         ubicacion: {type: string, nullable: true}
         fechaProyecto: {type: string, nullable: true}
         descripcion: {type: string}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
         destacado: {type: boolean, nullable: true}
         activo: {type: boolean, nullable: true}
         orden: {type: integer, format: int32, nullable: true}
@@ -3022,24 +2934,8 @@ components:
           uniqueItems: true
           nullable: true
           items: {$ref: '#/components/schemas/NamedSlugSummary'}
-        imagenes:
-          type: array
-          nullable: true
-          items: {$ref: '#/components/schemas/ImagenProyectoResponse'}
         fechaCreacion: {type: string, format: date-time, nullable: true}
         fechaActualizacion: {type: string, format: date-time, nullable: true}
-    ImagenProyectoResponse:
-      type: object
-      required: [id, url, titulo, descripcion, alt, tipo, esPrincipal, orden]
-      properties:
-        id: {type: string, format: uuid}
-        url: {type: string}
-        titulo: {type: string, nullable: true}
-        descripcion: {type: string, nullable: true}
-        alt: {type: string, nullable: true}
-        tipo: {$ref: '#/components/schemas/TipoImagenProyecto'}
-        esPrincipal: {type: boolean, nullable: true}
-        orden: {type: integer, format: int32, nullable: true}
 
     SeccionLandingResponse:
       type: object
@@ -3069,14 +2965,13 @@ components:
 
     ServicioResponse:
       type: object
-      required: [id, nombre, slug, resumen, descripcion, icono, imagenUrl, etiqueta, imagenAlt, activo, destacado, orden, beneficios, fechaCreacion, fechaActualizacion]
+      required: [id, nombre, slug, resumen, descripcion, imagenUrl, etiqueta, imagenAlt, activo, destacado, orden, beneficios, fechaCreacion, fechaActualizacion]
       properties:
         id: {type: string, format: uuid}
         nombre: {type: string}
         slug: {type: string}
         resumen: {type: string, nullable: true}
         descripcion: {type: string}
-        icono: {type: string, nullable: true}
         imagenUrl: {type: string, nullable: true}
         etiqueta: {type: string, nullable: true}
         imagenAlt: {type: string, nullable: true}

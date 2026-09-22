@@ -1,212 +1,384 @@
 <app-modal
   modalId="product-form-modal"
   [title]="mode() === 'create' ? 'Nuevo producto' : 'Editar producto'"
-  description="Completa los datos comerciales y editoriales admitidos por la API actual."
+  description="Gestiona la información comercial, precios, inventario y relaciones del catálogo."
   size="large"
   [open]="true"
   [loading]="submitting()"
   (closed)="canceled.emit()"
 >
   @if (serverError()) {
-    <app-alert class="mb-6" variant="error" title="No se guardaron los cambios">
+    <app-alert class="mb-5" variant="error" title="No se guardaron los cambios">
       {{ serverError() }}
     </app-alert>
   }
 
   @if (mode() === 'edit') {
-    <app-alert class="mb-6" variant="info" title="Contenido avanzado preservado">
-      La API actual no permite editar variantes, imágenes, especificaciones, documentos ni la
-      configuración de cálculo. Estos datos no se incluyen en la actualización y permanecen sin
-      cambios.
+    <app-alert class="mb-5" variant="info" title="Contenido avanzado preservado">
+      Las variantes técnicas, documentos PDF y galería múltiple se administran de forma independiente
+      y permanecen protegidas sin alteraciones.
     </app-alert>
   }
 
-  <form id="product-form" class="grid gap-6" (submit)="submit()" novalidate>
-    <fieldset class="grid gap-5 sm:grid-cols-2" [disabled]="submitting()">
-      <legend class="mb-4 text-heading-3 text-text-primary">Información básica</legend>
-      <app-input-field
-        inputId="product-sku"
-        label="SKU"
-        [(value)]="sku"
-        helperText="Debe ser único."
-        [error]="errors().sku"
-        required
-      />
-      <app-input-field
-        inputId="product-name"
-        label="Nombre"
-        [(value)]="nombre"
-        [error]="errors().nombre"
-        required
-      />
-      <app-input-field
-        class="sm:col-span-2"
-        inputId="product-slug"
-        label="Slug"
-        [(value)]="slug"
-        helperText="Se utiliza en URLs y debe ser único."
-        [error]="errors().slug"
-        required
-      />
-      <app-textarea-field
-        class="sm:col-span-2"
-        inputId="product-summary"
-        label="Resumen"
-        [(value)]="resumen"
-        [rows]="3"
-      />
-      <app-textarea-field
-        class="sm:col-span-2"
-        inputId="product-description"
-        label="Descripción"
-        [(value)]="descripcion"
-        [rows]="5"
-        [error]="errors().descripcion"
-        required
-      />
-    </fieldset>
-
-    <fieldset
-      class="grid gap-5 border-t border-border pt-6 sm:grid-cols-3"
-      [disabled]="submitting()"
+  <!-- Segmented Navigation Tabs -->
+  <div class="mb-6 flex flex-wrap gap-2 rounded-xl border border-border bg-surface-soft p-1.5">
+    <button
+      type="button"
+      class="flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all"
+      [class.bg-surface-elevated]="activeTab() === 'general'"
+      [class.text-primary]="activeTab() === 'general'"
+      [class.shadow-sm]="activeTab() === 'general'"
+      [class.text-text-muted]="activeTab() !== 'general'"
+      [class.hover:text-text-primary]="activeTab() !== 'general'"
+      (click)="activeTab.set('general')"
     >
-      <legend class="mb-4 text-heading-3 text-text-primary">Precio y disponibilidad</legend>
-      <app-input-field
-        inputId="product-base-price"
-        label="Precio base"
-        type="number"
-        inputMode="decimal"
-        [(value)]="precioBase"
-        helperText="Puede quedar vacío."
-        [error]="errors().precioBase"
-      />
-      <app-input-field
-        inputId="product-previous-price"
-        label="Precio anterior"
-        type="number"
-        inputMode="decimal"
-        [(value)]="precioAnterior"
-        helperText="Puede quedar vacío."
-        [error]="errors().precioAnterior"
-      />
-      <app-input-field
-        inputId="product-discount"
-        label="Descuento %"
-        type="number"
-        inputMode="decimal"
-        [(value)]="descuentoPorcentaje"
-        [error]="errors().descuentoPorcentaje"
-      />
-      <app-select-field
-        inputId="product-availability"
-        label="Disponibilidad"
-        [value]="disponibilidad()"
-        (valueChange)="updateAvailability($event)"
-        [options]="availabilityOptions"
-        required
-      />
-      <app-select-field
-        inputId="product-publication-status"
-        label="Estado de publicación"
-        [value]="estado()"
-        (valueChange)="updatePublicationStatus($event)"
-        [options]="publicationOptions"
-        required
-      />
-      <label
-        class="flex min-h-12 items-center gap-3 self-end rounded-control border border-border bg-surface-soft px-4 py-3 text-body-sm font-semibold text-text-secondary"
-      >
-        <input
-          class="form-choice"
-          type="checkbox"
-          name="product-featured"
-          [checked]="destacado()"
-          (change)="updateFeatured($event)"
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+      </svg>
+      <span>Información General</span>
+      @if (tabErrors().general) {
+        <span class="h-2 w-2 rounded-full bg-danger"></span>
+      }
+    </button>
+
+    <button
+      type="button"
+      class="flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all"
+      [class.bg-surface-elevated]="activeTab() === 'precios'"
+      [class.text-primary]="activeTab() === 'precios'"
+      [class.shadow-sm]="activeTab() === 'precios'"
+      [class.text-text-muted]="activeTab() !== 'precios'"
+      [class.hover:text-text-primary]="activeTab() !== 'precios'"
+      (click)="activeTab.set('precios')"
+    >
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span>Precios y Publicación</span>
+      @if (tabErrors().precios) {
+        <span class="h-2 w-2 rounded-full bg-danger"></span>
+      }
+    </button>
+
+    <button
+      type="button"
+      class="flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all"
+      [class.bg-surface-elevated]="activeTab() === 'relaciones'"
+      [class.text-primary]="activeTab() === 'relaciones'"
+      [class.shadow-sm]="activeTab() === 'relaciones'"
+      [class.text-text-muted]="activeTab() !== 'relaciones'"
+      [class.hover:text-text-primary]="activeTab() !== 'relaciones'"
+      (click)="activeTab.set('relaciones')"
+    >
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25a2.25 2.25 0 01-2.25-2.25V6z"/>
+      </svg>
+      <span>Unidad y Categorías</span>
+      @if (tabErrors().relaciones) {
+        <span class="h-2 w-2 rounded-full bg-danger"></span>
+      }
+    </button>
+
+    <button
+      type="button"
+      class="flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all"
+      [class.bg-surface-elevated]="activeTab() === 'seo'"
+      [class.text-primary]="activeTab() === 'seo'"
+      [class.shadow-sm]="activeTab() === 'seo'"
+      [class.text-text-muted]="activeTab() !== 'seo'"
+      [class.hover:text-text-primary]="activeTab() !== 'seo'"
+      (click)="activeTab.set('seo')"
+    >
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+      </svg>
+      <span>SEO y Meta</span>
+    </button>
+  </div>
+
+  <form id="product-form" (submit)="submit()" novalidate>
+    <!-- TAB 1: INFORMACIÓN GENERAL -->
+    <div [class.hidden]="activeTab() !== 'general'" class="space-y-5">
+      <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+        <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+          <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          Identificación Comercial
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <app-input-field
+            inputId="product-sku"
+            label="SKU (Código único)"
+            [(value)]="sku"
+            helperText="Código de referencia comercial o inventario."
+            [error]="errors().sku"
+            required
+          />
+          <app-input-field
+            inputId="product-name"
+            label="Nombre del producto"
+            [(value)]="nombre"
+            helperText="Nombre comercial visible al cliente."
+            [error]="errors().nombre"
+            required
+          />
+          <div class="sm:col-span-2 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label for="product-slug" class="form-label mb-0 cursor-pointer">
+                Slug (Ruta web) <span class="text-error" aria-hidden="true">*</span>
+              </label>
+              <button
+                type="button"
+                class="flex items-center gap-1.5 text-caption font-semibold text-primary hover:underline"
+                (click)="generateSlug()"
+              >
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                </svg>
+                Generar desde nombre
+              </button>
+            </div>
+            <app-input-field
+              inputId="product-slug"
+              label="Slug (Ruta web)"
+              [hideLabel]="true"
+              [(value)]="slug"
+              helperText="Identificador amigable en la URL (ej: paneles-roble-acusticos)."
+              [error]="errors().slug"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+        <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+          <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
+          </svg>
+          Descripciones y Ficha
+        </div>
+        <app-textarea-field
+          inputId="product-summary"
+          label="Resumen rápido (Opcional)"
+          [(value)]="resumen"
+          helperText="Breve sinopsis comercial visible en tarjetas del catálogo."
+          [rows]="2"
         />
-        Producto destacado
-      </label>
-    </fieldset>
+        <app-textarea-field
+          inputId="product-description"
+          label="Descripción detallada"
+          [(value)]="descripcion"
+          helperText="Información completa sobre materiales, características y aplicaciones."
+          [rows]="5"
+          [error]="errors().descripcion"
+          required
+        />
+      </div>
+    </div>
 
-    <fieldset
-      class="grid gap-5 border-t border-border pt-6 sm:grid-cols-2"
-      [disabled]="submitting()"
-    >
-      <legend class="mb-4 text-heading-3 text-text-primary">Relaciones</legend>
-      <app-select-field
-        class="sm:col-span-2"
-        inputId="product-business-unit"
-        label="Unidad de negocio"
-        [value]="unidadNegocioId()"
-        (valueChange)="updateBusinessUnit($event)"
-        [options]="businessUnitOptions()"
-        [loading]="loadingFormData()"
-        [error]="errors().unidadNegocioId"
-        required
-      />
+    <!-- TAB 2: PRECIOS Y PUBLICACIÓN -->
+    <div [class.hidden]="activeTab() !== 'precios'" class="space-y-5">
+      <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+        <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+          <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Estructura de Precios
+        </div>
+        <div class="grid gap-4 sm:grid-cols-3">
+          <app-input-field
+            inputId="product-base-price"
+            label="Precio base (S/)"
+            type="number"
+            inputMode="decimal"
+            [(value)]="precioBase"
+            helperText="Precio de venta actual. Dejar vacío si es a cotizar."
+            [error]="errors().precioBase"
+          />
+          <app-input-field
+            inputId="product-previous-price"
+            label="Precio de lista (S/)"
+            type="number"
+            inputMode="decimal"
+            [(value)]="precioAnterior"
+            helperText="Precio anterior para mostrar tachado."
+            [error]="errors().precioAnterior"
+          />
+          <app-input-field
+            inputId="product-discount"
+            label="Descuento (%)"
+            type="number"
+            inputMode="decimal"
+            [(value)]="descuentoPorcentaje"
+            helperText="Porcentaje promocional (0 a 100)."
+            [error]="errors().descuentoPorcentaje"
+          />
+        </div>
+      </div>
 
-      <fieldset class="sm:col-span-2" [disabled]="loadingFormData() || submitting()">
-        <legend class="mb-2 text-body-sm font-semibold text-text-primary">Categorías</legend>
-        <p id="product-categories-help" class="mb-3 text-caption text-text-muted">
-          La selección es opcional; incluye categorías globales y de la unidad seleccionada.
+      <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+        <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+          <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Disponibilidad y Visibilidad
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <app-select-field
+            inputId="product-availability"
+            label="Disponibilidad de stock"
+            [value]="disponibilidad()"
+            (valueChange)="updateAvailability($event)"
+            [options]="availabilityOptions"
+            required
+          />
+          <app-select-field
+            inputId="product-publication-status"
+            label="Estado en catálogo"
+            [value]="estado()"
+            (valueChange)="updatePublicationStatus($event)"
+            [options]="publicationOptions"
+            required
+          />
+        </div>
+        <label
+          class="flex cursor-pointer items-center justify-between rounded-xl border border-border bg-surface-soft p-3.5 transition-colors hover:bg-surface-hover"
+        >
+          <div class="space-y-0.5">
+            <span class="text-body-sm font-semibold text-text-primary">Destacar en portada</span>
+            <p class="text-caption text-text-muted">
+              Si se activa, aparecerá con insignia especial en la vitrina de productos destacados.
+            </p>
+          </div>
+          <input
+            class="form-choice h-5 w-5 rounded text-primary focus:ring-primary"
+            type="checkbox"
+            name="product-featured"
+            [checked]="destacado()"
+            (change)="updateFeatured($event)"
+          />
+        </label>
+      </div>
+    </div>
+
+    <!-- TAB 3: RELACIONES (UNIDAD DE NEGOCIO Y CATEGORÍAS) -->
+    <div [class.hidden]="activeTab() !== 'relaciones'" class="space-y-5">
+      <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+        <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+          <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          Unidad de Negocio
+        </div>
+        <app-select-field
+          inputId="product-business-unit"
+          label="Unidad a la que pertenece"
+          [value]="unidadNegocioId()"
+          (valueChange)="updateBusinessUnit($event)"
+          [options]="businessUnitOptions()"
+          [loading]="loadingFormData()"
+          [error]="errors().unidadNegocioId"
+          helperText="Determina la marca (ej. ISADECOR) y filtra las categorías compatibles."
+          required
+        />
+      </div>
+
+      <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-border">
+          <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-text-muted">
+            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+            </svg>
+            Categorías Asociadas
+          </div>
+          <span class="text-caption text-text-muted">
+            {{ categoriaIds().length }} seleccionada(s)
+          </span>
+        </div>
+        <p id="product-categories-help" class="text-caption text-text-muted">
+          Selecciona una o más categorías para facilitar la navegación y filtros del usuario.
         </p>
+
         @if (loadingFormData()) {
-          <p class="text-body-sm text-text-muted" role="status">Cargando categorías…</p>
+          <div class="flex items-center gap-2 py-4 text-body-sm text-text-muted" role="status">
+            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Cargando categorías disponibles…
+          </div>
         } @else if (availableCategories().length === 0) {
-          <p
-            class="rounded-control border border-border bg-surface-soft p-4 text-body-sm text-text-muted"
-          >
-            No hay categorías disponibles.
-          </p>
+          <div class="rounded-xl border border-border bg-surface-soft p-4 text-center text-body-sm text-text-muted">
+            No hay categorías registradas para esta unidad de negocio.
+          </div>
         } @else {
           <div
-            class="grid gap-2 rounded-control border border-border bg-surface-soft p-3 sm:grid-cols-2"
+            class="grid gap-2 sm:grid-cols-2 max-h-56 overflow-y-auto rounded-xl border border-border bg-surface-soft p-3"
             aria-describedby="product-categories-help"
           >
-            @for (category of availableCategories(); track category.id) {
+            @for (cat of availableCategories(); track cat.id) {
               <label
-                class="flex min-h-11 items-center gap-3 rounded-control px-3 py-2 text-body-sm text-text-secondary transition-colors hover:bg-surface-hover"
+                class="flex cursor-pointer items-center gap-3 rounded-lg p-2.5 text-body-sm transition-colors hover:bg-surface-hover"
+                [class.bg-surface-elevated]="categorySelected(cat.id)"
+                [class.text-primary]="categorySelected(cat.id)"
+                [class.font-semibold]="categorySelected(cat.id)"
+                [class.text-text-secondary]="!categorySelected(cat.id)"
               >
                 <input
-                  class="form-choice"
+                  class="form-choice h-4 w-4 rounded text-primary focus:ring-primary"
                   type="checkbox"
-                  [name]="'product-category-' + category.id"
-                  [checked]="categorySelected(category.id)"
-                  (change)="updateCategory(category.id, $event)"
+                  [name]="'product-category-' + cat.id"
+                  [checked]="categorySelected(cat.id)"
+                  (change)="updateCategory(cat.id, $event)"
                 />
-                {{ category.nombre }}
+                <span class="truncate">{{ cat.nombre }}</span>
               </label>
             }
           </div>
         }
-      </fieldset>
-    </fieldset>
+      </div>
+    </div>
 
-    <fieldset
-      class="grid gap-5 border-t border-border pt-6 sm:grid-cols-2"
-      [disabled]="submitting()"
-    >
-      <legend class="mb-4 text-heading-3 text-text-primary">SEO</legend>
-      <app-input-field
-        class="sm:col-span-2"
-        inputId="product-seo-title"
-        label="Título SEO"
-        [(value)]="tituloSeo"
-      />
-      <app-textarea-field
-        class="sm:col-span-2"
-        inputId="product-seo-description"
-        label="Descripción SEO"
-        [(value)]="descripcionSeo"
-        [rows]="3"
-      />
-    </fieldset>
+    <!-- TAB 4: SEO Y META -->
+    <div [class.hidden]="activeTab() !== 'seo'" class="space-y-5">
+      <div class="rounded-xl border border-border bg-surface-card p-5 space-y-4">
+        <div class="flex items-center gap-2 pb-2 border-b border-border text-xs font-bold uppercase tracking-wider text-text-muted">
+          <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+          </svg>
+          Optimización para Buscadores (Google / Redes Sociales)
+        </div>
+        <app-input-field
+          inputId="product-seo-title"
+          label="Título para buscadores (Meta Title)"
+          [(value)]="tituloSeo"
+          helperText="Recomendado: 50 a 60 caracteres. Si se omite, se utilizará el nombre comercial."
+        />
+        <app-textarea-field
+          inputId="product-seo-description"
+          label="Descripción para buscadores (Meta Description)"
+          [(value)]="descripcionSeo"
+          helperText="Recomendado: 120 a 160 caracteres con palabras clave atractivas."
+          [rows]="3"
+        />
 
-    @if (mode() === 'create') {
-      <p class="border-t border-border pt-5 text-caption text-text-muted">
-        Este primer incremento crea el producto básico y sus relaciones. Las colecciones avanzadas
-        admitidas por POST se incorporarán en una fase específica para evitar una edición parcial.
-      </p>
-    }
+        <!-- Live Google Snippet Simulation -->
+        <div class="mt-4 rounded-xl border border-border bg-surface-soft p-4">
+          <span class="text-xs font-semibold text-text-muted uppercase tracking-wider block mb-2">Vista previa simulada en Google</span>
+          <div class="space-y-1">
+            <div class="text-caption text-text-muted truncate">https://isanorte.com/productos/{{ slug() || 'ejemplo-producto' }}</div>
+            <div class="text-body-base font-medium text-primary hover:underline cursor-pointer truncate">
+              {{ tituloSeo() || nombre() || 'Título del producto' }} | ISANORTE
+            </div>
+            <div class="text-caption text-text-secondary line-clamp-2">
+              {{ descripcionSeo() || resumen() || descripcion() || 'Descripción que aparecerá en los resultados de búsqueda de los usuarios...' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </form>
 
   <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">

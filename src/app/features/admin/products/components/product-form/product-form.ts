@@ -41,6 +41,8 @@ interface ProductFormErrors {
   unidadNegocioId?: string;
 }
 
+export type ProductTab = 'general' | 'precios' | 'relaciones' | 'seo';
+
 @Component({
   selector: 'app-product-form',
   imports: [Alert, Button, InputField, Modal, SelectField, TextareaField],
@@ -59,6 +61,7 @@ export class ProductForm implements OnInit {
   readonly canceled = output<void>();
   readonly saved = output<ProductFormSubmission>();
 
+  readonly activeTab = signal<ProductTab>('general');
   readonly sku = signal('');
   readonly nombre = signal('');
   readonly slug = signal('');
@@ -100,6 +103,26 @@ export class ProductForm implements OnInit {
     { value: ProductPublicationStatus.OCULTO, label: 'Oculto' },
   ];
   readonly errors = computed<ProductFormErrors>(() => this.validationErrors());
+  readonly tabErrors = computed(() => {
+    const err = this.errors();
+    return {
+      general: Boolean(err.sku || err.nombre || err.slug || err.descripcion),
+      precios: Boolean(err.precioBase || err.precioAnterior || err.descuentoPorcentaje),
+      relaciones: Boolean(err.unidadNegocioId),
+      seo: false,
+    };
+  });
+
+  protected generateSlug(): void {
+    const s = this.nombre()
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    if (s) this.slug.set(s);
+  }
 
   ngOnInit(): void {
     const product = this.product();

@@ -52,6 +52,9 @@ export class ProjectForm implements OnInit {
   readonly ubicacion = signal('');
   readonly fechaProyecto = signal('');
   readonly descripcion = signal('');
+  readonly imagenUrl = signal('');
+  readonly imagenAlt = signal('');
+  readonly previewFailed = signal(false);
   readonly orden = signal('0');
   readonly destacado = signal(false);
   readonly activo = signal(true);
@@ -68,6 +71,9 @@ export class ProjectForm implements OnInit {
     this.ubicacion.set(project.ubicacion ?? '');
     this.fechaProyecto.set(project.fechaProyecto ?? '');
     this.descripcion.set(project.descripcion);
+    this.imagenUrl.set(project.imagenUrl ?? '');
+    this.imagenAlt.set(project.imagenAlt ?? '');
+    this.previewFailed.set(false);
     this.orden.set(String(project.orden));
     this.destacado.set(project.destacado === true);
     this.activo.set(project.activo === true);
@@ -85,6 +91,8 @@ export class ProjectForm implements OnInit {
       ubicacion: this.optionalValue(this.ubicacion()),
       fechaProyecto: this.optionalValue(this.fechaProyecto()),
       descripcion: this.descripcion().trim(),
+      imagenUrl: this.optionalValue(this.imagenUrl()),
+      imagenAlt: this.optionalValue(this.imagenAlt()),
       orden: Number(this.orden()),
       destacado: this.destacado(),
       activo: this.activo(),
@@ -96,6 +104,26 @@ export class ProjectForm implements OnInit {
         ? { mode: 'create', request: common }
         : { mode: 'edit', request: common },
     );
+  }
+
+  protected generateSlug(): void {
+    const s = this.nombre()
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    if (s) this.slug.set(s);
+  }
+
+  protected updateImageUrl(value: string): void {
+    this.imagenUrl.set(value);
+    this.previewFailed.set(false);
+  }
+
+  protected markPreviewFailed(): void {
+    this.previewFailed.set(true);
   }
 
   protected updateFeatured(event: Event): void {

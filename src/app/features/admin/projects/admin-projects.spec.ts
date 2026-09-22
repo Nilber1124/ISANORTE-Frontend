@@ -19,7 +19,8 @@ const project: ProjectResponse = {
   activo: true,
   orden: 1,
   servicios: [{ id: 'service-1', nombre: 'Arquitectura', slug: 'arquitectura' }],
-  imagenes: [],
+  imagenUrl: null,
+  imagenAlt: null,
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -95,13 +96,12 @@ describe('AdminProjects', () => {
     expect(facade.createCalls).toBe(1);
   });
 
-  it('opens editing and exposes the UUID management route', () => {
+  it('opens editing for the selected project', () => {
     const element = fixture.nativeElement as HTMLElement;
     Array.from(element.querySelectorAll('button'))
       .find((item) => item.textContent?.includes('Editar'))
       ?.click();
     expect(facade.edits).toEqual([project]);
-    expect(element.querySelector('a')?.getAttribute('href')).toBe(`/admin/proyectos/${project.id}`);
   });
 
   it('requires confirmation before deactivating', () => {

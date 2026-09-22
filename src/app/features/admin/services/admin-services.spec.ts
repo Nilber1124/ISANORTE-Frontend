@@ -11,7 +11,6 @@ const service: ServiceResponse = {
   slug: 'arquitectura',
   resumen: 'Diseño y planificación',
   descripcion: 'Descripción',
-  icono: 'architecture',
   imagenUrl: null,
   etiqueta: null,
   imagenAlt: null,

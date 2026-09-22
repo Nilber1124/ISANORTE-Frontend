@@ -9,7 +9,6 @@ const service: ServiceResponse = {
   slug: 'arquitectura',
   resumen: null,
   descripcion: 'Diseño y planificación',
-  icono: 'architecture',
   imagenUrl: 'https://example.com/service.jpg',
   etiqueta: null,
   imagenAlt: null,
@@ -61,11 +60,10 @@ describe('ServiceForm', () => {
     if (submission?.mode === 'create') expect(submission.request.orden).toBeNull();
   });
 
-  it('prefills manual slug, icon, order, featured and active independently', async () => {
+  it('prefills manual slug, order, featured and active independently', async () => {
     const fixture = await createFixture('edit', service);
     const element = fixture.nativeElement as HTMLElement;
     expect((element.querySelector('#service-slug') as HTMLInputElement).value).toBe('arquitectura');
-    expect((element.querySelector('#service-icon') as HTMLInputElement).value).toBe('architecture');
     expect((element.querySelector('#service-order') as HTMLInputElement).value).toBe('0');
     const checkboxes = element.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
     expect(checkboxes[0].checked).toBe(false);

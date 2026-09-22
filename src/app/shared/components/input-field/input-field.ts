@@ -20,6 +20,7 @@ export type InputFieldType =
 export class InputField {
   readonly inputId = input.required<string>();
   readonly label = input.required<string>();
+  readonly hideLabel = input(false, { transform: booleanAttribute });
   readonly type = input<InputFieldType>('text');
   readonly value = model('');
   readonly name = input<string | undefined>();

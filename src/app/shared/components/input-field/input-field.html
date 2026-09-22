@@ -1,5 +1,9 @@
 <div>
-  <label [for]="inputId()" class="form-label transition-colors duration-fast">
+  <label
+    [for]="inputId()"
+    class="form-label transition-colors duration-fast"
+    [class.sr-only]="hideLabel()"
+  >
     {{ label() }}
     @if (required()) {
       <span class="text-error" aria-hidden="true">*</span>

@@ -22,9 +22,6 @@ describe('server routes', () => {
   });
 
   it('keeps Admin and unmatched technical routing modes unchanged', () => {
-    expect(serverRoutes.find((route) => route.path === 'admin/proyectos/:id')?.renderMode).toBe(
-      RenderMode.Server,
-    );
     expect(serverRoutes.find((route) => route.path === 'admin/**')?.renderMode).toBe(
       RenderMode.Prerender,
     );

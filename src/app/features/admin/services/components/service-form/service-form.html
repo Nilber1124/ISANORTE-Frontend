@@ -1,148 +1,193 @@
-<app-modal
-  modalId="service-form-modal"
-  [title]="mode() === 'create' ? 'Nuevo servicio' : 'Editar servicio'"
-  description="Completa la información que se utilizará en la presentación pública del servicio."
-  size="large"
-  [open]="true"
-  [loading]="submitting()"
-  (closed)="canceled.emit()"
->
+<app-modal modalId="service-form-modal" [title]="mode() === 'create' ? 'Nuevo servicio' : 'Editar servicio'"
+  description="Define la información, fotografía y visibilidad pública que estructuran este servicio en la web de ISANORTE."
+  size="large" [open]="true" [loading]="submitting()" (closed)="canceled.emit()">
   @if (serverError(); as error) {
-    <app-alert class="mb-5" variant="error" title="No se guardó el servicio">
-      {{ error }}
-    </app-alert>
+  <app-alert class="mb-5" variant="error" title="No se guardó el servicio">
+    {{ error }}
+  </app-alert>
   }
 
-  <form
-    id="service-form"
-    class="grid gap-5 sm:grid-cols-2"
-    (submit)="submit(); $event.preventDefault()"
-    novalidate
-  >
-    <app-input-field
-      inputId="service-name"
-      label="Nombre"
-      [(value)]="nombre"
-      [error]="errors().nombre"
-      [disabled]="submitting()"
-      required
-    />
-    <app-input-field
-      inputId="service-slug"
-      label="Slug"
-      [(value)]="slug"
-      helperText="Se mantiene manual, editable y debe ser único."
-      [error]="errors().slug"
-      [disabled]="submitting()"
-      required
-    />
-    <app-textarea-field
-      class="sm:col-span-2"
-      inputId="service-summary"
-      label="Resumen"
-      [(value)]="resumen"
-      [rows]="3"
-      [disabled]="submitting()"
-    />
-    <app-input-field
-      class="sm:col-span-2"
-      inputId="service-label"
-      label="Etiqueta"
-      [(value)]="etiqueta"
-      [disabled]="submitting()"
-    />
-    <app-textarea-field
-      class="sm:col-span-2"
-      inputId="service-description"
-      label="Descripción"
-      [(value)]="descripcion"
-      [rows]="5"
-      [error]="errors().descripcion"
-      [disabled]="submitting()"
-      required
-    />
-    <app-input-field
-      inputId="service-icon"
-      label="Icono"
-      [(value)]="icono"
-      helperText="Valor textual interpretado por la presentación pública."
-      [disabled]="submitting()"
-    />
-    <app-input-field
-      inputId="service-order"
-      label="Orden"
-      type="number"
-      inputMode="numeric"
-      [(value)]="orden"
-      [error]="errors().orden"
-      [disabled]="submitting()"
-      [required]="mode() === 'edit'"
-    />
-    <app-input-field
-      class="sm:col-span-2"
-      inputId="service-image-url"
-      label="Imagen URL"
-      type="url"
-      [value]="imagenUrl()"
-      (valueChange)="updateImageUrl($event)"
-      placeholder="https://..."
-      [disabled]="submitting()"
-    />
-    <app-input-field
-      class="sm:col-span-2"
-      inputId="service-image-alt"
-      label="Texto alternativo de la imagen"
-      [(value)]="imagenAlt"
-      [disabled]="submitting()"
-    />
+  <form id="service-form" class="space-y-5" (submit)="submit(); $event.preventDefault()" novalidate>
+    <!-- 1. Identidad del Servicio -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
+      <div class="border-b border-border pb-2 flex items-center justify-between">
+        <div>
+          <h4 class="text-body-sm font-semibold text-text-primary">1. Identidad del Servicio</h4>
+          <p class="text-caption text-text-muted">Nombre comercial, identificación única y mensajes introductorios.</p>
+        </div>
+      </div>
 
-    @if (imagenUrl().trim()) {
-      <div class="sm:col-span-2" aria-live="polite">
-        <p class="mb-2 text-caption font-semibold uppercase tracking-wider text-text-muted">
-          Vista previa
-        </p>
-        @if (previewFailed()) {
-          <div
-            class="flex min-h-36 items-center justify-center rounded-card border border-dashed border-border bg-surface-soft px-5 text-center text-body-sm text-text-muted"
-            role="status"
-          >
-            No se pudo mostrar la imagen. La URL todavía puede guardarse.
+      <div class="grid gap-4 sm:grid-cols-2">
+        <app-input-field
+          inputId="service-name"
+          label="Nombre del servicio"
+          [(value)]="nombre"
+          placeholder="Ej: Construcción de Obras Civiles"
+          [error]="errors().nombre"
+          [disabled]="submitting()"
+          required
+        />
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="service-slug" class="form-label mb-0 cursor-pointer">
+              Slug (Ruta web) <span class="text-error" aria-hidden="true">*</span>
+            </label>
+            @if (nombre().trim()) {
+              <button
+                type="button"
+                (click)="generateSlug()"
+                class="inline-flex items-center gap-1 text-caption text-primary hover:underline font-medium cursor-pointer"
+              >
+                <svg class="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+                Generar desde nombre
+              </button>
+            }
           </div>
-        } @else {
-          <img
-            class="h-44 w-full rounded-card border border-border bg-surface-soft object-cover"
-            [src]="imagenUrl()"
-            alt="Vista previa de la imagen del servicio"
-            (error)="markPreviewFailed()"
+          <app-input-field
+            inputId="service-slug"
+            label="Slug (Ruta web)"
+            [hideLabel]="true"
+            [(value)]="slug"
+            placeholder="ej: construccion-obras-civiles"
+            helperText="Identificador único para la URL de navegación."
+            [error]="errors().slug"
+            [disabled]="submitting()"
+            required
           />
+        </div>
+
+        <app-input-field
+          class="sm:col-span-2"
+          inputId="service-label"
+          label="Etiqueta superior (opcional)"
+          [(value)]="etiqueta"
+          placeholder="Ej: ESPECIALIDAD o INGENIERÍA"
+          helperText="Texto en mayúsculas que se muestra sobre el título del servicio."
+          [disabled]="submitting()"
+        />
+
+        <app-textarea-field
+          class="sm:col-span-2"
+          inputId="service-summary"
+          label="Resumen breve"
+          [(value)]="resumen"
+          placeholder="Síntesis corta de la propuesta de valor del servicio para tarjetas..."
+          [rows]="2"
+          [disabled]="submitting()"
+        />
+      </div>
+    </fieldset>
+
+    <!-- 2. Detalle y Contenido -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">2. Contenido Extenso</h4>
+        <p class="text-caption text-text-muted">Descripción detallada de las capacidades y alcance de este servicio.</p>
+      </div>
+
+      <app-textarea-field
+        inputId="service-description"
+        label="Descripción completa"
+        [(value)]="descripcion"
+        placeholder="Explica en detalle los procesos constructivos, equipamiento, normativas y garantías aplicadas..."
+        [rows]="4"
+        [error]="errors().descripcion"
+        [disabled]="submitting()"
+        required
+      />
+    </fieldset>
+
+    <!-- 3. Fotografía Principal del Servicio -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">3. Fotografía Representativa</h4>
+        <p class="text-caption text-text-muted">Imagen principal que acompaña a la ficha y tarjeta del servicio.</p>
+      </div>
+
+      <div class="space-y-4">
+        <app-input-field
+          inputId="service-image-url"
+          label="URL de la imagen"
+          type="url"
+          [value]="imagenUrl()"
+          (valueChange)="updateImageUrl($event)"
+          placeholder="https://ejemplo.com/servicio-civil.jpg"
+          helperText="Enlace público de la imagen (JPG, WebP, PNG)."
+          [disabled]="submitting()"
+        />
+
+        <app-input-field
+          inputId="service-image-alt"
+          label="Texto alternativo de la imagen"
+          [(value)]="imagenAlt"
+          placeholder="Ej: Maquinaria pesada trabajando en excavación de zanjas"
+          helperText="Requerido para posicionamiento SEO y lectores de pantalla accesibles."
+          [disabled]="submitting()"
+        />
+
+        @if (imagenUrl().trim()) {
+        <div class="space-y-2 pt-2" aria-live="polite">
+          <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
+            Vista previa de la fotografía
+          </span>
+          @if (previewFailed()) {
+          <div
+            class="flex min-h-28 items-center justify-center rounded-card border border-dashed border-error/50 bg-error/5 p-4 text-center text-body-sm text-error"
+            role="status">
+            No se pudo previsualizar la imagen. La URL todavía puede guardarse.
+          </div>
+          } @else {
+          <div class="overflow-hidden rounded-card border border-border bg-surface-soft">
+            <img class="h-44 w-full object-cover" [src]="imagenUrl()" alt="Vista previa de la imagen del servicio"
+              (error)="markPreviewFailed()" />
+          </div>
+          }
+        </div>
         }
       </div>
-    }
+    </fieldset>
 
-    <fieldset class="sm:col-span-2 rounded-card border border-border p-4">
-      <legend class="px-1 text-body-sm font-semibold text-text-primary">Publicación</legend>
-      <div class="mt-3 grid gap-3 sm:grid-cols-2">
-        <label class="flex min-h-11 items-center gap-3 text-body-sm text-text-secondary">
-          <input
-            class="form-choice"
-            type="checkbox"
-            name="service-featured"
-            [checked]="destacado()"
-            [disabled]="submitting()"
-            (change)="updateFeatured($event)"
-          />
-          Servicio destacado
+    <!-- 4. Publicación y Posición -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">4. Publicación y Orden</h4>
+        <p class="text-caption text-text-muted">Define la visibilidad pública y la posición en el catálogo.</p>
+      </div>
+
+      <app-input-field
+        inputId="service-order"
+        label="Orden de aparición"
+        type="number"
+        inputMode="numeric"
+        [(value)]="orden"
+        helperText="0 se muestra primero; 1, 2, 3... descienden en la lista."
+        [error]="errors().orden"
+        [disabled]="submitting()"
+        [required]="mode() === 'edit'"
+      />
+
+      <div class="grid gap-3 sm:grid-cols-2 pt-1">
+        <label
+          class="flex items-center gap-3 rounded-card border border-border bg-surface-soft p-3.5 cursor-pointer hover:bg-surface-hover transition-colors">
+          <input class="form-choice" type="checkbox" name="service-active" [checked]="activo()"
+            [disabled]="submitting()" (change)="updateActive($event)" />
+          <div>
+            <span class="font-medium text-body-sm text-text-primary">Servicio activo en la web</span>
+            <p class="text-caption text-text-muted">Si se desactiva, no se mostrará a los clientes.</p>
+          </div>
         </label>
-        <label class="flex min-h-11 items-center gap-3 text-body-sm text-text-secondary">
-          <input
-            class="form-choice"
-            type="checkbox"
-            name="service-active"
-            [checked]="activo()"
-            [disabled]="submitting()"
-            (change)="updateActive($event)"
-          />
-          Servicio activo
+
+        <label
+          class="flex items-center gap-3 rounded-card border border-border bg-surface-soft p-3.5 cursor-pointer hover:bg-surface-hover transition-colors">
+          <input class="form-choice" type="checkbox" name="service-featured" [checked]="destacado()"
+            [disabled]="submitting()" (change)="updateFeatured($event)" />
+          <div>
+            <span class="font-medium text-body-sm text-text-primary">Servicio destacado</span>
+            <p class="text-caption text-text-muted">Resalta prioritariamente en la portada de ISANORTE.</p>
+          </div>
         </label>
       </div>
     </fieldset>
@@ -152,12 +197,7 @@
     <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
       Cancelar
     </app-button>
-    <app-button
-      variant="primary"
-      [loading]="submitting()"
-      [disabled]="submitting()"
-      (click)="submit()"
-    >
+    <app-button variant="primary" [loading]="submitting()" [disabled]="submitting()" (click)="submit()">
       {{ mode() === 'create' ? 'Crear servicio' : 'Guardar cambios' }}
     </app-button>
   </div>

@@ -65,6 +65,17 @@ export class BusinessUnitForm implements OnInit {
   readonly errors = computed<FormErrors>(() => this.validationErrors());
   readonly hasCompanies = computed(() => this.companies().length > 0);
 
+  protected generateSlug(): void {
+    const s = this.nombre()
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    if (s) this.slug.set(s);
+  }
+
   ngOnInit(): void {
     const businessUnit = this.businessUnit();
     if (businessUnit !== null) {
