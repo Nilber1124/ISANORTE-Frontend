@@ -16,6 +16,7 @@ import { ProductCalculator } from './components/product-calculator/product-calcu
 import { ProductGallery } from './components/product-gallery/product-gallery';
 import { ProductInfo } from './components/product-info/product-info';
 import { ProductDetailFacade } from './product-detail.facade';
+import { ProductPriceComparison } from './components/product-price-comparison/product-price-comparison';
 
 interface VariantAvailabilityPresentation {
   label: string;
@@ -34,6 +35,7 @@ interface VariantAvailabilityPresentation {
     ProductCalculator,
     ProductGallery,
     ProductInfo,
+    ProductPriceComparison,
     RouterLink,
   ],
   providers: [ProductDetailFacade],

@@ -1,0 +1,110 @@
+<section
+  class="mt-14 border-t border-border pt-10 lg:mt-20 lg:pt-14"
+  aria-labelledby="price-comparison-title"
+  [attr.aria-busy]="loading()"
+>
+  <div class="mb-8 max-w-3xl">
+    <p class="mb-3 text-eyebrow uppercase text-text-muted">Consulta otra tienda</p>
+    <h2 id="price-comparison-title" class="text-heading-2 text-text-primary">Comparar precio</h2>
+    <p class="mt-4 text-body text-text-secondary">¿Encontraste este producto en otra tienda?</p>
+    <p class="mt-2 text-body-sm text-text-muted">
+      Verifica que el enlace corresponda al mismo producto o a uno equivalente.
+    </p>
+  </div>
+
+  <app-card padding="large">
+    <form novalidate (submit)="submit($event)" class="grid gap-5">
+      <app-input-field
+        inputId="price-comparison-url"
+        name="urlExterna"
+        type="url"
+        label="Pega el enlace directo del producto"
+        placeholder="https://otra-tienda.com/producto/..."
+        autocomplete="off"
+        [required]="true"
+        [maxLength]="2048"
+        helperText="Ingresa el enlace directo del producto, no únicamente la página principal de la tienda."
+        [value]="url()"
+        (valueChange)="updateUrl($event)"
+        [error]="validationError()"
+        [disabled]="loading()"
+      />
+      <div>
+        <app-button type="submit" variant="accent" [loading]="loading()" [disabled]="loading()">
+          {{ loading() ? 'Consultando precio...' : 'Comparar precio' }}
+        </app-button>
+      </div>
+      @if (loading()) {
+        <p role="status" class="text-body-sm text-text-secondary">Consultando precio...</p>
+      }
+    </form>
+
+    @if (error(); as message) {
+      <app-alert class="mt-6" variant="error" title="No se pudo completar la comparación">
+        {{ message }}
+      </app-alert>
+    }
+    @if (result(); as comparison) {
+      <div class="mt-8 space-y-6">
+        <app-alert
+          [variant]="comparison.comparable ? 'success' : 'warning'"
+          [title]="statusTitle()"
+        >
+          {{ comparison.mensaje }}
+        </app-alert>
+        @if (comparison.precioExterno !== null) {
+          <div class="grid items-center gap-5 sm:grid-cols-[1fr_auto_1fr]">
+            <div class="min-w-0 rounded-card border border-border bg-surface-soft p-5">
+              <p class="text-eyebrow text-text-secondary">ISADECOR</p>
+              <p class="mt-2 break-words text-body-sm text-text-secondary">
+                {{ comparison.producto }}
+              </p>
+              <p class="mt-4 text-heading-3 text-text-primary">
+                @if (comparison.precioInterno !== null) {
+                  {{ comparison.monedaInterna === 'PEN' ? 'S/' : comparison.monedaInterna }}
+                  {{ comparison.precioInterno | number: '1.2-2' }}
+                } @else {
+                  Consultar precio
+                }
+              </p>
+            </div>
+            <span class="text-center text-eyebrow text-text-muted">VS</span>
+            <div class="min-w-0 rounded-card border border-border bg-surface-soft p-5">
+              <p class="break-all text-eyebrow text-text-secondary">
+                {{ comparison.dominioExterno }}
+              </p>
+              @if (comparison.nombreProductoExterno) {
+                <p class="mt-2 break-words text-body-sm text-text-secondary">
+                  {{ comparison.nombreProductoExterno }}
+                </p>
+              }
+              <p class="mt-4 text-heading-3 text-text-primary">
+                {{
+                  comparison.monedaExterna === 'PEN'
+                    ? 'S/'
+                    : (comparison.monedaExterna ?? 'Moneda desconocida')
+                }}
+                {{ comparison.precioExterno | number: '1.2-2' }}
+              </p>
+            </div>
+          </div>
+        }
+        @if (comparison.comparable && absoluteDifference() !== null) {
+          <p class="text-body font-semibold text-text-primary">
+            Diferencia: S/ {{ absoluteDifference() | number: '1.2-2' }}
+          </p>
+          @if (comparison.porcentajeDiferencia !== null) {
+            <p class="text-body-sm text-text-secondary">
+              Variación del precio externo respecto a ISADECOR:
+              {{ comparison.porcentajeDiferencia | number: '1.2-2' }}%
+            </p>
+          }
+        }
+        <p class="text-caption text-text-muted">
+          Consulta: {{ comparison.fechaConsulta | date: 'dd/MM/yyyy HH:mm' }}. No incluye ajustes
+          por envío, impuestos adicionales ni conversión de moneda.
+        </p>
+      </div>
+    }
+  </app-card>
+</section>

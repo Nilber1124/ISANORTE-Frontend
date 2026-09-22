@@ -1546,6 +1546,38 @@ paths:
         - {name: slug, in: path, required: true, schema: {type: string}}
       responses: {'200': {description: Unidad activa, content: {application/json: {schema: {$ref: '#/components/schemas/PublicBusinessUnitResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
 
+  /api/publico/sitios/{clave}/unidades/{unidadSlug}/productos/{productoSlug}/comparar-precio:
+    post:
+      tags: [Público]
+      operationId: compararPrecioProductoPublico
+      x-access-intent: PUBLICO
+      summary: Comparar precioBase con el precio extraído de una URL de producto
+      description: |
+        Consulta explícita sin persistencia ni historial. Valida sitio, empresa, unidad activa
+        y producto publicado. La moneda interna de esta versión es PEN.
+        El servidor obtiene precioBase; nunca acepta un precio interno del cliente.
+        Solo HTTP/HTTPS, puertos estándar y direcciones públicas. Hasta 3 redirecciones
+        validadas, sin downgrade HTTPS, HTML de hasta 1 MiB y plazo por salto de 8 segundos.
+        Los fallos externos esperables se devuelven con HTTP 200 y un estado no SUCCESS.
+        La identidad/equivalencia del producto externo debe comprobarla el usuario.
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}, example: isanorte}
+        - {name: unidadSlug, in: path, required: true, schema: {type: string}, example: isadecor}
+        - {name: productoSlug, in: path, required: true, schema: {type: string}, example: mesa}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ComparacionPrecioRequest'}
+      responses:
+        '200':
+          description: Resultado de comparación o fallo externo controlado. Cache-Control no-store.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ComparacionPrecioResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
 components:
   parameters:
     UuidId:
@@ -1701,6 +1733,32 @@ components:
             type: array
             items: {$ref: '#/components/schemas/UnidadNegocioResponse'}
   schemas:
+    ComparacionPrecioRequest:
+      type: object
+      description: La ausencia, vacío o formato inválido de URL devuelve INVALID_URL; más de 2048 caracteres devuelve HTTP 400.
+      properties:
+        urlExterna: {type: string, nullable: true, maxLength: 2048, example: 'https://tienda.example/productos/mesa'}
+    EstadoComparacionPrecio:
+      type: string
+      enum: [SUCCESS, INVALID_URL, BLOCKED_URL, SITE_UNREACHABLE, UNSUPPORTED_CONTENT, PRICE_NOT_FOUND, CURRENCY_UNKNOWN, CURRENCY_MISMATCH, NOT_COMPARABLE]
+    ComparacionPrecioResponse:
+      type: object
+      required: [producto, urlExterna, dominioExterno, nombreProductoExterno, precioInterno, precioExterno, monedaInterna, monedaExterna, diferencia, porcentajeDiferencia, comparable, estado, mensaje, fechaConsulta]
+      properties:
+        producto: {type: string}
+        urlExterna: {type: string, nullable: true, description: URL final validada; null si falla la extracción}
+        dominioExterno: {type: string, nullable: true}
+        nombreProductoExterno: {type: string, nullable: true}
+        precioInterno: {type: number, nullable: true, description: precioBase obtenido por el backend}
+        precioExterno: {type: number, nullable: true}
+        monedaInterna: {type: string, example: PEN}
+        monedaExterna: {type: string, nullable: true}
+        diferencia: {type: number, nullable: true, description: 'precioExterno - precioInterno; solo cuando comparable=true'}
+        porcentajeDiferencia: {type: number, nullable: true, description: '(precioExterno - precioInterno) * 100 / precioInterno; null si no comparable o precioInterno=0. Redondeo HALF_UP a 2 decimales.'}
+        comparable: {type: boolean}
+        estado: {$ref: '#/components/schemas/EstadoComparacionPrecio'}
+        mensaje: {type: string}
+        fechaConsulta: {type: string, format: date-time}
     CanalCotizacion:
       type: string
       enum: [FORMULARIO, WHATSAPP]

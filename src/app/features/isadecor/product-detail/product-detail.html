@@ -78,6 +78,14 @@
         </section>
       }
 
+      <app-product-price-comparison
+        [loading]="facade.comparisonLoading()"
+        [result]="facade.comparisonResult()"
+        [error]="facade.comparisonError()"
+        (compare)="facade.comparePrice($event)"
+        (edited)="facade.clearComparison()"
+      />
+
       @if (facade.variants().length > 0) {
         <section
           class="mt-14 border-t border-border pt-10 lg:mt-20 lg:pt-14"

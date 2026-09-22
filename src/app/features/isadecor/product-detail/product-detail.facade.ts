@@ -2,7 +2,10 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { Subject, finalize, takeUntil } from 'rxjs';
+import { PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
+import { PublicContentApiService } from '../../../data/services/public-content-api.service';
+import { ProductPriceComparisonResponse } from '../../../data/models/product/product-price-comparison-response.model';
 
 import {
   ProductDocumentResponse,
@@ -20,6 +23,14 @@ export interface ProductSpecificationGroup {
 @Injectable()
 export class ProductDetailFacade {
   private readonly productApi = inject(ProductApiService);
+  private readonly publicApi = inject(PublicContentApiService);
+  private readonly comparisonCancelled = new Subject<void>();
+  private readonly _comparisonLoading = signal(false);
+  private readonly _comparisonResult = signal<ProductPriceComparisonResponse | null>(null);
+  private readonly _comparisonError = signal<string | null>(null);
+  readonly comparisonLoading = this._comparisonLoading.asReadonly();
+  readonly comparisonResult = this._comparisonResult.asReadonly();
+  readonly comparisonError = this._comparisonError.asReadonly();
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
 
@@ -55,6 +66,8 @@ export class ProductDetailFacade {
   );
 
   load(slug: string): void {
+    this.comparisonCancelled.next();
+    this.clearComparison();
     const normalizedSlug = slug.trim();
 
     this._product.set(null);
@@ -91,6 +104,39 @@ export class ProductDetailFacade {
 
           this._error.set(
             'No pudimos cargar el producto. Comprueba tu conexión e inténtalo nuevamente.',
+          );
+        },
+      });
+  }
+
+  clearComparison(): void {
+    if (this._comparisonLoading()) return;
+    this._comparisonResult.set(null);
+    this._comparisonError.set(null);
+  }
+
+  comparePrice(urlExterna: string): void {
+    const product = this._product();
+    if (!isPlatformBrowser(this.platformId) || !product || this._comparisonLoading()) return;
+    this.clearComparison();
+    this._comparisonLoading.set(true);
+    this.publicApi
+      .compareProductPrice(PUBLIC_SITE_KEY, 'isadecor', product.slug, { urlExterna })
+      .pipe(
+        takeUntil(this.comparisonCancelled),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._comparisonLoading.set(false)),
+      )
+      .subscribe({
+        next: (result) => this._comparisonResult.set(result),
+        error: (error: unknown) => {
+          const status = error instanceof HttpErrorResponse ? error.status : 0;
+          this._comparisonError.set(
+            status === 404
+              ? 'El producto ya no está disponible públicamente para comparar.'
+              : status === 400
+                ? 'Ingresa una URL válida del producto.'
+                : 'No pudimos completar la comparación. Inténtalo nuevamente.',
           );
         },
       });

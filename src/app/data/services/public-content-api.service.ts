@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../../core/config/api.config';
+import { ProductPriceComparisonRequest } from '../models/product/product-price-comparison-request.model';
+import { ProductPriceComparisonResponse } from '../models/product/product-price-comparison-response.model';
 import {
   PublicContactRequest,
   PublicContactResponse,
@@ -16,6 +18,19 @@ export class PublicContentApiService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL).replace(/\/+$/, '');
   private readonly resourceUrl = `${this.apiBaseUrl}/api/publico/sitios`;
+
+  compareProductPrice(
+    siteKey: string,
+    unitSlug: string,
+    productSlug: string,
+    request: ProductPriceComparisonRequest,
+  ): Observable<ProductPriceComparisonResponse> {
+    return this.http.post<ProductPriceComparisonResponse>(
+      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}` +
+        `/productos/${encodeURIComponent(productSlug)}/comparar-precio`,
+      request,
+    );
+  }
 
   getHome(siteKey: string): Observable<PublicHomeResponse> {
     return this.http.get<PublicHomeResponse>(
