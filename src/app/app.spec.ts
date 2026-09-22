@@ -64,6 +64,7 @@ describe('App', () => {
       'categorias',
       'productos',
       'cotizaciones',
+      'isadecor-landing',
       'proyectos',
       'servicios',
       'unidades-negocio',
@@ -90,5 +91,22 @@ describe('App', () => {
 
     expect(loadedComponent).toBe(AdminLanding);
     expect(loadedComponent).not.toBe(AdminModulePlaceholder);
+  });
+
+  it('should lazy-load AdminIsadecorLanding for the isadecor landing route', async () => {
+    const adminRoute = routes.find((route) => route.path === 'admin');
+    const isadecorLandingRoute = adminRoute?.children?.find(
+      (route) => route.path === 'isadecor-landing',
+    );
+
+    expect(isadecorLandingRoute?.component).toBeUndefined();
+    expect(isadecorLandingRoute?.loadComponent).toBeTypeOf('function');
+
+    const loadedComponent = await isadecorLandingRoute?.loadComponent?.();
+    const { AdminIsadecorLanding } = await import(
+      './features/admin/isadecor-landing/admin-isadecor-landing'
+    );
+
+    expect(loadedComponent).toBe(AdminIsadecorLanding);
   });
 });

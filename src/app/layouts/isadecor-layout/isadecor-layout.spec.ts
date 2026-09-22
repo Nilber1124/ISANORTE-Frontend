@@ -41,12 +41,18 @@ describe('IsadecorLayout', () => {
     const fixture = TestBed.createComponent(IsadecorLayout);
     fixture.detectChanges();
 
-    const request = http.expectOne('/api/publico/sitios/isanorte');
-    expect(request.request.method).toBe('GET');
-    request.flush(mockSite);
+    const siteRequest = http.expectOne('/api/publico/sitios/isanorte');
+    expect(siteRequest.request.method).toBe('GET');
+    siteRequest.flush(mockSite);
+
+    const categoriesRequest = http.expectOne('/api/categorias/activas');
+    expect(categoriesRequest.request.method).toBe('GET');
+    categoriesRequest.flush([]);
+
     fixture.detectChanges();
 
     http.expectNone('/api/publico/sitios/isanorte');
+    http.expectNone('/api/categorias/activas');
     http.verify();
 
     const compiled = fixture.nativeElement as HTMLElement;

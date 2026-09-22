@@ -1,29 +1,85 @@
 <main class="min-h-[70vh] bg-background">
-  <section class="catalog-hero border-b border-border bg-background-soft">
-    <div class="app-container py-14 sm:py-16 lg:py-20">
-      <app-section-title
-        eyebrow="ISADECOR"
-        title="Catálogo de productos"
-        description="Explora nuestra selección de productos para acabados y diseño de interiores."
-        level="h1"
+  <!-- 1. Hero Showroom Digital con fotografía arquitectónica y overlay cinematográfico -->
+  <section
+    class="catalog-hero relative isolate flex min-h-[380px] items-center overflow-hidden border-b border-border bg-black py-16 sm:py-20 text-white"
+    aria-label="Catálogo de productos ISADECOR"
+  >
+    <!-- Imagen de fondo con overlay cinematográfico -->
+    <div class="absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+      <img
+        src="/images/isadecor-catalog-hero.jpg"
+        alt="Showroom de acabados arquitectónicos y revestimientos ISADECOR"
+        class="h-full w-full object-cover object-center"
+        fetchpriority="high"
       />
+      <!-- Capa de gradiente oscuro para asegurar contraste nítido del texto blanco -->
+      <div
+        class="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-black/45"
+      ></div>
+      <div
+        class="absolute inset-0 bg-radial-[at_top_left] from-accent/20 via-transparent to-black/60"
+      ></div>
+    </div>
+
+    <div class="app-container relative z-10 w-full">
+      <div class="max-w-2xl animate-fade-in-up">
+        <div
+          class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/60 bg-black/60 text-accent text-caption font-semibold uppercase tracking-wider mb-4 backdrop-blur-xs"
+        >
+          <svg class="size-3.5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          ISADECOR · Showroom de Acabados
+        </div>
+
+        <h1 class="text-display text-white font-bold tracking-tight drop-shadow-sm">
+          Catálogo de Acabados & Revestimientos
+        </h1>
+
+        <p class="mt-4 text-body-lg text-white/90 max-w-xl leading-relaxed drop-shadow-xs">
+          Explora paneles WPC, planchas de mármol SPC y cielos rasos PVC de alta resistencia pensados para elevar la estética y confort de tus espacios.
+        </p>
+
+        <!-- Micro-garantías comerciales -->
+        <div class="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3 text-caption text-white/90">
+          <div class="flex items-center gap-2 bg-black/50 px-3.5 py-1.5 rounded-full border border-white/15 backdrop-blur-xs">
+            <svg class="size-4 text-accent shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+            <span>Materiales de alta durabilidad</span>
+          </div>
+          <div class="flex items-center gap-2 bg-black/50 px-3.5 py-1.5 rounded-full border border-white/15 backdrop-blur-xs">
+            <svg class="size-4 text-accent shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+            <span>Cotizaciones personalizadas</span>
+          </div>
+          <div class="flex items-center gap-2 bg-black/50 px-3.5 py-1.5 rounded-full border border-white/15 backdrop-blur-xs">
+            <svg class="size-4 text-accent shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+            </svg>
+            <span>Stock para despacho en obra</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
+  <!-- 2. Área Interactiva del Catálogo -->
   <section class="app-container py-10 sm:py-12 lg:py-16" aria-labelledby="catalog-results-title">
     <h2 id="catalog-results-title" class="sr-only">Productos del catálogo</h2>
 
     @if (facade.loading()) {
-      <div class="rounded-panel border border-border bg-surface py-12 sm:py-16">
-        <app-loading label="Cargando productos y categorías" size="large" />
+      <div class="rounded-panel border border-border bg-surface py-16 sm:py-20 shadow-soft">
+        <app-loading label="Cargando catálogo y colecciones de ISADECOR..." size="large" />
       </div>
     } @else if (facade.error()) {
-      <div class="mx-auto max-w-3xl">
+      <div class="mx-auto max-w-2xl">
         <app-alert variant="error" title="No se pudo cargar el catálogo">
           <p>{{ facade.error() }}</p>
           <div class="mt-4">
             <app-button variant="secondary" size="small" (click)="facade.load()">
-              Reintentar
+              Reintentar carga
             </app-button>
           </div>
         </app-alert>
@@ -31,55 +87,173 @@
     } @else if (facade.products().length === 0) {
       <app-empty-state
         emptyStateId="catalog-empty"
-        title="No hay productos disponibles por el momento"
-        description="Vuelve a visitarnos pronto para conocer las novedades de ISADECOR."
+        title="No hay productos disponibles en este momento"
+        description="Estamos actualizando nuestras colecciones de acabados. Vuelve pronto para conocer las novedades."
       />
     } @else {
-      <div class="rounded-panel border border-border bg-surface p-4 shadow-soft sm:p-6">
-        <div class="grid gap-4 md:grid-cols-2">
-          <app-input-field
-            inputId="catalog-search"
-            label="Buscar productos"
-            type="search"
-            name="catalog-search"
-            placeholder="Nombre, SKU o descripción"
-            autocomplete="off"
-            [value]="facade.searchTerm()"
-            (valueChange)="facade.setSearchTerm($event)"
-          />
+      <!-- Panel de Controles, Filtros y Píldoras -->
+      <div class="space-y-6">
+        <!-- Barra de Píldoras / Chips de Categorías -->
+        <div class="border-b border-border pb-4">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
+              Colecciones disponibles
+            </span>
+            <span class="text-caption text-text-secondary">
+              {{ facade.categories().length }} {{ facade.categories().length === 1 ? 'categoría' : 'categorías' }}
+            </span>
+          </div>
 
-          <app-select-field
-            inputId="catalog-category"
-            label="Categoría"
-            name="catalog-category"
-            [options]="categoryOptions()"
-            [value]="facade.selectedCategory() ?? ''"
-            (valueChange)="facade.setSelectedCategory($event)"
-          />
+          <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <button
+              type="button"
+              (click)="facade.setSelectedCategory(null)"
+              [class]="facade.selectedCategory() === null 
+                ? 'bg-accent text-accent-contrast font-semibold shadow-xs ring-2 ring-accent/30' 
+                : 'bg-surface text-text-secondary border border-border hover:border-border-strong hover:bg-surface-hover hover:text-text-primary'"
+              class="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-body-sm transition-all duration-fast cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            >
+              <span>Todos los productos</span>
+              <span
+                class="rounded-full px-2 py-0.5 text-caption font-bold"
+                [class]="facade.selectedCategory() === null ? 'bg-black/20 text-accent-contrast' : 'bg-background-soft text-text-muted'"
+              >
+                {{ facade.products().length }}
+              </span>
+            </button>
+
+            @for (category of facade.categories(); track category.id) {
+              <button
+                type="button"
+                (click)="facade.setSelectedCategory(category.id)"
+                [class]="facade.selectedCategory() === category.id 
+                  ? 'bg-accent text-accent-contrast font-semibold shadow-xs ring-2 ring-accent/30' 
+                  : 'bg-surface text-text-secondary border border-border hover:border-border-strong hover:bg-surface-hover hover:text-text-primary'"
+                class="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-body-sm transition-all duration-fast cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+              >
+                <span>{{ category.nombre }}</span>
+                <span
+                  class="rounded-full px-2 py-0.5 text-caption font-bold"
+                  [class]="facade.selectedCategory() === category.id ? 'bg-black/20 text-accent-contrast' : 'bg-background-soft text-text-muted'"
+                >
+                  {{ facade.getCategoryCount(category.id) }}
+                </span>
+              </button>
+            }
+          </div>
         </div>
 
-        <div
-          class="mt-5 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <p class="text-body-sm text-text-secondary" aria-live="polite" aria-atomic="true">
-            Mostrando
-            <strong class="font-semibold text-text-primary">{{
-              facade.filteredProducts().length
-            }}</strong>
-            de {{ facade.products().length }}
-            {{ facade.products().length === 1 ? 'producto' : 'productos' }}
-          </p>
+        <!-- Barra de Búsqueda, Orden y Filtros Rápidos -->
+        <div class="rounded-panel border border-border bg-surface p-4 shadow-soft sm:p-6 space-y-4">
+          <div class="grid gap-4 md:grid-cols-12 md:items-end">
+            <!-- Buscador -->
+            <div class="md:col-span-8">
+              <app-input-field
+                inputId="catalog-search"
+                label="Buscar en el catálogo"
+                type="search"
+                name="catalog-search"
+                placeholder="Buscar por nombre, SKU o acabado (ej: Wall panel, mármol, PVC)..."
+                autocomplete="off"
+                [value]="facade.searchTerm()"
+                (valueChange)="facade.setSearchTerm($event)"
+              />
+            </div>
 
-          @if (facade.hasActiveFilters()) {
-            <app-button variant="ghost" size="small" (click)="facade.clearFilters()">
-              Limpiar filtros
-            </app-button>
-          }
+            <!-- Ordenar por -->
+            <div class="md:col-span-4">
+              <app-select-field
+                inputId="catalog-sort"
+                label="Ordenar por"
+                name="catalog-sort"
+                [options]="sortOptions"
+                [value]="facade.sortOption()"
+                (valueChange)="updateSortOption($event)"
+              />
+            </div>
+          </div>
+
+          <!-- Términos populares y Toggles Rápidos -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
+            <!-- Sugerencias rápidas -->
+            <div class="flex flex-wrap items-center gap-1.5 text-caption">
+              <span class="text-text-muted font-medium">Búsquedas rápidas:</span>
+              @for (term of popularTerms; track term) {
+                <button
+                  type="button"
+                  (click)="facade.setSearchTerm(term)"
+                  class="rounded-md border border-border bg-background-soft px-2.5 py-1 text-caption text-text-secondary hover:border-accent hover:text-accent transition-colors cursor-pointer"
+                >
+                  {{ term }}
+                </button>
+              }
+            </div>
+
+            <!-- Toggles de Stock y Ofertas -->
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                (click)="facade.toggleOnlyDiscount()"
+                [class]="facade.onlyDiscount() 
+                  ? 'border-accent bg-accent/15 text-accent font-semibold shadow-xs' 
+                  : 'border-border bg-background text-text-secondary hover:border-border-strong hover:bg-surface-hover'"
+                class="inline-flex items-center gap-1.5 rounded-button border px-3 py-1.5 text-caption transition-all cursor-pointer"
+              >
+                <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7h.01"/>
+                </svg>
+                Solo en oferta (-%)
+              </button>
+
+              <button
+                type="button"
+                (click)="facade.toggleOnlyInStock()"
+                [class]="facade.onlyInStock() 
+                  ? 'border-success bg-success/15 text-success font-semibold shadow-xs' 
+                  : 'border-border bg-background text-text-secondary hover:border-border-strong hover:bg-surface-hover'"
+                class="inline-flex items-center gap-1.5 rounded-button border px-3 py-1.5 text-caption transition-all cursor-pointer"
+              >
+                <span class="size-2 rounded-full bg-success" aria-hidden="true"></span>
+                Entrega inmediata
+              </button>
+            </div>
+          </div>
+
+          <!-- Resumen de Resultados y Limpiar filtros -->
+          <div
+            class="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <p class="text-body-sm text-text-secondary" aria-live="polite" aria-atomic="true">
+              Mostrando
+              <strong class="font-semibold text-text-primary">{{
+                facade.filteredProducts().length
+              }}</strong>
+              de {{ facade.products().length }}
+              {{ facade.products().length === 1 ? 'producto' : 'productos' }}
+              @if (facade.selectedCategory(); as catId) {
+                <span class="text-accent font-medium"> en esta colección</span>
+              }
+            </p>
+
+            @if (facade.hasActiveFilters()) {
+              <button
+                type="button"
+                (click)="facade.clearFilters()"
+                class="inline-flex items-center gap-1.5 text-body-sm text-accent hover:text-accent/80 font-medium transition-colors cursor-pointer"
+              >
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Restablecer todos los filtros
+              </button>
+            }
+          </div>
         </div>
       </div>
 
+      <!-- Cuadrícula de Productos -->
       @if (facade.filteredProducts().length > 0) {
-        <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:gap-6">
+        <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-7">
           @for (product of facade.filteredProducts(); track product.id) {
             <app-product-card [product]="product" />
           }
@@ -88,12 +262,12 @@
         <div class="mt-8">
           <app-empty-state
             emptyStateId="catalog-no-results"
-            title="No encontramos productos con esos filtros"
-            description="Prueba con otro término o consulta todas las categorías."
+            title="No encontramos productos con los filtros seleccionados"
+            description="Intenta buscar con otros términos, restablece los filtros o explora todas las colecciones."
             compact
           >
             <app-button empty-state-actions variant="secondary" (click)="facade.clearFilters()">
-              Limpiar filtros
+              Restablecer filtros
             </app-button>
           </app-empty-state>
         </div>
