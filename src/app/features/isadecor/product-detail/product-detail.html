@@ -78,6 +78,13 @@
         </section>
       }
 
+      <app-product-competitor-comparison
+        [loading]="facade.competitorComparisonLoading()"
+        [result]="facade.competitorComparisonResult()"
+        [error]="facade.competitorComparisonError()"
+        (compare)="facade.compareCompetitors()"
+      />
+
       <app-product-price-comparison
         [loading]="facade.comparisonLoading()"
         [result]="facade.comparisonResult()"

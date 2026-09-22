@@ -3,12 +3,10 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../../core/config/api.config';
+import { PublicContactRequest, PublicContactResponse } from '../models/contact/public-contact-request.model';
+import { ProductCompetitorComparisonResponse } from '../models/product/product-competitor-comparison-response.model';
 import { ProductPriceComparisonRequest } from '../models/product/product-price-comparison-request.model';
 import { ProductPriceComparisonResponse } from '../models/product/product-price-comparison-response.model';
-import {
-  PublicContactRequest,
-  PublicContactResponse,
-} from '../models/contact/public-contact-request.model';
 import { PublicHomeResponse } from '../models/public-content/public-home.model';
 import { PublicPageResponse, PublicPageType } from '../models/public-content/public-page.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
@@ -19,23 +17,22 @@ export class PublicContentApiService {
   private readonly apiBaseUrl = inject(API_BASE_URL).replace(/\/+$/, '');
   private readonly resourceUrl = `${this.apiBaseUrl}/api/publico/sitios`;
 
-  compareProductPrice(
-    siteKey: string,
-    unitSlug: string,
-    productSlug: string,
-    request: ProductPriceComparisonRequest,
-  ): Observable<ProductPriceComparisonResponse> {
+  compareProductPrice(siteKey: string, unitSlug: string, productSlug: string,
+    request: ProductPriceComparisonRequest): Observable<ProductPriceComparisonResponse> {
     return this.http.post<ProductPriceComparisonResponse>(
       `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}` +
-        `/productos/${encodeURIComponent(productSlug)}/comparar-precio`,
-      request,
-    );
+        `/productos/${encodeURIComponent(productSlug)}/comparar-precio`, request);
+  }
+
+  compareProductCompetitors(siteKey: string, unitSlug: string,
+    productSlug: string): Observable<ProductCompetitorComparisonResponse> {
+    return this.http.get<ProductCompetitorComparisonResponse>(
+      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}` +
+        `/productos/${encodeURIComponent(productSlug)}/comparacion-competidores`);
   }
 
   getHome(siteKey: string): Observable<PublicHomeResponse> {
-    return this.http.get<PublicHomeResponse>(
-      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/home`,
-    );
+    return this.http.get<PublicHomeResponse>(`${this.resourceUrl}/${encodeURIComponent(siteKey)}/home`);
   }
 
   getSite(siteKey: string): Observable<PublicSiteResponse> {
@@ -44,8 +41,7 @@ export class PublicContentApiService {
 
   getPage(siteKey: string, page: PublicPageType): Observable<PublicPageResponse> {
     return this.http.get<PublicPageResponse>(
-      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/paginas/${encodeURIComponent(page)}`,
-    );
+      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/paginas/${encodeURIComponent(page)}`);
   }
 
   submitContact(request: PublicContactRequest): Observable<PublicContactResponse> {

@@ -6,6 +6,7 @@ import { Subject, finalize, takeUntil } from 'rxjs';
 import { PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { ProductPriceComparisonResponse } from '../../../data/models/product/product-price-comparison-response.model';
+import { ProductCompetitorComparisonResponse } from '../../../data/models/product/product-competitor-comparison-response.model';
 
 import {
   ProductDocumentResponse,
@@ -25,12 +26,19 @@ export class ProductDetailFacade {
   private readonly productApi = inject(ProductApiService);
   private readonly publicApi = inject(PublicContentApiService);
   private readonly comparisonCancelled = new Subject<void>();
+  private readonly competitorComparisonCancelled = new Subject<void>();
   private readonly _comparisonLoading = signal(false);
   private readonly _comparisonResult = signal<ProductPriceComparisonResponse | null>(null);
   private readonly _comparisonError = signal<string | null>(null);
   readonly comparisonLoading = this._comparisonLoading.asReadonly();
   readonly comparisonResult = this._comparisonResult.asReadonly();
   readonly comparisonError = this._comparisonError.asReadonly();
+  private readonly _competitorComparisonLoading = signal(false);
+  private readonly _competitorComparisonResult = signal<ProductCompetitorComparisonResponse | null>(null);
+  private readonly _competitorComparisonError = signal<string | null>(null);
+  readonly competitorComparisonLoading = this._competitorComparisonLoading.asReadonly();
+  readonly competitorComparisonResult = this._competitorComparisonResult.asReadonly();
+  readonly competitorComparisonError = this._competitorComparisonError.asReadonly();
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
 
@@ -67,7 +75,10 @@ export class ProductDetailFacade {
 
   load(slug: string): void {
     this.comparisonCancelled.next();
+    this.competitorComparisonCancelled.next();
     this.clearComparison();
+    this._competitorComparisonResult.set(null);
+    this._competitorComparisonError.set(null);
     const normalizedSlug = slug.trim();
 
     this._product.set(null);
@@ -139,6 +150,28 @@ export class ProductDetailFacade {
                 : 'No pudimos completar la comparación. Inténtalo nuevamente.',
           );
         },
+      });
+  }
+
+  compareCompetitors(): void {
+    const product = this._product();
+    if (!isPlatformBrowser(this.platformId) || !product || this._competitorComparisonLoading()) return;
+    this._competitorComparisonResult.set(null);
+    this._competitorComparisonError.set(null);
+    this._competitorComparisonLoading.set(true);
+    this.publicApi
+      .compareProductCompetitors(PUBLIC_SITE_KEY, 'isadecor', product.slug)
+      .pipe(
+        takeUntil(this.competitorComparisonCancelled),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._competitorComparisonLoading.set(false)),
+      )
+      .subscribe({
+        next: (result) => this._competitorComparisonResult.set(result),
+        error: () =>
+          this._competitorComparisonError.set(
+            'No pudimos buscar productos similares. Inténtalo nuevamente.',
+          ),
       });
   }
 

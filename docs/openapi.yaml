@@ -1578,6 +1578,25 @@ paths:
         '400': {$ref: '#/components/responses/BadRequest'}
         '404': {$ref: '#/components/responses/NotFound'}
 
+  /api/publico/sitios/{clave}/unidades/{unidadSlug}/productos/{productoSlug}/comparacion-competidores:
+    get:
+      tags: [Público]
+      operationId: compararProductosCompetidores
+      x-access-intent: PUBLICO
+      summary: Busca productos similares en PISOPAK y DECORPLAS
+      description: Consulta bajo acción explícita, sin persistencia. El backend recupera el producto publicado de ISADECOR, consulta únicamente dominios oficiales, puntúa candidatos y compara precios solo con moneda y unidad compatibles.
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}, example: isanorte}
+        - {name: unidadSlug, in: path, required: true, schema: {type: string}, example: isadecor}
+        - {name: productoSlug, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Resultado independiente por tienda. Cache-Control no-store.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ComparacionCompetidoresResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
 components:
   parameters:
     UuidId:
@@ -1733,6 +1752,52 @@ components:
             type: array
             items: {$ref: '#/components/schemas/UnidadNegocioResponse'}
   schemas:
+    EstadoComparacionCompetidor:
+      type: string
+      enum: [FOUND, NO_SIMILAR_PRODUCT_FOUND, STORE_UNAVAILABLE]
+    CaracteristicaComparable:
+      type: object
+      required: [nombre, valor]
+      properties:
+        nombre: {type: string}
+        valor: {type: string}
+    ProductoComparable:
+      type: object
+      required: [nombre, precio, precioAnterior, moneda, unidadPrecio, caracteristicas]
+      properties:
+        nombre: {type: string}
+        precio: {type: number, nullable: true}
+        precioAnterior: {type: number, nullable: true}
+        moneda: {type: string, example: PEN}
+        unidadPrecio: {type: string, nullable: true, example: m2}
+        caracteristicas: {type: array, items: {$ref: '#/components/schemas/CaracteristicaComparable'}}
+    ResultadoCompetidor:
+      type: object
+      required: [empresa, estado, encontrado, nombreProducto, urlProducto, precio, precioAnterior, moneda, unidadPrecio, cantidadPorPresentacion, similitud, caracteristicas, comparablePrecio, diferenciaPrecio, mensaje]
+      properties:
+        empresa: {type: string, enum: [PISOPAK, DECORPLAS]}
+        estado: {$ref: '#/components/schemas/EstadoComparacionCompetidor'}
+        encontrado: {type: boolean}
+        nombreProducto: {type: string, nullable: true}
+        urlProducto: {type: string, format: uri, nullable: true}
+        precio: {type: number, nullable: true}
+        precioAnterior: {type: number, nullable: true}
+        moneda: {type: string, nullable: true}
+        unidadPrecio: {type: string, nullable: true}
+        cantidadPorPresentacion: {type: number, nullable: true}
+        similitud: {type: number, minimum: 0, maximum: 1, nullable: true}
+        caracteristicas: {type: array, items: {$ref: '#/components/schemas/CaracteristicaComparable'}}
+        comparablePrecio: {type: boolean}
+        diferenciaPrecio: {type: number, nullable: true, description: 'precio competidor - precio ISADECOR; solo con moneda y unidad compatibles'}
+        mensaje: {type: string}
+    ComparacionCompetidoresResponse:
+      type: object
+      required: [productoIsadecor, competidores, diferenciasEncontradas, fechaConsulta]
+      properties:
+        productoIsadecor: {$ref: '#/components/schemas/ProductoComparable'}
+        competidores: {type: array, items: {$ref: '#/components/schemas/ResultadoCompetidor'}}
+        diferenciasEncontradas: {type: array, items: {type: string}}
+        fechaConsulta: {type: string, format: date-time}
     ComparacionPrecioRequest:
       type: object
       description: La ausencia, vacío o formato inválido de URL devuelve INVALID_URL; más de 2048 caracteres devuelve HTTP 400.
