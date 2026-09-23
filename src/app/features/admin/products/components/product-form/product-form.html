@@ -246,29 +246,815 @@
         />
       </div>
 
-      <label
-        class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
-      >
-        <div class="space-y-1">
-          <div class="flex items-center gap-2">
-            <span class="text-body-sm font-semibold text-text-primary">Destacar en portada</span>
-            <span class="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">Vitrina Home</span>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label
+          class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
+        >
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="text-body-sm font-semibold text-text-primary">Destacar en portada</span>
+              <span class="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">Vitrina Home</span>
+            </div>
+            <p class="text-caption text-text-secondary leading-relaxed">
+              Al activar esta opción, el producto aparecerá en la sección de <strong>"Productos destacados"</strong> de la portada/landing de ISADECOR, tendrá prioridad en el orden predeterminado del catálogo y lucirá una insignia visual dorada.
+            </p>
           </div>
-          <p class="text-caption text-text-secondary leading-relaxed">
-            Al activar esta opción, el producto aparecerá en la sección de <strong>"Productos destacados"</strong> de la portada/landing de ISADECOR, tendrá prioridad en el orden predeterminado del catálogo y lucirá una insignia visual dorada.
-          </p>
-        </div>
-        <input
-          class="form-choice h-5 w-5 rounded text-accent focus:ring-accent mt-0.5"
-          type="checkbox"
-          name="product-featured"
-          [checked]="destacado()"
-          (change)="updateFeatured($event)"
-        />
-      </label>
+          <input
+            id="product-featured"
+            class="form-choice h-5 w-5 rounded text-accent focus:ring-accent mt-0.5"
+            type="checkbox"
+            name="product-featured"
+            [checked]="destacado()"
+            (change)="updateFeatured($event)"
+          />
+        </label>
+
+        <label
+          class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
+        >
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="text-body-sm font-semibold text-text-primary">Retiro en tienda</span>
+              <span class="rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-semibold text-success">Logística y Entrega</span>
+            </div>
+            <p class="text-caption text-text-secondary leading-relaxed">
+              Habilita la opción de retiro inmediato en tienda física o almacén para este producto, informando la disponibilidad en la ficha pública.
+            </p>
+          </div>
+          <div class="relative inline-flex items-center shrink-0 mt-0.5">
+            <input
+              id="product-pickup-in-store"
+              type="checkbox"
+              name="product-pickup-in-store"
+              role="switch"
+              [attr.aria-checked]="retiroEnTienda()"
+              class="sr-only peer"
+              [checked]="retiroEnTienda()"
+              (change)="updateRetiroEnTienda($event)"
+            />
+            <div class="w-11 h-6 bg-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
+          </div>
+        </label>
+      </div>
     </section>
 
-    <!-- SECCIÓN 4: SEO Y VISTA PREVIA EN EL CATÁLOGO -->
+    <!-- SECCIÓN 4: GALERÍA E IMÁGENES DEL PRODUCTO -->
+    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-product-images">
+      <div class="flex items-center justify-between pb-3 border-b border-border">
+        <div class="flex items-center gap-2">
+          <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
+          <h3 id="section-product-images" class="text-caption font-bold uppercase tracking-wider text-text-primary">
+            4. Galería e Imágenes del Producto
+          </h3>
+        </div>
+        @if (mode() === 'edit') {
+          <div class="flex items-center gap-2">
+            @if (facade.imageOperating()) {
+              <span class="inline-flex items-center gap-1.5 text-caption font-medium text-accent bg-accent/10 px-2.5 py-1 rounded-full animate-pulse">
+                <svg class="animate-spin size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Guardando en galería...
+              </span>
+            } @else if (facade.imageSuccess(); as msg) {
+              <span class="inline-flex items-center gap-1 text-caption font-medium text-success bg-success/10 px-2.5 py-1 rounded-full">
+                <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                </svg>
+                {{ msg }}
+              </span>
+            }
+          </div>
+        }
+      </div>
+
+      @if (facade.imageError(); as err) {
+        <app-alert
+          variant="error"
+          title="Error en la galería"
+          dismissible
+          (dismissed)="facade.clearImageFeedback()"
+        >
+          {{ err }}
+        </app-alert>
+      }
+
+      <div class="space-y-2">
+        <label class="form-label mb-0">Subir nueva fotografía a Cloudinary</label>
+        <p class="text-caption text-text-muted mb-2">
+          Formatos compatibles: JPG, PNG o WebP (máx. 5MB). Al subirla, se integrará automáticamente a la galería.
+        </p>
+        <app-image-uploader
+          folder="isanorte/productos"
+          [ngModel]="newImageUrl()"
+          (ngModelChange)="onImageUploaded($event)"
+          name="product-uploader"
+        />
+      </div>
+
+      <!-- LISTADO DE IMÁGENES -->
+      <div class="space-y-3 pt-2 border-t border-border">
+        <div class="flex items-center justify-between">
+          <span class="text-caption font-bold uppercase tracking-wider text-text-primary">
+            Imágenes de la galería ({{ currentImages().length }})
+          </span>
+          @if (mode() === 'create' && currentImages().length > 0) {
+            <span class="text-[11px] text-text-muted">
+              Se guardarán automáticamente junto con el producto
+            </span>
+          }
+        </div>
+
+        @if (currentImages().length === 0) {
+          <div class="flex flex-col items-center justify-center p-8 rounded-xl border border-dashed border-border bg-surface-soft text-center">
+            <svg class="size-10 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+            <p class="text-body-sm font-semibold text-text-primary">Sin fotografías registradas</p>
+            <p class="text-caption text-text-muted mt-1 max-w-sm">
+              Sube la primera imagen arriba para comenzar a estructurar la vitrina visual de este producto.
+            </p>
+          </div>
+        } @else {
+          <div class="space-y-3">
+            @for (img of currentImages(); track (img.id || img.url); let idx = $index; let total = $count) {
+              <div
+                class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-3 sm:p-4 rounded-xl border bg-surface-soft transition-colors"
+                [class.border-accent]="img.esPrincipal"
+                [class.border-border]="!img.esPrincipal"
+              >
+                <!-- Miniatura con botón de zoom -->
+                <div class="relative size-20 sm:size-24 shrink-0 rounded-lg overflow-hidden border border-border bg-black/10 group/thumb">
+                  <img
+                    [src]="img.url"
+                    [alt]="img.altText || 'Miniatura'"
+                    class="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    class="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer"
+                    (click)="openPreview(img.url)"
+                    title="Ver vista previa en tamaño completo"
+                    aria-label="Ver vista previa en tamaño completo"
+                  >
+                    <svg class="size-6 drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Datos de la imagen: Principal badge + Alt input -->
+                <div class="flex-1 w-full space-y-2">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="text-caption font-bold text-text-muted">#{{ idx + 1 }}</span>
+                      @if (img.esPrincipal) {
+                        <span class="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-0.5 text-[11px] font-bold text-accent">
+                          ★ Imagen principal (portada)
+                        </span>
+                      } @else {
+                        <button
+                          type="button"
+                          class="text-caption font-semibold text-text-secondary hover:text-accent transition-colors cursor-pointer"
+                          [disabled]="facade.imageOperating()"
+                          (click)="setAsPrincipal(idx)"
+                        >
+                          Marcar como principal
+                        </button>
+                      }
+                    </div>
+
+                    <!-- Botones de reordenamiento y eliminar -->
+                    <div class="flex items-center gap-1">
+                      <button
+                        type="button"
+                        class="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                        title="Mover arriba"
+                        aria-label="Mover arriba"
+                        [disabled]="idx === 0 || facade.imageOperating()"
+                        (click)="moveImage(idx, -1)"
+                      >
+                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        class="p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                        title="Mover abajo"
+                        aria-label="Mover abajo"
+                        [disabled]="idx === total - 1 || facade.imageOperating()"
+                        (click)="moveImage(idx, 1)"
+                      >
+                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        class="p-1 rounded text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-30 disabled:pointer-events-none transition-colors ml-1 cursor-pointer"
+                        title="Eliminar de la galería"
+                        aria-label="Eliminar de la galería"
+                        [disabled]="facade.imageOperating()"
+                        (click)="removeImage(idx)"
+                      >
+                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Input para ALT text -->
+                  <div>
+                    <input
+                      type="text"
+                      class="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-body-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      [value]="img.altText"
+                      (input)="updateImageAlt(idx, $any($event.target).value)"
+                      (blur)="saveImageAlt(idx, $any($event.target).value)"
+                      placeholder="Descripción accesible de la imagen (ALT)"
+                      maxlength="200"
+                    />
+                    <div class="flex items-center justify-between mt-1">
+                      <span class="text-[11px] text-text-muted">
+                        {{ mode() === 'edit' ? 'Guardado automático al salir del campo' : 'Para SEO y lectores de pantalla' }}
+                      </span>
+                      <span class="text-[11px] text-text-muted">
+                        {{ img.altText?.length || 0 }}/200
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- SECCIÓN 5: VARIANTES TÉCNICAS Y COMERCIALES -->
+    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-variants">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border">
+        <div class="flex items-center gap-2">
+          <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+          </svg>
+          <div>
+            <h3 id="section-variants" class="text-caption font-bold uppercase tracking-wider text-text-primary">
+              5. Variantes Técnicas y Comerciales
+            </h3>
+            <p class="text-caption text-text-muted mt-0.5">
+              Administra presentaciones específicas (ej. acabados, medidas o colores) con su propio SKU, precio y disponibilidad.
+            </p>
+          </div>
+        </div>
+        <div>
+          <app-button
+            type="button"
+            variant="secondary"
+            size="small"
+            [disabled]="submitting() || facade.variantOperating()"
+            (click)="openCreateVariant()"
+          >
+            <svg class="size-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Agregar variante
+          </app-button>
+        </div>
+      </div>
+
+      <!-- Feedback de variantes en edición -->
+      @if (mode() === 'edit') {
+        @if (facade.variantSuccess(); as successMsg) {
+          <app-alert variant="success" [dismissible]="true" (dismissed)="facade.clearVariantFeedback()">
+            {{ successMsg }}
+          </app-alert>
+        }
+        @if (facade.variantError(); as errorMsg) {
+          <app-alert variant="error" [dismissible]="true" (dismissed)="facade.clearVariantFeedback()">
+            {{ errorMsg }}
+          </app-alert>
+        }
+      }
+
+      <!-- Lista de variantes -->
+      <div>
+        @if (currentVariants().length === 0) {
+          <div class="rounded-xl border border-dashed border-border bg-surface-soft p-6 text-center text-body-sm text-text-muted">
+            <svg class="size-8 mx-auto mb-2 text-text-muted/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0120.25 9v.878m0 0a2.246 2.246 0 00-.75-.128H4.5c-.263 0-.515.045-.75.128m16.5 0A2.25 2.25 0 0121.75 12v6.75a2.25 2.25 0 01-2.25 2.25H4.5a2.25 2.25 0 01-2.25-2.25V12a2.25 2.25 0 011.5-2.122" />
+            </svg>
+            <p class="font-medium text-text-primary">Este producto no tiene variantes registradas</p>
+            <p class="mt-1 text-caption text-text-muted">
+              Si el producto se comercializa en varias presentaciones o especificaciones, agrégalas con el botón de arriba.
+            </p>
+          </div>
+        } @else {
+          <div class="overflow-x-auto rounded-xl border border-border bg-surface">
+            <table class="min-w-full divide-y divide-border text-left text-body-sm">
+              <thead class="bg-surface-soft text-caption font-semibold uppercase tracking-wider text-text-muted">
+                <tr>
+                  <th scope="col" class="py-3 pl-4 pr-3 sm:pl-6">Variante</th>
+                  <th scope="col" class="px-3 py-3">SKU</th>
+                  <th scope="col" class="px-3 py-3">Precio</th>
+                  <th scope="col" class="px-3 py-3">Estado</th>
+                  <th scope="col" class="py-3 pl-3 pr-4 sm:pr-6 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border bg-surface">
+                @for (v of currentVariants(); track v.sku; let idx = $index) {
+                  <tr class="transition-colors hover:bg-surface-soft/50">
+                    <td class="py-3 pl-4 pr-3 sm:pl-6">
+                      <div class="flex items-center gap-3">
+                        @if (v.imagenUrl) {
+                          <img
+                            [src]="v.imagenUrl"
+                            [alt]="v.nombre"
+                            class="size-10 rounded-lg object-cover border border-border shrink-0"
+                          />
+                        } @else {
+                          <div class="size-10 rounded-lg bg-surface-soft border border-border flex items-center justify-center text-text-muted shrink-0">
+                            <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                          </div>
+                        }
+                        <div>
+                          <div class="font-medium text-text-primary">{{ v.nombre }}</div>
+                          @if (v.descripcion) {
+                            <div class="text-caption text-text-muted truncate max-w-xs">{{ v.descripcion }}</div>
+                          }
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-3 py-3 font-mono text-caption text-text-muted">{{ v.sku }}</td>
+                    <td class="px-3 py-3 font-medium text-text-primary">
+                      @if (v.precio !== null && v.precio !== undefined) {
+                        S/ {{ v.precio | number:'1.2-2' }}
+                      } @else {
+                        <span class="text-text-muted text-caption">Precio base</span>
+                      }
+                    </td>
+                    <td class="px-3 py-3">
+                      <app-badge [variant]="v.disponible ? 'success' : 'error'" dot>
+                        {{ v.disponible ? 'Disponible' : 'Agotado' }}
+                      </app-badge>
+                    </td>
+                    <td class="py-3 pl-3 pr-4 sm:pr-6 text-right">
+                      <div class="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          class="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-soft transition-colors cursor-pointer"
+                          title="Editar variante"
+                          aria-label="Editar variante"
+                          [disabled]="facade.variantOperating()"
+                          (click)="openEditVariant(idx)"
+                        >
+                          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          class="p-1.5 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                          title="Eliminar variante"
+                          aria-label="Eliminar variante"
+                          [disabled]="facade.variantOperating()"
+                          (click)="removeVariant(idx)"
+                        >
+                          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- SECCIÓN 6: ESPECIFICACIONES TÉCNICAS -->
+    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-specs">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border">
+        <div class="flex items-center gap-2">
+          <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
+          <h3 id="section-specs" class="text-caption font-bold uppercase tracking-wider text-text-primary">
+            6. Especificaciones Técnicas
+          </h3>
+        </div>
+
+        <app-button
+          variant="secondary"
+          size="small"
+          [disabled]="mode() === 'edit' && facade.specificationOperating()"
+          (click)="openCreateSpecification()"
+        >
+          <svg class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Agregar especificación
+        </app-button>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-caption text-text-secondary">
+          Gestiona las propiedades y fichas técnicas del producto (ej. dimensiones, peso, materiales, rendimiento). Las especificaciones se organizan agrupadas para facilitar su lectura en la ficha pública.
+        </p>
+
+        @if (mode() === 'edit') {
+          @if (facade.specificationSuccess(); as okMsg) {
+            <app-alert variant="success">{{ okMsg }}</app-alert>
+          }
+          @if (facade.specificationError(); as errMsg) {
+            <app-alert variant="error">{{ errMsg }}</app-alert>
+          }
+        }
+
+        @if (groupedSpecifications().length === 0) {
+          <div class="rounded-lg border border-dashed border-border p-6 text-center">
+            <svg class="mx-auto size-9 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            <p class="text-body-sm font-medium text-text-primary">Sin especificaciones técnicas</p>
+            <p class="text-caption text-text-muted mt-0.5">
+              Este producto aún no cuenta con ficha de especificaciones técnicas.
+            </p>
+            <div class="mt-3 flex justify-center">
+              <app-button
+                variant="secondary"
+                size="small"
+                [disabled]="mode() === 'edit' && facade.specificationOperating()"
+                (click)="openCreateSpecification()"
+              >
+                Agregar primera especificación
+              </app-button>
+            </div>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (group of groupedSpecifications(); track group.name) {
+              <div class="rounded-lg border border-border bg-surface overflow-hidden">
+                <!-- Header del Grupo -->
+                <div class="flex items-center justify-between px-4 py-2.5 bg-surface-soft/60 border-b border-border">
+                  <div class="flex items-center gap-2">
+                    <span class="text-body-sm font-bold text-text-primary">
+                      {{ group.name }}
+                    </span>
+                    <app-badge variant="neutral">
+                      {{ group.items.length }} {{ group.items.length === 1 ? 'parámetro' : 'parámetros' }}
+                    </app-badge>
+                  </div>
+                  <app-button
+                    variant="ghost"
+                    size="small"
+                    [disabled]="mode() === 'edit' && facade.specificationOperating()"
+                    (click)="openCreateSpecification(group.name)"
+                  >
+                    <svg class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Añadir a {{ group.name }}
+                  </app-button>
+                </div>
+
+                <!-- Tabla de especificaciones del grupo -->
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-body-sm">
+                    <thead>
+                      <tr class="border-b border-border bg-surface-soft/30 text-[11px] font-bold uppercase tracking-wider text-text-muted">
+                        <th scope="col" class="py-2 px-4 w-16">Orden</th>
+                        <th scope="col" class="py-2 px-4">Parámetro (Clave)</th>
+                        <th scope="col" class="py-2 px-4">Valor</th>
+                        <th scope="col" class="py-2 px-4 text-right w-24">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                      @for (item of group.items; track item.id || item.clave) {
+                        <tr class="hover:bg-surface-soft/40 transition-colors">
+                          <td class="py-2.5 px-4 font-mono text-caption text-text-muted">
+                            {{ item.orden }}
+                          </td>
+                          <td class="py-2.5 px-4 font-semibold text-text-primary">
+                            {{ item.clave }}
+                          </td>
+                          <td class="py-2.5 px-4 text-text-secondary">
+                            {{ item.valor }}
+                          </td>
+                          <td class="py-2.5 px-4 text-right">
+                            <div class="flex items-center justify-end gap-1">
+                              <button
+                                type="button"
+                                class="p-1 text-text-muted hover:text-accent rounded transition-colors"
+                                title="Editar especificación"
+                                [disabled]="mode() === 'edit' && facade.specificationOperating()"
+                                (click)="openEditSpecification(item)"
+                              >
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                </svg>
+                              </button>
+                              <button
+                                type="button"
+                                class="p-1 text-text-muted hover:text-state-error rounded transition-colors"
+                                title="Eliminar especificación"
+                                [disabled]="mode() === 'edit' && facade.specificationOperating()"
+                                (click)="removeSpecification(item)"
+                              >
+                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- SECCIÓN 7: DOCUMENTACIÓN Y FICHAS TÉCNICAS -->
+    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-docs">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border">
+        <div class="flex items-center gap-2">
+          <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+          <h3 id="section-docs" class="text-caption font-bold uppercase tracking-wider text-text-primary">
+            7. Documentación y Fichas Técnicas
+          </h3>
+        </div>
+
+        <app-button
+          variant="secondary"
+          size="small"
+          [disabled]="mode() === 'edit' && facade.documentOperating()"
+          (click)="openCreateDocument()"
+        >
+          <svg class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Agregar documento
+        </app-button>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-caption text-text-secondary">
+          Gestiona los archivos descargables para arquitectos, contratistas y clientes (fichas técnicas, catálogos, certificados y manuales).
+        </p>
+
+        @if (mode() === 'edit') {
+          @if (facade.documentSuccess(); as okMsg) {
+            <app-alert variant="success">{{ okMsg }}</app-alert>
+          }
+          @if (facade.documentError(); as errMsg) {
+            <app-alert variant="error">{{ errMsg }}</app-alert>
+          }
+        }
+
+        @if (currentDocuments().length === 0) {
+          <div class="rounded-lg border border-dashed border-border p-6 text-center">
+            <svg class="mx-auto size-9 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            <p class="text-body-sm font-medium text-text-primary">Sin documentos técnicos</p>
+            <p class="text-caption text-text-muted mt-0.5">
+              Este producto aún no cuenta con fichas técnicas, catálogos o manuales adjuntos.
+            </p>
+            <div class="mt-3 flex justify-center">
+              <app-button
+                variant="secondary"
+                size="small"
+                [disabled]="mode() === 'edit' && facade.documentOperating()"
+                (click)="openCreateDocument()"
+              >
+                Agregar primer documento
+              </app-button>
+            </div>
+          </div>
+        } @else {
+          <div class="rounded-lg border border-border bg-surface overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-body-sm">
+                <thead>
+                  <tr class="border-b border-border bg-surface-soft/30 text-[11px] font-bold uppercase tracking-wider text-text-muted">
+                    <th scope="col" class="py-2.5 px-4">Documento / Título</th>
+                    <th scope="col" class="py-2.5 px-4 w-36">Tipo</th>
+                    <th scope="col" class="py-2.5 px-4 w-24">Formato</th>
+                    <th scope="col" class="py-2.5 px-4 w-28">Tamaño</th>
+                    <th scope="col" class="py-2.5 px-4 text-right w-28">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                  @for (doc of currentDocuments(); track doc.id || doc.url) {
+                    <tr class="hover:bg-surface-soft/40 transition-colors">
+                      <td class="py-3 px-4">
+                        <div class="flex items-center gap-2">
+                          <svg class="size-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                          </svg>
+                          <div class="min-w-0">
+                            <p class="font-semibold text-text-primary line-clamp-1">{{ doc.titulo }}</p>
+                            <a
+                              [href]="doc.url"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="text-caption text-text-muted hover:text-accent font-mono truncate block max-w-xs transition-colors"
+                              title="Abrir enlace del documento"
+                            >
+                              {{ doc.url }}
+                            </a>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-3 px-4">
+                        <app-badge [variant]="getDocumentTypeBadge(doc.tipo).variant">
+                          {{ getDocumentTypeBadge(doc.tipo).label }}
+                        </app-badge>
+                      </td>
+                      <td class="py-3 px-4 font-mono text-caption text-text-secondary">
+                        {{ doc.formato || '—' }}
+                      </td>
+                      <td class="py-3 px-4 text-caption text-text-muted">
+                        {{ formatDocumentSize(doc.tamanoBytes) }}
+                      </td>
+                      <td class="py-3 px-4 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                          <a
+                            [href]="doc.url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="p-1 text-text-muted hover:text-accent rounded transition-colors"
+                            title="Abrir documento en nueva pestaña"
+                          >
+                            <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                            </svg>
+                          </a>
+                          <button
+                            type="button"
+                            class="p-1 text-text-muted hover:text-accent rounded transition-colors"
+                            title="Editar documento"
+                            [disabled]="mode() === 'edit' && facade.documentOperating()"
+                            (click)="openEditDocument(doc)"
+                          >
+                            <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            class="p-1 text-text-muted hover:text-state-error rounded transition-colors"
+                            title="Eliminar documento"
+                            [disabled]="mode() === 'edit' && facade.documentOperating()"
+                            (click)="removeDocument(doc)"
+                          >
+                            <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- SECCIÓN 8: CALCULADORA DE MATERIALES Y RENDIMIENTO -->
+    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-calc">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border">
+        <div class="flex items-center gap-2">
+          <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008zm0 3h.008v.008H8.25v-.008zm0 3h.008v.008H8.25v-.008zm3-6h.008v.008H11.25v-.008zm0 3h.008v.008H11.25v-.008zm0 3h.008v.008H11.25v-.008zm3-6h.008v.008H14.25v-.008zm0 3h.008v.008H14.25v-.008zM4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15A2.25 2.25 0 002.25 6.75v10.5A2.25 2.25 0 004.5 19.5z" />
+          </svg>
+          <h3 id="section-calc" class="text-caption font-bold uppercase tracking-wider text-text-primary">
+            8. Calculadora de Materiales y Rendimiento
+          </h3>
+        </div>
+
+        @if (mode() === 'edit') {
+          <app-button
+            variant="secondary"
+            size="small"
+            [disabled]="facade.calculationConfigOperating()"
+            [loading]="facade.calculationConfigOperating()"
+            (click)="saveCalculationConfig()"
+          >
+            <svg class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            Guardar calculadora
+          </app-button>
+        }
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-caption text-text-secondary">
+          Configura la calculadora de rendimiento para que los clientes puedan estimar la cantidad exacta de unidades (cajas, bolsas, galones) según la superficie o medida requerida.
+        </p>
+
+        @if (mode() === 'edit') {
+          @if (facade.calculationConfigSuccess(); as okMsg) {
+            <app-alert variant="success" [dismissible]="true" (dismissed)="facade.clearCalculationConfigFeedback()">{{ okMsg }}</app-alert>
+          }
+          @if (facade.calculationConfigError(); as errMsg) {
+            <app-alert variant="error" [dismissible]="true" (dismissed)="facade.clearCalculationConfigFeedback()">{{ errMsg }}</app-alert>
+          }
+        }
+        @if (calcClientError(); as clientErr) {
+          <app-alert variant="error" [dismissible]="true" (dismissed)="calcClientError.set(null)">{{ clientErr }}</app-alert>
+        }
+
+        <!-- Checkbox Habilitar Calculadora -->
+        <label class="flex items-start gap-3 rounded-lg border border-border p-4 transition-colors hover:bg-surface-soft/40 cursor-pointer">
+          <input
+            id="product-calc-enabled"
+            type="checkbox"
+            [checked]="calcHabilitada()"
+            (change)="calcHabilitada.set($any($event.target).checked)"
+            class="mt-1 h-4 w-4 rounded border-border text-accent focus:ring-accent focus:ring-offset-0"
+          />
+          <div class="space-y-0.5">
+            <span class="text-body-sm font-semibold text-text-primary">Habilitar calculadora en el detalle público</span>
+            <p class="text-caption text-text-muted">
+              Activa la herramienta interactiva de cálculo para este producto en la página pública.
+            </p>
+          </div>
+        </label>
+
+        <!-- Campos de la calculadora -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <app-input-field
+            inputId="product-calc-coverage"
+            label="Cobertura o rendimiento por unidad comercial *"
+            [(value)]="calcCoberturaPorUnidad"
+            type="number"
+            placeholder="Ej: 1.44"
+            [error]="calcSubmitted() && !isCoverageValid() ? 'La cobertura debe ser un número mayor a 0 cuando la calculadora está habilitada.' : undefined"
+            helperText="Metros cuadrados (u otra unidad) cubiertos por cada empaque/unidad de venta."
+          />
+
+          <app-input-field
+            inputId="product-calc-sale-unit"
+            label="Unidad de venta comercial"
+            [(value)]="calcUnidadVenta"
+            placeholder="Ej: caja, bolsa, galón, rollo"
+            [maxLength]="50"
+            helperText="Nombre singular del empaque o presentación que compra el cliente."
+          />
+
+          <app-input-field
+            inputId="product-calc-input-label"
+            label="Etiqueta del campo de entrada"
+            [(value)]="calcEtiquetaEntrada"
+            placeholder="Ej: Área a cubrir, Superficie a pintar"
+            [maxLength]="100"
+            helperText="Texto que guiará al cliente sobre qué medida ingresar."
+          />
+
+          <app-input-field
+            inputId="product-calc-input-unit"
+            label="Unidad de medida de entrada"
+            [(value)]="calcUnidadEntrada"
+            placeholder="Ej: m², ml, m"
+            [maxLength]="50"
+            helperText="Símbolo o nombre de la unidad de medida que ingresa el usuario."
+          />
+        </div>
+
+        <app-input-field
+          inputId="product-calc-help-text"
+          label="Texto de ayuda / recomendación"
+          [(value)]="calcTextoAyuda"
+          placeholder="Ej: Recomendamos agregar un 10% adicional por mermas o cortes."
+          [maxLength]="255"
+          helperText="Mensaje informativo que se muestra al usuario junto a la calculadora."
+        />
+      </div>
+    </section>
+
+    <!-- SECCIÓN 9: SEO Y VISTA PREVIA EN EL CATÁLOGO -->
     <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-seo-preview">
       <div class="flex items-center gap-2 pb-3 border-b border-border">
         <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -276,7 +1062,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
         <h3 id="section-seo-preview" class="text-caption font-bold uppercase tracking-wider text-text-primary">
-          4. SEO y Vista Previa en el Catálogo
+          9. SEO y Vista Previa en el Catálogo
         </h3>
       </div>
 
@@ -421,3 +1207,299 @@
     </app-button>
   </div>
 </app-modal>
+
+@if (previewModalUrl(); as previewUrl) {
+  <app-modal
+    modalId="product-image-preview-modal"
+    title="Vista previa ampliada"
+    size="large"
+    [open]="true"
+    (closed)="closePreview()"
+  >
+    <div class="flex flex-col items-center justify-center p-2">
+      <img
+        [src]="previewUrl"
+        alt="Vista previa ampliada de la imagen"
+        class="max-h-[70vh] w-auto max-w-full rounded-lg object-contain shadow-soft"
+      />
+    </div>
+    <div modal-actions class="flex justify-end w-full">
+      <app-button variant="secondary" (click)="closePreview()">Cerrar</app-button>
+    </div>
+  </app-modal>
+}
+
+@if (variantModalOpen()) {
+  <app-modal
+    modalId="product-variant-form-modal"
+    [title]="editingVariantIndex() !== null ? 'Editar variante' : 'Nueva variante'"
+    size="medium"
+    [open]="true"
+    (closed)="closeVariantModal()"
+  >
+    <div class="space-y-4">
+      @if (variantClientError(); as clientErr) {
+        <app-alert variant="error">{{ clientErr }}</app-alert>
+      }
+      @if (mode() === 'edit' && facade.variantError(); as srvErr) {
+        <app-alert variant="error">{{ srvErr }}</app-alert>
+      }
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <app-input-field
+          inputId="variant-sku"
+          label="SKU de la variante"
+          [(value)]="variantSku"
+          [error]="variantSubmitted() && !variantSku().trim() ? 'Ingresa el SKU de la variante.' : undefined"
+          placeholder="ej. ISO-RED-100"
+          required
+        />
+
+        <app-input-field
+          inputId="variant-name"
+          label="Nombre de la presentación"
+          [(value)]="variantNombre"
+          [error]="variantSubmitted() && !variantNombre().trim() ? 'Ingresa el nombre de la variante.' : undefined"
+          placeholder="ej. Rojo / 100 cm"
+          required
+        />
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <app-input-field
+          inputId="variant-price"
+          label="Precio específico (S/)"
+          [(value)]="variantPrecio"
+          type="number"
+          placeholder="Opcional (hereda precio base)"
+          helperText="Déjalo vacío para usar el precio base del producto."
+        />
+
+        <div class="flex flex-col justify-center">
+          <label class="form-label mb-1">Disponibilidad de la variante</label>
+          <label class="flex items-center gap-2 text-body-sm text-text-primary cursor-pointer mt-1">
+            <input
+              type="checkbox"
+              class="h-4 w-4 rounded border-border text-accent focus:ring-accent cursor-pointer"
+              [checked]="variantDisponible()"
+              (change)="variantDisponible.set($any($event.target).checked)"
+            />
+            <span>Disponible para cotización y venta</span>
+          </label>
+        </div>
+      </div>
+
+      <app-textarea-field
+        inputId="variant-description"
+        label="Descripción o notas técnicas"
+        [(value)]="variantDescripcion"
+        [rows]="2"
+        placeholder="Detalles sobre acabado, medidas, peso, etc."
+      />
+
+      <!-- Imagen de la variante (opcional) -->
+      <div class="space-y-2 pt-2 border-t border-border">
+        <label class="form-label mb-0">Fotografía específica de la variante (opcional)</label>
+        @if (variantImagenUrl(); as vImgUrl) {
+          <div class="flex items-center gap-3 p-3 rounded-lg border border-border bg-surface-soft">
+            <img [src]="vImgUrl" alt="Imagen variante" class="size-14 rounded-lg object-cover border border-border shrink-0" />
+            <div class="flex-1 min-w-0">
+              <p class="text-caption font-mono text-text-muted truncate">{{ vImgUrl }}</p>
+            </div>
+            <app-button variant="ghost" size="small" (click)="removeVariantImage()">
+              Quitar
+            </app-button>
+          </div>
+        } @else {
+          <app-image-uploader
+            folder="isanorte/variantes"
+            [ngModel]="variantImagenUrl()"
+            (ngModelChange)="onVariantImageUploaded($event)"
+            name="variant-uploader"
+          />
+        }
+      </div>
+    </div>
+
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button
+        variant="secondary"
+        [disabled]="facade.variantOperating()"
+        (click)="closeVariantModal()"
+      >
+        Cancelar
+      </app-button>
+      <app-button
+        variant="primary"
+        [loading]="facade.variantOperating()"
+        [disabled]="facade.variantOperating()"
+        (click)="saveVariant()"
+      >
+        Guardar variante
+      </app-button>
+    </div>
+  </app-modal>
+}
+
+@if (specificationModalOpen()) {
+  <app-modal
+    modalId="product-specification-form-modal"
+    [title]="editingSpecificationIndex() !== null || editingSpecificationId() !== null ? 'Editar especificación técnica' : 'Nueva especificación técnica'"
+    size="medium"
+    [open]="true"
+    (closed)="closeSpecificationModal()"
+  >
+    <div class="space-y-4">
+      @if (specClientError(); as clientErr) {
+        <app-alert variant="error">{{ clientErr }}</app-alert>
+      }
+      @if (mode() === 'edit' && facade.specificationError(); as srvErr) {
+        <app-alert variant="error">{{ srvErr }}</app-alert>
+      }
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <app-input-field
+          inputId="spec-group"
+          label="Grupo o Categoría"
+          [(value)]="specGrupo"
+          placeholder="ej. Dimensiones, Materiales, Rendimiento"
+          helperText="Opcional. Agrupa especificaciones afines."
+        />
+
+        <app-input-field
+          inputId="spec-order"
+          label="Orden de visualización"
+          [(value)]="specOrden"
+          type="number"
+          [error]="specSubmitted() && !specOrden().trim() ? 'Ingresa un orden numérico válido.' : undefined"
+          placeholder="ej. 1"
+          required
+        />
+      </div>
+
+      <app-input-field
+        inputId="spec-clave"
+        label="Parámetro o Clave"
+        [(value)]="specClave"
+        [error]="specSubmitted() && !specClave().trim() ? 'Ingresa el nombre o parámetro de la especificación.' : undefined"
+        placeholder="ej. Espesor, Resistencia a la compresión, Rendimiento"
+        required
+      />
+
+      <app-textarea-field
+        inputId="spec-valor"
+        label="Valor o Descripción técnica"
+        [(value)]="specValor"
+        [error]="specSubmitted() && !specValor().trim() ? 'Ingresa el valor de la especificación.' : undefined"
+        [rows]="3"
+        placeholder="ej. 15 mm, 250 kg/cm², 12 m² por galón"
+        required
+      />
+    </div>
+
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button
+        variant="secondary"
+        [disabled]="mode() === 'edit' && facade.specificationOperating()"
+        (click)="closeSpecificationModal()"
+      >
+        Cancelar
+      </app-button>
+      <app-button
+        variant="primary"
+        [loading]="mode() === 'edit' && facade.specificationOperating()"
+        [disabled]="mode() === 'edit' && facade.specificationOperating()"
+        (click)="saveSpecification()"
+      >
+        Guardar especificación
+      </app-button>
+    </div>
+  </app-modal>
+}
+
+@if (documentModalOpen()) {
+  <app-modal
+    modalId="product-document-form-modal"
+    [title]="editingDocumentIndex() !== null || editingDocumentId() !== null ? 'Editar documento' : 'Nuevo documento'"
+    size="medium"
+    [open]="true"
+    (closed)="closeDocumentModal()"
+  >
+    <div class="space-y-4">
+      @if (docClientError(); as clientErr) {
+        <app-alert variant="error">{{ clientErr }}</app-alert>
+      }
+      @if (mode() === 'edit' && facade.documentError(); as srvErr) {
+        <app-alert variant="error">{{ srvErr }}</app-alert>
+      }
+
+      <app-input-field
+        inputId="doc-title"
+        label="Título del documento"
+        [(value)]="docTitulo"
+        [error]="docSubmitted() && !docTitulo().trim() ? 'Ingresa el título del documento.' : undefined"
+        placeholder="ej. Ficha Técnica Wall Panel Roble"
+        required
+      />
+
+      <app-input-field
+        inputId="doc-url"
+        label="URL o enlace del documento"
+        [(value)]="docUrl"
+        [error]="docSubmitted() && !docUrl().trim() ? 'Ingresa la URL del documento.' : undefined"
+        placeholder="https://ejemplo.com/docs/ficha-tecnica.pdf"
+        required
+        helperText="Enlace directo o en nube hacia el archivo (PDF, DWG, DOCX, etc.)."
+      />
+
+      <div class="grid gap-4 sm:grid-cols-3">
+        <app-select-field
+          inputId="doc-tipo"
+          label="Tipo de documento"
+          [value]="docTipo()"
+          (valueChange)="updateDocTipo($event)"
+          [options]="documentTypeOptions"
+          required
+        />
+
+        <app-input-field
+          inputId="doc-formato"
+          label="Formato"
+          [(value)]="docFormato"
+          placeholder="ej. PDF, DWG"
+          helperText="Opcional (máx. 20 caracteres)."
+        />
+
+        <app-input-field
+          inputId="doc-tamano"
+          label="Tamaño (bytes)"
+          [(value)]="docTamanoBytes"
+          type="number"
+          placeholder="ej. 1048576"
+          helperText="Opcional (1048576 = 1 MB)."
+        />
+      </div>
+    </div>
+
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button
+        variant="secondary"
+        [disabled]="mode() === 'edit' && facade.documentOperating()"
+        (click)="closeDocumentModal()"
+      >
+        Cancelar
+      </app-button>
+      <app-button
+        variant="primary"
+        [loading]="mode() === 'edit' && facade.documentOperating()"
+        [disabled]="mode() === 'edit' && facade.documentOperating()"
+        (click)="saveDocument()"
+      >
+        Guardar documento
+      </app-button>
+    </div>
+  </app-modal>
+}
+
+
+

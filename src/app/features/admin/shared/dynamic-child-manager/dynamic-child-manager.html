@@ -244,16 +244,16 @@
       <div class="rounded-card border border-border bg-surface p-4 space-y-4">
         <!-- Campos específicos para Diapositiva (Hero) -->
         @if (kind() === 'scene') {
-          <app-input-field
-            inputId="child-url"
-            label="URL de la fotografía"
-            type="url"
-            [value]="url()"
-            (valueChange)="updateUrl($event)"
-            placeholder="https://ejemplo.com/fotografia.jpg"
-            helperText="Ingresa el enlace público de la imagen (WebP, JPG, PNG)."
-            required
-          />
+          <div class="space-y-2">
+            <label class="form-label mb-0">URL de la fotografía</label>
+            <p class="text-caption text-text-muted mb-2">Ingresa el enlace público de la imagen (WebP, JPG, PNG).</p>
+            <app-image-uploader
+              [ngModel]="url()"
+              (ngModelChange)="updateUrl($event)"
+              name="child-url"
+              folder="isanorte/hero"
+            />
+          </div>
 
           <app-input-field
             inputId="child-alt"
@@ -380,6 +380,26 @@
               resourceType() === 'CATALOGO' ? 'Texto recomendado para el enlace o documento.' : ''
             "
           />
+          @if (resourceType() === 'IMAGEN_FONDO' || resourceType() === 'IMAGEN_EDITORIAL') {
+            <div class="space-y-2">
+              <label class="form-label mb-0">Imagen del recurso</label>
+              <app-image-uploader
+                [ngModel]="url()"
+                (ngModelChange)="updateUrl($event)"
+                name="resource-image"
+                folder="isanorte/recursos"
+              />
+            </div>
+          } @else {
+            <app-input-field
+              inputId="child-resource-url"
+              label="URL del recurso"
+              type="url"
+              [value]="url()"
+              (valueChange)="updateUrl($event)"
+              required
+            />
+          }
           <app-input-field
             inputId="child-alt"
             label="Texto alternativo"

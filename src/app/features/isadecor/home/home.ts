@@ -114,7 +114,7 @@ export class Home {
     if (configs.length > 0) {
       return configs.map((config, index) => {
         const category = rawCategories.find(
-          (c) => c.slug === config.categorySlug || c.id === config.categorySlug,
+          (c) => c.slug === config.categorySlug,
         );
 
         const name = config.title?.trim() || category?.nombre || 'Colección ISADECOR';
@@ -157,16 +157,15 @@ export class Home {
         }
 
         return {
-          id: category?.id || config.id,
+          id: category?.slug || config.id,
           badge: config.badge?.trim() || autoBadge,
           eyebrow: config.eyebrow?.trim() || autoEyebrow,
           title: config.title?.trim() || category?.nombre || 'Colección ISADECOR',
           description:
             config.description?.trim() ||
-            category?.descripcion ||
             'Explora esta colección dentro del catálogo de ISADECOR.',
           tagline: config.tagline?.trim() || autoTagline,
-          imageUrl: config.imageUrl?.trim() || category?.imagenUrl || fallbackImage,
+          imageUrl: config.imageUrl?.trim() || fallbackImage,
           queryParams: { categoria: category?.slug || config.categorySlug },
         };
       });
@@ -215,24 +214,21 @@ export class Home {
       }
 
       return {
-        id: category.id,
+        id: category.slug,
         badge,
         eyebrow,
         title: category.nombre,
-        description:
-          category.descripcion ?? 'Explora esta colección dentro del catálogo de ISADECOR.',
+        description: 'Explora esta colección dentro del catálogo de ISADECOR.',
         tagline,
-        imageUrl: category.imagenUrl || fallbackImage,
-        queryParams: { categoria: category.slug || category.id },
+        imageUrl: fallbackImage,
+        queryParams: { categoria: category.slug },
       };
     });
   });
 
 
   readonly featuredProducts = computed(() =>
-    [...this.facade.products()]
-      .sort((a, b) => Number(b.destacado ?? false) - Number(a.destacado ?? false))
-      .slice(0, 4),
+    this.facade.products().slice(0, 4),
   );
 
   constructor() {

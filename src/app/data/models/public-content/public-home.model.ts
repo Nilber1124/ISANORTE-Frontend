@@ -1,3 +1,5 @@
+import { PublicPageSeo } from './public-page.model';
+
 export enum PublicHomeSectionType {
   HERO = 'HERO',
   SERVICIOS = 'SERVICIOS',
@@ -90,9 +92,11 @@ export interface PublicHomeBusinessUnit {
   recursos: PublicBusinessUnitResource[];
 }
 
+
 export interface PublicHomeResponse {
   secciones: PublicHomeSection[];
   servicios: PublicHomeService[];
   proyectos: PublicHomeProject[];
   unidadDestacada: PublicHomeBusinessUnit | null;
+  seo?: PublicPageSeo | null;
 }

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { Cart } from './features/isadecor/cart/cart';
 import { Catalog } from './features/isadecor/catalog/catalog';
 import { Home as IsadecorHome } from './features/isadecor/home/home';
 import { ProductDetail } from './features/isadecor/product-detail/product-detail';
@@ -120,6 +121,7 @@ export const routes: Routes = [
     children: [
       { path: '', component: IsadecorHome },
       { path: 'catalogo', component: Catalog },
+      { path: 'carrito', component: Cart },
       { path: 'cotizacion', component: Quote },
       { path: 'productos/:slug', component: ProductDetail },
     ],

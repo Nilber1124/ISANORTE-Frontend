@@ -1,4 +1,6 @@
+import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Meta, Title } from '@angular/platform-browser';
 import { Observable, Subject, throwError } from 'rxjs';
 
 import {
@@ -54,6 +56,8 @@ class PublicContentApiStub {
 describe('PublicAboutFacade', () => {
   let facade: PublicAboutFacade;
   let api: PublicContentApiStub;
+  let titleService: Title;
+  let metaService: Meta;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -65,6 +69,8 @@ describe('PublicAboutFacade', () => {
     });
     facade = TestBed.inject(PublicAboutFacade);
     api = TestBed.inject(PublicContentApiStub);
+    titleService = TestBed.inject(Title);
+    metaService = TestBed.inject(Meta);
   });
 
   it('loads NOSOTROS once from the centralized site key and exposes loading', () => {
@@ -150,4 +156,79 @@ describe('PublicAboutFacade', () => {
     expect(facade.statistics()).toEqual([]);
     expect(facade.values()).toEqual([]);
   });
+
+  it('applies dynamic SEO to document Title and Meta on successful load', () => {
+    const subject = new Subject<PublicPageResponse>();
+    api.response$ = subject;
+    facade.load();
+    subject.next({
+      ...response,
+      seo: {
+        title: 'Nosotros Especial | ISANORTE',
+        description: 'Historia y valores de ISANORTE.',
+        ogImageUrl: 'https://cdn.isanorte.com/about.jpg',
+        robots: SeoRobots.INDEX_FOLLOW,
+      },
+    });
+
+    expect(titleService.getTitle()).toBe('Nosotros Especial | ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toBe('Historia y valores de ISANORTE.');
+    expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('Nosotros Especial | ISANORTE');
+    expect(metaService.getTag('property="og:description"')?.content).toBe('Historia y valores de ISANORTE.');
+    expect(metaService.getTag('property="og:type"')?.content).toBe('website');
+    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isanorte.com/about.jpg');
+  });
+
+  it('applies default SEO on API error', () => {
+    api.response$ = throwError(() => new Error('offline'));
+    facade.load();
+
+    expect(titleService.getTitle()).toBe('Nosotros | ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toContain('Conoce la trayectoria');
+    expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+    expect(metaService.getTag('property="og:image"')).toBeNull();
+  });
+
+  it('cleans up SEO tags and restores defaults when destroyed', () => {
+    const parentInjector = TestBed.inject(EnvironmentInjector);
+    const childInjector = createEnvironmentInjector([PublicAboutFacade], parentInjector);
+    const scopedFacade = childInjector.get(PublicAboutFacade);
+
+    const subject = new Subject<PublicPageResponse>();
+    api.response$ = subject;
+    scopedFacade.load();
+    subject.next(response);
+
+    expect(titleService.getTitle()).toBe('SEO API');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('SEO API');
+
+    childInjector.destroy();
+
+    expect(titleService.getTitle()).toBe('ISANORTE');
+    expect(metaService.getTag('property="og:title"')).toBeNull();
+    expect(metaService.getTag('property="og:description"')).toBeNull();
+    expect(metaService.getTag('property="og:type"')).toBeNull();
+    expect(metaService.getTag('property="og:image"')).toBeNull();
+    expect(metaService.getTag('name="robots"')).toBeNull();
+  });
+
+  it('ignores responses arriving after facade is destroyed', () => {
+    const parentInjector = TestBed.inject(EnvironmentInjector);
+    const childInjector = createEnvironmentInjector([PublicAboutFacade], parentInjector);
+    const scopedFacade = childInjector.get(PublicAboutFacade);
+
+    const subject = new Subject<PublicPageResponse>();
+    api.response$ = subject;
+    scopedFacade.load();
+
+    childInjector.destroy();
+    expect(titleService.getTitle()).toBe('ISANORTE');
+
+    subject.next(response);
+
+    expect(titleService.getTitle()).toBe('ISANORTE');
+    expect(metaService.getTag('property="og:title"')).toBeNull();
+  });
 });
+

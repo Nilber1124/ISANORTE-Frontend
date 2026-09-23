@@ -46,6 +46,7 @@ describe('App', () => {
     expect(isadecorRoute?.children?.map((route) => route.path)).toEqual([
       '',
       'catalogo',
+      'carrito',
       'cotizacion',
       'productos/:slug',
     ]);
@@ -103,9 +104,8 @@ describe('App', () => {
     expect(isadecorLandingRoute?.loadComponent).toBeTypeOf('function');
 
     const loadedComponent = await isadecorLandingRoute?.loadComponent?.();
-    const { AdminIsadecorLanding } = await import(
-      './features/admin/isadecor-landing/admin-isadecor-landing'
-    );
+    const { AdminIsadecorLanding } =
+      await import('./features/admin/isadecor-landing/admin-isadecor-landing');
 
     expect(loadedComponent).toBe(AdminIsadecorLanding);
   });

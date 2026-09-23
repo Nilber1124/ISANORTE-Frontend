@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input, signal } from '@an
 import { RouterLink } from '@angular/router';
 
 import { ProductAvailability } from '../../../../../data/models/product/product-availability.enum';
-import { ProductResponse } from '../../../../../data/models/product/product-response.model';
+import { PublicProductCardResponse } from '../../../../../data/models/public-content/public-product-catalog.model';
 import { Badge, BadgeVariant } from '../../../../../shared/components/badge/badge';
 import { Card } from '../../../../../shared/components/card/card';
 
@@ -19,14 +19,11 @@ interface AvailabilityPresentation {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCard {
-  readonly product = input.required<ProductResponse>();
+  readonly product = input.required<PublicProductCardResponse>();
 
   private readonly imageFailed = signal(false);
 
-  protected readonly primaryImage = computed(() => {
-    const images = this.product().imagenes ?? [];
-    return images.find((image) => image.esPrincipal === true) ?? images[0] ?? null;
-  });
+  protected readonly primaryImage = computed(() => this.product().imagen ?? null);
 
   protected readonly showImage = computed(
     () => this.primaryImage() !== null && !this.imageFailed(),
@@ -39,8 +36,6 @@ export class ProductCard {
   protected readonly remainingCategoryCount = computed(() =>
     Math.max((this.product().categorias?.length ?? 0) - this.visibleCategories().length, 0),
   );
-
-  protected readonly variantCount = computed(() => this.product().variantes?.length ?? 0);
 
   protected readonly availability = computed<AvailabilityPresentation>(() => {
     const presentations: Record<ProductAvailability, AvailabilityPresentation> = {

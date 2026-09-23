@@ -12,6 +12,7 @@ describe('server routes', () => {
       'contacto',
       'isadecor',
       'isadecor/catalogo',
+      'isadecor/carrito',
       'isadecor/cotizacion',
       'isadecor/productos/:slug',
     ];

@@ -71,6 +71,7 @@ export interface ProductResponse {
   especificaciones: ProductSpecificationResponse[] | null;
   documentos: ProductDocumentResponse[] | null;
   configuracionCalculo: CalculationConfigResponse | null;
+  retiroEnTienda?: boolean | null;
   fechaCreacion: string | null;
   fechaActualizacion: string | null;
 }

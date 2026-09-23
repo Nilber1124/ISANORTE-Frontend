@@ -4,25 +4,26 @@ import { DestroyRef, Injectable, PLATFORM_ID, inject, signal } from '@angular/co
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 
-import { ProductResponse } from '../../../data/models/product/product-response.model';
-import { QuoteCreateRequest } from '../../../data/models/quote/quote-create-request.model';
-import { QuoteResponse } from '../../../data/models/quote/quote-response.model';
-import { ProductApiService } from '../../../data/services/product-api.service';
-import { QuoteApiService } from '../../../data/services/quote-api.service';
+import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
+import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
+import {
+  PublicQuoteRequest,
+  PublicQuoteResponse,
+} from '../../../data/models/public-content/public-quote.model';
+import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 
 @Injectable()
 export class QuoteFacade {
-  private readonly productApi = inject(ProductApiService);
-  private readonly quoteApi = inject(QuoteApiService);
+  private readonly publicApi = inject(PublicContentApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
 
-  private readonly _product = signal<ProductResponse | null>(null);
+  private readonly _product = signal<PublicProductDetailResponse | null>(null);
   private readonly _loadingProduct = signal(true);
   private readonly _submitting = signal(false);
   private readonly _error = signal<string | null>(null);
   private readonly _notFound = signal(false);
-  private readonly _quoteResult = signal<QuoteResponse | null>(null);
+  private readonly _quoteResult = signal<PublicQuoteResponse | null>(null);
 
   readonly product = this._product.asReadonly();
   readonly loadingProduct = this._loadingProduct.asReadonly();
@@ -49,8 +50,8 @@ export class QuoteFacade {
     }
 
     this._loadingProduct.set(true);
-    this.productApi
-      .getPublishedBySlug(normalizedSlug)
+    this.publicApi
+      .getProductDetail(PUBLIC_SITE_KEY, ISADECOR_UNIT_SLUG, normalizedSlug)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this._loadingProduct.set(false)),
@@ -71,15 +72,15 @@ export class QuoteFacade {
       });
   }
 
-  submit(request: QuoteCreateRequest): void {
+  submit(request: PublicQuoteRequest): void {
     if (this._submitting() || this._product() === null) {
       return;
     }
 
     this._error.set(null);
     this._submitting.set(true);
-    this.quoteApi
-      .create(request)
+    this.publicApi
+      .createQuote(PUBLIC_SITE_KEY, ISADECOR_UNIT_SLUG, request)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this._submitting.set(false)),

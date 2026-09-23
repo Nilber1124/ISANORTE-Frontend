@@ -23,8 +23,10 @@ import {
 import { Badge } from '../../../../shared/components/badge/badge';
 import { Button } from '../../../../shared/components/button/button';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
+import { ImageUploaderComponent } from '../../../../shared/components/image-uploader/image-uploader.component';
 import { InputField } from '../../../../shared/components/input-field/input-field';
 import { Modal } from '../../../../shared/components/modal/modal';
+import { FormsModule } from '@angular/forms';
 
 export type DynamicChildKind = 'scene' | 'action' | 'benefit' | 'resource' | 'statistic';
 export type DynamicChild =
@@ -46,7 +48,7 @@ export interface DynamicChildSave {
 
 @Component({
   selector: 'app-dynamic-child-manager',
-  imports: [Badge, Button, EmptyState, InputField, Modal],
+  imports: [Badge, Button, EmptyState, InputField, Modal, ImageUploaderComponent, FormsModule],
   templateUrl: './dynamic-child-manager.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

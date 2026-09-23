@@ -4,6 +4,7 @@ import {
   ProductPriceComparisonResponse,
   PriceComparisonStatus,
 } from '../../../../../data/models/product/product-price-comparison-response.model';
+import { ISADECOR_UNIT_SLUG } from '../../../../../core/config/public-site.config';
 import { Alert } from '../../../../../shared/components/alert/alert';
 import { Button } from '../../../../../shared/components/button/button';
 import { Card } from '../../../../../shared/components/card/card';
@@ -16,6 +17,7 @@ import { InputField } from '../../../../../shared/components/input-field/input-f
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductPriceComparison {
+  readonly unitSlug = input<string>(ISADECOR_UNIT_SLUG);
   readonly loading = input(false);
   readonly result = input<ProductPriceComparisonResponse | null>(null);
   readonly error = input<string | null>(null);

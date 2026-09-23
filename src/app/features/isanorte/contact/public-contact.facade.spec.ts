@@ -1,7 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Meta, Title } from '@angular/platform-browser';
 import { Observable, Subject, throwError } from 'rxjs';
 
+import { SeoRobots } from '../../../data/models/content/page-seo.model';
 import {
   PublicContactRequest,
   PublicContactRequestStatus,
@@ -58,6 +61,8 @@ class PublicContentApiStub {
 describe('PublicContactFacade', () => {
   let facade: PublicContactFacade;
   let api: PublicContentApiStub;
+  let titleService: Title;
+  let metaService: Meta;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -69,6 +74,8 @@ describe('PublicContactFacade', () => {
     });
     facade = TestBed.inject(PublicContactFacade);
     api = TestBed.inject(PublicContentApiStub);
+    titleService = TestBed.inject(Title);
+    metaService = TestBed.inject(Meta);
   });
 
   function fillValidForm(): void {
@@ -155,4 +162,63 @@ describe('PublicContactFacade', () => {
     expect(facade.error()).toContain('No pudimos cargar');
     expect(facade.submitError()).toContain('No pudimos enviar');
   });
+
+  it('applies dynamic SEO from backend on load', () => {
+    const subject = new Subject<PublicPageResponse>();
+    api.page$ = subject;
+    facade.load();
+    subject.next({
+      ...pageResponse,
+      seo: {
+        title: 'Contacto Directo | ISANORTE',
+        description: 'Escríbenos para tu cotización.',
+        ogImageUrl: 'https://cdn.isanorte.com/contacto.jpg',
+        robots: SeoRobots.INDEX_FOLLOW,
+      },
+    });
+
+    expect(titleService.getTitle()).toBe('Contacto Directo | ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toBe('Escríbenos para tu cotización.');
+    expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('Contacto Directo | ISANORTE');
+    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isanorte.com/contacto.jpg');
+  });
+
+  it('applies default SEO for Contacto on error', () => {
+    api.page$ = throwError(() => new Error('offline'));
+    facade.load();
+
+    expect(titleService.getTitle()).toBe('Contacto | ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toContain('Ponte en contacto con ISANORTE');
+    expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+  });
+
+  it('cleans up SEO tags when destroyed', () => {
+    const parentInjector = TestBed.inject(EnvironmentInjector);
+    const childInjector = createEnvironmentInjector([PublicContactFacade], parentInjector);
+    const scopedFacade = childInjector.get(PublicContactFacade);
+
+    const subject = new Subject<PublicPageResponse>();
+    api.page$ = subject;
+    scopedFacade.load();
+    subject.next({
+      ...pageResponse,
+      seo: {
+        title: 'Contacto Personalizado',
+        description: 'Contáctanos ahora.',
+        ogImageUrl: 'https://cdn.isanorte.com/contact.png',
+        robots: SeoRobots.INDEX_FOLLOW,
+      },
+    });
+
+    expect(titleService.getTitle()).toBe('Contacto Personalizado');
+
+    childInjector.destroy();
+
+    expect(titleService.getTitle()).toBe('ISANORTE');
+    expect(metaService.getTag('property="og:title"')).toBeNull();
+    expect(metaService.getTag('property="og:image"')).toBeNull();
+    expect(metaService.getTag('name="robots"')).toBeNull();
+  });
 });
+

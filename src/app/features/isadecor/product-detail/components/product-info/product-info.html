@@ -1,61 +1,95 @@
 <section
-  class="rounded-panel border border-border bg-surface p-6 shadow-card sm:p-8"
+  class="rounded-panel bg-transparent lg:bg-surface lg:p-8 lg:shadow-card lg:border lg:border-border"
   aria-labelledby="product-title"
 >
-  <div class="flex flex-wrap items-center gap-2">
-    @if (product().destacado) {
-      <app-badge variant="accent">Destacado</app-badge>
+  <!-- Title -->
+  <h1 id="product-title" class="text-heading-1 text-text-primary">
+    {{ product().nombre }}
+  </h1>
+
+  <!-- Prices & Badges Inline -->
+  <div class="mt-4 flex flex-wrap items-center gap-3">
+    @if (product().precioBase !== null) {
+      @if (product().precioAnterior !== null && product().precioAnterior! > product().precioBase!) {
+        <span class="text-heading-3 text-text-muted line-through">
+          S/ {{ product().precioAnterior | number: '1.2-2' }}
+        </span>
+      }
+      <span class="text-heading-2 text-error">
+        S/ {{ product().precioBase | number: '1.2-2' }}
+      </span>
+      @if (product().descuentoPorcentaje !== null && product().descuentoPorcentaje! > 0) {
+        <app-badge variant="error">-{{ product().descuentoPorcentaje | number: '1.0-0' }}%</app-badge>
+      }
+    } @else {
+      <span class="text-heading-2 text-text-primary">Consultar precio</span>
     }
-    <app-badge [variant]="availability().variant" size="medium" dot>
+    
+    <app-badge [variant]="availability().variant">
       {{ availability().label }}
     </app-badge>
   </div>
 
-  <p class="mt-6 text-caption font-semibold uppercase tracking-wider text-text-muted">
-    SKU {{ product().sku }}
+  <!-- SKU -->
+  <p class="mt-4 text-[10px] font-bold uppercase tracking-widest text-text-muted">
+    SKU: {{ product().sku }}
   </p>
-  <h1 id="product-title" class="mt-3 text-heading-1 text-text-primary">
-    {{ product().nombre }}
-  </h1>
 
-  @if (showSummary()) {
-    <p class="mt-5 text-body-lg text-text-secondary">{{ product().resumen }}</p>
-  }
-
-  <div class="mt-8 border-y border-border py-6">
-    <p class="text-caption text-text-muted">Precio referencial</p>
-    @if (product().precioBase !== null) {
-      <div class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <p class="text-heading-2 text-text-primary">
-          {{ product().precioBase | number: '1.2-2' }}
-        </p>
-        @if (
-          product().precioAnterior !== null && product().precioAnterior! > product().precioBase!
-        ) {
-          <p class="text-body text-text-muted line-through">
-            {{ product().precioAnterior | number: '1.2-2' }}
-          </p>
-        }
-      </div>
-    } @else {
-      <p class="mt-2 text-heading-4 text-text-primary">Consultar precio</p>
-    }
-
-    @if (product().descuentoPorcentaje !== null && product().descuentoPorcentaje! > 0) {
-      <p class="mt-2 text-body-sm font-semibold text-accent-strong">
-        {{ product().descuentoPorcentaje | number: '1.0-2' }}% de descuento
-      </p>
-    }
+  <!-- Calculator -->
+  <div class="mt-6">
+    <app-product-calculator
+      [config]="calculationConfig()"
+      (quantityChange)="quantityChange.emit($event)"
+    />
   </div>
 
-  @if (product().categorias?.length) {
-    <div class="mt-6">
-      <h2 class="text-body-sm font-semibold text-text-primary">Categorías</h2>
-      <div class="mt-3 flex flex-wrap gap-2">
-        @for (category of product().categorias; track category.id) {
-          <app-badge>{{ category.nombre }}</app-badge>
-        }
-      </div>
+  <!-- Variants Slot -->
+  <ng-content select="[slot=variants]"></ng-content>
+
+  <!-- Actions Slot (e.g. Add to cart / Sold out button) -->
+  <div class="mt-6">
+    <ng-content select="[slot=actions]"></ng-content>
+  </div>
+
+  <!-- Alerts / Info Blocks -->
+  @if (product().retiroEnTienda) {
+    <div class="mt-6 rounded-xl bg-success/15 p-4 flex items-center justify-center gap-3 text-success">
+      <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+      <p class="text-body-sm text-text-primary">
+        Disponible para retiro en tienda
+      </p>
     </div>
+  } @else {
+    <div class="mt-6 rounded-xl bg-error/15 p-4 flex items-center justify-center gap-3 text-error">
+      <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+      <p class="text-body-sm text-text-primary">
+        Retiro no disponible en tienda
+      </p>
+    </div>
+  }
+
+  <div class="mt-8 flex flex-col gap-4 text-body-sm font-medium text-text-primary">
+    <div class="flex items-center gap-3">
+      <svg class="h-5 w-5 text-text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+      DELIVERY GRATIS A LIMA METROPOLITANA DESDE S/ 599
+    </div>
+    <div class="flex items-center gap-3">
+      <svg class="h-5 w-5 text-text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+      ENVÍOS A TODO EL PERÚ
+    </div>
+  </div>
+
+  @if (showSummary()) {
+    <p class="mt-8 text-body text-text-secondary leading-relaxed">
+      {{ product().resumen }}
+    </p>
   }
 </section>

@@ -1,5 +1,7 @@
+import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Meta, Title } from '@angular/platform-browser';
 import { finalize } from 'rxjs';
 
 import { PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
@@ -10,6 +12,11 @@ import {
   PublicProjectImage,
 } from '../../../data/models/public-content/public-page.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
+import {
+  PublicPageSeoDefaults,
+  applyPublicPageSeo,
+  clearPublicPageSeo,
+} from '../../../shared/utils/public-page-seo.util';
 
 export const ALL_PROJECTS_FILTER = 'all';
 
@@ -22,11 +29,29 @@ export interface PublicProjectFilter {
 export class PublicProjectsFacade {
   private readonly api = inject(PublicContentApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly title = inject(Title);
+  private readonly meta = inject(Meta);
+  private readonly document = inject(DOCUMENT, { optional: true });
+
+  private readonly seoDefaults: PublicPageSeoDefaults = {
+    title: 'Proyectos | ISANORTE',
+    description:
+      'Explora nuestro portafolio de proyectos y obras de construcción y edificación ejecutadas por ISANORTE.',
+  };
+
   private readonly _page = signal<PublicPageResponse | null>(null);
   private readonly _loading = signal(true);
   private readonly _error = signal<string | null>(null);
   private readonly _activeFilter = signal(ALL_PROJECTS_FILTER);
   private requestInFlight = false;
+  private destroyed = false;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.destroyed = true;
+      clearPublicPageSeo(this.title, this.meta);
+    });
+  }
 
   readonly page = this._page.asReadonly();
   readonly loading = this._loading.asReadonly();
@@ -57,7 +82,7 @@ export class PublicProjectsFacade {
   readonly showProjects = computed(() => this.projects().length > 0);
 
   load(): void {
-    if (this.requestInFlight) return;
+    if (this.destroyed || this.requestInFlight) return;
 
     this.requestInFlight = true;
     this._loading.set(true);
@@ -74,10 +99,16 @@ export class PublicProjectsFacade {
         }),
       )
       .subscribe({
-        next: (page) => this._page.set(page),
+        next: (page) => {
+          if (this.destroyed) return;
+          this._page.set(page);
+          applyPublicPageSeo(this.title, this.meta, page, this.seoDefaults, this.document);
+        },
         error: () => {
+          if (this.destroyed) return;
           this._page.set(null);
           this._error.set('No pudimos cargar los proyectos.');
+          applyPublicPageSeo(this.title, this.meta, null, this.seoDefaults, this.document);
         },
       });
   }

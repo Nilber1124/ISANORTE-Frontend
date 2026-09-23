@@ -1,6 +1,9 @@
+import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Meta, Title } from '@angular/platform-browser';
 import { Observable, Subject, throwError } from 'rxjs';
 
+import { SeoRobots } from '../../../data/models/content/page-seo.model';
 import {
   PublicPageResponse,
   PublicPageType,
@@ -79,6 +82,8 @@ class PublicContentApiStub {
 describe('PublicProjectsFacade', () => {
   let facade: PublicProjectsFacade;
   let api: PublicContentApiStub;
+  let titleService: Title;
+  let metaService: Meta;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -90,6 +95,8 @@ describe('PublicProjectsFacade', () => {
     });
     facade = TestBed.inject(PublicProjectsFacade);
     api = TestBed.inject(PublicContentApiStub);
+    titleService = TestBed.inject(Title);
+    metaService = TestBed.inject(Meta);
   });
 
   it('loads PROYECTOS once from the centralized site key and exposes loading', () => {
@@ -167,4 +174,63 @@ describe('PublicProjectsFacade', () => {
     expect(facade.content()).toBeNull();
     expect(facade.projects()).toEqual([]);
   });
+
+  it('applies dynamic SEO from backend on load', () => {
+    const subject = new Subject<PublicPageResponse>();
+    api.response$ = subject;
+    facade.load();
+    subject.next({
+      ...response,
+      seo: {
+        title: 'Portafolio de Obras | ISANORTE',
+        description: 'Proyectos arquitectónicos y civiles.',
+        ogImageUrl: 'https://cdn.isanorte.com/proyectos.jpg',
+        robots: SeoRobots.INDEX_FOLLOW,
+      },
+    });
+
+    expect(titleService.getTitle()).toBe('Portafolio de Obras | ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toBe('Proyectos arquitectónicos y civiles.');
+    expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('Portafolio de Obras | ISANORTE');
+    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isanorte.com/proyectos.jpg');
+  });
+
+  it('applies default SEO for Proyectos on error', () => {
+    api.response$ = throwError(() => new Error('offline'));
+    facade.load();
+
+    expect(titleService.getTitle()).toBe('Proyectos | ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toContain('Explora nuestro portafolio de proyectos');
+    expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+  });
+
+  it('cleans up SEO tags and restores baseline title when destroyed', () => {
+    const parentInjector = TestBed.inject(EnvironmentInjector);
+    const childInjector = createEnvironmentInjector([PublicProjectsFacade], parentInjector);
+    const scopedFacade = childInjector.get(PublicProjectsFacade);
+
+    const subject = new Subject<PublicPageResponse>();
+    api.response$ = subject;
+    scopedFacade.load();
+    subject.next({
+      ...response,
+      seo: {
+        title: 'Proyectos de Infraestructura',
+        description: 'Construcción civil.',
+        ogImageUrl: 'https://cdn.isanorte.com/infra.jpg',
+        robots: SeoRobots.INDEX_FOLLOW,
+      },
+    });
+
+    expect(titleService.getTitle()).toBe('Proyectos de Infraestructura');
+
+    childInjector.destroy();
+
+    expect(titleService.getTitle()).toBe('ISANORTE');
+    expect(metaService.getTag('property="og:title"')).toBeNull();
+    expect(metaService.getTag('property="og:image"')).toBeNull();
+    expect(metaService.getTag('name="robots"')).toBeNull();
+  });
 });
+

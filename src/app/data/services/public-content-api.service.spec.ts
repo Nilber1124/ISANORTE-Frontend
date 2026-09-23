@@ -10,6 +10,11 @@ import {
 } from '../models/contact/public-contact-request.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
 import { PublicPageResponse, PublicPageType } from '../models/public-content/public-page.model';
+import { PublicProductCatalogResponse } from '../models/public-content/public-product-catalog.model';
+import { PublicProductDetailResponse } from '../models/public-content/public-product-detail.model';
+import { PublicQuoteRequest, PublicQuoteResponse } from '../models/public-content/public-quote.model';
+import { QuoteChannel } from '../models/quote/quote-channel.enum';
+import { QuoteStatus } from '../models/quote/quote-status.enum';
 import { PublicContentApiService } from './public-content-api.service';
 
 const siteResponse: PublicSiteResponse = {
@@ -192,4 +197,110 @@ describe('PublicContentApiService', () => {
 
     expect(result).toEqual(publicContactResponse);
   });
+
+  it('uses the canonical public Unit Catalog path, encodes parameters and returns the typed payload', () => {
+    const catalogResponse: PublicProductCatalogResponse = {
+      unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
+      categorias: [{ nombre: 'Wall Panels', slug: 'wall-panels' }],
+      productos: [],
+    };
+    let result: PublicProductCatalogResponse | undefined;
+    api.getProductCatalog('isanorte central', 'isadecor premium').subscribe((catalog) => (result = catalog));
+
+    const request = http.expectOne(
+      'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/catalogo',
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush(catalogResponse);
+
+    expect(result).toEqual(catalogResponse);
+  });
+
+  it('uses the canonical public Unit Product Detail path, encodes parameters and returns the typed payload', () => {
+    const detailResponse: PublicProductDetailResponse = {
+      nombre: 'Wall Panel Roble',
+      sku: 'WP-001',
+      slug: 'wall-panel-roble',
+      resumen: 'Resumen',
+      descripcion: 'Descripción',
+      tituloSeo: null,
+      descripcionSeo: null,
+      precioBase: 49.9,
+      precioAnterior: 59.9,
+      descuentoPorcentaje: 16.69,
+      disponibilidad: 'DISPONIBLE' as any,
+      retiroEnTienda: true,
+      categorias: [{ nombre: 'Wall Panels', slug: 'wall-panels' }],
+      imagenes: [],
+      variantes: [],
+      especificaciones: [],
+      documentos: [],
+      configuracionCalculo: null,
+    };
+    let result: PublicProductDetailResponse | undefined;
+    api.getProductDetail('isanorte central', 'isadecor premium', 'wall panel roble').subscribe((detail) => (result = detail));
+
+    const request = http.expectOne(
+      'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/productos/wall%20panel%20roble',
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush(detailResponse);
+
+    expect(result).toEqual(detailResponse);
+  });
+
+  it('uses the canonical public quote path, encodes parameters, posts the payload and returns the confirmation', () => {
+    const quoteRequest: PublicQuoteRequest = {
+      nombreCliente: 'Carlos',
+      emailCliente: 'carlos@example.com',
+      telefonoCliente: '987654321',
+      canal: QuoteChannel.FORMULARIO,
+      detalles: [
+        {
+          productoSlug: 'wall-panel-roble',
+          varianteSku: 'VAR-01',
+          cantidad: 5,
+        },
+      ],
+    };
+
+    const quoteResponse: PublicQuoteResponse = {
+      codigo: 'COT-20260923-0001',
+      nombreCliente: 'Carlos',
+      emailCliente: 'carlos@example.com',
+      telefonoCliente: '987654321',
+      empresaCliente: null,
+      ciudad: null,
+      mensaje: null,
+      canal: QuoteChannel.FORMULARIO,
+      estado: QuoteStatus.NUEVA,
+      totalEstimado: 250,
+      detalles: [
+        {
+          productoSlug: 'wall-panel-roble',
+          nombreProducto: 'Wall Panel Roble',
+          sku: 'VAR-01',
+          varianteSku: 'VAR-01',
+          cantidad: 5,
+          precioUnitario: 50,
+          subtotal: 250,
+          notas: null,
+        },
+      ],
+      fechaCreacion: '2026-09-23T02:00:00',
+    };
+
+    let result: PublicQuoteResponse | undefined;
+    api.createQuote('isanorte central', 'isadecor premium', quoteRequest).subscribe((res) => (result = res));
+
+    const request = http.expectOne(
+      'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/cotizaciones',
+    );
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(quoteRequest);
+    request.flush(quoteResponse, { status: 201, statusText: 'Created' });
+
+    expect(result).toEqual(quoteResponse);
+  });
 });
+

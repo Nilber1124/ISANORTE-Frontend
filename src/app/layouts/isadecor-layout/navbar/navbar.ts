@@ -11,6 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
+import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { CategoryApiService } from '../../../data/services/category-api.service';
 
 export interface IsadecorSubCategory {
@@ -35,6 +36,7 @@ export interface IsadecorNavLink {
 export class Navbar {
   private readonly categoryApi = inject(CategoryApiService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly cart = inject(IsadecorQuoteCartService);
 
   readonly dynamicCategories = signal<readonly IsadecorSubCategory[]>([]);
   readonly menuOpen = signal(false);
@@ -65,14 +67,11 @@ export class Navbar {
         next: (categories) => {
           const isadecorCategories = categories
             .filter(
-              (cat) =>
-                !cat.unidadNegocio ||
-                cat.unidadNegocio.slug.toLowerCase() === 'isadecor',
+              (cat) => !cat.unidadNegocio || cat.unidadNegocio.slug.toLowerCase() === 'isadecor',
             )
             .sort(
               (a, b) =>
-                (a.orden ?? 999) - (b.orden ?? 999) ||
-                a.nombre.localeCompare(b.nombre, 'es'),
+                (a.orden ?? 999) - (b.orden ?? 999) || a.nombre.localeCompare(b.nombre, 'es'),
             )
             .map((cat) => ({
               label: cat.nombre,

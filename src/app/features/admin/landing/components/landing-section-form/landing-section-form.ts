@@ -18,18 +18,20 @@ import { Badge } from '../../../../../shared/components/badge/badge';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { Modal } from '../../../../../shared/components/modal/modal';
+import { FormsModule } from '@angular/forms';
 import {
   SelectField,
   SelectOption,
 } from '../../../../../shared/components/select-field/select-field';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
+import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { LandingFormMode } from '../../admin-landing.facade';
 
 export type LandingSectionTab = 'textos' | 'imagen' | 'boton' | 'ajustes';
 
 @Component({
   selector: 'app-landing-section-form',
-  imports: [Badge, Modal, InputField, SelectField, TextareaField, Button],
+  imports: [Badge, Modal, InputField, SelectField, TextareaField, Button, ImageUploaderComponent, FormsModule],
   templateUrl: './landing-section-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

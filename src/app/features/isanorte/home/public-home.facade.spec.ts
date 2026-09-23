@@ -1,5 +1,9 @@
+import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Meta, Title } from '@angular/platform-browser';
 import { Observable, Subject, throwError } from 'rxjs';
+
+import { SeoRobots } from '../../../data/models/content/page-seo.model';
 
 import {
   PublicBusinessUnitResourceType,
@@ -132,6 +136,8 @@ class PublicContentApiStub {
 describe('PublicHomeFacade', () => {
   let facade: PublicHomeFacade;
   let api: PublicContentApiStub;
+  let titleService: Title;
+  let metaService: Meta;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -143,6 +149,8 @@ describe('PublicHomeFacade', () => {
     });
     facade = TestBed.inject(PublicHomeFacade);
     api = TestBed.inject(PublicContentApiStub);
+    titleService = TestBed.inject(Title);
+    metaService = TestBed.inject(Meta);
   });
 
   it('uses one centralized Home request and derives Hero and Services by type', () => {
@@ -330,5 +338,103 @@ describe('PublicHomeFacade', () => {
     expect(facade.cta().bgImageUrl).toBe('/cta-bg.jpg');
     expect(facade.statistics().length).toBeGreaterThan(0);
     expect(facade.showStatistics()).toBe(true);
+  });
+
+  it('applies dynamic SEO to document Title and Meta on successful load', () => {
+    const source = new Subject<PublicHomeResponse>();
+    api.response$ = source;
+    facade.load();
+    source.next({
+      ...response,
+      seo: {
+        title: 'Home Especial | ISANORTE',
+        description: 'Construcción y diseño en ISANORTE.',
+        ogImageUrl: 'https://cdn.isanorte.com/home.jpg',
+        robots: SeoRobots.INDEX_FOLLOW,
+      },
+    });
+    source.complete();
+
+    expect(facade.seo()).toEqual({
+      title: 'Home Especial | ISANORTE',
+      description: 'Construcción y diseño en ISANORTE.',
+      ogImageUrl: 'https://cdn.isanorte.com/home.jpg',
+      robots: SeoRobots.INDEX_FOLLOW,
+    });
+    expect(titleService.getTitle()).toBe('Home Especial | ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toBe('Construcción y diseño en ISANORTE.');
+    expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('Home Especial | ISANORTE');
+    expect(metaService.getTag('property="og:description"')?.content).toBe('Construcción y diseño en ISANORTE.');
+    expect(metaService.getTag('property="og:type"')?.content).toBe('website');
+    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isanorte.com/home.jpg');
+  });
+
+  it('applies default SEO on API error', () => {
+    api.response$ = throwError(() => new Error('offline'));
+    facade.load();
+
+    expect(titleService.getTitle()).toBe('ISANORTE | Construcción e Ingeniería');
+    expect(metaService.getTag('name="description"')?.content).toContain('Empresa líder en construcción');
+    expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+    expect(metaService.getTag('property="og:image"')).toBeNull();
+  });
+
+  it('cleans up SEO tags and restores defaults when destroyed', () => {
+    const parentInjector = TestBed.inject(EnvironmentInjector);
+    const childInjector = createEnvironmentInjector([PublicHomeFacade], parentInjector);
+    const scopedFacade = childInjector.get(PublicHomeFacade);
+
+    const source = new Subject<PublicHomeResponse>();
+    api.response$ = source;
+    scopedFacade.load();
+    source.next({
+      ...response,
+      seo: {
+        title: 'Home Scoped | ISANORTE',
+        description: 'Descripción scoped.',
+        ogImageUrl: null,
+        robots: SeoRobots.INDEX_FOLLOW,
+      },
+    });
+    source.complete();
+
+    expect(titleService.getTitle()).toBe('Home Scoped | ISANORTE');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('Home Scoped | ISANORTE');
+
+    childInjector.destroy();
+
+    expect(titleService.getTitle()).toBe('ISANORTE');
+    expect(metaService.getTag('property="og:title"')).toBeNull();
+    expect(metaService.getTag('property="og:description"')).toBeNull();
+    expect(metaService.getTag('property="og:type"')).toBeNull();
+    expect(metaService.getTag('property="og:image"')).toBeNull();
+    expect(metaService.getTag('name="robots"')).toBeNull();
+  });
+
+  it('ignores responses arriving after facade is destroyed', () => {
+    const parentInjector = TestBed.inject(EnvironmentInjector);
+    const childInjector = createEnvironmentInjector([PublicHomeFacade], parentInjector);
+    const scopedFacade = childInjector.get(PublicHomeFacade);
+
+    const source = new Subject<PublicHomeResponse>();
+    api.response$ = source;
+    scopedFacade.load();
+
+    childInjector.destroy();
+    expect(titleService.getTitle()).toBe('ISANORTE');
+
+    source.next({
+      ...response,
+      seo: {
+        title: 'Tardío | ISANORTE',
+        description: 'Tardío desc',
+        ogImageUrl: null,
+        robots: SeoRobots.INDEX_FOLLOW,
+      },
+    });
+
+    expect(titleService.getTitle()).toBe('ISANORTE');
+    expect(metaService.getTag('property="og:title"')).toBeNull();
   });
 });

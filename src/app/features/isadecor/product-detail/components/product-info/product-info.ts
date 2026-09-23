@@ -1,9 +1,13 @@
 import { DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
 import { ProductAvailability } from '../../../../../data/models/product/product-availability.enum';
-import { ProductResponse } from '../../../../../data/models/product/product-response.model';
+import {
+  PublicProductCalculationResponse,
+  PublicProductDetailResponse,
+} from '../../../../../data/models/public-content/public-product-detail.model';
 import { Badge, BadgeVariant } from '../../../../../shared/components/badge/badge';
+import { ProductCalculator } from '../product-calculator/product-calculator';
 
 interface AvailabilityPresentation {
   label: string;
@@ -12,12 +16,29 @@ interface AvailabilityPresentation {
 
 @Component({
   selector: 'app-product-info',
-  imports: [Badge, DecimalPipe],
+  imports: [Badge, DecimalPipe, ProductCalculator],
   templateUrl: './product-info.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductInfo {
-  readonly product = input.required<ProductResponse>();
+  readonly product = input.required<PublicProductDetailResponse>();
+  readonly quantityChange = output<number | null>();
+
+  protected readonly calculationConfig = computed<PublicProductCalculationResponse>(() => {
+    const config = this.product().configuracionCalculo;
+    if (config && config.habilitada !== false) {
+      return config;
+    }
+
+    return {
+      habilitada: true,
+      etiquetaEntrada: 'Largo o área',
+      unidadEntrada: 'm',
+      coberturaPorUnidad: 1,
+      unidadVenta: 'unidades',
+      textoAyuda: 'Ingresa las medidas para calcular la cantidad de productos que necesitas.',
+    };
+  });
 
   protected readonly availability = computed<AvailabilityPresentation>(() => {
     const presentations: Record<ProductAvailability, AvailabilityPresentation> = {
@@ -40,3 +61,4 @@ export class ProductInfo {
     return value.trim().replace(/\s+/g, ' ').toLocaleLowerCase('es');
   }
 }
+

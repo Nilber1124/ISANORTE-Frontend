@@ -250,16 +250,16 @@
             <p class="text-caption text-text-muted">Imagen representativa para ambientar visualmente la sección.</p>
           </div>
 
-          <app-input-field
-            inputId="imagenUrl"
-            label="URL directa de la fotografía"
-            type="url"
-            [value]="imagenUrl()"
-            (valueChange)="updateImageUrl($event)"
-            placeholder="https://ejemplo.com/foto-fondo.jpg"
-            helperText="Ingresa el enlace a la imagen alojada (PNG, JPG, WebP)."
-            [disabled]="submitting()"
-          />
+          <div class="space-y-2">
+            <label class="form-label mb-0">URL directa de la fotografía</label>
+            <p class="text-caption text-text-muted mb-2">Ingresa el enlace a la imagen alojada (PNG, JPG, WebP).</p>
+            <app-image-uploader
+              [ngModel]="imagenUrl()"
+              (ngModelChange)="updateImageUrl($event)"
+              name="imagenUrl"
+              folder="isanorte/landing"
+            />
+          </div>
 
           <app-input-field
             inputId="imagenAlt"

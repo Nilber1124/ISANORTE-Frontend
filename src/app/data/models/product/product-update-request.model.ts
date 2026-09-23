@@ -12,6 +12,7 @@ export interface ProductUpdateRequest {
   descuentoPorcentaje?: number | null;
   disponibilidad: ProductAvailability;
   destacado: boolean;
+  retiroEnTienda?: boolean | null;
   estado: ProductPublicationStatus;
   tituloSeo?: string | null;
   descripcionSeo?: string | null;

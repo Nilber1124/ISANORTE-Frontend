@@ -11,7 +11,7 @@
         height="720"
         loading="eager"
         fetchpriority="high"
-        (error)="markImageAsFailed(image.id)"
+        (error)="markImageAsFailed(image.url)"
       />
     } @else {
       <div
@@ -35,15 +35,15 @@
 
   @if (availableImages().length > 1) {
     <div class="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5" aria-label="Seleccionar imagen">
-      @for (image of availableImages(); track image.id; let index = $index) {
+      @for (image of availableImages(); track image.url; let index = $index) {
         <button
           type="button"
           class="aspect-square min-w-0 overflow-hidden rounded-control border bg-surface transition-[border-color,box-shadow] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          [class.border-accent]="mainImage()?.id === image.id"
-          [class.border-border]="mainImage()?.id !== image.id"
+          [class.border-accent]="mainImage()?.url === image.url"
+          [class.border-border]="mainImage()?.url !== image.url"
           [attr.aria-label]="'Ver imagen ' + (index + 1) + ' de ' + productName()"
-          [attr.aria-pressed]="mainImage()?.id === image.id"
-          (click)="selectImage(image.id)"
+          [attr.aria-pressed]="mainImage()?.url === image.url"
+          (click)="selectImage(image.url)"
         >
           <img
             class="h-full w-full object-cover"
@@ -52,7 +52,7 @@
             width="160"
             height="160"
             loading="lazy"
-            (error)="markImageAsFailed(image.id)"
+            (error)="markImageAsFailed(image.url)"
           />
         </button>
       }

@@ -1,18 +1,20 @@
 import { DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
+import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { ProductDocumentType } from '../../../data/models/product/product-document-type.enum';
 import {
-  ProductDocumentResponse,
-  ProductVariantResponse,
-} from '../../../data/models/product/product-response.model';
+  PublicProductDocumentResponse,
+  PublicProductDetailResponse,
+  PublicProductVariantResponse,
+} from '../../../data/models/public-content/public-product-detail.model';
 import { Badge, BadgeVariant } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Card } from '../../../shared/components/card/card';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../shared/components/loading/loading';
-import { ProductCalculator } from './components/product-calculator/product-calculator';
 import { ProductGallery } from './components/product-gallery/product-gallery';
 import { ProductInfo } from './components/product-info/product-info';
 import { ProductDetailFacade } from './product-detail.facade';
@@ -33,7 +35,6 @@ interface VariantAvailabilityPresentation {
     DecimalPipe,
     EmptyState,
     Loading,
-    ProductCalculator,
     ProductGallery,
     ProductInfo,
     ProductPriceComparison,
@@ -47,16 +48,59 @@ interface VariantAvailabilityPresentation {
 })
 export class ProductDetail {
   readonly facade = inject(ProductDetailFacade);
+  readonly cart = inject(IsadecorQuoteCartService);
   readonly quoteQuantity = signal<number | null>(null);
+  readonly cartQuantity = signal(1);
+  readonly selectedVariant = signal<PublicProductVariantResponse | null>(null);
+  readonly cartFeedback = signal<string | null>(null);
+  readonly activeTab = signal<'descripcion' | 'especificaciones' | 'recursos'>('descripcion');
   private readonly route = inject(ActivatedRoute);
 
   constructor() {
-    afterNextRender(() => {
-      this.facade.load(this.route.snapshot.paramMap.get('slug') ?? '');
+    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      this.quoteQuantity.set(null);
+      this.cartQuantity.set(1);
+      this.selectedVariant.set(null);
+      this.cartFeedback.set(null);
+      this.facade.load(params.get('slug') ?? '');
     });
   }
 
-  protected variantAvailability(variant: ProductVariantResponse): VariantAvailabilityPresentation {
+  protected selectVariant(variant: PublicProductVariantResponse | null): void {
+    if (variant?.disponible === false) return;
+    this.selectedVariant.set(variant);
+    this.cartFeedback.set(null);
+  }
+
+  protected updateCartQuantity(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const quantity = input.valueAsNumber;
+    if (!Number.isSafeInteger(quantity) || quantity <= 0) {
+      input.value = String(this.cartQuantity());
+      this.cartFeedback.set('La cantidad debe ser un número entero mayor que cero.');
+      return;
+    }
+
+    this.cartQuantity.set(quantity);
+    this.cartFeedback.set(null);
+  }
+
+  protected useCalculatedQuantity(quantity: number | null): void {
+    this.quoteQuantity.set(quantity);
+    this.cartQuantity.set(quantity ?? 1);
+    this.cartFeedback.set(null);
+  }
+
+  protected addToCart(product: PublicProductDetailResponse): void {
+    const item = this.cart.addProduct(product, this.selectedVariant(), this.cartQuantity());
+    this.cartFeedback.set(
+      `Carrito actualizado: ${item.quantity} ${item.quantity === 1 ? 'unidad' : 'unidades'} de este producto.`,
+    );
+  }
+
+  protected variantAvailability(
+    variant: PublicProductVariantResponse,
+  ): VariantAvailabilityPresentation {
     if (variant.disponible === true) {
       return { label: 'Disponible', variant: 'success' };
     }
@@ -79,7 +123,7 @@ export class ProductDetail {
     return labels[type];
   }
 
-  protected documentMetadata(document: ProductDocumentResponse): string {
+  protected documentMetadata(document: PublicProductDocumentResponse): string {
     const metadata = [document.formato?.trim().toLocaleUpperCase('es')];
 
     if (document.tamanoBytes !== null) {

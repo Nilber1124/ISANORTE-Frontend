@@ -1,5 +1,7 @@
+import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Meta, Title } from '@angular/platform-browser';
 import { finalize } from 'rxjs';
 
 import { PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
@@ -13,6 +15,11 @@ import {
 import { PublicCompanyStatistic } from '../../../data/models/public-content/public-page.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { CinematicScene } from '../../../shared/components/cinematic-tour/cinematic-tour';
+import {
+  PublicPageSeoDefaults,
+  applyPublicPageSeo,
+  clearPublicPageSeo,
+} from '../../../shared/utils/public-page-seo.util';
 import { HOME_HERO_FALLBACK, HeroActionViewData, HeroViewData } from './home-hero-fallback';
 import { HOME_PROJECTS_FALLBACK } from './home-projects-fallback';
 import { HOME_CTA_FALLBACK } from './home-cta-fallback';
@@ -33,14 +40,33 @@ import {
 export class PublicHomeFacade {
   private readonly api = inject(PublicContentApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly title = inject(Title);
+  private readonly meta = inject(Meta);
+  private readonly document = inject(DOCUMENT, { optional: true });
+
+  private readonly seoDefaults: PublicPageSeoDefaults = {
+    title: 'ISANORTE | Construcción e Ingeniería',
+    description:
+      'Empresa líder en construcción, diseño arquitectónico, ingeniería y desarrollo de proyectos integrales.',
+  };
+
   private readonly _home = signal<PublicHomeResponse | null>(null);
   private readonly _loading = signal(true);
   private readonly _error = signal<string | null>(null);
   private requestInFlight = false;
+  private destroyed = false;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.destroyed = true;
+      clearPublicPageSeo(this.title, this.meta);
+    });
+  }
 
   readonly home = this._home.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
+  readonly seo = computed(() => this._home()?.seo ?? null);
 
   readonly heroSection = computed(() => this.sectionByType(PublicHomeSectionType.HERO));
 
@@ -259,7 +285,7 @@ export class PublicHomeFacade {
   readonly showStatistics = computed(() => this.statistics().length > 0);
 
   load(): void {
-    if (this.requestInFlight) return;
+    if (this.destroyed || this.requestInFlight) return;
 
     this.requestInFlight = true;
     this._loading.set(true);
@@ -275,12 +301,18 @@ export class PublicHomeFacade {
         }),
       )
       .subscribe({
-        next: (home) => this._home.set(home),
+        next: (home) => {
+          if (this.destroyed) return;
+          this._home.set(home);
+          applyPublicPageSeo(this.title, this.meta, home, this.seoDefaults, this.document);
+        },
         error: () => {
+          if (this.destroyed) return;
           this._home.set(null);
           this._error.set(
             'No pudimos cargar el contenido actualizado. Mostramos temporalmente la versión local.',
           );
+          applyPublicPageSeo(this.title, this.meta, null, this.seoDefaults, this.document);
         },
       });
   }

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, input, output, signal } from '@angular/core';
 
+import { FormsModule } from '@angular/forms';
 import {
   PageContentRequest,
   PageContentResponse,
@@ -8,13 +9,14 @@ import {
 } from '../../../../../data/models/content/page-content.model';
 import { SiteConfigResponse } from '../../../../../data/models/site-config/site-config-response.model';
 import { Button } from '../../../../../shared/components/button/button';
+import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { Modal } from '../../../../../shared/components/modal/modal';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 
 @Component({
   selector: 'app-page-content-form',
-  imports: [Button, InputField, Modal, TextareaField],
+  imports: [Button, InputField, Modal, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './page-content-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

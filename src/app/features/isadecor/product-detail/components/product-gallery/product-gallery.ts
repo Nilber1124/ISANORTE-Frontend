@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 
-import { ProductImageResponse } from '../../../../../data/models/product/product-response.model';
+import { PublicProductImageResponse } from '../../../../../data/models/public-content/public-product-catalog.model';
 
 @Component({
   selector: 'app-product-gallery',
@@ -8,11 +8,11 @@ import { ProductImageResponse } from '../../../../../data/models/product/product
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductGallery {
-  readonly images = input<ProductImageResponse[] | null>(null);
+  readonly images = input<PublicProductImageResponse[] | null>(null);
   readonly productName = input.required<string>();
 
-  private readonly selectedImageId = signal<string | null>(null);
-  private readonly failedImageIds = signal<ReadonlySet<string>>(new Set());
+  private readonly selectedImageUrl = signal<string | null>(null);
+  private readonly failedImageUrls = signal<ReadonlySet<string>>(new Set());
 
   protected readonly orderedImages = computed(() =>
     [...(this.images() ?? [])].sort(
@@ -22,26 +22,26 @@ export class ProductGallery {
   );
 
   protected readonly availableImages = computed(() => {
-    const failedImages = this.failedImageIds();
-    return this.orderedImages().filter((image) => !failedImages.has(image.id));
+    const failedUrls = this.failedImageUrls();
+    return this.orderedImages().filter((image) => !failedUrls.has(image.url));
   });
 
   protected readonly mainImage = computed(() => {
     const images = this.availableImages();
-    const selectedImage = images.find((image) => image.id === this.selectedImageId());
+    const selectedImage = images.find((image) => image.url === this.selectedImageUrl());
 
     return selectedImage ?? images.find((image) => image.esPrincipal === true) ?? images[0] ?? null;
   });
 
-  protected selectImage(imageId: string): void {
-    this.selectedImageId.set(imageId);
+  protected selectImage(imageUrl: string): void {
+    this.selectedImageUrl.set(imageUrl);
   }
 
-  protected markImageAsFailed(imageId: string): void {
-    this.failedImageIds.update((failedImages) => new Set([...failedImages, imageId]));
+  protected markImageAsFailed(imageUrl: string): void {
+    this.failedImageUrls.update((failedUrls) => new Set([...failedUrls, imageUrl]));
   }
 
-  protected imageAlt(image: ProductImageResponse): string {
-    return image.altText?.trim() || this.productName();
+  protected imageAlt(image: PublicProductImageResponse): string {
+    return image.alt?.trim() || this.productName();
   }
 }

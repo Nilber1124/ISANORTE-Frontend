@@ -30,6 +30,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server,
   },
   {
+    path: 'isadecor/carrito',
+    renderMode: RenderMode.Server,
+  },
+  {
     path: 'isadecor/cotizacion',
     renderMode: RenderMode.Server,
   },

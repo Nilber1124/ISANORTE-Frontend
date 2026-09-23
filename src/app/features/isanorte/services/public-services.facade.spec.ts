@@ -1,6 +1,9 @@
+import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Meta, Title } from '@angular/platform-browser';
 import { Observable, Subject, throwError } from 'rxjs';
 
+import { SeoRobots } from '../../../data/models/content/page-seo.model';
 import {
   PublicPageResponse,
   PublicPageType,
@@ -65,6 +68,8 @@ class PublicContentApiStub {
 describe('PublicServicesFacade', () => {
   let facade: PublicServicesFacade;
   let api: PublicContentApiStub;
+  let titleService: Title;
+  let metaService: Meta;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -76,6 +81,8 @@ describe('PublicServicesFacade', () => {
     });
     facade = TestBed.inject(PublicServicesFacade);
     api = TestBed.inject(PublicContentApiStub);
+    titleService = TestBed.inject(Title);
+    metaService = TestBed.inject(Meta);
   });
 
   it('loads the public SERVICIOS page once and exposes loading', () => {
@@ -126,4 +133,63 @@ describe('PublicServicesFacade', () => {
     expect(facade.content()).toBeNull();
     expect(facade.services()).toEqual([]);
   });
+
+  it('applies dynamic SEO from backend or content fallback on load', () => {
+    const subject = new Subject<PublicPageResponse>();
+    api.response$ = subject;
+    facade.load();
+    subject.next({
+      ...response,
+      seo: {
+        title: 'Servicios de Construcción | ISANORTE',
+        description: 'Servicios profesionales de edificación.',
+        ogImageUrl: 'https://cdn.isanorte.com/servicios.jpg',
+        robots: SeoRobots.INDEX_FOLLOW,
+      },
+    });
+
+    expect(titleService.getTitle()).toBe('Servicios de Construcción | ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toBe('Servicios profesionales de edificación.');
+    expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('Servicios de Construcción | ISANORTE');
+    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isanorte.com/servicios.jpg');
+  });
+
+  it('applies default SEO for Servicios on error', () => {
+    api.response$ = throwError(() => new Error('offline'));
+    facade.load();
+
+    expect(titleService.getTitle()).toBe('Servicios | ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toContain('Descubre nuestros servicios integrales');
+    expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+  });
+
+  it('cleans up SEO tags when destroyed', () => {
+    const parentInjector = TestBed.inject(EnvironmentInjector);
+    const childInjector = createEnvironmentInjector([PublicServicesFacade], parentInjector);
+    const scopedFacade = childInjector.get(PublicServicesFacade);
+
+    const subject = new Subject<PublicPageResponse>();
+    api.response$ = subject;
+    scopedFacade.load();
+    subject.next({
+      ...response,
+      seo: {
+        title: 'Servicios Especiales',
+        description: 'Detalle de servicios.',
+        ogImageUrl: 'https://cdn.isanorte.com/s.jpg',
+        robots: SeoRobots.INDEX_FOLLOW,
+      },
+    });
+
+    expect(titleService.getTitle()).toBe('Servicios Especiales');
+
+    childInjector.destroy();
+
+    expect(titleService.getTitle()).toBe('ISANORTE');
+    expect(metaService.getTag('property="og:title"')).toBeNull();
+    expect(metaService.getTag('property="og:image"')).toBeNull();
+    expect(metaService.getTag('name="robots"')).toBeNull();
+  });
 });
+

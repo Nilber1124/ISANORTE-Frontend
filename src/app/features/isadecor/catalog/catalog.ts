@@ -47,7 +47,7 @@ export class Catalog {
     return (
       this.facade
         .categories()
-        .find((c) => c.id === catId || c.slug === catId) ?? null
+        .find((c) => c.slug === catId || c.nombre.toLowerCase() === catId.toLowerCase()) ?? null
     );
   });
 

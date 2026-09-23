@@ -1,25 +1,29 @@
 import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize } from 'rxjs';
 
-import { CategoryResponse } from '../../../data/models/category/category-response.model';
+import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
-import { ProductResponse } from '../../../data/models/product/product-response.model';
-import { CategoryApiService } from '../../../data/services/category-api.service';
-import { ProductApiService } from '../../../data/services/product-api.service';
+import {
+  PublicProductCardResponse,
+  PublicProductCategoryResponse,
+} from '../../../data/models/public-content/public-product-catalog.model';
+import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 
 export type CatalogSortOption = 'featured' | 'price-asc' | 'price-desc' | 'name-asc';
 
 @Injectable()
 export class CatalogFacade {
-  private readonly productApi = inject(ProductApiService);
-  private readonly categoryApi = inject(CategoryApiService);
+  readonly siteKey: string = PUBLIC_SITE_KEY;
+  readonly unitSlug: string = ISADECOR_UNIT_SLUG;
+
+  private readonly publicApi = inject(PublicContentApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
 
-  private readonly _products = signal<ProductResponse[]>([]);
-  private readonly _categories = signal<CategoryResponse[]>([]);
+  private readonly _products = signal<PublicProductCardResponse[]>([]);
+  private readonly _categories = signal<PublicProductCategoryResponse[]>([]);
   private readonly _loading = signal(true);
   private readonly _error = signal<string | null>(null);
   private readonly _selectedCategory = signal<string | null>(null);
@@ -44,7 +48,7 @@ export class CatalogFacade {
     const counts = new Map<string, number>();
     for (const product of this._products()) {
       for (const category of product.categorias ?? []) {
-        counts.set(category.id, (counts.get(category.id) ?? 0) + 1);
+        counts.set(category.slug, (counts.get(category.slug) ?? 0) + 1);
       }
     }
     return counts;
@@ -62,7 +66,6 @@ export class CatalogFacade {
         selectedCategory === null ||
         product.categorias?.some(
           (category) =>
-            category.id === selectedCategory ||
             category.slug === selectedCategory ||
             this.normalizeText(category.nombre) === this.normalizeText(selectedCategory),
         ) === true;
@@ -96,6 +99,10 @@ export class CatalogFacade {
       return searchableText.includes(searchTerm);
     });
 
+    if (sort === 'featured') {
+      return filtered;
+    }
+
     return [...filtered].sort((a, b) => {
       switch (sort) {
         case 'price-asc': {
@@ -110,12 +117,8 @@ export class CatalogFacade {
         }
         case 'name-asc':
           return a.nombre.localeCompare(b.nombre, 'es');
-        case 'featured':
-        default: {
-          const featA = a.destacado === true ? 1 : 0;
-          const featB = b.destacado === true ? 1 : 0;
-          return featB - featA || a.nombre.localeCompare(b.nombre, 'es');
-        }
+        default:
+          return 0;
       }
     });
   });
@@ -129,11 +132,11 @@ export class CatalogFacade {
       this._sortOption() !== 'featured',
   );
 
-  getCategoryCount(categoryId: string): number {
-    return this.categoryCounts().get(categoryId) ?? 0;
+  getCategoryCount(categorySlug: string): number {
+    return this.categoryCounts().get(categorySlug) ?? 0;
   }
 
-  load(): void {
+  load(unitSlug: string = this.unitSlug): void {
     if (!isPlatformBrowser(this.platformId) || this.requestInFlight) {
       return;
     }
@@ -142,10 +145,8 @@ export class CatalogFacade {
     this._loading.set(true);
     this._error.set(null);
 
-    forkJoin({
-      products: this.productApi.getPublished(),
-      categories: this.categoryApi.getActive(),
-    })
+    this.publicApi
+      .getProductCatalog(this.siteKey, unitSlug)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {
@@ -154,19 +155,18 @@ export class CatalogFacade {
         }),
       )
       .subscribe({
-        next: ({ products, categories }) => {
-          this._products.set(products);
-          this._categories.set(categories);
+        next: (catalog) => {
+          this._products.set(catalog.productos);
+          this._categories.set(catalog.categorias);
           const current = this._selectedCategory();
           if (current) {
-            const match = categories.find(
+            const match = catalog.categorias.find(
               (category) =>
-                category.id === current ||
                 category.slug === current ||
                 this.normalizeText(category.nombre) === this.normalizeText(current),
             );
             if (match) {
-              this._selectedCategory.set(match.id);
+              this._selectedCategory.set(match.slug);
             }
           }
         },
@@ -186,11 +186,10 @@ export class CatalogFacade {
     const trimmed = categoryIdOrSlug.trim();
     const match = this._categories().find(
       (category) =>
-        category.id === trimmed ||
         category.slug === trimmed ||
         this.normalizeText(category.nombre) === this.normalizeText(trimmed),
     );
-    this._selectedCategory.set(match ? match.id : trimmed);
+    this._selectedCategory.set(match ? match.slug : trimmed);
   }
 
   setSearchTerm(searchTerm: string): void {

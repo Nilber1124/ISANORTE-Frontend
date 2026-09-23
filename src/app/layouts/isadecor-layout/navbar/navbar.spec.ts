@@ -4,6 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { CategoryResponse } from '../../../data/models/category/category-response.model';
+import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
+import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
+import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { Navbar } from './navbar';
 
 const mockCategories: CategoryResponse[] = [
@@ -46,6 +49,8 @@ const mockCategories: CategoryResponse[] = [
 ];
 
 describe('Isadecor Navbar', () => {
+  afterEach(() => localStorage.clear());
+
   it('loads and filters active categories for ISADECOR automatically', () => {
     TestBed.configureTestingModule({
       imports: [Navbar],
@@ -88,5 +93,44 @@ describe('Isadecor Navbar', () => {
 
     component.closeProductsDropdown();
     expect(component.productsDropdownOpen()).toBe(false);
+  });
+
+  it('links to the cart and displays its total quantity', () => {
+    TestBed.configureTestingModule({
+      imports: [Navbar],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const fixture = TestBed.createComponent(Navbar);
+    const cart = TestBed.inject(IsadecorQuoteCartService);
+    const product: PublicProductDetailResponse = {
+      nombre: 'Panel',
+      sku: 'P-1',
+      slug: 'panel',
+      resumen: null,
+      descripcion: 'Panel',
+      tituloSeo: null,
+      descripcionSeo: null,
+      precioBase: null,
+      precioAnterior: null,
+      descuentoPorcentaje: null,
+      disponibilidad: ProductAvailability.DISPONIBLE,
+      retiroEnTienda: true,
+      categorias: [],
+      imagenes: [],
+      variantes: [],
+      especificaciones: [],
+      documentos: [],
+      configuracionCalculo: null,
+    };
+
+    cart.addProduct(product, null, 3);
+    fixture.detectChanges();
+
+    const link = fixture.nativeElement.querySelector(
+      'a[href="/isadecor/carrito"]',
+    ) as HTMLAnchorElement;
+    expect(link).toBeTruthy();
+    expect(link.textContent).toContain('3');
+    expect(link.getAttribute('aria-label')).toContain('3 productos');
   });
 });

@@ -10,9 +10,9 @@ import {
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
-import { ProductResponse } from '../../../data/models/product/product-response.model';
+import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
+import { PublicQuoteRequest } from '../../../data/models/public-content/public-quote.model';
 import { QuoteChannel } from '../../../data/models/quote/quote-channel.enum';
-import { QuoteCreateRequest } from '../../../data/models/quote/quote-create-request.model';
 import { Alert } from '../../../shared/components/alert/alert';
 import { Badge, BadgeVariant } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
@@ -67,12 +67,12 @@ export class Quote {
   readonly mensaje = signal('');
   readonly cantidad = signal('1');
   readonly notas = signal('');
-  readonly varianteId = signal('');
+  readonly varianteSku = signal('');
   readonly submitted = signal(false);
 
   readonly variantOptions = computed<readonly SelectOption[]>(() =>
     (this.facade.product()?.variantes ?? []).map((variant) => ({
-      value: variant.id,
+      value: variant.sku,
       label: `${variant.nombre} · ${variant.sku}`,
     })),
   );
@@ -94,7 +94,7 @@ export class Quote {
     this.facade.submit(this.buildRequest(this.facade.product()!));
   }
 
-  protected availability(product: ProductResponse): AvailabilityPresentation {
+  protected availability(product: PublicProductDetailResponse): AvailabilityPresentation {
     const values: Record<ProductAvailability, AvailabilityPresentation> = {
       [ProductAvailability.DISPONIBLE]: { label: 'Disponible', variant: 'success' },
       [ProductAvailability.AGOTADO]: { label: 'Agotado', variant: 'error' },
@@ -126,7 +126,7 @@ export class Quote {
     return Object.values(this.validationErrors()).some(Boolean);
   }
 
-  private buildRequest(product: ProductResponse): QuoteCreateRequest {
+  private buildRequest(product: PublicProductDetailResponse): PublicQuoteRequest {
     return {
       nombreCliente: this.nombreCliente().trim(),
       emailCliente: this.emailCliente().trim(),
@@ -137,8 +137,8 @@ export class Quote {
       canal: QuoteChannel.FORMULARIO,
       detalles: [
         {
-          productoId: product.id,
-          varianteId: this.optionalValue(this.varianteId()),
+          productoSlug: product.slug,
+          varianteSku: this.optionalValue(this.varianteSku()),
           cantidad: Number(this.cantidad()),
           notas: this.optionalValue(this.notas()),
         },
@@ -160,7 +160,7 @@ export class Quote {
     return value.trim() || null;
   }
 
-  private findMainImage(product: ProductResponse | null): string | null {
+  private findMainImage(product: PublicProductDetailResponse | null): string | null {
     if (product === null) return null;
     return (
       product.imagenes?.find((image) => image.esPrincipal)?.url ??

@@ -37,190 +37,278 @@
       <div
         class="grid items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)] lg:gap-12"
       >
-        <app-product-gallery [images]="product.imagenes" [productName]="product.nombre" />
-        <app-product-info [product]="product" />
-      </div>
+        <div class="lg:sticky lg:top-24">
+          <app-product-gallery [images]="product.imagenes" [productName]="product.nombre" />
+        </div>
 
-      <div class="mt-8 flex flex-wrap gap-3">
-        <app-button
-          variant="accent"
-          [routerLink]="['/isadecor/cotizacion']"
-          [queryParams]="quoteQueryParams(product.slug)"
-        >
-          Solicitar cotización
-        </app-button>
-      </div>
-
-      @if (
-        product.configuracionCalculo !== null && product.configuracionCalculo.habilitada === true
-      ) {
-        <app-product-calculator
-          class="mt-14 lg:mt-20"
-          [config]="product.configuracionCalculo"
-          (quantityChange)="quoteQuantity.set($event)"
-        />
-      }
-
-      @if (product.descripcion.trim()) {
-        <section
-          class="mt-14 border-t border-border pt-10 lg:mt-20 lg:pt-14"
-          aria-labelledby="product-description-title"
-        >
-          <div class="reading-container">
-            <p class="mb-3 text-eyebrow uppercase text-text-muted">Acerca del producto</p>
-            <h2 id="product-description-title" class="text-heading-2 text-text-primary">
-              Descripción
-            </h2>
-            <p class="product-description mt-5 text-body-lg text-text-secondary">
-              {{ product.descripcion }}
-            </p>
-          </div>
-        </section>
-      }
-
-      <app-product-competitor-comparison
-        [loading]="facade.competitorComparisonLoading()"
-        [result]="facade.competitorComparisonResult()"
-        [error]="facade.competitorComparisonError()"
-        (compare)="facade.compareCompetitors()"
-      />
-
-      <app-product-price-comparison
-        [loading]="facade.comparisonLoading()"
-        [result]="facade.comparisonResult()"
-        [error]="facade.comparisonError()"
-        (compare)="facade.comparePrice($event)"
-        (edited)="facade.clearComparison()"
-      />
-
-      @if (facade.variants().length > 0) {
-        <section
-          class="mt-14 border-t border-border pt-10 lg:mt-20 lg:pt-14"
-          aria-labelledby="product-variants-title"
-        >
-          <div class="mb-8 max-w-3xl">
-            <p class="mb-3 text-eyebrow uppercase text-text-muted">Opciones disponibles</p>
-            <h2 id="product-variants-title" class="text-heading-2 text-text-primary">Variantes</h2>
-          </div>
-
-          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            @for (variant of facade.variants(); track variant.id) {
-              <app-card padding="medium">
-                <div class="flex h-full flex-col">
-                  <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p
-                        class="text-caption font-semibold uppercase tracking-wider text-text-muted"
-                      >
+        <app-product-info [product]="product" (quantityChange)="useCalculatedQuantity($event)">
+          <div slot="variants">
+            @if (facade.variants().length > 0) {
+              <div class="mt-8 border-t border-border pt-6">
+                <h2
+                  id="product-variants-title"
+                  class="mb-4 text-body-sm font-semibold text-text-primary"
+                >
+                  Selecciona una variante
+                </h2>
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <button
+                    type="button"
+                    class="rounded-control border bg-surface-soft p-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                    [class.border-accent]="selectedVariant() === null"
+                    [class.border-border]="selectedVariant() !== null"
+                    [attr.aria-pressed]="selectedVariant() === null"
+                    (click)="selectVariant(null)"
+                  >
+                    <p class="text-caption font-semibold uppercase text-text-muted">Sin variante</p>
+                    <p class="mt-1 text-body-sm font-medium text-text-primary">Producto estándar</p>
+                  </button>
+                  @for (variant of facade.variants(); track variant.sku) {
+                    <button
+                      type="button"
+                      class="rounded-control border bg-surface-soft p-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-45"
+                      [class.border-accent]="selectedVariant()?.sku === variant.sku"
+                      [class.border-border]="selectedVariant()?.sku !== variant.sku"
+                      [attr.aria-pressed]="selectedVariant()?.sku === variant.sku"
+                      [disabled]="variant.disponible === false"
+                      (click)="selectVariant(variant)"
+                    >
+                      <p class="text-caption font-semibold uppercase text-text-muted">
                         SKU {{ variant.sku }}
                       </p>
-                      <h3 class="mt-2 text-heading-4 text-text-primary">{{ variant.nombre }}</h3>
-                    </div>
-                    <app-badge [variant]="variantAvailability(variant).variant" dot>
-                      {{ variantAvailability(variant).label }}
-                    </app-badge>
-                  </div>
-
-                  @if (variant.descripcion) {
-                    <p class="mt-4 text-body-sm text-text-secondary">{{ variant.descripcion }}</p>
-                  }
-
-                  <div class="mt-auto pt-5">
-                    <p class="text-caption text-text-muted">Precio referencial</p>
-                    <p class="mt-1 text-body font-semibold text-text-primary">
-                      @if (variant.precio !== null) {
-                        {{ variant.precio | number: '1.2-2' }}
-                      } @else {
-                        Consultar precio
-                      }
-                    </p>
-                  </div>
-                </div>
-              </app-card>
-            }
-          </div>
-        </section>
-      }
-
-      @if (facade.specificationGroups().length > 0) {
-        <section
-          class="mt-14 border-t border-border pt-10 lg:mt-20 lg:pt-14"
-          aria-labelledby="product-specifications-title"
-        >
-          <div class="mb-8 max-w-3xl">
-            <p class="mb-3 text-eyebrow uppercase text-text-muted">Información técnica</p>
-            <h2 id="product-specifications-title" class="text-heading-2 text-text-primary">
-              Especificaciones
-            </h2>
-          </div>
-
-          <div class="grid gap-6 lg:grid-cols-2">
-            @for (group of facade.specificationGroups(); track group.name) {
-              <app-card padding="large">
-                <h3 class="text-heading-4 text-text-primary">{{ group.name }}</h3>
-                <dl class="mt-5 divide-y divide-border border-y border-border">
-                  @for (specification of group.specifications; track specification.id) {
-                    <div
-                      class="grid gap-1 py-4 sm:grid-cols-[minmax(8rem,0.8fr)_minmax(0,1.2fr)] sm:gap-6"
-                    >
-                      <dt class="text-body-sm font-semibold text-text-secondary">
-                        {{ specification.clave }}
-                      </dt>
-                      <dd class="break-words text-body-sm text-text-primary">
-                        {{ specification.valor }}
-                      </dd>
-                    </div>
-                  }
-                </dl>
-              </app-card>
-            }
-          </div>
-        </section>
-      }
-
-      @if (facade.documents().length > 0) {
-        <section
-          class="mt-14 border-t border-border pt-10 lg:mt-20 lg:pt-14"
-          aria-labelledby="product-documents-title"
-        >
-          <div class="mb-8 max-w-3xl">
-            <p class="mb-3 text-eyebrow uppercase text-text-muted">Recursos</p>
-            <h2 id="product-documents-title" class="text-heading-2 text-text-primary">
-              Documentos
-            </h2>
-          </div>
-
-          <div class="grid gap-4 md:grid-cols-2">
-            @for (document of facade.documents(); track document.id) {
-              <app-card padding="medium">
-                <div
-                  class="flex h-full flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div class="min-w-0">
-                    <app-badge>{{ documentTypeLabel(document.tipo) }}</app-badge>
-                    <h3 class="mt-3 text-heading-4 text-text-primary">{{ document.titulo }}</h3>
-                    @if (documentMetadata(document)) {
-                      <p class="mt-2 text-caption uppercase tracking-wider text-text-muted">
-                        {{ documentMetadata(document) }}
+                      <p class="mt-1 text-body-sm font-medium text-text-primary line-clamp-2">
+                        {{ variant.nombre }}
                       </p>
-                    }
-                  </div>
-
-                  <app-button
-                    variant="secondary"
-                    size="small"
-                    [href]="document.url"
-                    target="_blank"
-                    [ariaLabel]="'Abrir ' + document.titulo + ' en una pestaña nueva'"
-                  >
-                    Abrir
-                  </app-button>
+                      <p class="mt-2 text-caption font-semibold text-text-primary">
+                        @if (variant.precio !== null) {
+                          S/ {{ variant.precio | number: '1.2-2' }}
+                        } @else {
+                          Consultar
+                        }
+                      </p>
+                      @if (variant.disponible === false) {
+                        <span class="mt-2 block text-caption text-error">No disponible</span>
+                      }
+                    </button>
+                  }
                 </div>
-              </app-card>
+              </div>
             }
           </div>
-        </section>
-      }
+
+          <div slot="actions" class="flex flex-col gap-3">
+            @if (cartFeedback()) {
+              <div
+                class="rounded-control border border-success/30 bg-success/10 px-4 py-3 text-body-sm text-text-primary"
+                role="status"
+                aria-live="polite"
+              >
+                {{ cartFeedback() }}
+                <a
+                  routerLink="/isadecor/carrito"
+                  class="ml-1 font-semibold text-accent-strong underline underline-offset-2"
+                >
+                  Ver carrito
+                </a>
+              </div>
+            }
+            @if (product.disponibilidad === 'AGOTADO') {
+              <button
+                type="button"
+                class="w-full rounded-control bg-surface-hover px-6 py-4 text-body-lg font-bold text-text-muted cursor-not-allowed shadow-inner-soft"
+                disabled
+              >
+                Agotado
+              </button>
+            } @else {
+              <div class="flex items-end gap-3">
+                <div class="w-32">
+                  <label for="cart-product-quantity" class="form-label">Cantidad</label>
+                  <input
+                    id="cart-product-quantity"
+                    class="form-control text-center"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    step="1"
+                    [value]="cartQuantity()"
+                    (change)="updateCartQuantity($event)"
+                  />
+                </div>
+                <app-button
+                  variant="primary"
+                  size="large"
+                  class="flex-1"
+                  (click)="addToCart(product)"
+                >
+                  Agregar al carrito
+                </app-button>
+              </div>
+              <app-button
+                variant="accent"
+                class="w-full"
+                [routerLink]="['/isadecor/cotizacion']"
+                [queryParams]="quoteQueryParams(product.slug)"
+              >
+                Solicitar cotización
+              </app-button>
+            }
+          </div>
+        </app-product-info>
+      </div>
+
+      <div class="mt-14 lg:mt-20">
+        <app-product-competitor-comparison
+          [unitSlug]="facade.unitSlug"
+          [loading]="facade.competitorComparisonLoading()"
+          [result]="facade.competitorComparisonResult()"
+          [error]="facade.competitorComparisonError()"
+          (compare)="facade.compareCompetitors()"
+        />
+
+        <div class="mt-8">
+          <app-product-price-comparison
+            [unitSlug]="facade.unitSlug"
+            [loading]="facade.comparisonLoading()"
+            [result]="facade.comparisonResult()"
+            [error]="facade.comparisonError()"
+            (compare)="facade.comparePrice($event)"
+            (edited)="facade.clearComparison()"
+          />
+        </div>
+      </div>
+
+      <section
+        class="mt-14 lg:mt-20 border-t border-border pt-10"
+        aria-label="Información detallada"
+      >
+        <div class="flex flex-wrap gap-2 border-b border-border pb-4 mb-8">
+          <button
+            class="px-4 py-2 rounded-control text-body-sm font-semibold transition-colors"
+            [class.bg-surface-hover]="activeTab() === 'descripcion'"
+            [class.text-text-primary]="activeTab() === 'descripcion'"
+            [class.text-text-muted]="activeTab() !== 'descripcion'"
+            (click)="activeTab.set('descripcion')"
+          >
+            Descripción
+          </button>
+          <button
+            class="px-4 py-2 rounded-control text-body-sm font-semibold transition-colors"
+            [class.bg-surface-hover]="activeTab() === 'especificaciones'"
+            [class.text-text-primary]="activeTab() === 'especificaciones'"
+            [class.text-text-muted]="activeTab() !== 'especificaciones'"
+            (click)="activeTab.set('especificaciones')"
+          >
+            Especificaciones
+            @if (facade.specificationGroups().length > 0) {
+              <span class="ml-1 rounded-full bg-border px-2 py-0.5 text-xs">{{
+                facade.specificationGroups().length
+              }}</span>
+            }
+          </button>
+          <button
+            class="px-4 py-2 rounded-control text-body-sm font-semibold transition-colors"
+            [class.bg-surface-hover]="activeTab() === 'recursos'"
+            [class.text-text-primary]="activeTab() === 'recursos'"
+            [class.text-text-muted]="activeTab() !== 'recursos'"
+            (click)="activeTab.set('recursos')"
+          >
+            Recursos
+            @if (facade.documents().length > 0) {
+              <span class="ml-1 rounded-full bg-border px-2 py-0.5 text-xs">{{
+                facade.documents().length
+              }}</span>
+            }
+          </button>
+        </div>
+
+        <div>
+          @if (activeTab() === 'descripcion') {
+            @if (product.descripcion.trim()) {
+              <div class="reading-container animate-in fade-in duration-300">
+                <h2 class="sr-only">Descripción</h2>
+                <p class="product-description text-body-lg text-text-secondary">
+                  {{ product.descripcion }}
+                </p>
+              </div>
+            } @else {
+              <div class="py-12 text-center text-text-muted">
+                <p>No hay descripción adicional para este producto.</p>
+              </div>
+            }
+          }
+
+          @if (activeTab() === 'especificaciones') {
+            @if (facade.specificationGroups().length > 0) {
+              <div class="grid gap-6 lg:grid-cols-2 animate-in fade-in duration-300">
+                <h2 class="sr-only">Especificaciones</h2>
+                @for (group of facade.specificationGroups(); track group.name) {
+                  <app-card padding="large">
+                    <h3 class="text-heading-4 text-text-primary">{{ group.name }}</h3>
+                    <dl class="mt-5 divide-y divide-border border-y border-border">
+                      @for (specification of group.specifications; track specification.clave) {
+                        <div
+                          class="grid gap-1 py-4 sm:grid-cols-[minmax(8rem,0.8fr)_minmax(0,1.2fr)] sm:gap-6"
+                        >
+                          <dt class="text-body-sm font-semibold text-text-secondary">
+                            {{ specification.clave }}
+                          </dt>
+                          <dd class="break-words text-body-sm text-text-primary">
+                            {{ specification.valor }}
+                          </dd>
+                        </div>
+                      }
+                    </dl>
+                  </app-card>
+                }
+              </div>
+            } @else {
+              <div class="py-12 text-center text-text-muted">
+                <p>No hay especificaciones técnicas registradas.</p>
+              </div>
+            }
+          }
+
+          @if (activeTab() === 'recursos') {
+            @if (facade.documents().length > 0) {
+              <div class="grid gap-4 md:grid-cols-2 animate-in fade-in duration-300">
+                <h2 class="sr-only">Documentos</h2>
+                @for (document of facade.documents(); track document.url) {
+                  <app-card padding="medium">
+                    <div
+                      class="flex h-full flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div class="min-w-0">
+                        <app-badge>{{ documentTypeLabel(document.tipo) }}</app-badge>
+                        <h3 class="mt-3 text-heading-4 text-text-primary">{{ document.titulo }}</h3>
+                        @if (documentMetadata(document)) {
+                          <p class="mt-2 text-caption uppercase tracking-wider text-text-muted">
+                            {{ documentMetadata(document) }}
+                          </p>
+                        }
+                      </div>
+
+                      <app-button
+                        variant="secondary"
+                        size="small"
+                        [href]="document.url"
+                        target="_blank"
+                        [ariaLabel]="'Abrir ' + document.titulo + ' en una pestaña nueva'"
+                      >
+                        Abrir
+                      </app-button>
+                    </div>
+                  </app-card>
+                }
+              </div>
+            } @else {
+              <div class="py-12 text-center text-text-muted">
+                <p>No hay documentos ni recursos para descargar.</p>
+              </div>
+            }
+          }
+        </div>
+      </section>
     }
   </div>
 </main>
