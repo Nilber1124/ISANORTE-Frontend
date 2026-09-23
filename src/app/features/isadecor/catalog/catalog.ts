@@ -5,6 +5,7 @@ import {
   afterNextRender,
   computed,
   inject,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -38,13 +39,27 @@ export class Catalog {
     { value: 'name-asc', label: 'Nombre: A a Z' },
   ];
 
-  readonly popularTerms: readonly string[] = [
-    'Wall panel',
-    'Mármol SPC',
-    'PVC',
-    'Paredes',
-    'Cielo raso',
-  ];
+  readonly mobileFiltersOpen = signal(false);
+
+  readonly selectedCategory = computed(() => {
+    const catId = this.facade.selectedCategory();
+    if (!catId) return null;
+    return (
+      this.facade
+        .categories()
+        .find((c) => c.id === catId || c.slug === catId) ?? null
+    );
+  });
+
+  readonly activeFiltersCount = computed(() => {
+    let count = 0;
+    if (this.facade.selectedCategory() !== null) count++;
+    if (this.facade.searchTerm().trim().length > 0) count++;
+    if (this.facade.onlyDiscount()) count++;
+    if (this.facade.onlyInStock()) count++;
+    if (this.facade.sortOption() !== 'featured') count++;
+    return count;
+  });
 
   constructor() {
     afterNextRender(() => {
@@ -60,5 +75,21 @@ export class Catalog {
 
   protected updateSortOption(value: string): void {
     this.facade.setSortOption(value as CatalogSortOption);
+  }
+
+  protected handleCategoryClick(categoryId: string | null): void {
+    if (this.facade.selectedCategory() === categoryId) {
+      this.facade.setSelectedCategory(null);
+    } else {
+      this.facade.setSelectedCategory(categoryId);
+    }
+  }
+
+  protected toggleMobileFilters(): void {
+    this.mobileFiltersOpen.update((open) => !open);
+  }
+
+  protected closeMobileFilters(): void {
+    this.mobileFiltersOpen.set(false);
   }
 }

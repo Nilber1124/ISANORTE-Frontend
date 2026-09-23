@@ -24,42 +24,27 @@
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <app-input-field
-          inputId="category-name"
-          label="Nombre de la categoría"
-          [(value)]="nombre"
-          helperText="Nombre comercial visible en menús y filtros (ej: Wall Panels)."
-          [error]="errors().nombre"
-          [disabled]="submitting()"
-          required
-        />
-
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <label for="category-slug" class="form-label mb-0 cursor-pointer">
-              Slug (Ruta web) <span class="text-error" aria-hidden="true">*</span>
-            </label>
-            <button
-              type="button"
-              class="flex items-center gap-1.5 text-caption font-semibold text-primary hover:underline"
-              (click)="generateSlug()"
-            >
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-              </svg>
-              Generar desde nombre
-            </button>
-          </div>
+        <div class="sm:col-span-2">
           <app-input-field
-            inputId="category-slug"
-            label="Slug (Ruta web)"
-            [hideLabel]="true"
-            [(value)]="slug"
-            helperText="Identificador amigable en la URL (ej: wall-panels)."
-            [error]="errors().slug"
+            inputId="category-name"
+            label="Nombre de la categoría"
+            [value]="nombre()"
+            (valueChange)="updateNombre($event)"
+            helperText="Nombre comercial visible en menús y filtros (ej: Wall Panels)."
+            [error]="errors().nombre"
             [disabled]="submitting()"
             required
           />
+          @if (slug()) {
+            <p class="mt-1.5 inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-md border border-border">
+              <span class="text-text-secondary font-medium">Ruta automática:</span>
+              <code class="text-accent font-semibold">/{{ slug() }}</code>
+            </p>
+          }
+          <input id="category-slug" type="hidden" [value]="slug()" />
+          @if (errors().slug) {
+            <p class="form-error mt-1" role="alert">{{ errors().slug }}</p>
+          }
         </div>
 
         <app-select-field

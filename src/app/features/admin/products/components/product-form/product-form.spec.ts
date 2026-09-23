@@ -140,6 +140,20 @@ describe('ProductForm', () => {
     expect(element.textContent).toContain('porcentaje entre 0 y 100');
   });
 
+  it('automatically calculates final base price when discount is updated', async () => {
+    await render();
+    const instance = fixture.componentInstance as unknown as {
+      updatePrecioAnterior(val: string): void;
+      updateDescuento(val: string): void;
+    };
+    instance.updatePrecioAnterior('100');
+    instance.updateDescuento('20');
+    expect(fixture.componentInstance.precioBase()).toBe('80');
+
+    instance.updateDescuento('15.5');
+    expect(fixture.componentInstance.precioBase()).toBe('84.5');
+  });
+
   it('emits UUID relations and preserves empty prices as null on create', async () => {
     const element = await render();
     const submissions: ProductFormSubmission[] = [];

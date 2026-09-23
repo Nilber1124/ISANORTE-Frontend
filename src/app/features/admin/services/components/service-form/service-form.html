@@ -18,45 +18,27 @@
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <app-input-field
-          inputId="service-name"
-          label="Nombre del servicio"
-          [(value)]="nombre"
-          placeholder="Ej: Construcción de Obras Civiles"
-          [error]="errors().nombre"
-          [disabled]="submitting()"
-          required
-        />
-
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label for="service-slug" class="form-label mb-0 cursor-pointer">
-              Slug (Ruta web) <span class="text-error" aria-hidden="true">*</span>
-            </label>
-            @if (nombre().trim()) {
-              <button
-                type="button"
-                (click)="generateSlug()"
-                class="inline-flex items-center gap-1 text-caption text-primary hover:underline font-medium cursor-pointer"
-              >
-                <svg class="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                </svg>
-                Generar desde nombre
-              </button>
-            }
-          </div>
+        <div class="sm:col-span-2">
           <app-input-field
-            inputId="service-slug"
-            label="Slug (Ruta web)"
-            [hideLabel]="true"
-            [(value)]="slug"
-            placeholder="ej: construccion-obras-civiles"
-            helperText="Identificador único para la URL de navegación."
-            [error]="errors().slug"
+            inputId="service-name"
+            label="Nombre del servicio"
+            [value]="nombre()"
+            (valueChange)="updateNombre($event)"
+            placeholder="Ej: Construcción de Obras Civiles"
+            [error]="errors().nombre"
             [disabled]="submitting()"
             required
           />
+          @if (slug()) {
+            <p class="mt-1.5 inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-md border border-border">
+              <span class="text-text-secondary font-medium">Ruta automática:</span>
+              <code class="text-accent font-semibold">/{{ slug() }}</code>
+            </p>
+          }
+          <input id="service-slug" type="hidden" [value]="slug()" />
+          @if (errors().slug) {
+            <p class="form-error mt-1" role="alert">{{ errors().slug }}</p>
+          }
         </div>
 
         <app-input-field

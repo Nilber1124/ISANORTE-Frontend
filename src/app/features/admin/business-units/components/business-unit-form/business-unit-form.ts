@@ -20,6 +20,7 @@ import {
   SelectOption,
 } from '../../../../../shared/components/select-field/select-field';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
+import { slugify } from '../../../../../shared/utils/slugify';
 import { BusinessUnitFormMode } from '../../admin-business-units.facade';
 
 export type BusinessUnitFormSubmission =
@@ -65,14 +66,13 @@ export class BusinessUnitForm implements OnInit {
   readonly errors = computed<FormErrors>(() => this.validationErrors());
   readonly hasCompanies = computed(() => this.companies().length > 0);
 
+  protected updateNombre(value: string): void {
+    this.nombre.set(value);
+    this.slug.set(slugify(value));
+  }
+
   protected generateSlug(): void {
-    const s = this.nombre()
-      .toLowerCase()
-      .trim()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+    const s = slugify(this.nombre());
     if (s) this.slug.set(s);
   }
 

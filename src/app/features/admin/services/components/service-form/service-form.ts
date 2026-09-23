@@ -17,6 +17,7 @@ import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { Modal } from '../../../../../shared/components/modal/modal';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
+import { slugify } from '../../../../../shared/utils/slugify';
 import { ServiceFormMode } from '../../admin-services.facade';
 
 export type ServiceFormSubmission =
@@ -104,14 +105,13 @@ export class ServiceForm implements OnInit {
     this.saved.emit({ mode: 'edit', request: { ...common, orden: Number(this.orden()) } });
   }
 
+  protected updateNombre(value: string): void {
+    this.nombre.set(value);
+    this.slug.set(slugify(value));
+  }
+
   protected generateSlug(): void {
-    const s = this.nombre()
-      .toLowerCase()
-      .trim()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+    const s = slugify(this.nombre());
     if (s) this.slug.set(s);
   }
 
