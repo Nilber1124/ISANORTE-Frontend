@@ -141,17 +141,18 @@
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <app-input-field
-          class="sm:col-span-2"
-          inputId="business-unit-image-url"
-          label="URL de la imagen"
-          type="url"
-          [value]="imagenUrl()"
-          (valueChange)="updateImageUrl($event)"
-          placeholder="https://..."
-          helperText="Fotografía o logotipo principal (JPG, WebP, PNG)."
-          [disabled]="submitting()"
-        />
+        <div class="sm:col-span-2 space-y-2">
+          <label class="form-label mb-0">Imagen representativa o logotipo</label>
+          <p class="text-caption text-text-muted mb-2">
+            Fotografía o logotipo principal (JPG, WebP, PNG).
+          </p>
+          <app-image-uploader
+            folder="isanorte/unidades"
+            [ngModel]="imagenUrl()"
+            (ngModelChange)="updateImageUrl($event)"
+            name="businessUnitImage"
+          />
+        </div>
 
         <app-input-field
           class="sm:col-span-2"
@@ -162,31 +163,6 @@
           [disabled]="submitting()"
         />
       </div>
-
-      @if (imagenUrl().trim()) {
-        <div class="space-y-2 pt-1" aria-live="polite">
-          <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
-            Vista previa
-          </span>
-          @if (previewFailed()) {
-            <div
-              class="flex min-h-28 items-center justify-center rounded-xl border border-dashed border-border bg-surface-soft p-4 text-center text-body-sm text-text-muted"
-              role="status"
-            >
-              No se pudo mostrar la imagen. La URL todavía puede guardarse.
-            </div>
-          } @else {
-            <div class="overflow-hidden rounded-xl border border-border bg-surface-soft max-w-sm">
-              <img
-                class="h-40 w-full object-cover"
-                [src]="imagenUrl()"
-                alt="Vista previa de la imagen de la unidad"
-                (error)="markPreviewFailed()"
-              />
-            </div>
-          }
-        </div>
-      }
     </div>
 
     <!-- 4. Publicación y Visibilidad -->

@@ -90,16 +90,18 @@
       </div>
 
       <div class="space-y-4">
-        <app-input-field
-          inputId="service-image-url"
-          label="URL de la imagen"
-          type="url"
-          [value]="imagenUrl()"
-          (valueChange)="updateImageUrl($event)"
-          placeholder="https://ejemplo.com/servicio-civil.jpg"
-          helperText="Enlace público de la imagen (JPG, WebP, PNG)."
-          [disabled]="submitting()"
-        />
+        <div class="space-y-2">
+          <label class="form-label mb-0">Imagen representativa</label>
+          <p class="text-caption text-text-muted mb-2">
+            Enlace público de la imagen (JPG, WebP, PNG).
+          </p>
+          <app-image-uploader
+            folder="isanorte/servicios"
+            [ngModel]="imagenUrl()"
+            (ngModelChange)="updateImageUrl($event)"
+            name="serviceImage"
+          />
+        </div>
 
         <app-input-field
           inputId="service-image-alt"
@@ -109,26 +111,6 @@
           helperText="Requerido para posicionamiento SEO y lectores de pantalla accesibles."
           [disabled]="submitting()"
         />
-
-        @if (imagenUrl().trim()) {
-        <div class="space-y-2 pt-2" aria-live="polite">
-          <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
-            Vista previa de la fotografía
-          </span>
-          @if (previewFailed()) {
-          <div
-            class="flex min-h-28 items-center justify-center rounded-card border border-dashed border-error/50 bg-error/5 p-4 text-center text-body-sm text-error"
-            role="status">
-            No se pudo previsualizar la imagen. La URL todavía puede guardarse.
-          </div>
-          } @else {
-          <div class="overflow-hidden rounded-card border border-border bg-surface-soft">
-            <img class="h-44 w-full object-cover" [src]="imagenUrl()" alt="Vista previa de la imagen del servicio"
-              (error)="markPreviewFailed()" />
-          </div>
-          }
-        </div>
-        }
       </div>
     </fieldset>
 

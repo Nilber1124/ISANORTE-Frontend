@@ -11,6 +11,8 @@ import {
 import { ServiceCreateRequest } from '../../../../../data/models/service/service-create-request.model';
 import { ServiceResponse } from '../../../../../data/models/service/service-response.model';
 import { ServiceUpdateRequest } from '../../../../../data/models/service/service-update-request.model';
+import { FormsModule } from '@angular/forms';
+import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { Alert } from '../../../../../shared/components/alert/alert';
 import { Badge } from '../../../../../shared/components/badge/badge';
 import { Button } from '../../../../../shared/components/button/button';
@@ -33,7 +35,7 @@ interface ServiceFormErrors {
 
 @Component({
   selector: 'app-service-form',
-  imports: [Alert, Button, InputField, Modal, TextareaField],
+  imports: [Alert, Button, InputField, Modal, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './service-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

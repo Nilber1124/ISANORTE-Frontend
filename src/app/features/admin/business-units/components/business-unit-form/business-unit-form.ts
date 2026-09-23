@@ -11,6 +11,8 @@ import { BusinessUnitCreateRequest } from '../../../../../data/models/business-u
 import { BusinessUnitResponse } from '../../../../../data/models/business-unit/business-unit-response.model';
 import { BusinessUnitUpdateRequest } from '../../../../../data/models/business-unit/business-unit-update-request.model';
 import { CompanyResponse } from '../../../../../data/models/company/company-response.model';
+import { FormsModule } from '@angular/forms';
+import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { Alert } from '../../../../../shared/components/alert/alert';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
@@ -35,7 +37,7 @@ interface FormErrors {
 
 @Component({
   selector: 'app-business-unit-form',
-  imports: [Alert, Button, InputField, Modal, SelectField, TextareaField],
+  imports: [Alert, Button, InputField, Modal, SelectField, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './business-unit-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -80,41 +80,18 @@
         Fotografía Representativa
       </div>
 
-      <app-input-field
-        inputId="category-image-url"
-        label="URL de la imagen"
-        type="url"
-        [value]="imagenUrl()"
-        (valueChange)="updateImageUrl($event)"
-        placeholder="https://..."
-        helperText="Fotografía de cabecera o banner de la categoría (JPG, WebP, PNG)."
-        [disabled]="submitting()"
-      />
-
-      @if (imagenUrl().trim()) {
-        <div class="space-y-2 pt-1" aria-live="polite">
-          <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
-            Vista previa
-          </span>
-          @if (previewFailed()) {
-            <div
-              class="flex min-h-24 items-center justify-center rounded-xl border border-dashed border-error/50 bg-error/5 p-4 text-center text-body-sm text-error"
-              role="status"
-            >
-              No se pudo previsualizar la imagen. La URL todavía puede guardarse.
-            </div>
-          } @else {
-            <div class="overflow-hidden rounded-xl border border-border bg-surface-soft max-w-sm">
-              <img
-                class="h-36 w-full object-cover"
-                [src]="imagenUrl()"
-                alt="Vista previa de la categoría"
-                (error)="markPreviewFailed()"
-              />
-            </div>
-          }
-        </div>
-      }
+      <div class="space-y-2">
+        <label class="form-label mb-0">Imagen representativa</label>
+        <p class="text-caption text-text-muted mb-2">
+          Fotografía de cabecera o banner de la categoría.
+        </p>
+        <app-image-uploader
+          folder="isanorte/categorias"
+          [ngModel]="imagenUrl()"
+          (ngModelChange)="updateImageUrl($event)"
+          name="categoryImage"
+        />
+      </div>
     </div>
 
     <!-- 3. Jerarquía y Publicación -->

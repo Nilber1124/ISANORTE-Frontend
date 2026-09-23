@@ -12,6 +12,8 @@ import { BusinessUnitResponse } from '../../../../../data/models/business-unit/b
 import { CategoryCreateRequest } from '../../../../../data/models/category/category-create-request.model';
 import { CategoryResponse } from '../../../../../data/models/category/category-response.model';
 import { CategoryUpdateRequest } from '../../../../../data/models/category/category-update-request.model';
+import { FormsModule } from '@angular/forms';
+import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { Alert } from '../../../../../shared/components/alert/alert';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
@@ -36,7 +38,7 @@ interface CategoryFormErrors {
 
 @Component({
   selector: 'app-category-form',
-  imports: [Alert, Button, InputField, Modal, SelectField, TextareaField],
+  imports: [Alert, Button, InputField, Modal, SelectField, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './category-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
