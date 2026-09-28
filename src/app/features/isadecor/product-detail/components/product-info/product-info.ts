@@ -24,6 +24,11 @@ export class ProductInfo {
   readonly product = input.required<PublicProductDetailResponse>();
   readonly quantityChange = output<number | null>();
 
+  protected readonly categoryName = computed(() => {
+    const categories = this.product().categorias;
+    return categories && categories.length > 0 ? categories[0].nombre : null;
+  });
+
   protected readonly calculationConfig = computed<PublicProductCalculationResponse>(() => {
     const config = this.product().configuracionCalculo;
     if (config && config.habilitada !== false) {

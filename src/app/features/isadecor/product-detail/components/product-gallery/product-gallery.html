@@ -1,10 +1,10 @@
 <section aria-label="Galería del producto">
   <div
-    class="aspect-[4/3] overflow-hidden rounded-panel border border-border bg-background-muted shadow-card"
+    class="aspect-[4/3] overflow-hidden rounded-panel border border-border/60 bg-surface-soft/40 shadow-soft"
   >
     @if (mainImage(); as image) {
       <img
-        class="h-full w-full object-cover"
+        class="h-full w-full object-cover transition-transform duration-entry hover:scale-[1.02]"
         [src]="image.url"
         [alt]="imageAlt(image)"
         width="960"
@@ -38,9 +38,13 @@
       @for (image of availableImages(); track image.url; let index = $index) {
         <button
           type="button"
-          class="aspect-square min-w-0 overflow-hidden rounded-control border bg-surface transition-[border-color,box-shadow] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          [class.border-accent]="mainImage()?.url === image.url"
-          [class.border-border]="mainImage()?.url !== image.url"
+          class="aspect-square min-w-0 overflow-hidden rounded-control border bg-surface transition-[border-color,box-shadow,opacity] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          [class.border-text-primary]="mainImage()?.url === image.url"
+          [class.ring-1]="mainImage()?.url === image.url"
+          [class.ring-text-primary]="mainImage()?.url === image.url"
+          [class.border-border/60]="mainImage()?.url !== image.url"
+          [class.opacity-70]="mainImage()?.url !== image.url"
+          [class.hover:opacity-100]="mainImage()?.url !== image.url"
           [attr.aria-label]="'Ver imagen ' + (index + 1) + ' de ' + productName()"
           [attr.aria-pressed]="mainImage()?.url === image.url"
           (click)="selectImage(image.url)"

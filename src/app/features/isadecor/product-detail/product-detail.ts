@@ -12,7 +12,6 @@ import {
 } from '../../../data/models/public-content/public-product-detail.model';
 import { Badge, BadgeVariant } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
-import { Card } from '../../../shared/components/card/card';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../shared/components/loading/loading';
 import { ProductGallery } from './components/product-gallery/product-gallery';
@@ -31,7 +30,6 @@ interface VariantAvailabilityPresentation {
   imports: [
     Badge,
     Button,
-    Card,
     DecimalPipe,
     EmptyState,
     Loading,
