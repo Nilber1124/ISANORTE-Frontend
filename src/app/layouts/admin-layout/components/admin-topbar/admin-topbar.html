@@ -61,7 +61,14 @@
 
     <div class="hidden border-l border-border pl-4 sm:block">
       <p class="text-body-sm font-semibold text-text-primary">Administrador</p>
-      <p class="text-caption text-text-muted">Acceso sin autenticación</p>
+      <p class="max-w-48 truncate text-caption text-text-muted">{{ auth.user()?.email }}</p>
     </div>
+    <button
+      type="button"
+      class="inline-flex min-h-10 items-center rounded-control border border-border px-3 text-body-sm font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      (click)="logout()"
+    >
+      Cerrar sesión
+    </button>
   </div>
 </header>

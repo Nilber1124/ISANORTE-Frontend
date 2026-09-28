@@ -43,7 +43,11 @@ export const serverRoutes: ServerRoute[] = [
   },
   {
     path: 'admin/**',
-    renderMode: RenderMode.Prerender,
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'acceso-interno',
+    renderMode: RenderMode.Client,
   },
   {
     path: '**',

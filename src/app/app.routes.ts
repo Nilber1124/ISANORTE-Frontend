@@ -11,10 +11,19 @@ import { Projects } from './features/isanorte/projects/projects';
 import { Services } from './features/isanorte/services/services';
 import { IsadecorLayout } from './layouts/isadecor-layout/isadecor-layout';
 import { PublicLayout } from './layouts/public-layout/public-layout';
+import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'acceso-interno',
+    loadComponent: () =>
+      import('./features/auth/internal-access/internal-access').then(
+        ({ InternalAccess }) => InternalAccess,
+      ),
+  },
+  {
     path: 'admin',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./layouts/admin-layout/admin-layout').then(({ AdminLayout }) => AdminLayout),
     children: [
