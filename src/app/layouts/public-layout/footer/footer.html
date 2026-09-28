@@ -1,5 +1,5 @@
 <footer class="bg-brand text-white pt-20 pb-8 border-t-[4px] border-accent">
-  <div class="app-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+  <div class="app-container mb-16 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
     <div class="pr-4">
       <div class="flex items-center gap-3 mb-6">
         @if (facade.brandLogoWhite() || facade.brandLogo(); as logoUrl) {
@@ -74,7 +74,7 @@
       </ul>
     </div>
 
-    @if (facade.hasContactDetails()) {
+    @if (facade.contactEmails().length > 0 || facade.contactPhones().length > 0) {
       <div>
         <h4 class="text-eyebrow text-text-muted mb-6">{{ 'Contacto' | uppercase }}</h4>
         <ul class="space-y-4 text-body-sm text-text-secondary">
@@ -118,39 +118,18 @@
               <a [href]="'tel:' + phone" class="hover:text-accent transition-colors">{{ phone }}</a>
             </li>
           }
-          @if (facade.address() || facade.city()) {
-            <li class="flex items-start gap-3">
-              <svg
-                class="size-5 text-accent shrink-0 mt-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                ></path>
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                ></path>
-              </svg>
-              <span>
-                @if (facade.address(); as address) {
-                  <span class="block">{{ address }}</span>
-                }
-                @if (facade.city(); as city) {
-                  <span class="block">{{ city }}</span>
-                }
-              </span>
-            </li>
-          }
         </ul>
+      </div>
+    }
+
+    @if (direccionIsanorte(); as direccion) {
+      <div class="min-w-0">
+        <h4 class="mb-6 text-eyebrow text-text-muted">{{ 'Ubicación' | uppercase }}</h4>
+        <app-location-map
+          [direccion]="direccion"
+          [mapEmbedUrl]="mapEmbedUrlIsanorte()"
+          [mapUrl]="mapUrlIsanorte()"
+        />
       </div>
     }
   </div>

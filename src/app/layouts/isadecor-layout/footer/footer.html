@@ -1,5 +1,5 @@
 <footer data-theme="dark" class="isadecor-shell border-t-4 border-accent bg-background-deep pb-8 pt-16 text-white">
-  <div class="app-container grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3">
+  <div class="app-container grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
     <div class="pr-4">
       <div class="flex items-center gap-3">
         <img
@@ -28,7 +28,7 @@
       </ul>
     </div>
 
-    @if (facade.hasContactDetails()) {
+    @if (facade.contactEmails().length > 0 || facade.contactPhones().length > 0) {
       <div>
         <h4 class="mb-6 text-eyebrow uppercase text-text-muted">Contacto</h4>
         <ul class="space-y-4 text-body-sm text-text-secondary">
@@ -60,35 +60,18 @@
               <a [href]="'tel:' + phone" class="transition-colors duration-normal hover:text-accent">{{ phone }}</a>
             </li>
           }
-          @if (facade.address() || facade.city()) {
-            <li class="flex items-start gap-3">
-              <svg class="mt-0.5 size-5 shrink-0 text-accent" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              <span>
-                @if (facade.address(); as address) {
-                  <span class="block">{{ address }}</span>
-                }
-                @if (facade.city(); as city) {
-                  <span class="block">{{ city }}</span>
-                }
-              </span>
-            </li>
-          }
         </ul>
+      </div>
+    }
+
+    @if (direccionIsadecor(); as direccion) {
+      <div class="min-w-0">
+        <h4 class="mb-6 text-eyebrow uppercase text-text-muted">Ubicación</h4>
+        <app-location-map
+          [direccion]="direccion"
+          [mapEmbedUrl]="mapEmbedUrlIsadecor()"
+          [mapUrl]="mapUrlIsadecor()"
+        />
       </div>
     }
   </div>
