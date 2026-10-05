@@ -114,7 +114,11 @@
                     </li>
                   } @empty {
                     <li class="px-3.5 py-3 text-caption text-white/50 text-center">
-                      Cargando categorías...
+                      @if (loadingCategories()) {
+                        Cargando categorías...
+                      } @else {
+                        No hay categorías disponibles
+                      }
                     </li>
                   }
                 </ul>
@@ -270,7 +274,13 @@
                     </a>
                   </li>
                 } @empty {
-                  <li class="px-2.5 py-1.5 text-caption text-white/50">Cargando categorías...</li>
+                  <li class="px-2.5 py-1.5 text-caption text-white/50">
+                    @if (loadingCategories()) {
+                      Cargando categorías...
+                    } @else {
+                      No hay categorías disponibles
+                    }
+                  </li>
                 }
               </ul>
             }

@@ -45,14 +45,14 @@ describe('IsadecorLayout', () => {
     expect(siteRequest.request.method).toBe('GET');
     siteRequest.flush(mockSite);
 
-    const categoriesRequest = http.expectOne('/api/categorias/activas');
+    const categoriesRequest = http.expectOne('/api/publico/sitios/isanorte/unidades/isadecor/catalogo');
     expect(categoriesRequest.request.method).toBe('GET');
-    categoriesRequest.flush([]);
+    categoriesRequest.flush({ unidad: { nombre: 'ISADECOR', slug: 'isadecor' }, categorias: [], productos: [] });
 
     fixture.detectChanges();
 
     http.expectNone('/api/publico/sitios/isanorte');
-    http.expectNone('/api/categorias/activas');
+    http.expectNone('/api/publico/sitios/isanorte/unidades/isadecor/catalogo');
     http.verify();
 
     const compiled = fixture.nativeElement as HTMLElement;

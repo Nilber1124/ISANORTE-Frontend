@@ -3,55 +3,25 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
-import { CategoryResponse } from '../../../data/models/category/category-response.model';
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
+import { PublicProductCatalogResponse } from '../../../data/models/public-content/public-product-catalog.model';
 import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { Navbar } from './navbar';
 
-const mockCategories: CategoryResponse[] = [
-  {
-    id: 'cat-2',
-    nombre: 'Pisos',
-    slug: 'pisos',
-    descripcion: null,
-    imagenUrl: null,
-    activo: true,
-    orden: 2,
-    unidadNegocio: { id: 'u-1', nombre: 'ISADECOR', slug: 'isadecor' },
-    fechaCreacion: null,
-    fechaActualizacion: null,
-  },
-  {
-    id: 'cat-1',
-    nombre: 'Wall Panels',
-    slug: 'wall-panels',
-    descripcion: null,
-    imagenUrl: null,
-    activo: true,
-    orden: 1,
-    unidadNegocio: { id: 'u-1', nombre: 'ISADECOR', slug: 'isadecor' },
-    fechaCreacion: null,
-    fechaActualizacion: null,
-  },
-  {
-    id: 'cat-other',
-    nombre: 'Servicios de Construcción',
-    slug: 'servicios-construccion',
-    descripcion: null,
-    imagenUrl: null,
-    activo: true,
-    orden: 3,
-    unidadNegocio: { id: 'u-2', nombre: 'ISANORTE', slug: 'isanorte' },
-    fechaCreacion: null,
-    fechaActualizacion: null,
-  },
-];
+const mockCatalog: PublicProductCatalogResponse = {
+  unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
+  categorias: [
+    { nombre: 'Wall Panels', slug: 'wall-panels' },
+    { nombre: 'Pisos', slug: 'pisos' },
+  ],
+  productos: [],
+};
 
 describe('Isadecor Navbar', () => {
   afterEach(() => localStorage.clear());
 
-  it('loads and filters active categories for ISADECOR automatically', () => {
+  it('loads and maps active categories for ISADECOR automatically from public catalog', () => {
     TestBed.configureTestingModule({
       imports: [Navbar],
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
@@ -63,18 +33,43 @@ describe('Isadecor Navbar', () => {
 
     component.loadCategories();
 
-    const req = http.expectOne('/api/categorias/activas');
+    const req = http.expectOne('/api/publico/sitios/isanorte/unidades/isadecor/catalogo');
     expect(req.request.method).toBe('GET');
-    req.flush(mockCategories);
+    req.flush(mockCatalog);
 
     expect(component.dynamicCategories().length).toBe(2);
     expect(component.dynamicCategories()[0].label).toBe('Wall Panels');
     expect(component.dynamicCategories()[0].queryParams).toEqual({ categoria: 'wall-panels' });
     expect(component.dynamicCategories()[1].label).toBe('Pisos');
     expect(component.dynamicCategories()[1].queryParams).toEqual({ categoria: 'pisos' });
+    expect(component.loadingCategories()).toBe(false);
 
     const productsLink = component.links().find((link) => link.label === 'Productos');
     expect(productsLink?.children?.length).toBe(2);
+  });
+
+  it('handles load failure cleanly without remaining in infinite loading state', () => {
+    TestBed.configureTestingModule({
+      imports: [Navbar],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+    });
+
+    const fixture = TestBed.createComponent(Navbar);
+    const component = fixture.componentInstance;
+    const http = TestBed.inject(HttpTestingController);
+
+    fixture.detectChanges();
+
+    const req = http.expectOne('/api/publico/sitios/isanorte/unidades/isadecor/catalogo');
+    req.flush('Server Error', { status: 500, statusText: 'Server Error' });
+    fixture.detectChanges();
+
+    expect(component.dynamicCategories().length).toBe(0);
+    expect(component.loadingCategories()).toBe(false);
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).not.toContain('Cargando categorías...');
+    expect(element.textContent).toContain('No hay categorías disponibles');
   });
 
   it('manages products dropdown open and close states', () => {
