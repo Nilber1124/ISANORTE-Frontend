@@ -3,43 +3,43 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 export const serverRoutes: ServerRoute[] = [
   {
     path: '',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Prerender,
   },
   {
     path: 'nosotros',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Prerender,
   },
   {
     path: 'servicios',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Prerender,
   },
   {
     path: 'proyectos',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Prerender,
   },
   {
     path: 'contacto',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Prerender,
   },
   {
     path: 'isadecor',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Prerender,
   },
   {
     path: 'isadecor/catalogo',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Prerender,
   },
   {
     path: 'isadecor/carrito',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Prerender,
   },
   {
     path: 'isadecor/cotizacion',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Prerender,
   },
   {
     path: 'isadecor/productos/:slug',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Client,
   },
   {
     path: 'admin/**',
