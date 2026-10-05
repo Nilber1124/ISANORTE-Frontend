@@ -1,59 +1,80 @@
-# ISANORTEFRONTEND
+# ISANORTE Frontend (Angular)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.8.
+Este es el proyecto frontend para la plataforma de ISANORTE, desarrollado con **Angular 22** y estilizado con **Tailwind CSS**. Este documento detalla cómo configurar tu entorno de desarrollo, instalar las dependencias y arrancar el servidor local.
 
-## Development server
+## 🛠️ Requisitos Previos
 
-To start a local development server, run:
+Asegúrate de tener instalados los siguientes programas en tu computadora:
 
+1. **Node.js**: Versión 18 o superior (se recomienda la versión 20 LTS o superior).
+2. **NPM**: Viene incluido por defecto al instalar Node.js.
+
+Puedes verificar tus versiones instaladas ejecutando:
 ```bash
-ng serve
+node -v
+npm -v
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## ⚙️ Instalación y Configuración Inicial
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### 1. Instalar dependencias
+Clona este repositorio o navega hasta la carpeta raíz del proyecto frontend (`ISANORTE-Frontend`). Abre una terminal y ejecuta el siguiente comando para descargar todos los paquetes necesarios de Angular y herramientas como Tailwind:
 
 ```bash
-ng generate --help
+npm install
 ```
 
-## Building
+### 2. Variables de Entorno y Configuración de API
+Este proyecto está configurado para consumir datos desde el backend (por defecto en `http://localhost:8080`).
 
-To build the project run:
+Si observas el archivo `package.json`, notarás que el script de inicio (`npm start`) automáticamente incluye la variable `BACKEND_ORIGIN=http://localhost:8080`. **No es necesario modificar nada adicional** para conectarte a tu servidor Spring Boot en el entorno local, siempre y cuando este último esté corriendo en el puerto 8080.
+
+Si tuvieras que cambiar la URL del backend en producción o en otro entorno, puedes sobrescribir esta variable o modificar el script correspondiente.
+
+---
+
+## 🚀 Ejecución en Desarrollo
+
+Para arrancar el proyecto en modo desarrollo y previsualizarlo en tu navegador, asegúrate de que el Backend (`constructora-api`) ya esté ejecutándose y luego corre:
 
 ```bash
-ng build
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+*Nota: Este comando utiliza `cross-env` para establecer de forma segura las variables de entorno en cualquier sistema operativo (Windows, Linux, o Mac).*
 
-## Running unit tests
+Una vez termine de compilar (verás un mensaje indicando el éxito), abre tu navegador web y visita:
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+👉 **[http://localhost:4200/](http://localhost:4200/)**
+
+La aplicación detectará cualquier cambio que hagas en los archivos fuente (`.ts`, `.html`, `.css`) y recargará la pestaña del navegador automáticamente.
+
+---
+
+## 🏗️ Construcción para Producción
+
+Cuando estés listo para desplegar tu aplicación frontend en un servidor público, compila el proyecto ejecutando:
 
 ```bash
-ng test
+npm run build
 ```
 
-## Running end-to-end tests
+Esto generará los artefactos finales (optimizados y minificados) dentro de la carpeta `dist/ISANORTE-FRONTEND/`. Estos archivos están listos para subirse a cualquier servidor web.
 
-For end-to-end (e2e) testing, run:
+Si también necesitas ejecutar el entorno Server-Side Rendering (SSR) incluido en Angular 22, puedes usar:
 
 ```bash
-ng e2e
+npm run serve:ssr:ISANORTE-FRONTEND
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+---
 
-## Additional Resources
+## 📁 Estructura Principal del Proyecto
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- `src/app/core/`: Configuraciones críticas, interceptores HTTP, tokens y servicios globales.
+- `src/app/data/`: Modelos (DTOs) y servicios de comunicación (APIs) con el backend.
+- `src/app/features/`: Módulos y componentes principales de las páginas (Ej: administrador, paneles, vistas de usuario).
+- `src/app/shared/`: Componentes reutilizables, UI genérica (botones, modales, subida de imágenes con drag & drop) y utilidades.
+- `src/styles.css` / `index.css`: Archivos maestros de estilos globales con Tailwind CSS.

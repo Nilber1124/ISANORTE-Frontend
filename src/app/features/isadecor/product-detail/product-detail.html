@@ -1,0 +1,391 @@
+<main class="min-h-[70vh] bg-background">
+  <div class="app-container py-8 sm:py-10 lg:py-14">
+    <!-- Breadcrumbs -->
+    <nav aria-label="Migas de pan" class="mb-8 lg:mb-12">
+      <ol class="flex flex-wrap items-center gap-2 text-body-sm text-text-muted">
+        <li>
+          <a
+            routerLink="/isadecor/catalogo"
+            class="transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-xs"
+          >
+            Catálogo
+          </a>
+        </li>
+        <li aria-hidden="true" class="text-border-strong">/</li>
+        <li class="max-w-full truncate text-text-secondary" aria-current="page">
+          {{ facade.product()?.nombre || 'Detalle de producto' }}
+        </li>
+      </ol>
+    </nav>
+
+    @if (facade.loading()) {
+      <div class="rounded-panel border border-border/60 bg-surface/50 py-24">
+        <app-loading label="Cargando detalle del producto" size="large" />
+      </div>
+    } @else if (facade.error()) {
+      <div class="mx-auto max-w-3xl py-12">
+        <app-empty-state
+          emptyStateId="product-detail-error"
+          [title]="facade.notFound() ? 'Producto no encontrado' : 'No pudimos cargar el producto'"
+          [description]="facade.error()!"
+        >
+          <app-button empty-state-actions variant="secondary" href="/isadecor/catalogo">
+            Volver al catálogo
+          </app-button>
+        </app-empty-state>
+      </div>
+    } @else if (facade.product(); as product) {
+      <!-- Product Presentation Hero Grid -->
+      <div
+        class="grid items-start gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)] lg:gap-16 xl:gap-20"
+      >
+        <!-- Left: Image Gallery (Sticky on desktop) -->
+        <div class="lg:sticky lg:top-28">
+          <app-product-gallery [images]="product.imagenes" [productName]="product.nombre" />
+        </div>
+
+        <!-- Right: Info, Calculator, Variants & Purchasing Actions -->
+        <app-product-info [product]="product" (quantityChange)="useCalculatedQuantity($event)">
+          <!-- Variants Selection -->
+          <div slot="variants">
+            @if (facade.variants().length > 0) {
+              <div class="mt-8 border-t border-border/60 pt-6">
+                <div class="flex items-center justify-between mb-4">
+                  <h2
+                    id="product-variants-title"
+                    class="text-body-sm font-semibold uppercase tracking-wider text-text-primary"
+                  >
+                    Acabados y dimensiones
+                  </h2>
+                  <span class="text-caption text-text-muted">
+                    {{ facade.variants().length + 1 }} opciones
+                  </span>
+                </div>
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <!-- Standard Product Option -->
+                  <button
+                    type="button"
+                    class="group relative flex flex-col justify-between rounded-control border p-3.5 text-left transition-[border-color,background-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                    [class.border-text-primary]="selectedVariant() === null"
+                    [class.bg-surface]="selectedVariant() === null"
+                    [class.shadow-xs]="selectedVariant() === null"
+                    [class.border-border/70]="selectedVariant() !== null"
+                    [class.bg-surface-soft/40]="selectedVariant() !== null"
+                    [class.hover:border-border-strong]="selectedVariant() !== null"
+                    [attr.aria-pressed]="selectedVariant() === null"
+                    (click)="selectVariant(null)"
+                  >
+                    <div>
+                      <p class="text-[11px] font-mono font-medium uppercase tracking-wider text-text-muted">Estándar</p>
+                      <p class="mt-1 text-body-sm font-medium text-text-primary line-clamp-2">Producto base</p>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between border-t border-border/40 pt-2">
+                      <span class="text-caption font-semibold text-text-primary">
+                        @if (product.precioBase !== null) {
+                          S/ {{ product.precioBase | number: '1.2-2' }}
+                        } @else {
+                          Consultar
+                        }
+                      </span>
+                      @if (selectedVariant() === null) {
+                        <span class="size-1.5 rounded-full bg-text-primary" aria-hidden="true"></span>
+                      }
+                    </div>
+                  </button>
+
+                  <!-- Dynamic Variants from Backend -->
+                  @for (variant of facade.variants(); track variant.sku) {
+                    <button
+                      type="button"
+                      class="group relative flex flex-col justify-between rounded-control border p-3.5 text-left transition-[border-color,background-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-40"
+                      [class.border-text-primary]="selectedVariant()?.sku === variant.sku"
+                      [class.bg-surface]="selectedVariant()?.sku === variant.sku"
+                      [class.shadow-xs]="selectedVariant()?.sku === variant.sku"
+                      [class.border-border/70]="selectedVariant()?.sku !== variant.sku"
+                      [class.bg-surface-soft/40]="selectedVariant()?.sku !== variant.sku"
+                      [class.hover:border-border-strong]="selectedVariant()?.sku !== variant.sku"
+                      [attr.aria-pressed]="selectedVariant()?.sku === variant.sku"
+                      [disabled]="variant.disponible === false"
+                      (click)="selectVariant(variant)"
+                    >
+                      <div>
+                        <div class="flex items-center justify-between gap-1">
+                          <p class="text-[11px] font-mono font-medium uppercase tracking-wider text-text-muted">
+                            {{ variant.sku }}
+                          </p>
+                          @if (variant.disponible === false) {
+                            <span class="text-[10px] font-semibold text-error uppercase">Agotado</span>
+                          }
+                        </div>
+                        <p class="mt-1 text-body-sm font-medium text-text-primary line-clamp-2">
+                          {{ variant.nombre }}
+                        </p>
+                      </div>
+                      <div class="mt-3 flex items-center justify-between border-t border-border/40 pt-2">
+                        <span class="text-caption font-semibold text-text-primary">
+                          @if (variant.precio !== null) {
+                            S/ {{ variant.precio | number: '1.2-2' }}
+                          } @else {
+                            Consultar
+                          }
+                        </span>
+                        @if (selectedVariant()?.sku === variant.sku) {
+                          <span class="size-1.5 rounded-full bg-text-primary" aria-hidden="true"></span>
+                        }
+                      </div>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Actions / Cart / Quote Request -->
+          <div slot="actions" class="flex flex-col gap-3.5">
+            @if (cartFeedback()) {
+              <div
+                class="rounded-control border border-success/30 bg-success/10 px-4 py-3 text-body-sm text-text-primary flex items-center justify-between gap-2"
+                role="status"
+                aria-live="polite"
+              >
+                <span>{{ cartFeedback() }}</span>
+                <a
+                  routerLink="/isadecor/carrito"
+                  class="shrink-0 font-semibold text-accent-strong underline underline-offset-4 hover:opacity-85"
+                >
+                  Ver carrito →
+                </a>
+              </div>
+            }
+
+            @if (product.disponibilidad === 'AGOTADO') {
+              <button
+                type="button"
+                class="w-full rounded-control bg-surface-hover px-6 py-4 text-body font-medium text-text-muted cursor-not-allowed text-center border border-border"
+                disabled
+              >
+                Producto temporalmente agotado
+              </button>
+            } @else {
+              <div class="flex items-center gap-3">
+                <div class="w-32 shrink-0">
+                  <label for="cart-product-quantity" class="sr-only">Cantidad de piezas</label>
+                  <input
+                    id="cart-product-quantity"
+                    class="form-control text-center py-3 text-body font-medium rounded-control border-border bg-background shadow-xs focus:ring-accent"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    step="1"
+                    [value]="cartQuantity()"
+                    (change)="updateCartQuantity($event)"
+                    aria-label="Cantidad de unidades a cotizar o comprar"
+                  />
+                </div>
+                <app-button
+                  variant="primary"
+                  size="large"
+                  class="flex-1"
+                  (click)="addToCart(product)"
+                >
+                  Agregar al carrito
+                </app-button>
+              </div>
+              <app-button
+                variant="secondary"
+                size="large"
+                class="w-full"
+                [routerLink]="['/isadecor/cotizacion']"
+                [queryParams]="quoteQueryParams(product.slug)"
+              >
+                Solicitar cotización
+              </app-button>
+            }
+          </div>
+        </app-product-info>
+      </div>
+
+      <!-- Architectural Tabs: Narrative, Specifications & Downloads -->
+      <section
+        class="mt-20 lg:mt-28 border-t border-border/60 pt-10 lg:pt-14"
+        aria-label="Información técnica y descriptiva"
+      >
+        <!-- Minimalist Tab Header (No heavy boxes) -->
+        <div class="flex items-center gap-8 border-b border-border/60 pb-px mb-10 overflow-x-auto">
+          <button
+            type="button"
+            class="relative pb-3 text-body-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            [class.text-text-primary]="activeTab() === 'descripcion'"
+            [class.text-text-muted]="activeTab() !== 'descripcion'"
+            [class.hover:text-text-primary]="activeTab() !== 'descripcion'"
+            (click)="activeTab.set('descripcion')"
+          >
+            Descripción
+            @if (activeTab() === 'descripcion') {
+              <span class="absolute inset-x-0 bottom-0 h-0.5 bg-text-primary" aria-hidden="true"></span>
+            }
+          </button>
+
+          <button
+            type="button"
+            class="relative pb-3 text-body-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus flex items-center gap-2"
+            [class.text-text-primary]="activeTab() === 'especificaciones'"
+            [class.text-text-muted]="activeTab() !== 'especificaciones'"
+            [class.hover:text-text-primary]="activeTab() !== 'especificaciones'"
+            (click)="activeTab.set('especificaciones')"
+          >
+            Especificaciones técnicas
+            @if (facade.specificationGroups().length > 0) {
+              <span class="rounded-full bg-surface-soft px-2 py-0.5 text-[11px] font-mono text-text-muted border border-border/60">
+                {{ facade.specificationGroups().length }}
+              </span>
+            }
+            @if (activeTab() === 'especificaciones') {
+              <span class="absolute inset-x-0 bottom-0 h-0.5 bg-text-primary" aria-hidden="true"></span>
+            }
+          </button>
+
+          <button
+            type="button"
+            class="relative pb-3 text-body-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus flex items-center gap-2"
+            [class.text-text-primary]="activeTab() === 'recursos'"
+            [class.text-text-muted]="activeTab() !== 'recursos'"
+            [class.hover:text-text-primary]="activeTab() !== 'recursos'"
+            (click)="activeTab.set('recursos')"
+          >
+            Documentos y descargas
+            @if (facade.documents().length > 0) {
+              <span class="rounded-full bg-surface-soft px-2 py-0.5 text-[11px] font-mono text-text-muted border border-border/60">
+                {{ facade.documents().length }}
+              </span>
+            }
+            @if (activeTab() === 'recursos') {
+              <span class="absolute inset-x-0 bottom-0 h-0.5 bg-text-primary" aria-hidden="true"></span>
+            }
+          </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div>
+          <!-- Tab 1: Descripción Editorial -->
+          @if (activeTab() === 'descripcion') {
+            @if (product.descripcion.trim()) {
+              <div class="reading-container max-w-4xl animate-in fade-in duration-300">
+                <h2 class="sr-only">Descripción</h2>
+                <p class="product-description text-body-lg text-text-secondary leading-relaxed font-normal">
+                  {{ product.descripcion }}
+                </p>
+              </div>
+            } @else {
+              <div class="py-16 text-center text-text-muted">
+                <p class="text-body-sm">No hay descripción adicional registrada para este producto.</p>
+              </div>
+            }
+          }
+
+          <!-- Tab 2: Fichas Técnicas / Especificaciones -->
+          @if (activeTab() === 'especificaciones') {
+            @if (facade.specificationGroups().length > 0) {
+              <div class="grid gap-12 lg:grid-cols-2 animate-in fade-in duration-300">
+                <h2 class="sr-only">Especificaciones técnicas</h2>
+                @for (group of facade.specificationGroups(); track group.name) {
+                  <div>
+                    <h3 class="text-heading-4 font-semibold text-text-primary tracking-tight pb-3">
+                      {{ group.name }}
+                    </h3>
+                    <dl class="divide-y divide-border/60 border-t border-b border-border/60">
+                      @for (specification of group.specifications; track specification.clave) {
+                        <div class="grid grid-cols-[minmax(8rem,1fr)_minmax(0,1.5fr)] gap-4 py-3.5 sm:gap-6">
+                          <dt class="text-body-sm font-medium text-text-muted">
+                            {{ specification.clave }}
+                          </dt>
+                          <dd class="text-body-sm font-medium text-text-primary break-words">
+                            {{ specification.valor }}
+                          </dd>
+                        </div>
+                      }
+                    </dl>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="py-16 text-center text-text-muted">
+                <p class="text-body-sm">No hay especificaciones técnicas registradas.</p>
+              </div>
+            }
+          }
+
+          <!-- Tab 3: Recursos y Documentos -->
+          @if (activeTab() === 'recursos') {
+            @if (facade.documents().length > 0) {
+              <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 animate-in fade-in duration-300">
+                <h2 class="sr-only">Documentos y recursos técnicos</h2>
+                @for (document of facade.documents(); track document.url) {
+                  <div
+                    class="group flex flex-col justify-between rounded-panel border border-border/70 bg-surface p-6 transition-[border-color,box-shadow] hover:border-text-primary/50 hover:shadow-soft"
+                  >
+                    <div>
+                      <div class="flex items-center justify-between gap-2">
+                        <app-badge size="small">{{ documentTypeLabel(document.tipo) }}</app-badge>
+                        <svg class="size-5 text-text-muted group-hover:text-text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <h3 class="mt-4 text-heading-4 font-semibold text-text-primary leading-snug">
+                        {{ document.titulo }}
+                      </h3>
+                      @if (documentMetadata(document)) {
+                        <p class="mt-2 text-caption text-text-muted font-mono uppercase">
+                          {{ documentMetadata(document) }}
+                        </p>
+                      }
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-border/40">
+                      <app-button
+                        variant="secondary"
+                        size="small"
+                        class="w-full"
+                        [href]="document.url"
+                        target="_blank"
+                        [ariaLabel]="'Abrir ' + document.titulo + ' en una pestaña nueva'"
+                      >
+                        Abrir documento
+                      </app-button>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="py-16 text-center text-text-muted">
+                <p class="text-body-sm">No hay documentos ni recursos para descargar.</p>
+              </div>
+            }
+          }
+        </div>
+      </section>
+
+      <!-- Market Transparency & Price Verification Section -->
+      <section class="mt-20 lg:mt-28 border-t border-border/60 pt-6" aria-label="Comparativa de mercado y precios">
+        <app-product-competitor-comparison
+          [unitSlug]="facade.unitSlug"
+          [loading]="facade.competitorComparisonLoading()"
+          [result]="facade.competitorComparisonResult()"
+          [error]="facade.competitorComparisonError()"
+          (compare)="facade.compareCompetitors()"
+        />
+
+        <div class="mt-8">
+          <app-product-price-comparison
+            [unitSlug]="facade.unitSlug"
+            [loading]="facade.comparisonLoading()"
+            [result]="facade.comparisonResult()"
+            [error]="facade.comparisonError()"
+            (compare)="facade.comparePrice($event)"
+            (edited)="facade.clearComparison()"
+          />
+        </div>
+      </section>
+    }
+  </div>
+</main>

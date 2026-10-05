@@ -1,0 +1,9 @@
+<div class="cinematic-tour absolute inset-0 overflow-hidden" aria-hidden="true">
+    @for (scene of scenes(); track scene.id; let i = $index) {
+        <div #layer
+            class="cinematic-tour__layer absolute inset-0 bg-cover bg-center"
+            [class.opacity-100]="i === 0"
+            [class.opacity-0]="i !== 0"
+            [style.backgroundImage]="'url(' + scene.imageUrl + ')'"></div>
+    }
+</div>

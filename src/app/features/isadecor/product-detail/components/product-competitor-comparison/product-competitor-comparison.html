@@ -1,0 +1,116 @@
+<section
+  class="mt-14 border-t border-border pt-10 lg:mt-20 lg:pt-14"
+  aria-labelledby="competitor-comparison-title"
+  [attr.aria-busy]="loading()"
+>
+  <div class="mb-8 max-w-3xl">
+    <p class="mb-3 text-eyebrow uppercase text-text-muted">Consulta automática</p>
+    <h2 id="competitor-comparison-title" class="text-heading-2 text-text-primary">
+      Comparación con productos similares
+    </h2>
+    <p class="mt-4 text-body text-text-secondary">
+      Compara las características publicadas de productos similares disponibles en otras tiendas.
+    </p>
+  </div>
+
+  <app-card padding="large">
+    @if (!result() && !loading()) {
+      <app-button variant="accent" (click)="compare.emit()">Comparar con otras tiendas</app-button>
+    }
+
+    @if (loading()) {
+      <app-loading label="Buscando productos similares..." size="medium" />
+    }
+
+    @if (error(); as message) {
+      <app-alert variant="error" title="No se pudo realizar la búsqueda">
+        {{ message }}
+      </app-alert>
+      <div class="mt-5">
+        <app-button variant="secondary" (click)="compare.emit()">Intentar nuevamente</app-button>
+      </div>
+    }
+
+    @if (result(); as comparison) {
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[48rem] border-collapse text-left text-body-sm">
+          <thead>
+            <tr class="border-b border-border">
+              <th scope="col" class="p-4 font-semibold text-text-secondary">Característica</th>
+              <th scope="col" class="p-4 text-heading-4 text-text-primary">ISADECOR</th>
+              <th scope="col" class="p-4 text-heading-4 text-text-primary">PISOPAK</th>
+              <th scope="col" class="p-4 text-heading-4 text-text-primary">DECORPLAS</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            <tr>
+              <th scope="row" class="p-4 font-semibold text-text-secondary">Producto</th>
+              <td class="p-4 text-text-primary">{{ comparison.productoIsadecor.nombre }}</td>
+              @for (store of stores(); track $index) {
+                <td class="p-4 text-text-primary">{{ store?.nombreProducto ?? store?.mensaje ?? 'No disponible' }}</td>
+              }
+            </tr>
+            <tr>
+              <th scope="row" class="p-4 font-semibold text-text-secondary">Precio</th>
+              <td class="p-4 text-text-primary">
+                {{ price(comparison.productoIsadecor.precio, comparison.productoIsadecor.moneda, comparison.productoIsadecor.unidadPrecio) }}
+              </td>
+              @for (store of stores(); track $index) {
+                <td class="p-4 text-text-primary">
+                  {{ store?.encontrado ? price(store!.precio, store!.moneda, store!.unidadPrecio) : 'No disponible' }}
+                  @if (store?.encontrado && !store?.comparablePrecio) {
+                    <p class="mt-1 text-caption text-text-muted">Unidad no comparable</p>
+                  }
+                </td>
+              }
+            </tr>
+            @for (name of characteristicNames(); track name) {
+              <tr>
+                <th scope="row" class="p-4 font-semibold text-text-secondary">{{ name }}</th>
+                <td class="p-4 text-text-primary">{{ characteristic(comparison.productoIsadecor.caracteristicas, name) }}</td>
+                @for (store of stores(); track $index) {
+                  <td class="p-4 text-text-primary">{{ storeCharacteristic(store, name) }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+        @for (store of stores(); track $index) {
+          <div class="rounded-card border border-border bg-surface-soft p-5">
+            <p class="text-eyebrow text-text-secondary">{{ store?.empresa ?? ($index === 0 ? 'PISOPAK' : 'DECORPLAS') }}</p>
+            <p class="mt-2 text-body-sm text-text-secondary">{{ store?.mensaje ?? 'No disponible' }}</p>
+            @if (store?.encontrado && store?.urlProducto) {
+              <a
+                class="mt-4 inline-flex rounded-control font-semibold text-action-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                [href]="store!.urlProducto!"
+                target="_blank"
+                rel="noopener noreferrer"
+              >Ver en {{ store!.empresa }}</a>
+            }
+          </div>
+        }
+      </div>
+
+      @if (comparison.diferenciasEncontradas.length > 0) {
+        <div class="mt-8">
+          <h3 class="text-heading-4 text-text-primary">Diferencias encontradas</h3>
+          <ul class="mt-3 list-disc space-y-2 pl-5 text-body-sm text-text-secondary">
+            @for (difference of comparison.diferenciasEncontradas; track difference) {
+              <li>{{ difference }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      <p class="mt-8 text-caption text-text-muted">
+        Verifica que los productos mostrados son similares y pueden presentar diferencias en sus especificaciones.
+      </p>
+      <div class="mt-5">
+        <app-button variant="secondary" (click)="compare.emit()">Actualizar comparación</app-button>
+      </div>
+    }
+  </app-card>
+</section>

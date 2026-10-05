@@ -1,0 +1,242 @@
+<main class="min-h-[70vh] bg-background">
+  <div class="app-container py-8 sm:py-12 lg:py-16">
+    <nav
+      aria-label="Migas de pan"
+      class="mb-8 flex items-center gap-2 text-body-sm text-text-muted"
+    >
+      <a
+        routerLink="/isadecor/catalogo"
+        class="rounded-control hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        >Catálogo</a
+      >
+      <span aria-hidden="true">/</span>
+      <span aria-current="page" class="text-text-secondary">Carrito de cotización</span>
+    </nav>
+
+    <header class="max-w-3xl">
+      <p class="text-eyebrow uppercase text-text-muted">ISADECOR</p>
+      <h1 class="mt-3 text-heading-1 text-text-primary">Carrito de cotización</h1>
+      <p class="mt-3 text-body-lg text-text-secondary">
+        Revisa las cantidades y envía la lista a nuestro equipo comercial por WhatsApp.
+      </p>
+    </header>
+
+    @if (feedback()) {
+      <app-alert class="mt-6" variant="warning" title="Revisa el carrito">
+        {{ feedback() }}
+      </app-alert>
+    }
+
+    @if (cart.itemCount() === 0) {
+      <div class="mt-10">
+        <app-empty-state
+          emptyStateId="isadecor-empty-cart"
+          title="Tu carrito está vacío"
+          description="Explora el catálogo y agrega los productos que deseas cotizar."
+        >
+          <svg empty-state-icon class="size-10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M3 4h2l2.2 10.2a2 2 0 002 1.6h7.9a2 2 0 001.9-1.4L21 8H7"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M10 20h.01M18 20h.01"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          <a
+            empty-state-actions
+            routerLink="/isadecor/catalogo"
+            class="inline-flex min-h-11 items-center justify-center rounded-button border border-border-strong bg-surface px-5 py-2.5 text-body-sm font-semibold text-text-primary shadow-sm transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            >Continuar comprando</a
+          >
+        </app-empty-state>
+      </div>
+    } @else {
+      <div class="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <section aria-labelledby="cart-products-title">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
+            <h2 id="cart-products-title" class="text-heading-3 text-text-primary">
+              Productos ({{ cart.totalQuantity() }})
+            </h2>
+            <button
+              type="button"
+              class="min-h-10 rounded-control px-3 text-body-sm font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+              (click)="clearCart()"
+            >
+              Vaciar carrito
+            </button>
+          </div>
+
+          <ul class="space-y-4">
+            @for (item of cart.items(); track item.key) {
+              <li class="rounded-card border border-border bg-surface p-4 shadow-card sm:p-5">
+                <article class="grid gap-4 sm:grid-cols-[7rem_minmax(0,1fr)]">
+                  @if (item.imageUrl) {
+                    <img
+                      class="aspect-square w-full rounded-control bg-background-soft object-cover sm:w-28"
+                      [src]="item.imageUrl"
+                      [alt]="item.imageAlt"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div
+                      class="flex aspect-square w-full items-center justify-center rounded-control bg-background-soft px-3 text-center text-caption text-text-muted sm:w-28"
+                    >
+                      Imagen no disponible
+                    </div>
+                  }
+
+                  <div class="min-w-0">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div class="min-w-0">
+                        <h3 class="text-heading-4 text-text-primary">{{ item.productName }}</h3>
+                        <p
+                          class="mt-1 text-caption font-semibold uppercase tracking-wider text-text-muted"
+                        >
+                          SKU {{ item.productSku }}
+                        </p>
+                        @if (item.variant) {
+                          <p class="mt-2 text-body-sm text-text-secondary">
+                            Variante:
+                            <span class="font-semibold text-text-primary">{{
+                              item.variant.name
+                            }}</span>
+                            · SKU {{ item.variant.sku }}
+                          </p>
+                        }
+                      </div>
+                      <button
+                        type="button"
+                        class="self-start rounded-control px-2 py-1 text-body-sm font-semibold text-text-muted transition-colors hover:bg-surface-hover hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                        [attr.aria-label]="'Eliminar ' + item.productName + ' del carrito'"
+                        (click)="removeItem(item.key)"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+
+                    <div
+                      class="mt-5 grid gap-4 border-t border-border pt-4 sm:grid-cols-[auto_1fr_auto] sm:items-end"
+                    >
+                      <div>
+                        <label [for]="'cart-quantity-' + $index" class="form-label">Cantidad</label>
+                        <div class="flex items-center gap-2">
+                          <button
+                            type="button"
+                            class="size-10 rounded-control border border-border bg-surface-soft text-heading-4 text-text-primary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                            [attr.aria-label]="'Reducir cantidad de ' + item.productName"
+                            (click)="decreaseQuantity(item)"
+                          >
+                            −
+                          </button>
+                          <input
+                            [id]="'cart-quantity-' + $index"
+                            class="form-control w-24 text-center"
+                            type="number"
+                            inputmode="numeric"
+                            min="1"
+                            step="1"
+                            [value]="item.quantity"
+                            (change)="updateQuantity(item, $event)"
+                          />
+                          <button
+                            type="button"
+                            class="size-10 rounded-control border border-border bg-surface-soft text-heading-4 text-text-primary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                            [attr.aria-label]="'Aumentar cantidad de ' + item.productName"
+                            (click)="increaseQuantity(item)"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      <div class="text-body-sm text-text-secondary sm:text-center">
+                        Precio referencial:
+                        <strong class="text-text-primary">
+                          @if (item.unitPrice !== null) {
+                            S/ {{ item.unitPrice | number: '1.2-2' }}
+                          } @else {
+                            Por confirmar
+                          }
+                        </strong>
+                      </div>
+                      <div class="sm:text-right">
+                        <p class="text-caption text-text-muted">Subtotal</p>
+                        <p class="mt-1 text-heading-4 text-text-primary">
+                          @if (cart.subtotal(item) !== null) {
+                            S/ {{ cart.subtotal(item)! | number: '1.2-2' }}
+                          } @else {
+                            Por confirmar
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <aside
+          class="rounded-panel border border-border bg-surface p-6 shadow-card lg:sticky lg:top-24"
+          aria-labelledby="cart-summary-title"
+        >
+          <h2 id="cart-summary-title" class="text-heading-3 text-text-primary">Resumen</h2>
+          <dl class="mt-5 divide-y divide-border border-y border-border text-body-sm">
+            <div class="flex justify-between gap-4 py-4">
+              <dt class="text-text-secondary">Productos</dt>
+              <dd class="font-semibold text-text-primary">{{ cart.itemCount() }}</dd>
+            </div>
+            <div class="flex justify-between gap-4 py-4">
+              <dt class="text-text-secondary">Unidades</dt>
+              <dd class="font-semibold text-text-primary">{{ cart.totalQuantity() }}</dd>
+            </div>
+            <div class="flex justify-between gap-4 py-4">
+              <dt class="text-text-secondary">
+                {{ cart.hasCompletePricing() ? 'Total estimado' : 'Total estimado parcial' }}
+              </dt>
+              <dd class="font-semibold text-text-primary">
+                @if (cart.pricedItemCount() > 0) {
+                  S/ {{ cart.estimatedTotal() | number: '1.2-2' }}
+                } @else {
+                  Por confirmar
+                }
+              </dd>
+            </div>
+          </dl>
+          <p class="mt-4 text-caption text-text-muted">
+            Los precios son referenciales. Nuestro equipo confirmará disponibilidad y monto final.
+          </p>
+
+          @if (!publicSite.loading() && !whatsappPhone()) {
+            <app-alert class="mt-5" variant="warning" title="WhatsApp no disponible">
+              No encontramos un número comercial configurado. Puedes conservar el carrito e
+              intentarlo más tarde.
+            </app-alert>
+          }
+
+          <app-button
+            class="mt-6 w-full"
+            variant="accent"
+            size="large"
+            [disabled]="!canRequestByWhatsApp()"
+            (click)="requestByWhatsApp()"
+          >
+            Solicitar cotización por WhatsApp
+          </app-button>
+          <a
+            routerLink="/isadecor/catalogo"
+            class="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-button px-5 py-2.5 text-body-sm font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            >Continuar comprando</a
+          >
+        </aside>
+      </div>
+    }
+  </div>
+</main>

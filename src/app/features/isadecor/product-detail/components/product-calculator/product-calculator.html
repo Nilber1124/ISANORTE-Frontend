@@ -1,0 +1,102 @@
+<section
+  aria-labelledby="product-calculator-title"
+  class="rounded-panel border border-border/60 bg-surface-soft/50 p-6 sm:p-7 backdrop-blur-xs transition-colors"
+>
+  <div class="flex items-start gap-3.5">
+    <!-- Architectural Compass / Ruler Minimalist Icon -->
+    <div class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-control bg-background border border-border/70 text-text-primary shadow-xs">
+      <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+    </div>
+    <div class="min-w-0 flex-1">
+      <h2 id="product-calculator-title" class="text-body font-semibold text-text-primary tracking-tight">
+        Calcula cuánto necesitas para tu espacio
+      </h2>
+      <p class="mt-1 text-body-sm text-text-secondary leading-relaxed">
+        Ingresa las medidas del <strong>{{ inputLabel() }}</strong> y estimaremos la cantidad de producto requerida.
+      </p>
+    </div>
+  </div>
+
+  @if (calculationAvailable()) {
+    <div class="mt-5 flex flex-wrap items-center gap-3">
+      <div class="relative flex items-center min-w-[160px] max-w-[220px]">
+        <input
+          id="product-calculator-measurement"
+          name="product-measurement"
+          class="form-control rounded-control bg-background border-border py-2.5 pl-4 pr-10 text-body font-medium text-text-primary shadow-xs focus:ring-accent"
+          type="number"
+          inputmode="decimal"
+          autocomplete="off"
+          min="0"
+          step="any"
+          [placeholder]="inputLabel()"
+          [value]="measurement() ?? ''"
+          [attr.aria-describedby]="describedBy()"
+          [attr.aria-invalid]="measurementError() ? true : null"
+          (input)="updateMeasurement($event)"
+        />
+        @if (inputUnit(); as unit) {
+          <span class="pointer-events-none absolute right-3 text-caption font-semibold uppercase text-text-muted">
+            {{ unit }}
+          </span>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="rounded-control border border-text-primary bg-text-primary px-5 py-2.5 text-body-sm font-semibold text-background transition-[background-color,transform] hover:bg-text-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        (click)="calculate()"
+      >
+        Calcular
+      </button>
+    </div>
+
+    @if (helperText(); as help) {
+      <p id="product-calculator-help" class="mt-2 text-caption text-text-muted">
+        {{ help }}
+      </p>
+    }
+
+    @if (measurementError(); as error) {
+      <p id="product-calculator-error" class="mt-2 text-caption text-error" role="status">
+        {{ error }}
+      </p>
+    }
+
+    @if (quantity(); as result) {
+      <div class="mt-5 rounded-control border border-border bg-background p-4 sm:p-5 shadow-xs animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p class="text-caption font-medium uppercase tracking-wider text-text-muted">Cantidad estimada</p>
+            <output
+              for="product-calculator-measurement"
+              class="mt-1 flex items-baseline gap-1.5 text-heading-2 font-semibold text-text-primary"
+            >
+              <span>{{ result | number: '1.0-0' }}</span>
+              @if (saleUnit(); as unit) {
+                <span class="text-body-sm font-normal text-text-secondary">{{ unit }}</span>
+              }
+            </output>
+          </div>
+          <button
+            type="button"
+            class="rounded-control bg-accent px-4 py-2.5 text-body-sm font-semibold text-white shadow-soft transition-colors hover:bg-accent-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            (click)="applyQuantity()"
+          >
+            Aceptar cantidad
+          </button>
+        </div>
+      </div>
+    } @else if (measurement() === null || (measurement() ?? 0) <= 0) {
+      <p class="mt-3 text-body-sm text-text-secondary">
+        Ingresa una medida válida para ver el resultado.
+      </p>
+    }
+  } @else {
+    <p class="mt-4 text-body-sm text-text-muted" role="status">
+      El cálculo no está disponible para este producto.
+    </p>
+  }
+</section>

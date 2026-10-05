@@ -1,0 +1,130 @@
+<header>
+  <p class="text-eyebrow uppercase text-text-muted">Atención comercial</p>
+  <h1 class="mt-3 text-heading-1 text-text-primary">Solicitudes de contacto</h1>
+  <p class="mt-3 text-body text-text-secondary">
+    Revisa los mensajes recibidos y registra su estado de gestión.
+  </p>
+</header>
+@if (facade.error(); as error) {
+  <app-alert
+    class="mt-6"
+    variant="error"
+    title="No pudimos completar la operación"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+    >{{ error }}</app-alert
+  >
+}
+@if (facade.success(); as success) {
+  <app-alert
+    class="mt-6"
+    variant="success"
+    title="Cambio guardado"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+    >{{ success }}</app-alert
+  >
+}
+<section class="mt-8">
+  <div class="mb-4 flex flex-wrap items-end justify-between gap-4">
+    <h2 class="text-heading-3 text-text-primary">Bandeja</h2>
+    <label class="form-label"
+      >Estado<select
+        class="form-control mt-2 min-w-48"
+        [value]="facade.filter() || ''"
+        (change)="filterChanged($event)"
+      >
+        <option value="">Todos</option>
+        @for (status of statuses; track status) {
+          <option [value]="status">{{ status }}</option>
+        }
+      </select></label
+    >
+  </div>
+  @if (facade.loading()) {
+    <div class="rounded-card border border-border bg-surface py-14">
+      <app-loading label="Cargando solicitudes" size="large" />
+    </div>
+  } @else if (facade.requests().length === 0) {
+    <app-empty-state
+      emptyStateId="contact-empty"
+      title="Sin solicitudes"
+      description="No hay solicitudes para el filtro seleccionado."
+    />
+  } @else {
+    <div class="overflow-x-auto rounded-card border border-border bg-surface">
+      <table class="w-full min-w-[60rem] text-left">
+        <thead class="border-b border-border bg-background-soft">
+          <tr>
+            <th class="table-heading">Nombre</th>
+            <th class="table-heading">Email</th>
+            <th class="table-heading">Teléfono</th>
+            <th class="table-heading">Empresa</th>
+            <th class="table-heading">Estado</th>
+            <th class="table-heading">Fecha</th>
+            <th class="table-heading text-right">Acción</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          @for (item of facade.requests(); track item.id) {
+            <tr>
+              <td class="px-5 py-4 text-body-sm font-semibold">{{ item.nombre }}</td>
+              <td class="px-5 py-4 text-body-sm">{{ item.email }}</td>
+              <td class="px-5 py-4 text-body-sm">{{ item.telefono }}</td>
+              <td class="px-5 py-4 text-body-sm">{{ item.empresa || '—' }}</td>
+              <td class="px-5 py-4 text-body-sm">{{ item.estado }}</td>
+              <td class="px-5 py-4 text-body-sm">{{ item.fechaCreacion }}</td>
+              <td class="px-5 py-4 text-right">
+                <app-button size="small" variant="secondary" (click)="facade.openDetail(item.id)"
+                  >Ver detalle</app-button
+                >
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+@if (facade.selected(); as item) {
+  <app-modal
+    modalId="contact-detail"
+    title="Detalle de solicitud"
+    [description]="item.nombre + ' · ' + item.email"
+    size="large"
+    [open]="true"
+    [loading]="facade.saving()"
+    (closed)="facade.closeDetail()"
+    ><dl class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <dt class="text-caption text-text-muted">Teléfono</dt>
+        <dd class="text-body-sm">{{ item.telefono }}</dd>
+      </div>
+      <div>
+        <dt class="text-caption text-text-muted">Empresa</dt>
+        <dd class="text-body-sm">{{ item.empresa || '—' }}</dd>
+      </div>
+      <div class="sm:col-span-2">
+        <dt class="text-caption text-text-muted">Mensaje</dt>
+        <dd class="mt-2 whitespace-pre-wrap rounded-control bg-surface-soft p-4 text-body-sm">
+          {{ item.mensaje }}
+        </dd>
+      </div>
+      <label class="form-label sm:col-span-2"
+        >Estado<select
+          class="form-control mt-2"
+          [value]="item.estado"
+          [disabled]="facade.saving()"
+          (change)="statusChanged($event)"
+        >
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ status }}</option>
+          }
+        </select></label
+      >
+    </dl>
+    <div modal-actions class="flex w-full justify-end">
+      <app-button variant="secondary" (click)="facade.closeDetail()">Cerrar</app-button>
+    </div></app-modal
+  >
+}

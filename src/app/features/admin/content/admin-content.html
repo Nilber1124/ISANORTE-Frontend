@@ -1,0 +1,143 @@
+<header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-eyebrow uppercase text-text-muted">Contenido ISANORTE</p>
+    <h1 class="mt-3 text-heading-1 text-text-primary">Contenido público</h1>
+    <p class="mt-3 text-body text-text-secondary">
+      Administra contenido editorial y metadatos SEO. La web pública aún no consume estos datos.
+    </p>
+  </div>
+</header>
+<div class="mt-7 flex gap-2" role="tablist">
+  <app-button [variant]="tab() === 'content' ? 'primary' : 'secondary'" (click)="tab.set('content')"
+    >Páginas</app-button
+  >
+  <app-button [variant]="tab() === 'seo' ? 'primary' : 'secondary'" (click)="tab.set('seo')"
+    >SEO</app-button
+  >
+</div>
+@if (facade.error(); as error) {
+  <app-alert
+    class="mt-6"
+    variant="error"
+    title="No pudimos completar la operación"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+    >{{ error }}</app-alert
+  >
+}
+@if (facade.success(); as success) {
+  <app-alert
+    class="mt-6"
+    variant="success"
+    title="Cambio guardado"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+    >{{ success }}</app-alert
+  >
+}
+@if (facade.loading()) {
+  <div class="mt-8 rounded-card border border-border bg-surface py-14">
+    <app-loading label="Cargando contenido" size="large" />
+  </div>
+} @else if (tab() === 'content') {
+  <section class="mt-8">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="text-heading-3 text-text-primary">Páginas editoriales</h2>
+      <app-button (click)="openContent(null)">Nuevo contenido</app-button>
+    </div>
+    @if (facade.contents().length === 0) {
+      <app-empty-state
+        emptyStateId="content-empty"
+        title="Sin contenido de páginas"
+        description="Crea el contenido editorial de Nosotros, Servicios, Proyectos o Contacto."
+      />
+    } @else {
+      <div class="overflow-x-auto rounded-card border border-border bg-surface">
+        <table class="w-full min-w-[42rem] text-left">
+          <thead class="border-b border-border bg-background-soft">
+            <tr>
+              <th class="table-heading">Página</th>
+              <th class="table-heading">Título</th>
+              <th class="table-heading">Estado</th>
+              <th class="table-heading text-right">Acción</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @for (item of facade.contents(); track item.id) {
+              <tr>
+                <td class="px-5 py-4 text-body-sm font-semibold">{{ item.pagina }}</td>
+                <td class="px-5 py-4 text-body-sm">{{ item.titulo || 'Sin título' }}</td>
+                <td class="px-5 py-4 text-body-sm">{{ item.activo ? 'Activo' : 'Inactivo' }}</td>
+                <td class="px-5 py-4 text-right">
+                  <app-button size="small" variant="secondary" (click)="openContent(item)"
+                    >Editar</app-button
+                  >
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+} @else {
+  <section class="mt-8">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="text-heading-3 text-text-primary">Metadatos SEO</h2>
+      <app-button (click)="openSeo(null)">Nuevo SEO</app-button>
+    </div>
+    @if (facade.seoPages().length === 0) {
+      <app-empty-state
+        emptyStateId="seo-empty"
+        title="Sin configuraciones SEO"
+        description="Agrega metadatos para páginas estáticas o unidades de negocio."
+      />
+    } @else {
+      <div class="overflow-x-auto rounded-card border border-border bg-surface">
+        <table class="w-full min-w-[42rem] text-left">
+          <thead class="border-b border-border bg-background-soft">
+            <tr>
+              <th class="table-heading">Tipo</th>
+              <th class="table-heading">Título</th>
+              <th class="table-heading">Robots</th>
+              <th class="table-heading text-right">Acción</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @for (item of facade.seoPages(); track item.id) {
+              <tr>
+                <td class="px-5 py-4 text-body-sm font-semibold">{{ item.tipoPagina }}</td>
+                <td class="px-5 py-4 text-body-sm">{{ item.title }}</td>
+                <td class="px-5 py-4 text-body-sm">{{ item.robots }}</td>
+                <td class="px-5 py-4 text-right">
+                  <app-button size="small" variant="secondary" (click)="openSeo(item)"
+                    >Editar</app-button
+                  >
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}
+@if (contentFormOpen()) {
+  <app-page-content-form
+    [content]="selectedContent()"
+    [configurations]="facade.configurations()"
+    [saving]="facade.saving()"
+    (closed)="contentFormOpen.set(false)"
+    (saved)="facade.saveContent($event, selectedContent() ?? undefined)"
+  />
+}
+@if (seoFormOpen()) {
+  <app-page-seo-form
+    [seo]="selectedSeo()"
+    [configurations]="facade.configurations()"
+    [units]="facade.units()"
+    [saving]="facade.saving()"
+    (closed)="seoFormOpen.set(false)"
+    (saved)="facade.saveSeo($event, selectedSeo() ?? undefined)"
+  />
+}

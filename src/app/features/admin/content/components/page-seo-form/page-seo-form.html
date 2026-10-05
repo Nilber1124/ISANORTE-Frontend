@@ -1,0 +1,97 @@
+<app-modal
+  modalId="page-seo-form"
+  [title]="seo() ? 'Editar SEO' : 'Nuevo SEO'"
+  description="El tipo de página y el sitio no cambian después de crear."
+  size="large"
+  [open]="true"
+  [loading]="saving()"
+  (closed)="closed.emit()"
+  ><form class="grid gap-5 sm:grid-cols-2" (submit)="submit(); $event.preventDefault()">
+    <label class="form-label"
+      >Sitio<select
+        class="form-control mt-2"
+        [value]="configuracionSitioId()"
+        [disabled]="!!seo()"
+        (change)="configuracionSitioId.set($any($event.target).value)"
+      >
+        @for (config of configurations(); track config.id) {
+          <option [value]="config.id">{{ config.clave || config.tituloSitio || config.id }}</option>
+        }
+      </select></label
+    >
+    <label class="form-label"
+      >Tipo de página<select
+        class="form-control mt-2"
+        [value]="tipoPagina()"
+        [disabled]="!!seo()"
+        (change)="typeChanged($event)"
+      >
+        @for (type of types; track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select></label
+    >
+    @if (tipoPagina() === 'UNIDAD_NEGOCIO') {
+      <label class="form-label sm:col-span-2"
+        >Unidad de negocio<select
+          class="form-control mt-2"
+          [value]="unidadNegocioId()"
+          [disabled]="!!seo()"
+          (change)="unidadNegocioId.set($any($event.target).value)"
+          required
+        >
+          <option value="">Selecciona una unidad</option>
+          @for (unit of units(); track unit.id) {
+            <option [value]="unit.id">{{ unit.nombre }}</option>
+          }
+        </select></label
+      >
+    }
+    <app-input-field
+      class="sm:col-span-2"
+      inputId="seo-title"
+      label="Title"
+      [(value)]="title"
+      required
+    />
+    <app-textarea-field
+      class="sm:col-span-2"
+      inputId="seo-description"
+      label="Description"
+      [(value)]="description"
+      [rows]="4"
+      required
+    />
+    <app-input-field
+      class="sm:col-span-2"
+      inputId="seo-og-image"
+      label="OG image URL"
+      type="url"
+      [(value)]="ogImageUrl"
+    />
+    <label class="form-label sm:col-span-2"
+      >Robots<select
+        class="form-control mt-2"
+        [value]="robots()"
+        (change)="robots.set($any($event.target).value)"
+      >
+        @for (value of robotsValues; track value) {
+          <option [value]="value">{{ value }}</option>
+        }
+      </select></label
+    >
+  </form>
+  <div modal-actions class="flex w-full justify-end gap-3">
+    <app-button variant="secondary" (click)="closed.emit()">Cancelar</app-button
+    ><app-button
+      [loading]="saving()"
+      [disabled]="
+        !title().trim() ||
+        !description().trim() ||
+        (tipoPagina() === 'UNIDAD_NEGOCIO' && !unidadNegocioId())
+      "
+      (click)="submit()"
+      >Guardar</app-button
+    >
+  </div></app-modal
+>

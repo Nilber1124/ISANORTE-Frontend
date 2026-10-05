@@ -1,0 +1,208 @@
+<header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+  <div class="max-w-3xl">
+    <p class="text-eyebrow uppercase text-text-muted">Catálogo ISADECOR</p>
+    <h1 class="mt-3 text-heading-1 text-text-primary">Categorías de productos</h1>
+    <p class="mt-3 text-body text-text-secondary">
+      Organiza las categorías, su orden y la unidad de negocio a la que pertenecen.
+    </p>
+  </div>
+  <app-button variant="primary" (click)="facade.openCreate()">Nueva categoría</app-button>
+</header>
+
+@if (facade.success(); as success) {
+  <app-alert
+    class="mt-7"
+    variant="success"
+    title="Cambio guardado"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+  >
+    {{ success }}
+  </app-alert>
+}
+
+@if (facade.error() && !facade.formOpen()) {
+  <app-alert
+    class="mt-7"
+    variant="error"
+    title="No pudimos completar la operación"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+  >
+    {{ facade.error() }}
+  </app-alert>
+}
+
+<section class="mt-8" aria-labelledby="categories-list-title">
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <h2 id="categories-list-title" class="text-heading-3 text-text-primary">
+      Categorías registradas
+    </h2>
+    @if (!facade.loading()) {
+      <span class="text-body-sm text-text-muted">
+        {{ facade.categories().length }}
+        {{ facade.categories().length === 1 ? 'categoría' : 'categorías' }}
+      </span>
+    }
+  </div>
+
+  @if (facade.loading()) {
+    <div class="rounded-card border border-border bg-surface py-14">
+      <app-loading label="Cargando categorías" size="large" />
+    </div>
+  } @else if (facade.categories().length === 0) {
+    <app-empty-state
+      emptyStateId="admin-categories-empty"
+      title="No hay categorías registradas"
+      description="Crea la primera categoría para organizar el catálogo de productos."
+    >
+      <app-button empty-state-actions variant="primary" (click)="facade.openCreate()">
+        Nueva categoría
+      </app-button>
+    </app-empty-state>
+  } @else {
+    <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+      <table class="w-full min-w-[52rem] border-collapse text-left">
+        <caption class="sr-only">
+          Listado administrativo de categorías de productos
+        </caption>
+        <thead class="border-b border-border bg-background-soft">
+          <tr>
+            <th
+              scope="col"
+              class="px-5 py-4 text-caption font-semibold uppercase tracking-wider text-text-muted"
+            >
+              Categoría
+            </th>
+            <th
+              scope="col"
+              class="px-5 py-4 text-caption font-semibold uppercase tracking-wider text-text-muted"
+            >
+              Slug
+            </th>
+            <th
+              scope="col"
+              class="px-5 py-4 text-caption font-semibold uppercase tracking-wider text-text-muted"
+            >
+              Unidad de negocio
+            </th>
+            <th
+              scope="col"
+              class="px-5 py-4 text-caption font-semibold uppercase tracking-wider text-text-muted"
+            >
+              Orden
+            </th>
+            <th
+              scope="col"
+              class="px-5 py-4 text-caption font-semibold uppercase tracking-wider text-text-muted"
+            >
+              Estado
+            </th>
+            <th
+              scope="col"
+              class="px-5 py-4 text-right text-caption font-semibold uppercase tracking-wider text-text-muted"
+            >
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          @for (category of facade.categories(); track category.id) {
+            <tr class="transition-colors duration-fast hover:bg-surface-hover">
+              <th scope="row" class="px-5 py-4 text-body-sm font-semibold text-text-primary">
+                {{ category.nombre }}
+              </th>
+              <td class="px-5 py-4 font-mono text-body-sm text-text-secondary">
+                {{ category.slug }}
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                {{ category.unidadNegocio?.nombre ?? 'Sin unidad' }}
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                {{ category.orden ?? '—' }}
+              </td>
+              <td class="px-5 py-4">
+                @if (category.activo === true) {
+                  <app-badge variant="success" dot>Activa</app-badge>
+                } @else {
+                  <app-badge variant="neutral" dot>Inactiva</app-badge>
+                }
+              </td>
+              <td class="px-5 py-4">
+                <div class="flex justify-end gap-2">
+                  <app-button
+                    size="small"
+                    variant="ghost"
+                    [disabled]="facade.submitting() || facade.changingActiveId() !== null"
+                    (click)="facade.openEdit(category)"
+                  >
+                    Editar
+                  </app-button>
+                  <app-button
+                    size="small"
+                    variant="secondary"
+                    [loading]="facade.changingActiveId() === category.id"
+                    [disabled]="facade.submitting() || facade.changingActiveId() !== null"
+                    (click)="requestActiveChange(category)"
+                  >
+                    {{ category.activo === true ? 'Desactivar' : 'Activar' }}
+                  </app-button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (facade.formOpen()) {
+  <app-category-form
+    [mode]="facade.formMode()"
+    [category]="facade.selectedCategory()"
+    [businessUnits]="facade.businessUnits()"
+    [loadingFormData]="facade.loadingFormData()"
+    [submitting]="facade.submitting()"
+    [serverError]="facade.error()"
+    (canceled)="facade.closeForm()"
+    (saved)="save($event)"
+  />
+}
+
+@if (categoryToDeactivate(); as category) {
+  <app-modal
+    modalId="deactivate-category-modal"
+    title="Desactivar categoría"
+    [description]="
+      'La categoría ' +
+      category.nombre +
+      ' dejará de aparecer en listados públicos de categorías activas.'
+    "
+    size="small"
+    [open]="true"
+    [loading]="facade.changingActiveId() === category.id"
+    (closed)="closeDeactivation()"
+  >
+    <p class="text-body-sm text-text-secondary">
+      La categoría seguirá disponible en este panel y podrás reactivarla más adelante.
+    </p>
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button
+        variant="secondary"
+        [disabled]="facade.changingActiveId() !== null"
+        (click)="closeDeactivation()"
+      >
+        Cancelar
+      </app-button>
+      <app-button
+        variant="primary"
+        [loading]="facade.changingActiveId() === category.id"
+        [disabled]="facade.changingActiveId() !== null"
+        (click)="confirmDeactivation()"
+      >
+        Desactivar
+      </app-button>
+    </div>
+  </app-modal>
+}

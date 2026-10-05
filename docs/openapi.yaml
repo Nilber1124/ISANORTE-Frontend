@@ -1,0 +1,3129 @@
+openapi: 3.0.3
+info:
+  title: ISANORTE / ISADECO API
+  version: 0.0.1-SNAPSHOT
+  description: |
+    Contrato estático derivado de los Controllers y DTO, actualizado el 2026-09-20.
+    No implica integración de Swagger/OpenAPI en Spring Boot. Security/JWT no está implementado;
+    `x-access-intent` expresa el acceso previsto y no una protección efectiva.
+x-contract-audit:
+  controllers: 14
+  paths: 83
+  operations: 116
+  get: 50
+  post: 23
+  put: 23
+  patch: 9
+  delete: 11
+x-security-status: NOT_IMPLEMENTED
+servers:
+  - url: http://localhost:8080
+    description: Desarrollo local con el puerto predeterminado de Spring Boot
+tags:
+  - name: Administradores
+  - name: Categorías
+  - name: Configuración del sitio
+  - name: Cotizaciones
+  - name: Empresa
+  - name: Productos
+  - name: Proyectos
+  - name: Secciones landing
+  - name: Servicios
+  - name: Unidades de negocio
+  - name: Contenido editorial
+  - name: SEO
+  - name: Solicitudes de contacto
+  - name: Público
+paths:
+  /api/administradores:
+    get:
+      tags: [Administradores]
+      operationId: listarAdministradores
+      summary: Lista administradores
+      x-access-intent: ADMINISTRATIVO
+      responses:
+        '200':
+          description: Lista obtenida
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/AdministradorResponse'}
+  /api/administradores/{id}:
+    get:
+      tags: [Administradores]
+      operationId: obtenerAdministradorPorId
+      summary: Obtiene un administrador por UUID
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      responses:
+        '200': {$ref: '#/components/responses/AdministradorOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Administradores]
+      operationId: actualizarAdministrador
+      summary: Actualiza de forma controlada el perfil de un administrador
+      description: No permite modificar passwordHash, roles, ultimoAcceso, id ni timestamps.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AdministradorUpdateRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/AdministradorOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/administradores/{id}/activo:
+    patch:
+      tags: [Administradores]
+      operationId: cambiarActivoAdministrador
+      summary: Activa o desactiva lógicamente un administrador
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ActivoRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/AdministradorOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/categorias:
+    get:
+      tags: [Categorías]
+      operationId: listarCategorias
+      summary: Lista categorías sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      responses:
+        '200': {$ref: '#/components/responses/CategoriasOk'}
+    post:
+      tags: [Categorías]
+      operationId: crearCategoria
+      summary: Crea una categoría
+      x-access-intent: ADMINISTRATIVO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CategoriaProductoRequest'}
+      responses:
+        '201':
+          description: Categoría creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CategoriaProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/categorias/activas:
+    get:
+      tags: [Categorías]
+      operationId: listarCategoriasActivas
+      summary: Lista categorías activas por orden ascendente
+      x-access-intent: PUBLICO
+      responses:
+        '200': {$ref: '#/components/responses/CategoriasOk'}
+  /api/categorias/activas/slug/{slug}:
+    get:
+      tags: [Categorías]
+      operationId: obtenerCategoriaActivaPorSlug
+      summary: Obtiene una categoría activa por slug
+      x-access-intent: PUBLICO
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200':
+          description: Categoría activa encontrada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CategoriaProductoResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/categorias/{id}:
+    get:
+      tags: [Categorías]
+      operationId: obtenerCategoriaPorId
+      summary: Obtiene una categoría por UUID sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      responses:
+        '200':
+          description: Categoría encontrada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CategoriaProductoResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Categorías]
+      operationId: actualizarCategoria
+      summary: Actualiza una categoría y resuelve su unidad por UUID
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CategoriaProductoUpdateRequest'}
+      responses:
+        '200':
+          description: Categoría actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CategoriaProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/categorias/{id}/activo:
+    patch:
+      tags: [Categorías]
+      operationId: cambiarActivoCategoria
+      summary: Activa o desactiva lógicamente una categoría
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ActivoRequest'}
+      responses:
+        '200':
+          description: Estado actualizado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CategoriaProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/categorias/slug/{slug}:
+    get:
+      tags: [Categorías]
+      operationId: obtenerCategoriaPorSlug
+      summary: Obtiene una categoría por slug sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200':
+          description: Categoría encontrada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CategoriaProductoResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/configuracion-sitio:
+    get:
+      tags: [Configuración del sitio]
+      operationId: listarConfiguracionesSitio
+      summary: Lista configuraciones de sitio
+      x-access-intent: PUBLICO_PREVISTO
+      responses:
+        '200':
+          description: Lista obtenida
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/ConfiguracionSitioResponse'}
+    post:
+      tags: [Configuración del sitio]
+      operationId: crearConfiguracionSitio
+      summary: Crea una configuración de sitio
+      x-access-intent: ADMINISTRATIVO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ConfiguracionSitioRequest'}
+      responses:
+        '201':
+          description: Configuración creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ConfiguracionSitioResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/configuracion-sitio/{id}:
+    get:
+      tags: [Configuración del sitio]
+      operationId: obtenerConfiguracionSitioPorId
+      summary: Obtiene una configuración por UUID
+      x-access-intent: PUBLICO_PREVISTO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      responses:
+        '200':
+          description: Configuración encontrada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ConfiguracionSitioResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Configuración del sitio]
+      operationId: actualizarConfiguracionSitio
+      summary: Actualiza campos raíz de una configuración
+      description: Conserva empresa, secciones y scripts administrados fuera de este contrato.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ConfiguracionSitioUpdateRequest'}
+      responses:
+        '200':
+          description: Configuración actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ConfiguracionSitioResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/cotizaciones:
+    get:
+      tags: [Cotizaciones]
+      operationId: listarCotizaciones
+      summary: Lista cotizaciones
+      description: Incluye datos personales; acceso administrativo previsto.
+      x-access-intent: ADMINISTRATIVO
+      responses:
+        '200': {$ref: '#/components/responses/CotizacionesOk'}
+    post:
+      tags: [Cotizaciones]
+      operationId: crearCotizacion
+      summary: Registra una solicitud de cotización
+      x-access-intent: PUBLICO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CotizacionRequest'}
+      responses:
+        '201':
+          description: Cotización creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CotizacionResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/cotizaciones/{id}:
+    get:
+      tags: [Cotizaciones]
+      operationId: obtenerCotizacionPorId
+      summary: Obtiene una cotización por UUID
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      responses:
+        '200': {$ref: '#/components/responses/CotizacionOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/cotizaciones/{id}/estado:
+    patch:
+      tags: [Cotizaciones]
+      operationId: cambiarEstadoCotizacion
+      summary: Cambia el estado y registra un seguimiento histórico
+      description: El administrador del seguimiento queda null hasta incorporar Security.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EstadoCotizacionRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/CotizacionOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/cotizaciones/codigo/{codigo}:
+    get:
+      tags: [Cotizaciones]
+      operationId: obtenerCotizacionPorCodigo
+      summary: Obtiene una cotización por código
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/CodigoCotizacion'
+      responses:
+        '200': {$ref: '#/components/responses/CotizacionOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/cotizaciones/estado/{estado}:
+    get:
+      tags: [Cotizaciones]
+      operationId: listarCotizacionesPorEstado
+      summary: Lista cotizaciones por estado
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - name: estado
+          in: path
+          required: true
+          schema: {$ref: '#/components/schemas/EstadoCotizacion'}
+      responses:
+        '200': {$ref: '#/components/responses/CotizacionesOk'}
+        '400':
+          description: Valor de estado inválido; el cuerpo no está normalizado expresamente por GlobalExceptionHandler
+
+  /api/empresa:
+    get:
+      tags: [Empresa]
+      operationId: listarEmpresas
+      summary: Lista empresas
+      x-access-intent: PUBLICO_PREVISTO
+      responses:
+        '200': {$ref: '#/components/responses/EmpresasOk'}
+    post:
+      tags: [Empresa]
+      operationId: crearEmpresa
+      summary: Crea una empresa
+      x-access-intent: ADMINISTRATIVO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EmpresaRequest'}
+      responses:
+        '201':
+          description: Empresa creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EmpresaResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/empresa/{empresaId}/redes-sociales:
+    post:
+      tags: [Empresa]
+      operationId: crearRedSocialEmpresa
+      summary: Agrega un enlace social a una empresa existente
+      description: Endpoint administrativo temporalmente sin Security/JWT. No acepta empresaId, id ni timestamps en el body.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - name: empresaId
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RedSocialRequest'}
+      responses:
+        '201':
+          description: Red social creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RedSocialResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/empresa/{empresaId}/redes-sociales/{redSocialId}:
+    put:
+      tags: [Empresa]
+      operationId: actualizarRedSocialEmpresa
+      summary: Actualiza un enlace social sin cambiar de empresa
+      description: Si la red existe pero pertenece a otra empresa, responde 400. Endpoint administrativo temporalmente sin Security/JWT.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - name: empresaId
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: redSocialId
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RedSocialRequest'}
+      responses:
+        '200':
+          description: Red social actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RedSocialResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+    delete:
+      tags: [Empresa]
+      operationId: eliminarRedSocialEmpresa
+      summary: Elimina un enlace social de una empresa
+      description: Retira el hijo del agregado; orphanRemoval elimina la fila. Endpoint administrativo temporalmente sin Security/JWT.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - name: empresaId
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: redSocialId
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '204': {description: Red social eliminada}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/empresa/{id}:
+    get:
+      tags: [Empresa]
+      operationId: obtenerEmpresaPorId
+      summary: Obtiene una empresa por UUID
+      x-access-intent: PUBLICO_PREVISTO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      responses:
+        '200':
+          description: Empresa encontrada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EmpresaResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Empresa]
+      operationId: actualizarEmpresa
+      summary: Actualiza los campos raíz de una empresa
+      description: Conserva redes sociales, unidades y configuración del sitio.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EmpresaUpdateRequest'}
+      responses:
+        '200':
+          description: Empresa actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EmpresaResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+
+  /api/productos:
+    get:
+      tags: [Productos]
+      operationId: listarProductos
+      summary: Lista productos sin filtro editorial
+      x-access-intent: ADMINISTRATIVO
+      responses:
+        '200': {$ref: '#/components/responses/ProductosOk'}
+    post:
+      tags: [Productos]
+      operationId: crearProducto
+      summary: Crea un producto y sus hijos
+      x-access-intent: ADMINISTRATIVO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProductoRequest'}
+      responses:
+        '201':
+          description: Producto creado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/publicados:
+    get:
+      tags: [Productos]
+      operationId: listarProductosPublicados
+      summary: Lista productos con estado PUBLICADO
+      x-access-intent: PUBLICO
+      responses:
+        '200': {$ref: '#/components/responses/ProductosOk'}
+  /api/productos/publicados/slug/{slug}:
+    get:
+      tags: [Productos]
+      operationId: obtenerProductoPublicadoPorSlug
+      summary: Obtiene un producto publicado por slug
+      x-access-intent: PUBLICO
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200': {$ref: '#/components/responses/ProductoOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/publicados/sku/{sku}:
+    get:
+      tags: [Productos]
+      operationId: obtenerProductoPublicadoPorSku
+      summary: Obtiene un producto publicado por SKU
+      x-access-intent: PUBLICO
+      parameters:
+        - $ref: '#/components/parameters/Sku'
+      responses:
+        '200': {$ref: '#/components/responses/ProductoOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{id}:
+    get:
+      tags: [Productos]
+      operationId: obtenerProductoPorId
+      summary: Obtiene un producto por UUID sin filtro editorial
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      responses:
+        '200': {$ref: '#/components/responses/ProductoOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Productos]
+      operationId: actualizarProducto
+      summary: Actualiza campos raíz, unidad y categorías de un producto
+      description: |
+        Conserva variantes, imágenes, especificaciones, documentos y configuración de cálculo.
+        Si cambia unidadNegocioId, el dominio sincroniza la unidad anterior y la nueva sin dejar
+        temporalmente nula la relación obligatoria y sin eliminar el producto.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProductoUpdateRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/ProductoOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/{id}/estado:
+    patch:
+      tags: [Productos]
+      operationId: cambiarEstadoProducto
+      summary: Cambia el estado editorial del producto
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EstadoPublicacionRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/ProductoOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{productoId}/variantes:
+    post:
+      tags: [Productos]
+      operationId: crearVarianteProducto
+      summary: Agrega una variante a un producto existente
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VarianteProductoRequest'}
+      responses:
+        '201':
+          description: Variante creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/VarianteProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/{productoId}/variantes/{varianteId}:
+    put:
+      tags: [Productos]
+      operationId: actualizarVarianteProducto
+      summary: Reemplaza los campos editables de una variante del producto
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/VarianteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VarianteProductoRequest'}
+      responses:
+        '200':
+          description: Variante actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/VarianteProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+    delete:
+      tags: [Productos]
+      operationId: eliminarVarianteProducto
+      summary: Elimina una variante mediante orphanRemoval
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/VarianteId'
+      responses:
+        '204': {description: Variante eliminada}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{productoId}/imagenes:
+    post:
+      tags: [Productos]
+      operationId: crearImagenProducto
+      summary: Agrega una URL de imagen a un producto existente
+      description: No carga archivos. El dominio permite más de una imagen con esPrincipal=true.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImagenProductoRequest'}
+      responses:
+        '201':
+          description: Imagen creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImagenProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/{productoId}/imagenes/{imagenId}:
+    put:
+      tags: [Productos]
+      operationId: actualizarImagenProducto
+      summary: Actualiza una imagen URL perteneciente al producto
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/ImagenId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImagenProductoRequest'}
+      responses:
+        '200':
+          description: Imagen actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ImagenProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+    delete:
+      tags: [Productos]
+      operationId: eliminarImagenProducto
+      summary: Elimina una imagen mediante orphanRemoval
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/ImagenId'
+      responses:
+        '204': {description: Imagen eliminada}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{productoId}/especificaciones:
+    post:
+      tags: [Productos]
+      operationId: crearEspecificacionProducto
+      summary: Agrega una especificación a un producto existente
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EspecificacionProductoRequest'}
+      responses:
+        '201':
+          description: Especificación creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EspecificacionProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/{productoId}/especificaciones/{especificacionId}:
+    put:
+      tags: [Productos]
+      operationId: actualizarEspecificacionProducto
+      summary: Actualiza una especificación perteneciente al producto
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/EspecificacionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EspecificacionProductoRequest'}
+      responses:
+        '200':
+          description: Especificación actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EspecificacionProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+    delete:
+      tags: [Productos]
+      operationId: eliminarEspecificacionProducto
+      summary: Elimina una especificación mediante orphanRemoval
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/EspecificacionId'
+      responses:
+        '204': {description: Especificación eliminada}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{productoId}/documentos:
+    post:
+      tags: [Productos]
+      operationId: crearDocumentoProducto
+      summary: Agrega un documento URL a un producto existente
+      description: No carga ni almacena archivos.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DocumentoProductoRequest'}
+      responses:
+        '201':
+          description: Documento creado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DocumentoProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/{productoId}/documentos/{documentoId}:
+    put:
+      tags: [Productos]
+      operationId: actualizarDocumentoProducto
+      summary: Actualiza un documento perteneciente al producto
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/DocumentoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DocumentoProductoRequest'}
+      responses:
+        '200':
+          description: Documento actualizado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DocumentoProductoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+    delete:
+      tags: [Productos]
+      operationId: eliminarDocumentoProducto
+      summary: Elimina un documento mediante orphanRemoval
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+        - $ref: '#/components/parameters/DocumentoId'
+      responses:
+        '204': {description: Documento eliminado}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{productoId}/configuracion-calculo:
+    put:
+      tags: [Productos]
+      operationId: establecerConfiguracionCalculoProducto
+      summary: Crea o actualiza la configuración de cálculo del producto
+      description: Se retira funcionalmente enviando habilitada=false; la relación no se elimina.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/ProductoId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ConfiguracionCalculoRequest'}
+      responses:
+        '200':
+          description: Configuración creada o actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ConfiguracionCalculoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/productos/slug/{slug}:
+    get:
+      tags: [Productos]
+      operationId: obtenerProductoPorSlug
+      summary: Obtiene un producto por slug sin filtro editorial
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200': {$ref: '#/components/responses/ProductoOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/sku/{sku}:
+    get:
+      tags: [Productos]
+      operationId: obtenerProductoPorSku
+      summary: Obtiene un producto por SKU sin filtro editorial
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/Sku'
+      responses:
+        '200': {$ref: '#/components/responses/ProductoOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/proyectos:
+    get:
+      tags: [Proyectos]
+      operationId: listarProyectos
+      summary: Lista proyectos sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      responses:
+        '200': {$ref: '#/components/responses/ProyectosOk'}
+    post:
+      tags: [Proyectos]
+      operationId: crearProyecto
+      summary: Crea un proyecto
+      x-access-intent: ADMINISTRATIVO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProyectoRequest'}
+      responses:
+        '201':
+          description: Proyecto creado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ProyectoResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/proyectos/activos:
+    get:
+      tags: [Proyectos]
+      operationId: listarProyectosActivos
+      summary: Lista proyectos activos
+      x-access-intent: PUBLICO
+      responses:
+        '200': {$ref: '#/components/responses/ProyectosOk'}
+  /api/proyectos/activos/slug/{slug}:
+    get:
+      tags: [Proyectos]
+      operationId: obtenerProyectoActivoPorSlug
+      summary: Obtiene un proyecto activo por slug
+      x-access-intent: PUBLICO
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200': {$ref: '#/components/responses/ProyectoOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/proyectos/{id}:
+    get:
+      tags: [Proyectos]
+      operationId: obtenerProyectoPorId
+      summary: Obtiene un proyecto por UUID sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      responses:
+        '200': {$ref: '#/components/responses/ProyectoOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Proyectos]
+      operationId: actualizarProyecto
+      summary: Actualiza campos raíz y servicios de un proyecto
+      description: Conserva las imágenes existentes.
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProyectoUpdateRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/ProyectoOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/proyectos/{id}/activo:
+    patch:
+      tags: [Proyectos]
+      operationId: cambiarActivoProyecto
+      summary: Activa o desactiva lógicamente un proyecto
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ActivoRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/ProyectoOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/proyectos/slug/{slug}:
+    get:
+      tags: [Proyectos]
+      operationId: obtenerProyectoPorSlug
+      summary: Obtiene un proyecto por slug sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200': {$ref: '#/components/responses/ProyectoOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/secciones-landing:
+    get:
+      tags: [Secciones landing]
+      operationId: listarSeccionesLanding
+      summary: Lista secciones visibles y ocultas
+      x-access-intent: ADMINISTRATIVO
+      responses:
+        '200': {$ref: '#/components/responses/SeccionesOk'}
+    post:
+      tags: [Secciones landing]
+      operationId: crearSeccionLanding
+      summary: Crea una sección de landing
+      x-access-intent: ADMINISTRATIVO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SeccionLandingRequest'}
+      responses:
+        '201':
+          description: Sección creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SeccionLandingResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/secciones-landing/visibles:
+    get:
+      tags: [Secciones landing]
+      operationId: listarSeccionesLandingVisibles
+      summary: Lista secciones visibles por orden ascendente
+      x-access-intent: PUBLICO
+      responses:
+        '200': {$ref: '#/components/responses/SeccionesOk'}
+  /api/secciones-landing/{id}:
+    get:
+      tags: [Secciones landing]
+      operationId: obtenerSeccionLandingPorId
+      summary: Obtiene una sección por UUID
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      responses:
+        '200':
+          description: Sección encontrada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SeccionLandingResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Secciones landing]
+      operationId: actualizarSeccionLanding
+      summary: Actualiza una sección sin permitir cambiar su configuración padre
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SeccionLandingUpdateRequest'}
+      responses:
+        '200':
+          description: Sección actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SeccionLandingResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/secciones-landing/{id}/visible:
+    patch:
+      tags: [Secciones landing]
+      operationId: cambiarVisibleSeccionLanding
+      summary: Publica u oculta lógicamente una sección
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/VisibleRequest'}
+      responses:
+        '200':
+          description: Visibilidad actualizada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SeccionLandingResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/servicios:
+    get:
+      tags: [Servicios]
+      operationId: listarServicios
+      summary: Lista servicios sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      responses:
+        '200': {$ref: '#/components/responses/ServiciosOk'}
+    post:
+      tags: [Servicios]
+      operationId: crearServicio
+      summary: Crea un servicio
+      x-access-intent: ADMINISTRATIVO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ServicioRequest'}
+      responses:
+        '201':
+          description: Servicio creado
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ServicioResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/servicios/activos:
+    get:
+      tags: [Servicios]
+      operationId: listarServiciosActivos
+      summary: Lista servicios activos por orden ascendente
+      x-access-intent: PUBLICO
+      responses:
+        '200': {$ref: '#/components/responses/ServiciosOk'}
+  /api/servicios/activos/slug/{slug}:
+    get:
+      tags: [Servicios]
+      operationId: obtenerServicioActivoPorSlug
+      summary: Obtiene un servicio activo por slug
+      x-access-intent: PUBLICO
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200': {$ref: '#/components/responses/ServicioOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/servicios/{id}:
+    get:
+      tags: [Servicios]
+      operationId: obtenerServicioPorId
+      summary: Obtiene un servicio por UUID sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      responses:
+        '200': {$ref: '#/components/responses/ServicioOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Servicios]
+      operationId: actualizarServicio
+      summary: Actualiza un servicio existente
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ServicioUpdateRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/ServicioOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/servicios/{id}/activo:
+    patch:
+      tags: [Servicios]
+      operationId: cambiarActivoServicio
+      summary: Activa o desactiva lógicamente un servicio
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ActivoRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/ServicioOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/servicios/slug/{slug}:
+    get:
+      tags: [Servicios]
+      operationId: obtenerServicioPorSlug
+      summary: Obtiene un servicio por slug sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200': {$ref: '#/components/responses/ServicioOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/unidades-negocio:
+    get:
+      tags: [Unidades de negocio]
+      operationId: listarUnidadesNegocio
+      summary: Lista unidades sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      responses:
+        '200': {$ref: '#/components/responses/UnidadesOk'}
+    post:
+      tags: [Unidades de negocio]
+      operationId: crearUnidadNegocio
+      summary: Crea una unidad de negocio
+      x-access-intent: ADMINISTRATIVO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UnidadNegocioRequest'}
+      responses:
+        '201':
+          description: Unidad creada
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/UnidadNegocioResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/unidades-negocio/activas:
+    get:
+      tags: [Unidades de negocio]
+      operationId: listarUnidadesNegocioActivas
+      summary: Lista unidades activas por orden ascendente
+      x-access-intent: PUBLICO
+      responses:
+        '200': {$ref: '#/components/responses/UnidadesOk'}
+  /api/unidades-negocio/activas/slug/{slug}:
+    get:
+      tags: [Unidades de negocio]
+      operationId: obtenerUnidadNegocioActivaPorSlug
+      summary: Obtiene una unidad activa por slug
+      x-access-intent: PUBLICO
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200': {$ref: '#/components/responses/UnidadOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/unidades-negocio/{id}:
+    get:
+      tags: [Unidades de negocio]
+      operationId: obtenerUnidadNegocioPorId
+      summary: Obtiene una unidad por UUID sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      responses:
+        '200': {$ref: '#/components/responses/UnidadOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Unidades de negocio]
+      operationId: actualizarUnidadNegocio
+      summary: Actualiza una unidad sin permitir cambiar su empresa
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UnidadNegocioUpdateRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/UnidadOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/unidades-negocio/{id}/activo:
+    patch:
+      tags: [Unidades de negocio]
+      operationId: cambiarActivoUnidadNegocio
+      summary: Activa o desactiva lógicamente una unidad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ActivoRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/UnidadOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/unidades-negocio/slug/{slug}:
+    get:
+      tags: [Unidades de negocio]
+      operationId: obtenerUnidadNegocioPorSlug
+      summary: Obtiene una unidad por slug sin filtro de actividad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200': {$ref: '#/components/responses/UnidadOk'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/secciones-landing/{seccionId}/escenas:
+    post:
+      tags: [Secciones landing]
+      operationId: crearEscenaHero
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{name: seccionId, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/HeroSceneRequest'}}}}
+      responses:
+        '201': {description: Escena creada, content: {application/json: {schema: {$ref: '#/components/schemas/HeroSceneResponse'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/secciones-landing/{seccionId}/escenas/{escenaId}:
+    put:
+      tags: [Secciones landing]
+      operationId: actualizarEscenaHero
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - {name: seccionId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: escenaId, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/HeroSceneRequest'}}}}
+      responses:
+        '200': {description: Escena actualizada, content: {application/json: {schema: {$ref: '#/components/schemas/HeroSceneResponse'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Secciones landing]
+      operationId: eliminarEscenaHero
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - {name: seccionId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: escenaId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses: {'204': {description: Escena eliminada}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/secciones-landing/{seccionId}/acciones:
+    post:
+      tags: [Secciones landing]
+      operationId: crearAccionLanding
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{name: seccionId, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AccionLandingRequest'}}}}
+      responses: {'201': {description: Acción creada, content: {application/json: {schema: {$ref: '#/components/schemas/AccionLandingResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/secciones-landing/{seccionId}/acciones/{accionId}:
+    put:
+      tags: [Secciones landing]
+      operationId: actualizarAccionLanding
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - {name: seccionId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: accionId, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AccionLandingRequest'}}}}
+      responses: {'200': {description: Acción actualizada, content: {application/json: {schema: {$ref: '#/components/schemas/AccionLandingResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+    delete:
+      tags: [Secciones landing]
+      operationId: eliminarAccionLanding
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - {name: seccionId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: accionId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses: {'204': {description: Acción eliminada}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/servicios/{servicioId}/beneficios:
+    post:
+      tags: [Servicios]
+      operationId: crearBeneficioServicio
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{name: servicioId, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/BeneficioServicioRequest'}}}}
+      responses: {'201': {description: Beneficio creado, content: {application/json: {schema: {$ref: '#/components/schemas/BeneficioServicioResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/servicios/{servicioId}/beneficios/{beneficioId}:
+    put:
+      tags: [Servicios]
+      operationId: actualizarBeneficioServicio
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - {name: servicioId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: beneficioId, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/BeneficioServicioRequest'}}}}
+      responses: {'200': {description: Beneficio actualizado, content: {application/json: {schema: {$ref: '#/components/schemas/BeneficioServicioResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+    delete:
+      tags: [Servicios]
+      operationId: eliminarBeneficioServicio
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - {name: servicioId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: beneficioId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses: {'204': {description: Beneficio eliminado}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/unidades-negocio/{unidadId}/recursos:
+    post:
+      tags: [Unidades de negocio]
+      operationId: crearRecursoUnidad
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{name: unidadId, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RecursoUnidadNegocioRequest'}}}}
+      responses: {'201': {description: Recurso creado, content: {application/json: {schema: {$ref: '#/components/schemas/RecursoUnidadNegocioResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/unidades-negocio/{unidadId}/recursos/{recursoId}:
+    put:
+      tags: [Unidades de negocio]
+      operationId: actualizarRecursoUnidad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - {name: unidadId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: recursoId, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RecursoUnidadNegocioRequest'}}}}
+      responses: {'200': {description: Recurso actualizado, content: {application/json: {schema: {$ref: '#/components/schemas/RecursoUnidadNegocioResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+    delete:
+      tags: [Unidades de negocio]
+      operationId: eliminarRecursoUnidad
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - {name: unidadId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: recursoId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses: {'204': {description: Recurso eliminado}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/empresa/{empresaId}/estadisticas:
+    post:
+      tags: [Empresa]
+      operationId: crearEstadisticaEmpresa
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{name: empresaId, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EstadisticaEmpresaRequest'}}}}
+      responses: {'201': {description: Estadística creada, content: {application/json: {schema: {$ref: '#/components/schemas/EstadisticaEmpresaResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/empresa/{empresaId}/estadisticas/{estadisticaId}:
+    put:
+      tags: [Empresa]
+      operationId: actualizarEstadisticaEmpresa
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - {name: empresaId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: estadisticaId, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EstadisticaEmpresaRequest'}}}}
+      responses: {'200': {description: Estadística actualizada, content: {application/json: {schema: {$ref: '#/components/schemas/EstadisticaEmpresaResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+    delete:
+      tags: [Empresa]
+      operationId: eliminarEstadisticaEmpresa
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - {name: empresaId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: estadisticaId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses: {'204': {description: Estadística eliminada}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/contenidos-pagina:
+    get:
+      tags: [Contenido editorial]
+      operationId: listarContenidosPagina
+      x-access-intent: ADMINISTRATIVO
+      responses: {'200': {description: Lista, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/ContenidoPaginaResponse'}}}}}}
+    post:
+      tags: [Contenido editorial]
+      operationId: crearContenidoPagina
+      x-access-intent: ADMINISTRATIVO
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ContenidoPaginaRequest'}}}}
+      responses: {'201': {description: Creado, content: {application/json: {schema: {$ref: '#/components/schemas/ContenidoPaginaResponse'}}}}, '409': {$ref: '#/components/responses/Conflict'}}
+  /api/contenidos-pagina/{id}:
+    get:
+      tags: [Contenido editorial]
+      operationId: obtenerContenidoPagina
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      responses: {'200': {description: Encontrado, content: {application/json: {schema: {$ref: '#/components/schemas/ContenidoPaginaResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+    put:
+      tags: [Contenido editorial]
+      operationId: actualizarContenidoPagina
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ContenidoPaginaUpdateRequest'}}}}
+      responses: {'200': {description: Actualizado, content: {application/json: {schema: {$ref: '#/components/schemas/ContenidoPaginaResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/seo-paginas:
+    get:
+      tags: [SEO]
+      operationId: listarSeoPaginas
+      x-access-intent: ADMINISTRATIVO
+      responses: {'200': {description: Lista, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/SeoPaginaResponse'}}}}}}
+    post:
+      tags: [SEO]
+      operationId: crearSeoPagina
+      x-access-intent: ADMINISTRATIVO
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SeoPaginaRequest'}}}}
+      responses: {'201': {description: Creado, content: {application/json: {schema: {$ref: '#/components/schemas/SeoPaginaResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '409': {$ref: '#/components/responses/Conflict'}}
+  /api/seo-paginas/{id}:
+    get:
+      tags: [SEO]
+      operationId: obtenerSeoPagina
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      responses: {'200': {description: Encontrado, content: {application/json: {schema: {$ref: '#/components/schemas/SeoPaginaResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+    put:
+      tags: [SEO]
+      operationId: actualizarSeoPagina
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SeoPaginaUpdateRequest'}}}}
+      responses: {'200': {description: Actualizado, content: {application/json: {schema: {$ref: '#/components/schemas/SeoPaginaResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/solicitudes-contacto:
+    get:
+      tags: [Solicitudes de contacto]
+      operationId: listarSolicitudesContacto
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{name: estado, in: query, required: false, schema: {$ref: '#/components/schemas/EstadoSolicitudContacto'}}]
+      responses: {'200': {description: Lista, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/SolicitudContactoResponse'}}}}}}
+  /api/solicitudes-contacto/{id}:
+    get:
+      tags: [Solicitudes de contacto]
+      operationId: obtenerSolicitudContacto
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      responses: {'200': {description: Encontrada, content: {application/json: {schema: {$ref: '#/components/schemas/SolicitudContactoResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/solicitudes-contacto/{id}/estado:
+    patch:
+      tags: [Solicitudes de contacto]
+      operationId: actualizarEstadoSolicitudContacto
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EstadoSolicitudContactoRequest'}}}}
+      responses: {'200': {description: Actualizada, content: {application/json: {schema: {$ref: '#/components/schemas/SolicitudContactoResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/publico/contacto:
+    post:
+      tags: [Público]
+      operationId: crearSolicitudContactoPublica
+      x-access-intent: PUBLICO
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SolicitudContactoCreateRequest'}}}}
+      responses: {'201': {description: Recibida, content: {application/json: {schema: {$ref: '#/components/schemas/SolicitudContactoPublicResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}}
+  /api/publico/sitios/{clave}:
+    get:
+      tags: [Público]
+      operationId: obtenerSitioPublico
+      x-access-intent: PUBLICO
+      parameters: [{name: clave, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Sitio canónico, content: {application/json: {schema: {$ref: '#/components/schemas/PublicSiteResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/publico/sitios/{clave}/home:
+    get:
+      tags: [Público]
+      operationId: obtenerHomePublica
+      x-access-intent: PUBLICO
+      parameters: [{name: clave, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Home agregada, content: {application/json: {schema: {$ref: '#/components/schemas/PublicHomeResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/publico/sitios/{clave}/paginas/{pagina}:
+    get:
+      tags: [Público]
+      operationId: obtenerPaginaPublica
+      x-access-intent: PUBLICO
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}}
+        - {name: pagina, in: path, required: true, schema: {$ref: '#/components/schemas/TipoPaginaPublica'}}
+      responses: {'200': {description: Editorial y SEO, content: {application/json: {schema: {$ref: '#/components/schemas/PublicPageResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/publico/sitios/{clave}/unidades/{slug}:
+    get:
+      tags: [Público]
+      operationId: obtenerUnidadPublica
+      x-access-intent: PUBLICO
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}}
+        - {name: slug, in: path, required: true, schema: {type: string}}
+      responses: {'200': {description: Unidad activa, content: {application/json: {schema: {$ref: '#/components/schemas/PublicBusinessUnitResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+
+  /api/publico/sitios/{clave}/unidades/{unidadSlug}/productos/{productoSlug}/comparar-precio:
+    post:
+      tags: [Público]
+      operationId: compararPrecioProductoPublico
+      x-access-intent: PUBLICO
+      summary: Comparar precioBase con el precio extraído de una URL de producto
+      description: |
+        Consulta explícita sin persistencia ni historial. Valida sitio, empresa, unidad activa
+        y producto publicado. La moneda interna de esta versión es PEN.
+        El servidor obtiene precioBase; nunca acepta un precio interno del cliente.
+        Solo HTTP/HTTPS, puertos estándar y direcciones públicas. Hasta 3 redirecciones
+        validadas, sin downgrade HTTPS, HTML de hasta 1 MiB y plazo por salto de 8 segundos.
+        Los fallos externos esperables se devuelven con HTTP 200 y un estado no SUCCESS.
+        La identidad/equivalencia del producto externo debe comprobarla el usuario.
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}, example: isanorte}
+        - {name: unidadSlug, in: path, required: true, schema: {type: string}, example: isadecor}
+        - {name: productoSlug, in: path, required: true, schema: {type: string}, example: mesa}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ComparacionPrecioRequest'}
+      responses:
+        '200':
+          description: Resultado de comparación o fallo externo controlado. Cache-Control no-store.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ComparacionPrecioResponse'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/publico/sitios/{clave}/unidades/{unidadSlug}/productos/{productoSlug}/comparacion-competidores:
+    get:
+      tags: [Público]
+      operationId: compararProductosCompetidores
+      x-access-intent: PUBLICO
+      summary: Busca productos similares en PISOPAK y DECORPLAS
+      description: Consulta bajo acción explícita, sin persistencia. El backend recupera el producto publicado de ISADECOR, consulta únicamente dominios oficiales, puntúa candidatos y compara precios solo con moneda y unidad compatibles.
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}, example: isanorte}
+        - {name: unidadSlug, in: path, required: true, schema: {type: string}, example: isadecor}
+        - {name: productoSlug, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Resultado independiente por tienda. Cache-Control no-store.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ComparacionCompetidoresResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+components:
+  parameters:
+    UuidId:
+      name: id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    ProductoId:
+      name: productoId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    ProyectoId:
+      name: proyectoId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    VarianteId:
+      name: varianteId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    ImagenId:
+      name: imagenId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    EspecificacionId:
+      name: especificacionId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    DocumentoId:
+      name: documentoId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    Slug:
+      name: slug
+      in: path
+      required: true
+      schema: {type: string}
+    Sku:
+      name: sku
+      in: path
+      required: true
+      schema: {type: string}
+    CodigoCotizacion:
+      name: codigo
+      in: path
+      required: true
+      schema: {type: string}
+  responses:
+    BadRequest:
+      description: Request inválido, validación fallida o JSON no legible
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApiErrorResponse'}
+    NotFound:
+      description: Recurso o relación no encontrada
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApiErrorResponse'}
+    Conflict:
+      description: Estado, duplicado o integridad en conflicto
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApiErrorResponse'}
+    AdministradorOk:
+      description: Administrador encontrado
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/AdministradorResponse'}
+    CategoriasOk:
+      description: Lista de categorías
+      content:
+        application/json:
+          schema:
+            type: array
+            items: {$ref: '#/components/schemas/CategoriaProductoResponse'}
+    CotizacionOk:
+      description: Cotización encontrada
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/CotizacionResponse'}
+    CotizacionesOk:
+      description: Lista de cotizaciones
+      content:
+        application/json:
+          schema:
+            type: array
+            items: {$ref: '#/components/schemas/CotizacionResponse'}
+    EmpresasOk:
+      description: Lista de empresas
+      content:
+        application/json:
+          schema:
+            type: array
+            items: {$ref: '#/components/schemas/EmpresaResponse'}
+    ProductoOk:
+      description: Producto encontrado
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ProductoResponse'}
+    ProductosOk:
+      description: Lista de productos
+      content:
+        application/json:
+          schema:
+            type: array
+            items: {$ref: '#/components/schemas/ProductoResponse'}
+    ProyectoOk:
+      description: Proyecto encontrado
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ProyectoResponse'}
+    ProyectosOk:
+      description: Lista de proyectos
+      content:
+        application/json:
+          schema:
+            type: array
+            items: {$ref: '#/components/schemas/ProyectoResponse'}
+    SeccionesOk:
+      description: Lista de secciones
+      content:
+        application/json:
+          schema:
+            type: array
+            items: {$ref: '#/components/schemas/SeccionLandingResponse'}
+    ServicioOk:
+      description: Servicio encontrado
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ServicioResponse'}
+    ServiciosOk:
+      description: Lista de servicios
+      content:
+        application/json:
+          schema:
+            type: array
+            items: {$ref: '#/components/schemas/ServicioResponse'}
+    UnidadOk:
+      description: Unidad encontrada
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/UnidadNegocioResponse'}
+    UnidadesOk:
+      description: Lista de unidades
+      content:
+        application/json:
+          schema:
+            type: array
+            items: {$ref: '#/components/schemas/UnidadNegocioResponse'}
+  schemas:
+    EstadoComparacionCompetidor:
+      type: string
+      enum: [FOUND, NO_SIMILAR_PRODUCT_FOUND, STORE_UNAVAILABLE]
+    CaracteristicaComparable:
+      type: object
+      required: [nombre, valor]
+      properties:
+        nombre: {type: string}
+        valor: {type: string}
+    ProductoComparable:
+      type: object
+      required: [nombre, precio, precioAnterior, moneda, unidadPrecio, caracteristicas]
+      properties:
+        nombre: {type: string}
+        precio: {type: number, nullable: true}
+        precioAnterior: {type: number, nullable: true}
+        moneda: {type: string, example: PEN}
+        unidadPrecio: {type: string, nullable: true, example: m2}
+        caracteristicas: {type: array, items: {$ref: '#/components/schemas/CaracteristicaComparable'}}
+    ResultadoCompetidor:
+      type: object
+      required: [empresa, estado, encontrado, nombreProducto, urlProducto, precio, precioAnterior, moneda, unidadPrecio, cantidadPorPresentacion, similitud, caracteristicas, comparablePrecio, diferenciaPrecio, mensaje]
+      properties:
+        empresa: {type: string, enum: [PISOPAK, DECORPLAS]}
+        estado: {$ref: '#/components/schemas/EstadoComparacionCompetidor'}
+        encontrado: {type: boolean}
+        nombreProducto: {type: string, nullable: true}
+        urlProducto: {type: string, format: uri, nullable: true}
+        precio: {type: number, nullable: true}
+        precioAnterior: {type: number, nullable: true}
+        moneda: {type: string, nullable: true}
+        unidadPrecio: {type: string, nullable: true}
+        cantidadPorPresentacion: {type: number, nullable: true}
+        similitud: {type: number, minimum: 0, maximum: 1, nullable: true}
+        caracteristicas: {type: array, items: {$ref: '#/components/schemas/CaracteristicaComparable'}}
+        comparablePrecio: {type: boolean}
+        diferenciaPrecio: {type: number, nullable: true, description: 'precio competidor - precio ISADECOR; solo con moneda y unidad compatibles'}
+        mensaje: {type: string}
+    ComparacionCompetidoresResponse:
+      type: object
+      required: [productoIsadecor, competidores, diferenciasEncontradas, fechaConsulta]
+      properties:
+        productoIsadecor: {$ref: '#/components/schemas/ProductoComparable'}
+        competidores: {type: array, items: {$ref: '#/components/schemas/ResultadoCompetidor'}}
+        diferenciasEncontradas: {type: array, items: {type: string}}
+        fechaConsulta: {type: string, format: date-time}
+    ComparacionPrecioRequest:
+      type: object
+      description: La ausencia, vacío o formato inválido de URL devuelve INVALID_URL; más de 2048 caracteres devuelve HTTP 400.
+      properties:
+        urlExterna: {type: string, nullable: true, maxLength: 2048, example: 'https://tienda.example/productos/mesa'}
+    EstadoComparacionPrecio:
+      type: string
+      enum: [SUCCESS, INVALID_URL, BLOCKED_URL, SITE_UNREACHABLE, UNSUPPORTED_CONTENT, PRICE_NOT_FOUND, CURRENCY_UNKNOWN, CURRENCY_MISMATCH, NOT_COMPARABLE]
+    ComparacionPrecioResponse:
+      type: object
+      required: [producto, urlExterna, dominioExterno, nombreProductoExterno, precioInterno, precioExterno, monedaInterna, monedaExterna, diferencia, porcentajeDiferencia, comparable, estado, mensaje, fechaConsulta]
+      properties:
+        producto: {type: string}
+        urlExterna: {type: string, nullable: true, description: URL final validada; null si falla la extracción}
+        dominioExterno: {type: string, nullable: true}
+        nombreProductoExterno: {type: string, nullable: true}
+        precioInterno: {type: number, nullable: true, description: precioBase obtenido por el backend}
+        precioExterno: {type: number, nullable: true}
+        monedaInterna: {type: string, example: PEN}
+        monedaExterna: {type: string, nullable: true}
+        diferencia: {type: number, nullable: true, description: 'precioExterno - precioInterno; solo cuando comparable=true'}
+        porcentajeDiferencia: {type: number, nullable: true, description: '(precioExterno - precioInterno) * 100 / precioInterno; null si no comparable o precioInterno=0. Redondeo HALF_UP a 2 decimales.'}
+        comparable: {type: boolean}
+        estado: {$ref: '#/components/schemas/EstadoComparacionPrecio'}
+        mensaje: {type: string}
+        fechaConsulta: {type: string, format: date-time}
+    CanalCotizacion:
+      type: string
+      enum: [FORMULARIO, WHATSAPP]
+    EstadoCotizacion:
+      type: string
+      enum: [NUEVA, EN_REVISION, CONTACTADA, COTIZADA, CERRADA, CANCELADA]
+    EstadoDisponibilidad:
+      type: string
+      enum: [DISPONIBLE, AGOTADO, BAJO_PEDIDO, CONSULTAR]
+    EstadoPublicacion:
+      type: string
+      enum: [BORRADOR, PUBLICADO, OCULTO]
+    TipoDocumentoProducto:
+      type: string
+      enum: [CATALOGO, FICHA_TECNICA, MANUAL, OTRO]
+    TipoSeccionLanding:
+      type: string
+      enum: [HERO, EMPRESA, SERVICIOS, UNIDAD_NEGOCIO, PROYECTOS, CONTACTO, CTA, PERSONALIZADA]
+
+    AdministradorRequest:
+      type: object
+      description: DTO existente sin endpoint HTTP consumidor actual.
+      required: [nombre, email]
+      properties:
+        nombre: {type: string, minLength: 1}
+        apellido: {type: string, nullable: true}
+        email: {type: string, format: email, minLength: 1}
+        telefono: {type: string, nullable: true}
+        activo: {type: boolean, nullable: true}
+    CategoriaProductoRequest:
+      type: object
+      required: [nombre, slug]
+      properties:
+        nombre: {type: string, minLength: 1}
+        slug: {type: string, minLength: 1}
+        descripcion: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        activo: {type: boolean, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        unidadNegocioId: {type: string, format: uuid, nullable: true}
+    ConfiguracionSitioRequest:
+      type: object
+      required: [empresaId]
+      properties:
+        empresaId: {type: string, format: uuid}
+        clave: {type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 100, nullable: true, description: 'Temporalmente opcional por compatibilidad; si falta se genera site-{empresaId}.'}
+        tituloSitio: {type: string, nullable: true}
+        descripcionSitio: {type: string, nullable: true}
+        logoUrl: {type: string, nullable: true}
+        logoBlancoUrl: {type: string, nullable: true}
+        faviconUrl: {type: string, nullable: true}
+        colorPrimario: {type: string, nullable: true}
+        colorSecundario: {type: string, nullable: true}
+        textoPiePagina: {type: string, nullable: true}
+        secciones:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/ConfiguracionSeccionRequest'}
+    ConfiguracionSeccionRequest:
+      type: object
+      required: [tipo]
+      properties:
+        tipo: {$ref: '#/components/schemas/TipoSeccionLanding'}
+        etiqueta: {type: string, maxLength: 180, nullable: true}
+        titulo: {type: string, nullable: true}
+        subtitulo: {type: string, nullable: true}
+        contenido: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        textoBoton: {type: string, nullable: true}
+        enlaceBoton: {type: string, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        visible: {type: boolean, nullable: true}
+    CotizacionRequest:
+      type: object
+      required: [nombreCliente, emailCliente, telefonoCliente, canal, detalles]
+      properties:
+        nombreCliente: {type: string, minLength: 1}
+        emailCliente: {type: string, format: email, minLength: 1}
+        telefonoCliente: {type: string, minLength: 1}
+        empresaCliente: {type: string, nullable: true}
+        ciudad: {type: string, nullable: true}
+        mensaje: {type: string, nullable: true}
+        canal: {$ref: '#/components/schemas/CanalCotizacion'}
+        detalles:
+          type: array
+          minItems: 1
+          items: {$ref: '#/components/schemas/CotizacionDetalleRequest'}
+    CotizacionDetalleRequest:
+      type: object
+      required: [productoId, cantidad]
+      properties:
+        productoId: {type: string, format: uuid}
+        varianteId: {type: string, format: uuid, nullable: true}
+        cantidad: {type: integer, format: int32, minimum: 1}
+        notas: {type: string, nullable: true}
+    EmpresaRequest:
+      type: object
+      required: [razonSocial, nombreComercial, ruc]
+      properties:
+        razonSocial: {type: string, minLength: 1}
+        nombreComercial: {type: string, minLength: 1}
+        ruc: {type: string, minLength: 1}
+        direccion: {type: string, nullable: true}
+        ciudad: {type: string, nullable: true}
+        telefono: {type: string, nullable: true}
+        telefonoSecundario: {type: string, nullable: true}
+        email: {type: string, format: email, nullable: true}
+        emailVentas: {type: string, format: email, nullable: true}
+        whatsapp: {type: string, nullable: true}
+        horarioAtencion: {type: string, nullable: true}
+        mision: {type: string, nullable: true}
+        vision: {type: string, nullable: true}
+        valores: {type: string, nullable: true}
+        resumenNosotros: {type: string, nullable: true}
+        redesSociales:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/RedSocialRequest'}
+    RedSocialRequest:
+      type: object
+      description: No acepta id, empresaId, timestamps ni entidades JPA.
+      required: [nombre, url]
+      properties:
+        nombre: {type: string, minLength: 1}
+        url: {type: string, minLength: 1}
+        icono: {type: string, nullable: true}
+        activo: {type: boolean, nullable: true}
+        orden: {type: integer, minimum: 0, nullable: true}
+    ProductoRequest:
+      type: object
+      required: [sku, nombre, slug, descripcion, disponibilidad, estado, unidadNegocioId]
+      properties:
+        sku: {type: string, minLength: 1}
+        nombre: {type: string, minLength: 1}
+        slug: {type: string, minLength: 1}
+        resumen: {type: string, nullable: true}
+        descripcion: {type: string, minLength: 1}
+        precioBase: {type: number, minimum: 0, nullable: true}
+        precioAnterior: {type: number, minimum: 0, nullable: true}
+        descuentoPorcentaje: {type: number, minimum: 0, maximum: 100, nullable: true}
+        disponibilidad: {$ref: '#/components/schemas/EstadoDisponibilidad'}
+        destacado: {type: boolean, nullable: true}
+        estado: {$ref: '#/components/schemas/EstadoPublicacion'}
+        tituloSeo: {type: string, nullable: true}
+        descripcionSeo: {type: string, nullable: true}
+        unidadNegocioId: {type: string, format: uuid}
+        categoriaIds:
+          type: array
+          uniqueItems: true
+          nullable: true
+          items: {type: string, format: uuid}
+        variantes:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/ProductoVarianteRequest'}
+        imagenes:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/ProductoImagenRequest'}
+        especificaciones:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/ProductoEspecificacionRequest'}
+        documentos:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/ProductoDocumentoRequest'}
+        configuracionCalculo:
+          allOf:
+            - $ref: '#/components/schemas/ProductoConfiguracionCalculoRequest'
+          nullable: true
+    ProductoVarianteRequest:
+      type: object
+      required: [sku, nombre]
+      properties:
+        sku: {type: string, minLength: 1}
+        nombre: {type: string, minLength: 1}
+        descripcion: {type: string, nullable: true}
+        alt: {type: string, nullable: true}
+        precio: {type: number, minimum: 0, nullable: true}
+        disponible: {type: boolean, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+    ProductoImagenRequest:
+      type: object
+      required: [url]
+      properties:
+        url: {type: string, minLength: 1}
+        altText: {type: string, nullable: true}
+        esPrincipal: {type: boolean, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+    ProductoEspecificacionRequest:
+      type: object
+      required: [clave, valor]
+      properties:
+        clave: {type: string, minLength: 1}
+        valor: {type: string, minLength: 1}
+        grupo: {type: string, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+    ProductoDocumentoRequest:
+      type: object
+      required: [titulo, url, tipo]
+      properties:
+        titulo: {type: string, minLength: 1}
+        url: {type: string, minLength: 1}
+        tipo: {$ref: '#/components/schemas/TipoDocumentoProducto'}
+        formato: {type: string, nullable: true}
+        tamanoBytes: {type: integer, format: int64, minimum: 0, nullable: true}
+    ProductoConfiguracionCalculoRequest:
+      type: object
+      required: [coberturaPorUnidad]
+      properties:
+        habilitada: {type: boolean, nullable: true}
+        etiquetaEntrada: {type: string, nullable: true}
+        unidadEntrada: {type: string, nullable: true}
+        coberturaPorUnidad: {type: number, exclusiveMinimum: true, minimum: 0}
+        unidadVenta: {type: string, nullable: true}
+        textoAyuda: {type: string, nullable: true}
+    VarianteProductoRequest:
+      type: object
+      required: [sku, nombre, disponible, orden]
+      properties:
+        sku: {type: string, minLength: 1, maxLength: 100}
+        nombre: {type: string, minLength: 1, maxLength: 150}
+        descripcion: {type: string, maxLength: 500, nullable: true}
+        precio: {type: number, minimum: 0, nullable: true}
+        disponible: {type: boolean}
+        imagenUrl: {type: string, maxLength: 500, nullable: true}
+        orden: {type: integer, format: int32}
+    ImagenProductoRequest:
+      type: object
+      required: [url, esPrincipal, orden]
+      properties:
+        url: {type: string, minLength: 1, maxLength: 500}
+        altText: {type: string, maxLength: 200, nullable: true}
+        esPrincipal: {type: boolean}
+        orden: {type: integer, format: int32}
+    EspecificacionProductoRequest:
+      type: object
+      required: [clave, valor, orden]
+      properties:
+        clave: {type: string, minLength: 1, maxLength: 100}
+        valor: {type: string, minLength: 1, maxLength: 500}
+        grupo: {type: string, maxLength: 100, nullable: true}
+        orden: {type: integer, format: int32}
+    DocumentoProductoRequest:
+      type: object
+      required: [titulo, url, tipo]
+      properties:
+        titulo: {type: string, minLength: 1, maxLength: 180}
+        url: {type: string, minLength: 1, maxLength: 500}
+        tipo: {$ref: '#/components/schemas/TipoDocumentoProducto'}
+        formato: {type: string, maxLength: 20, nullable: true}
+        tamanoBytes: {type: integer, format: int64, minimum: 0, nullable: true}
+    ConfiguracionCalculoRequest:
+      type: object
+      required: [habilitada, coberturaPorUnidad]
+      properties:
+        habilitada: {type: boolean}
+        etiquetaEntrada: {type: string, maxLength: 100, nullable: true}
+        unidadEntrada: {type: string, maxLength: 50, nullable: true}
+        coberturaPorUnidad: {type: number, exclusiveMinimum: true, minimum: 0}
+        unidadVenta: {type: string, maxLength: 50, nullable: true}
+        textoAyuda: {type: string, maxLength: 255, nullable: true}
+    ProyectoRequest:
+      type: object
+      required: [nombre, slug, descripcion]
+      properties:
+        nombre: {type: string, minLength: 1}
+        slug: {type: string, minLength: 1}
+        cliente: {type: string, nullable: true}
+        ubicacion: {type: string, nullable: true}
+        fechaProyecto: {type: string, nullable: true, description: Texto libre; no tiene formato de fecha validado.}
+        descripcion: {type: string, minLength: 1}
+        imagenUrl: {type: string, maxLength: 500, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        destacado: {type: boolean, nullable: true}
+        activo: {type: boolean, nullable: true}
+        orden: {type: integer, format: int32, minimum: 0, nullable: true}
+        servicioIds:
+          type: array
+          uniqueItems: true
+          nullable: true
+          items: {type: string, format: uuid}
+    SeccionLandingRequest:
+      type: object
+      required: [configuracionSitioId, tipo]
+      properties:
+        configuracionSitioId: {type: string, format: uuid}
+        tipo: {$ref: '#/components/schemas/TipoSeccionLanding'}
+        etiqueta: {type: string, maxLength: 180, nullable: true}
+        titulo: {type: string, nullable: true}
+        subtitulo: {type: string, nullable: true}
+        contenido: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        textoBoton: {type: string, nullable: true}
+        enlaceBoton: {type: string, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        visible: {type: boolean, nullable: true}
+    ServicioRequest:
+      type: object
+      required: [nombre, slug, descripcion]
+      properties:
+        nombre: {type: string, minLength: 1}
+        slug: {type: string, minLength: 1}
+        resumen: {type: string, nullable: true}
+        descripcion: {type: string, minLength: 1}
+        imagenUrl: {type: string, nullable: true}
+        etiqueta: {type: string, maxLength: 180, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        activo: {type: boolean, nullable: true}
+        destacado: {type: boolean, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+    UnidadNegocioRequest:
+      type: object
+      required: [nombre, slug, empresaId]
+      properties:
+        nombre: {type: string, minLength: 1}
+        slug: {type: string, minLength: 1}
+        descripcion: {type: string, nullable: true}
+        icono: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        activo: {type: boolean, nullable: true}
+        destacado: {type: boolean, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        empresaId: {type: string, format: uuid}
+
+    AdministradorUpdateRequest:
+      type: object
+      description: No acepta passwordHash, roles, ultimoAcceso, id ni timestamps.
+      required: [nombre, email, activo]
+      properties:
+        nombre: {type: string, minLength: 1}
+        apellido: {type: string, nullable: true}
+        email: {type: string, format: email, minLength: 1}
+        telefono: {type: string, nullable: true}
+        activo: {type: boolean}
+    CategoriaProductoUpdateRequest:
+      type: object
+      required: [nombre, slug, activo, orden]
+      properties:
+        nombre: {type: string, minLength: 1}
+        slug: {type: string, minLength: 1}
+        descripcion: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        activo: {type: boolean}
+        orden: {type: integer, format: int32}
+        unidadNegocioId: {type: string, format: uuid, nullable: true}
+    ConfiguracionSitioUpdateRequest:
+      type: object
+      description: Conserva empresa, secciones, scripts e id.
+      properties:
+        clave: {type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 100, nullable: true, description: Editable solo por contrato administrativo; null conserva la clave actual.}
+        tituloSitio: {type: string, nullable: true}
+        descripcionSitio: {type: string, nullable: true}
+        logoUrl: {type: string, nullable: true}
+        logoBlancoUrl: {type: string, nullable: true}
+        faviconUrl: {type: string, nullable: true}
+        colorPrimario: {type: string, nullable: true}
+        colorSecundario: {type: string, nullable: true}
+        textoPiePagina: {type: string, nullable: true}
+    EmpresaUpdateRequest:
+      type: object
+      description: Conserva redes sociales, configuración, unidades e id.
+      required: [razonSocial, nombreComercial, ruc]
+      properties:
+        razonSocial: {type: string, minLength: 1}
+        nombreComercial: {type: string, minLength: 1}
+        ruc: {type: string, minLength: 1}
+        direccion: {type: string, nullable: true}
+        ciudad: {type: string, nullable: true}
+        telefono: {type: string, nullable: true}
+        telefonoSecundario: {type: string, nullable: true}
+        email: {type: string, format: email, nullable: true}
+        emailVentas: {type: string, format: email, nullable: true}
+        whatsapp: {type: string, nullable: true}
+        horarioAtencion: {type: string, nullable: true}
+        mision: {type: string, nullable: true}
+        vision: {type: string, nullable: true}
+        valores: {type: string, nullable: true}
+        resumenNosotros: {type: string, nullable: true}
+    ProductoUpdateRequest:
+      type: object
+      description: No acepta hijos; variantes, imágenes, especificaciones, documentos y configuración de cálculo se conservan. unidadNegocioId siempre es obligatorio.
+      required: [sku, nombre, slug, descripcion, disponibilidad, destacado, estado, unidadNegocioId, categoriaIds]
+      properties:
+        sku: {type: string, minLength: 1}
+        nombre: {type: string, minLength: 1}
+        slug: {type: string, minLength: 1}
+        resumen: {type: string, nullable: true}
+        descripcion: {type: string, minLength: 1}
+        precioBase: {type: number, minimum: 0, nullable: true}
+        precioAnterior: {type: number, minimum: 0, nullable: true}
+        descuentoPorcentaje: {type: number, minimum: 0, maximum: 100, nullable: true}
+        disponibilidad: {$ref: '#/components/schemas/EstadoDisponibilidad'}
+        destacado: {type: boolean}
+        estado: {$ref: '#/components/schemas/EstadoPublicacion'}
+        tituloSeo: {type: string, nullable: true}
+        descripcionSeo: {type: string, nullable: true}
+        unidadNegocioId: {type: string, format: uuid}
+        categoriaIds:
+          type: array
+          uniqueItems: true
+          items: {type: string, format: uuid}
+      example:
+        sku: POR-60-MATE
+        nombre: Porcelanato mate 60 x 60
+        slug: porcelanato-mate-60x60
+        resumen: Acabado mate para interiores
+        descripcion: Porcelanato de alta resistencia.
+        precioBase: 89.90
+        precioAnterior: 99.90
+        descuentoPorcentaje: 10
+        disponibilidad: DISPONIBLE
+        destacado: true
+        estado: PUBLICADO
+        tituloSeo: Porcelanato mate 60 x 60
+        descripcionSeo: Porcelanato de alta resistencia para interiores
+        unidadNegocioId: 11111111-1111-4111-8111-111111111111
+        categoriaIds: [22222222-2222-4222-8222-222222222222]
+    ProyectoUpdateRequest:
+      type: object
+      required: [nombre, slug, descripcion, destacado, activo, orden, servicioIds]
+      properties:
+        nombre: {type: string, minLength: 1}
+        slug: {type: string, minLength: 1}
+        cliente: {type: string, nullable: true}
+        ubicacion: {type: string, nullable: true}
+        fechaProyecto: {type: string, nullable: true}
+        descripcion: {type: string, minLength: 1}
+        imagenUrl: {type: string, maxLength: 500, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        destacado: {type: boolean}
+        activo: {type: boolean}
+        orden: {type: integer, format: int32, minimum: 0}
+        servicioIds:
+          type: array
+          uniqueItems: true
+          items: {type: string, format: uuid}
+    SeccionLandingUpdateRequest:
+      type: object
+      required: [configuracionSitioId, tipo, orden, visible]
+      properties:
+        configuracionSitioId: {type: string, format: uuid, description: Debe coincidir con la configuración padre actual.}
+        tipo: {$ref: '#/components/schemas/TipoSeccionLanding'}
+        etiqueta: {type: string, maxLength: 180, nullable: true}
+        titulo: {type: string, nullable: true}
+        subtitulo: {type: string, nullable: true}
+        contenido: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        textoBoton: {type: string, nullable: true}
+        enlaceBoton: {type: string, nullable: true}
+        orden: {type: integer, format: int32}
+        visible: {type: boolean}
+    ServicioUpdateRequest:
+      type: object
+      required: [nombre, slug, descripcion, activo, destacado, orden]
+      properties:
+        nombre: {type: string, minLength: 1}
+        slug: {type: string, minLength: 1}
+        resumen: {type: string, nullable: true}
+        descripcion: {type: string, minLength: 1}
+        imagenUrl: {type: string, nullable: true}
+        etiqueta: {type: string, maxLength: 180, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        activo: {type: boolean}
+        destacado: {type: boolean}
+        orden: {type: integer, format: int32}
+    UnidadNegocioUpdateRequest:
+      type: object
+      required: [nombre, slug, activo, destacado, orden, empresaId]
+      properties:
+        nombre: {type: string, minLength: 1}
+        slug: {type: string, minLength: 1}
+        descripcion: {type: string, nullable: true}
+        icono: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        activo: {type: boolean}
+        destacado: {type: boolean}
+        orden: {type: integer, format: int32}
+        empresaId: {type: string, format: uuid, description: Debe coincidir con la empresa actual.}
+    ActivoRequest:
+      type: object
+      required: [activo]
+      properties:
+        activo: {type: boolean}
+      example: {activo: false}
+    VisibleRequest:
+      type: object
+      required: [visible]
+      properties:
+        visible: {type: boolean}
+      example: {visible: false}
+    EstadoPublicacionRequest:
+      type: object
+      required: [estado]
+      properties:
+        estado: {$ref: '#/components/schemas/EstadoPublicacion'}
+      example: {estado: OCULTO}
+    EstadoCotizacionRequest:
+      type: object
+      required: [estado]
+      properties:
+        estado: {$ref: '#/components/schemas/EstadoCotizacion'}
+      example: {estado: EN_REVISION}
+
+    ApiErrorResponse:
+      type: object
+      required: [timestamp, status, error, message, path]
+      properties:
+        timestamp: {type: string, format: date-time, description: OffsetDateTime con offset}
+        status: {type: integer, format: int32}
+        error: {type: string}
+        message: {type: string, nullable: true}
+        path: {type: string}
+      example:
+        timestamp: '2026-09-13T18:30:00-05:00'
+        status: 404
+        error: Not Found
+        message: 'Registro no encontrado con ID: 11111111-1111-4111-8111-111111111111'
+        path: /api/productos/11111111-1111-4111-8111-111111111111
+    NamedSlugSummary:
+      type: object
+      required: [id, nombre, slug]
+      properties:
+        id: {type: string, format: uuid}
+        nombre: {type: string}
+        slug: {type: string}
+    EmpresaResumen:
+      type: object
+      required: [id, nombreComercial]
+      properties:
+        id: {type: string, format: uuid}
+        nombreComercial: {type: string}
+
+    AdministradorResponse:
+      type: object
+      required: [id, nombre, apellido, email, telefono, activo, ultimoAcceso, roles, fechaCreacion, fechaActualizacion]
+      properties:
+        id: {type: string, format: uuid}
+        nombre: {type: string}
+        apellido: {type: string, nullable: true}
+        email: {type: string, format: email}
+        telefono: {type: string, nullable: true}
+        activo: {type: boolean, nullable: true}
+        ultimoAcceso: {type: string, format: date-time, nullable: true, description: LocalDateTime sin offset}
+        roles:
+          type: array
+          uniqueItems: true
+          nullable: true
+          items: {$ref: '#/components/schemas/RolResumen'}
+        fechaCreacion: {type: string, format: date-time, nullable: true, description: LocalDateTime sin offset}
+        fechaActualizacion: {type: string, format: date-time, nullable: true, description: LocalDateTime sin offset}
+    RolResumen:
+      type: object
+      required: [id, nombre, descripcion]
+      properties:
+        id: {type: string, format: uuid}
+        nombre: {type: string}
+        descripcion: {type: string, nullable: true}
+
+    CategoriaProductoResponse:
+      type: object
+      required: [id, nombre, slug, descripcion, imagenUrl, activo, orden, unidadNegocio, fechaCreacion, fechaActualizacion]
+      properties:
+        id: {type: string, format: uuid}
+        nombre: {type: string}
+        slug: {type: string}
+        descripcion: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        activo: {type: boolean, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        unidadNegocio:
+          allOf:
+            - $ref: '#/components/schemas/NamedSlugSummary'
+          nullable: true
+        fechaCreacion: {type: string, format: date-time, nullable: true}
+        fechaActualizacion: {type: string, format: date-time, nullable: true}
+
+    ConfiguracionSitioResponse:
+      type: object
+      required: [id, clave, tituloSitio, descripcionSitio, logoUrl, logoBlancoUrl, faviconUrl, colorPrimario, colorSecundario, textoPiePagina, empresa, secciones, fechaActualizacion]
+      properties:
+        id: {type: string, format: uuid}
+        clave: {type: string}
+        tituloSitio: {type: string, nullable: true}
+        descripcionSitio: {type: string, nullable: true}
+        logoUrl: {type: string, nullable: true}
+        logoBlancoUrl: {type: string, nullable: true}
+        faviconUrl: {type: string, nullable: true}
+        colorPrimario: {type: string, nullable: true}
+        colorSecundario: {type: string, nullable: true}
+        textoPiePagina: {type: string, nullable: true}
+        empresa: {$ref: '#/components/schemas/EmpresaResumen'}
+        secciones:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/ConfiguracionSeccionResponse'}
+        fechaActualizacion: {type: string, format: date-time, nullable: true}
+    ConfiguracionSeccionResponse:
+      type: object
+      required: [id, tipo, etiqueta, titulo, subtitulo, contenido, imagenUrl, imagenAlt, textoBoton, enlaceBoton, orden, visible]
+      properties:
+        id: {type: string, format: uuid}
+        tipo: {$ref: '#/components/schemas/TipoSeccionLanding'}
+        etiqueta: {type: string, nullable: true}
+        titulo: {type: string, nullable: true}
+        subtitulo: {type: string, nullable: true}
+        contenido: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        textoBoton: {type: string, nullable: true}
+        enlaceBoton: {type: string, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        visible: {type: boolean, nullable: true}
+
+    CotizacionResponse:
+      type: object
+      required: [id, codigo, nombreCliente, emailCliente, telefonoCliente, empresaCliente, ciudad, mensaje, canal, estado, totalEstimado, detalles, seguimientos, fechaCreacion, fechaActualizacion]
+      properties:
+        id: {type: string, format: uuid}
+        codigo: {type: string}
+        nombreCliente: {type: string}
+        emailCliente: {type: string, format: email}
+        telefonoCliente: {type: string}
+        empresaCliente: {type: string, nullable: true}
+        ciudad: {type: string, nullable: true}
+        mensaje: {type: string, nullable: true}
+        canal: {$ref: '#/components/schemas/CanalCotizacion'}
+        estado: {$ref: '#/components/schemas/EstadoCotizacion'}
+        totalEstimado: {type: number, nullable: true}
+        detalles:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/CotizacionDetalleResponse'}
+        seguimientos:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/CotizacionSeguimientoResponse'}
+        fechaCreacion: {type: string, format: date-time, nullable: true}
+        fechaActualizacion: {type: string, format: date-time, nullable: true}
+    CotizacionDetalleResponse:
+      type: object
+      required: [id, productoId, varianteId, nombreProducto, sku, cantidad, precioUnitario, subtotal, notas]
+      properties:
+        id: {type: string, format: uuid}
+        productoId: {type: string, format: uuid}
+        varianteId: {type: string, format: uuid, nullable: true}
+        nombreProducto: {type: string}
+        sku: {type: string}
+        cantidad: {type: integer, format: int32}
+        precioUnitario: {type: number, nullable: true}
+        subtotal: {type: number, nullable: true}
+        notas: {type: string, nullable: true}
+    CotizacionSeguimientoResponse:
+      type: object
+      required: [id, administradorId, administradorNombre, estadoAnterior, estadoNuevo, comentario, fecha]
+      properties:
+        id: {type: string, format: uuid}
+        administradorId: {type: string, format: uuid, nullable: true}
+        administradorNombre: {type: string, nullable: true}
+        estadoAnterior:
+          allOf:
+            - $ref: '#/components/schemas/EstadoCotizacion'
+          nullable: true
+        estadoNuevo:
+          allOf:
+            - $ref: '#/components/schemas/EstadoCotizacion'
+          nullable: true
+        comentario: {type: string, nullable: true}
+        fecha: {type: string, format: date-time, nullable: true}
+
+    EmpresaResponse:
+      type: object
+      required: [id, razonSocial, nombreComercial, ruc, direccion, ciudad, telefono, telefonoSecundario, email, emailVentas, whatsapp, horarioAtencion, mision, vision, valores, resumenNosotros, redesSociales, estadisticas, fechaCreacion, fechaActualizacion]
+      properties:
+        id: {type: string, format: uuid}
+        razonSocial: {type: string}
+        nombreComercial: {type: string}
+        ruc: {type: string}
+        direccion: {type: string, nullable: true}
+        ciudad: {type: string, nullable: true}
+        telefono: {type: string, nullable: true}
+        telefonoSecundario: {type: string, nullable: true}
+        email: {type: string, format: email, nullable: true}
+        emailVentas: {type: string, format: email, nullable: true}
+        whatsapp: {type: string, nullable: true}
+        horarioAtencion: {type: string, nullable: true}
+        mision: {type: string, nullable: true}
+        vision: {type: string, nullable: true}
+        valores: {type: string, nullable: true}
+        resumenNosotros: {type: string, nullable: true}
+        redesSociales:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/RedSocialResponse'}
+        estadisticas:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/EstadisticaEmpresaResponse'}
+        fechaCreacion: {type: string, format: date-time, nullable: true}
+        fechaActualizacion: {type: string, format: date-time, nullable: true}
+    RedSocialResponse:
+      type: object
+      required: [id, nombre, url, icono, orden, activo]
+      properties:
+        id: {type: string, format: uuid}
+        nombre: {type: string}
+        url: {type: string}
+        icono: {type: string, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        activo: {type: boolean, nullable: true}
+
+    ProductoResponse:
+      type: object
+      required: [id, sku, nombre, slug, resumen, descripcion, precioBase, precioAnterior, descuentoPorcentaje, disponibilidad, destacado, estado, tituloSeo, descripcionSeo, unidadNegocio, categorias, variantes, imagenes, especificaciones, documentos, configuracionCalculo, fechaCreacion, fechaActualizacion]
+      properties:
+        id: {type: string, format: uuid}
+        sku: {type: string}
+        nombre: {type: string}
+        slug: {type: string}
+        resumen: {type: string, nullable: true}
+        descripcion: {type: string}
+        precioBase: {type: number, nullable: true}
+        precioAnterior: {type: number, nullable: true}
+        descuentoPorcentaje: {type: number, nullable: true}
+        disponibilidad: {$ref: '#/components/schemas/EstadoDisponibilidad'}
+        destacado: {type: boolean, nullable: true}
+        estado: {$ref: '#/components/schemas/EstadoPublicacion'}
+        tituloSeo: {type: string, nullable: true}
+        descripcionSeo: {type: string, nullable: true}
+        unidadNegocio: {$ref: '#/components/schemas/NamedSlugSummary'}
+        categorias:
+          type: array
+          uniqueItems: true
+          nullable: true
+          items: {$ref: '#/components/schemas/NamedSlugSummary'}
+        variantes:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/VarianteProductoResponse'}
+        imagenes:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/ImagenProductoResponse'}
+        especificaciones:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/EspecificacionProductoResponse'}
+        documentos:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/DocumentoProductoResponse'}
+        configuracionCalculo:
+          allOf:
+            - $ref: '#/components/schemas/ConfiguracionCalculoResponse'
+          nullable: true
+        fechaCreacion: {type: string, format: date-time, nullable: true}
+        fechaActualizacion: {type: string, format: date-time, nullable: true}
+    VarianteProductoResponse:
+      type: object
+      required: [id, sku, nombre, descripcion, precio, disponible, imagenUrl, orden]
+      properties:
+        id: {type: string, format: uuid}
+        sku: {type: string}
+        nombre: {type: string}
+        descripcion: {type: string, nullable: true}
+        precio: {type: number, nullable: true}
+        disponible: {type: boolean, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+    ImagenProductoResponse:
+      type: object
+      required: [id, url, altText, esPrincipal, orden]
+      properties:
+        id: {type: string, format: uuid}
+        url: {type: string}
+        altText: {type: string, nullable: true}
+        esPrincipal: {type: boolean, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+    EspecificacionProductoResponse:
+      type: object
+      required: [id, clave, valor, grupo, orden]
+      properties:
+        id: {type: string, format: uuid}
+        clave: {type: string}
+        valor: {type: string}
+        grupo: {type: string, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+    DocumentoProductoResponse:
+      type: object
+      required: [id, titulo, url, tipo, formato, tamanoBytes]
+      properties:
+        id: {type: string, format: uuid}
+        titulo: {type: string}
+        url: {type: string}
+        tipo: {$ref: '#/components/schemas/TipoDocumentoProducto'}
+        formato: {type: string, nullable: true}
+        tamanoBytes: {type: integer, format: int64, nullable: true}
+    ConfiguracionCalculoResponse:
+      type: object
+      required: [id, habilitada, etiquetaEntrada, unidadEntrada, coberturaPorUnidad, unidadVenta, textoAyuda]
+      properties:
+        id: {type: string, format: uuid}
+        habilitada: {type: boolean, nullable: true}
+        etiquetaEntrada: {type: string, nullable: true}
+        unidadEntrada: {type: string, nullable: true}
+        coberturaPorUnidad: {type: number, nullable: true}
+        unidadVenta: {type: string, nullable: true}
+        textoAyuda: {type: string, nullable: true}
+
+    TipoPaginaPublica:
+      type: string
+      enum: [NOSOTROS, SERVICIOS, PROYECTOS, CONTACTO]
+    TipoPaginaSeo:
+      type: string
+      enum: [HOME, NOSOTROS, SERVICIOS, PROYECTOS, CONTACTO, UNIDAD_NEGOCIO]
+    TipoRecursoUnidadNegocio:
+      type: string
+      enum: [IMAGEN_FONDO, IMAGEN_EDITORIAL, CATALOGO]
+    RobotsSeo:
+      type: string
+      enum: [INDEX_FOLLOW, NOINDEX_FOLLOW, INDEX_NOFOLLOW, NOINDEX_NOFOLLOW]
+    EstadoSolicitudContacto:
+      type: string
+      enum: [NUEVA, EN_GESTION, RESPONDIDA, DESCARTADA, SPAM]
+
+    HeroSceneRequest:
+      type: object
+      required: [imagenUrl, orden, activo]
+      properties:
+        imagenUrl: {type: string, maxLength: 500}
+        alt: {type: string, maxLength: 300, nullable: true}
+        orden: {type: integer, minimum: 0}
+        activo: {type: boolean}
+    HeroSceneResponse:
+      allOf:
+        - {$ref: '#/components/schemas/HeroSceneRequest'}
+        - {type: object, required: [id], properties: {id: {type: string, format: uuid}}}
+    AccionLandingRequest:
+      type: object
+      required: [texto, enlace, orden, activo]
+      properties:
+        texto: {type: string, maxLength: 80}
+        enlace: {type: string, maxLength: 500, description: 'Ruta interna / (no //), fragmento #, URL HTTPS válida, mailto o tel.'}
+        orden: {type: integer, minimum: 0}
+        activo: {type: boolean}
+    AccionLandingResponse:
+      allOf:
+        - {$ref: '#/components/schemas/AccionLandingRequest'}
+        - {type: object, required: [id], properties: {id: {type: string, format: uuid}}}
+    BeneficioServicioRequest:
+      type: object
+      required: [texto, orden, activo]
+      properties:
+        texto: {type: string, maxLength: 300}
+        orden: {type: integer, minimum: 0}
+        activo: {type: boolean}
+    BeneficioServicioResponse:
+      allOf:
+        - {$ref: '#/components/schemas/BeneficioServicioRequest'}
+        - {type: object, required: [id], properties: {id: {type: string, format: uuid}}}
+    RecursoUnidadNegocioRequest:
+      type: object
+      required: [tipo, url, orden, activo]
+      properties:
+        tipo: {$ref: '#/components/schemas/TipoRecursoUnidadNegocio'}
+        url: {type: string, maxLength: 500}
+        alt: {type: string, maxLength: 300, nullable: true}
+        etiqueta: {type: string, maxLength: 120, nullable: true}
+        orden: {type: integer, minimum: 0}
+        activo: {type: boolean}
+    RecursoUnidadNegocioResponse:
+      allOf:
+        - {$ref: '#/components/schemas/RecursoUnidadNegocioRequest'}
+        - {type: object, required: [id], properties: {id: {type: string, format: uuid}}}
+    EstadisticaEmpresaRequest:
+      type: object
+      required: [valor, etiqueta, orden, activo]
+      properties:
+        valor: {type: number, minimum: 0}
+        prefijo: {type: string, maxLength: 10, nullable: true}
+        sufijo: {type: string, maxLength: 10, nullable: true}
+        etiqueta: {type: string, maxLength: 120}
+        orden: {type: integer, minimum: 0}
+        activo: {type: boolean}
+    EstadisticaEmpresaResponse:
+      allOf:
+        - {$ref: '#/components/schemas/EstadisticaEmpresaRequest'}
+        - {type: object, required: [id], properties: {id: {type: string, format: uuid}}}
+    ContenidoPaginaRequest:
+      type: object
+      required: [configuracionSitioId, pagina, activo]
+      properties:
+        configuracionSitioId: {type: string, format: uuid}
+        pagina: {$ref: '#/components/schemas/TipoPaginaPublica'}
+        eyebrow: {type: string, maxLength: 180, nullable: true}
+        titulo: {type: string, maxLength: 220, nullable: true}
+        introduccion: {type: string, nullable: true}
+        descripcion: {type: string, nullable: true}
+        imagenUrl: {type: string, maxLength: 500, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        imagenFondoUrl: {type: string, maxLength: 500, nullable: true}
+        activo: {type: boolean}
+        tags: {type: array, nullable: true, items: {type: string, maxLength: 80}}
+    ContenidoPaginaUpdateRequest:
+      type: object
+      required: [activo]
+      properties:
+        eyebrow: {type: string, maxLength: 180, nullable: true}
+        titulo: {type: string, maxLength: 220, nullable: true}
+        introduccion: {type: string, nullable: true}
+        descripcion: {type: string, nullable: true}
+        imagenUrl: {type: string, maxLength: 500, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        imagenFondoUrl: {type: string, maxLength: 500, nullable: true}
+        activo: {type: boolean}
+        tags: {type: array, nullable: true, description: 'null se interpreta como colección vacía.', items: {type: string, maxLength: 80}}
+    ContenidoPaginaResponse:
+      allOf:
+        - {$ref: '#/components/schemas/ContenidoPaginaRequest'}
+        - {type: object, required: [id, fechaCreacion, fechaActualizacion], properties: {id: {type: string, format: uuid}, fechaCreacion: {type: string, format: date-time}, fechaActualizacion: {type: string, format: date-time}}}
+    SeoPaginaRequest:
+      type: object
+      required: [configuracionSitioId, tipoPagina, title, description, robots]
+      properties:
+        configuracionSitioId: {type: string, format: uuid}
+        tipoPagina: {$ref: '#/components/schemas/TipoPaginaSeo'}
+        title: {type: string, maxLength: 180}
+        description: {type: string, maxLength: 320}
+        ogImageUrl: {type: string, maxLength: 500, nullable: true}
+        robots: {$ref: '#/components/schemas/RobotsSeo'}
+        unidadNegocioId: {type: string, format: uuid, nullable: true}
+    SeoPaginaUpdateRequest:
+      type: object
+      required: [title, description, robots]
+      properties:
+        title: {type: string, maxLength: 180}
+        description: {type: string, maxLength: 320}
+        ogImageUrl: {type: string, maxLength: 500, nullable: true}
+        robots: {$ref: '#/components/schemas/RobotsSeo'}
+    SeoPaginaResponse:
+      allOf:
+        - {$ref: '#/components/schemas/SeoPaginaRequest'}
+        - {type: object, required: [id, fechaCreacion, fechaActualizacion], properties: {id: {type: string, format: uuid}, fechaCreacion: {type: string, format: date-time}, fechaActualizacion: {type: string, format: date-time}}}
+    SolicitudContactoCreateRequest:
+      type: object
+      required: [nombre, email, telefono, mensaje]
+      properties:
+        nombre: {type: string, maxLength: 150}
+        email: {type: string, format: email, maxLength: 180}
+        telefono: {type: string, maxLength: 30}
+        empresa: {type: string, maxLength: 180, nullable: true}
+        mensaje: {type: string, maxLength: 5000}
+    EstadoSolicitudContactoRequest:
+      type: object
+      required: [estado]
+      properties: {estado: {$ref: '#/components/schemas/EstadoSolicitudContacto'}}
+    SolicitudContactoPublicResponse:
+      type: object
+      required: [id, estado, fechaCreacion]
+      properties:
+        id: {type: string, format: uuid}
+        estado: {$ref: '#/components/schemas/EstadoSolicitudContacto'}
+        fechaCreacion: {type: string, format: date-time}
+    SolicitudContactoResponse:
+      allOf:
+        - {$ref: '#/components/schemas/SolicitudContactoCreateRequest'}
+        - {type: object, required: [id, estado, fechaCreacion, fechaActualizacion], properties: {id: {type: string, format: uuid}, estado: {$ref: '#/components/schemas/EstadoSolicitudContacto'}, fechaCreacion: {type: string, format: date-time}, fechaActualizacion: {type: string, format: date-time}}}
+    PublicSiteResponse:
+      type: object
+      description: Configuración, empresa sin RUC, redes activas y unidades activas del sitio canónico.
+      required: [clave, empresa, redes, unidades]
+      properties:
+        clave: {type: string}
+        tituloSitio: {type: string, nullable: true}
+        descripcionSitio: {type: string, nullable: true}
+        logoUrl: {type: string, nullable: true}
+        logoBlancoUrl: {type: string, nullable: true}
+        faviconUrl: {type: string, nullable: true}
+        textoPiePagina: {type: string, nullable: true}
+        empresa: {$ref: '#/components/schemas/PublicEmpresa'}
+        redes: {type: array, items: {$ref: '#/components/schemas/PublicRedSocial'}}
+        unidades: {type: array, items: {$ref: '#/components/schemas/PublicUnidadResumen'}}
+    PublicEmpresa:
+      type: object
+      properties:
+        nombreComercial: {type: string}
+        direccion: {type: string, nullable: true}
+        ciudad: {type: string, nullable: true}
+        telefono: {type: string, nullable: true}
+        telefonoSecundario: {type: string, nullable: true}
+        email: {type: string, format: email, nullable: true}
+        emailVentas: {type: string, format: email, nullable: true}
+        whatsapp: {type: string, nullable: true}
+        horarioAtencion: {type: string, nullable: true}
+        resumenNosotros: {type: string, nullable: true}
+    PublicRedSocial:
+      type: object
+      properties:
+        nombre: {type: string}
+        url: {type: string}
+        icono: {type: string, nullable: true}
+        orden: {type: integer}
+    PublicUnidadResumen:
+      type: object
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+        descripcion: {type: string, nullable: true}
+        icono: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        orden: {type: integer}
+    PublicHomeResponse:
+      type: object
+      description: Home agregada; todas las colecciones están filtradas y ordenadas.
+      required: [secciones, servicios, proyectos, unidadDestacada]
+      properties:
+        secciones: {type: array, items: {$ref: '#/components/schemas/PublicHomeSeccion'}}
+        servicios: {type: array, items: {$ref: '#/components/schemas/PublicHomeServicio'}}
+        proyectos: {type: array, items: {$ref: '#/components/schemas/PublicHomeProyecto'}}
+        unidadDestacada:
+          allOf: [{$ref: '#/components/schemas/PublicHomeUnidad'}]
+          nullable: true
+    PublicHomeSeccion:
+      type: object
+      properties:
+        tipo: {$ref: '#/components/schemas/TipoSeccionLanding'}
+        etiqueta: {type: string, nullable: true}
+        titulo: {type: string, nullable: true}
+        subtitulo: {type: string, nullable: true}
+        contenido: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        textoBoton: {type: string, nullable: true}
+        enlaceBoton: {type: string, nullable: true}
+        orden: {type: integer}
+        escenas: {type: array, items: {$ref: '#/components/schemas/PublicHomeEscena'}}
+        acciones: {type: array, items: {$ref: '#/components/schemas/PublicHomeAccion'}}
+    PublicHomeEscena:
+      type: object
+      properties:
+        imagenUrl: {type: string}
+        alt: {type: string, nullable: true}
+        orden: {type: integer}
+    PublicHomeAccion:
+      type: object
+      properties:
+        texto: {type: string}
+        enlace: {type: string}
+        orden: {type: integer}
+    PublicHomeServicio:
+      type: object
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+        resumen: {type: string, nullable: true}
+        descripcion: {type: string}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        etiqueta: {type: string, nullable: true}
+        orden: {type: integer}
+        beneficios: {type: array, items: {type: string}}
+    PublicHomeProyecto:
+      type: object
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+        ubicacion: {type: string, nullable: true}
+        fechaProyecto: {type: string, nullable: true}
+        descripcion: {type: string}
+        orden: {type: integer}
+        imagenes: {type: array, items: {$ref: '#/components/schemas/PublicHomeImagenProyecto'}}
+    PublicHomeImagenProyecto:
+      type: object
+      properties:
+        url: {type: string}
+        alt: {type: string, nullable: true}
+        esPrincipal: {type: boolean}
+        orden: {type: integer}
+    PublicRecursoUnidad:
+      type: object
+      properties:
+        tipo: {$ref: '#/components/schemas/TipoRecursoUnidadNegocio'}
+        url: {type: string}
+        alt: {type: string, nullable: true}
+        etiqueta: {type: string, nullable: true}
+        orden: {type: integer}
+    PublicHomeUnidad:
+      allOf:
+        - {$ref: '#/components/schemas/PublicUnidadResumen'}
+        - type: object
+          properties:
+            recursos: {type: array, items: {$ref: '#/components/schemas/PublicRecursoUnidad'}}
+    PublicPageResponse:
+      type: object
+      required: [contenido, seo]
+      properties:
+        contenido: {$ref: '#/components/schemas/PublicContenidoPagina'}
+        seo:
+          allOf: [{$ref: '#/components/schemas/PublicSeo'}]
+          nullable: true
+        empresa:
+          allOf: [{$ref: '#/components/schemas/PublicEmpresaNosotros'}]
+          nullable: true
+        servicios:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/PublicServiceResponse'}
+        proyectos:
+          type: array
+          nullable: true
+          items: {$ref: '#/components/schemas/PublicProjectResponse'}
+    PublicContenidoPagina:
+      type: object
+      properties:
+        pagina: {$ref: '#/components/schemas/TipoPaginaPublica'}
+        eyebrow: {type: string, nullable: true}
+        titulo: {type: string, nullable: true}
+        introduccion: {type: string, nullable: true}
+        descripcion: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        imagenFondoUrl: {type: string, nullable: true}
+        tags: {type: array, items: {type: string}}
+    PublicSeo:
+      type: object
+      properties:
+        title: {type: string}
+        description: {type: string}
+        ogImageUrl: {type: string, nullable: true}
+        robots: {$ref: '#/components/schemas/RobotsSeo'}
+    PublicEmpresaNosotros:
+      description: Datos corporativos expuestos únicamente al solicitar la página NOSOTROS.
+      properties:
+        mision: {type: string, nullable: true}
+        vision: {type: string, nullable: true}
+        valores: {type: string, nullable: true}
+        estadisticas:
+          type: array
+          items: {$ref: '#/components/schemas/PublicEstadisticaEmpresa'}
+    PublicEstadisticaEmpresa:
+      properties:
+        valor: {type: number, format: decimal}
+        prefijo: {type: string, nullable: true}
+        sufijo: {type: string, nullable: true}
+        etiqueta: {type: string}
+        orden: {type: integer}
+    PublicServiceResponse:
+      description: Servicio editorial público usado por la página SERVICIOS.
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+        etiqueta: {type: string, nullable: true}
+        resumen: {type: string, nullable: true}
+        descripcion: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        orden: {type: integer}
+        beneficios:
+          type: array
+          items: {$ref: '#/components/schemas/PublicServiceBenefitResponse'}
+    PublicServiceBenefitResponse:
+      properties:
+        texto: {type: string}
+        orden: {type: integer}
+    PublicProjectResponse:
+      description: Proyecto editorial público usado por la página PROYECTOS.
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+        descripcion: {type: string, nullable: true}
+        ubicacion: {type: string, nullable: true}
+        fechaProyecto: {type: string, nullable: true, description: Texto editorial libre del dominio actual.}
+        orden: {type: integer}
+        imagenes:
+          type: array
+          items: {$ref: '#/components/schemas/PublicProjectImageResponse'}
+        servicios:
+          type: array
+          items: {$ref: '#/components/schemas/PublicProjectServiceResponse'}
+    PublicProjectImageResponse:
+      properties:
+        url: {type: string}
+        alt: {type: string, nullable: true}
+        esPrincipal: {type: boolean}
+        orden: {type: integer}
+    PublicProjectServiceResponse:
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+    PublicBusinessUnitResponse:
+      type: object
+      description: Unidad activa perteneciente a la empresa del sitio, recursos activos y SEO opcional.
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+        descripcion: {type: string, nullable: true}
+        icono: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        recursos: {type: array, items: {$ref: '#/components/schemas/PublicRecursoUnidad'}}
+        seo:
+          allOf: [{$ref: '#/components/schemas/PublicSeo'}]
+          nullable: true
+
+    ProyectoResponse:
+      type: object
+      required: [id, nombre, slug, cliente, ubicacion, fechaProyecto, descripcion, imagenUrl, imagenAlt, destacado, activo, orden, servicios, fechaCreacion, fechaActualizacion]
+      properties:
+        id: {type: string, format: uuid}
+        nombre: {type: string}
+        slug: {type: string}
+        cliente: {type: string, nullable: true}
+        ubicacion: {type: string, nullable: true}
+        fechaProyecto: {type: string, nullable: true}
+        descripcion: {type: string}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        destacado: {type: boolean, nullable: true}
+        activo: {type: boolean, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        servicios:
+          type: array
+          uniqueItems: true
+          nullable: true
+          items: {$ref: '#/components/schemas/NamedSlugSummary'}
+        fechaCreacion: {type: string, format: date-time, nullable: true}
+        fechaActualizacion: {type: string, format: date-time, nullable: true}
+
+    SeccionLandingResponse:
+      type: object
+      required: [id, tipo, etiqueta, titulo, subtitulo, contenido, imagenUrl, imagenAlt, textoBoton, enlaceBoton, orden, visible, configuracionSitioId, escenas, acciones, fechaCreacion, fechaActualizacion]
+      properties:
+        id: {type: string, format: uuid}
+        tipo: {$ref: '#/components/schemas/TipoSeccionLanding'}
+        etiqueta: {type: string, nullable: true}
+        titulo: {type: string, nullable: true}
+        subtitulo: {type: string, nullable: true}
+        contenido: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        textoBoton: {type: string, nullable: true}
+        enlaceBoton: {type: string, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        visible: {type: boolean, nullable: true}
+        configuracionSitioId: {type: string, format: uuid}
+        escenas:
+          type: array
+          items: {$ref: '#/components/schemas/HeroSceneResponse'}
+        acciones:
+          type: array
+          items: {$ref: '#/components/schemas/AccionLandingResponse'}
+        fechaCreacion: {type: string, format: date-time, nullable: true}
+        fechaActualizacion: {type: string, format: date-time, nullable: true}
+
+    ServicioResponse:
+      type: object
+      required: [id, nombre, slug, resumen, descripcion, imagenUrl, etiqueta, imagenAlt, activo, destacado, orden, beneficios, fechaCreacion, fechaActualizacion]
+      properties:
+        id: {type: string, format: uuid}
+        nombre: {type: string}
+        slug: {type: string}
+        resumen: {type: string, nullable: true}
+        descripcion: {type: string}
+        imagenUrl: {type: string, nullable: true}
+        etiqueta: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        activo: {type: boolean, nullable: true}
+        destacado: {type: boolean, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        beneficios:
+          type: array
+          items: {$ref: '#/components/schemas/BeneficioServicioResponse'}
+        fechaCreacion: {type: string, format: date-time, nullable: true}
+        fechaActualizacion: {type: string, format: date-time, nullable: true}
+
+    UnidadNegocioResponse:
+      type: object
+      required: [id, nombre, slug, descripcion, icono, imagenUrl, imagenAlt, activo, destacado, orden, empresa, recursos, fechaCreacion, fechaActualizacion]
+      properties:
+        id: {type: string, format: uuid}
+        nombre: {type: string}
+        slug: {type: string}
+        descripcion: {type: string, nullable: true}
+        icono: {type: string, nullable: true}
+        imagenUrl: {type: string, nullable: true}
+        imagenAlt: {type: string, nullable: true}
+        activo: {type: boolean, nullable: true}
+        destacado: {type: boolean, nullable: true}
+        orden: {type: integer, format: int32, nullable: true}
+        empresa: {$ref: '#/components/schemas/EmpresaResumen'}
+        recursos:
+          type: array
+          items: {$ref: '#/components/schemas/RecursoUnidadNegocioResponse'}
+        fechaCreacion: {type: string, format: date-time, nullable: true}
+        fechaActualizacion: {type: string, format: date-time, nullable: true}

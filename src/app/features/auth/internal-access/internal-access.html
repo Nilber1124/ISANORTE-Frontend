@@ -1,0 +1,54 @@
+<main class="min-h-screen bg-background lg:grid lg:grid-cols-2">
+  <section class="relative overflow-hidden bg-[#101820] px-6 py-12 text-white sm:px-10 lg:flex lg:min-h-screen lg:flex-col lg:justify-between lg:px-16 lg:py-14">
+    <div class="absolute inset-y-0 right-0 hidden w-1 bg-info lg:block" aria-hidden="true"></div>
+    <div class="relative max-w-2xl">
+      <img src="/images/isanorte-logo-horizontal-white.svg" alt="ISANORTE" class="h-12 w-auto sm:h-14" />
+      <p class="mt-12 text-eyebrow uppercase text-white/60">Acceso administrativo // Panel interno</p>
+      <h1 class="mt-5 max-w-xl text-heading-1 text-white">Gestiona proyectos, cotizaciones y contenido del sitio.</h1>
+      <p class="mt-6 max-w-xl text-body-lg text-white/70">Ingresa con tu cuenta de administrador para actualizar el portafolio y responder las solicitudes de clientes.</p>
+      <ul class="mt-9 space-y-4 text-body text-white/85">
+        <li class="flex gap-3"><span class="text-info">✓</span> Solicitudes de cotización recibidas</li>
+        <li class="flex gap-3"><span class="text-info">✓</span> Galería y proyectos publicados</li>
+        <li class="flex gap-3"><span class="text-info">✓</span> Servicios y datos de contacto</li>
+      </ul>
+    </div>
+    <p class="relative mt-14 text-caption text-white/50">© 2026 ISANORTE. Todos los derechos reservados.</p>
+  </section>
+
+  <section class="flex min-h-[36rem] items-center justify-center border-t-4 border-info px-5 py-12 sm:px-10 lg:min-h-screen lg:border-l-4 lg:border-t-0">
+    <div class="w-full max-w-md rounded-panel border border-border bg-surface p-6 shadow-card sm:p-10">
+      <p class="text-eyebrow uppercase text-accent">Panel interno</p>
+      <h2 class="mt-3 text-heading-2 text-text-primary">Iniciar sesión</h2>
+      <p class="mt-3 text-body-sm text-text-secondary">Solo personal autorizado de ISANORTE.</p>
+
+      <form class="mt-8 space-y-5" novalidate (submit)="submit($event)">
+        <div>
+          <label for="admin-email" class="form-label">Correo electrónico</label>
+          <input id="admin-email" name="email" type="email" class="form-control" autocomplete="username" required
+            placeholder="admin@isanorte.com" [value]="email()" [disabled]="loading()" (input)="updateEmail($event)" />
+        </div>
+        <div>
+          <label for="admin-password" class="form-label">Contraseña</label>
+          <div class="relative">
+            <input id="admin-password" name="password" [type]="showPassword() ? 'text' : 'password'"
+              class="form-control pr-24" autocomplete="current-password" required placeholder="Ingresa tu contraseña"
+              [value]="password()" [disabled]="loading()" (input)="updatePassword($event)" />
+            <button type="button" class="absolute inset-y-0 right-3 rounded-control px-2 text-body-sm font-semibold text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+              [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              (click)="showPassword.update(value => !value)">
+              {{ showPassword() ? 'Ocultar' : 'Mostrar' }}
+            </button>
+          </div>
+        </div>
+        @if (error(); as message) {
+          <app-alert variant="error" title="No se pudo iniciar sesión">{{ message }}</app-alert>
+        }
+        <app-button class="w-full [&>button]:w-full" type="submit" variant="accent" size="large"
+          [loading]="loading()" [disabled]="loading()">
+          {{ loading() ? 'VALIDANDO...' : 'INICIAR SESIÓN →' }}
+        </app-button>
+      </form>
+      <p class="mt-7 border-t border-border pt-6 text-center text-caption text-text-muted">Si necesitas acceso, contacta al administrador del sistema.</p>
+    </div>
+  </section>
+</main>

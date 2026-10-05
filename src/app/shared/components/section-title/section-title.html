@@ -1,0 +1,25 @@
+<header [class]="wrapperClasses()">
+  @if (eyebrow()) {
+    <p
+      class="mb-3 flex items-center gap-3 text-eyebrow uppercase text-text-secondary"
+      [class.justify-center]="alignment() === 'center'"
+    >
+      <span class="h-px w-6 bg-accent" aria-hidden="true"></span>
+      {{ eyebrow() }}
+    </p>
+  }
+  @switch (level()) {
+    @case ('h1') {
+      <h1 class="text-heading-1 text-text-primary">{{ title() }}</h1>
+    }
+    @case ('h3') {
+      <h3 class="text-heading-3 text-text-primary">{{ title() }}</h3>
+    }
+    @default {
+      <h2 class="text-heading-2 text-text-primary">{{ title() }}</h2>
+    }
+  }
+  @if (description()) {
+    <p class="mt-4 text-body-lg text-text-secondary">{{ description() }}</p>
+  }
+</header>

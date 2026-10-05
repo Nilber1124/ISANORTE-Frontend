@@ -1,0 +1,168 @@
+<app-modal modalId="service-form-modal" [title]="mode() === 'create' ? 'Nuevo servicio' : 'Editar servicio'"
+  description="Define la información, fotografía y visibilidad pública que estructuran este servicio en la web de ISANORTE."
+  size="large" [open]="true" [loading]="submitting()" (closed)="canceled.emit()">
+  @if (serverError(); as error) {
+  <app-alert class="mb-5" variant="error" title="No se guardó el servicio">
+    {{ error }}
+  </app-alert>
+  }
+
+  <form id="service-form" class="space-y-5" (submit)="submit(); $event.preventDefault()" novalidate>
+    <!-- 1. Identidad del Servicio -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
+      <div class="border-b border-border pb-2 flex items-center justify-between">
+        <div>
+          <h4 class="text-body-sm font-semibold text-text-primary">1. Identidad del Servicio</h4>
+          <p class="text-caption text-text-muted">Nombre comercial, identificación única y mensajes introductorios.</p>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <app-input-field
+            inputId="service-name"
+            label="Nombre del servicio"
+            [value]="nombre()"
+            (valueChange)="updateNombre($event)"
+            placeholder="Ej: Construcción de Obras Civiles"
+            [error]="errors().nombre"
+            [disabled]="submitting()"
+            required
+          />
+          @if (slug()) {
+            <p class="mt-1.5 inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-md border border-border">
+              <span class="text-text-secondary font-medium">Ruta automática:</span>
+              <code class="text-accent font-semibold">/{{ slug() }}</code>
+            </p>
+          }
+          <input id="service-slug" type="hidden" [value]="slug()" />
+          @if (errors().slug) {
+            <p class="form-error mt-1" role="alert">{{ errors().slug }}</p>
+          }
+        </div>
+
+        <app-input-field
+          class="sm:col-span-2"
+          inputId="service-label"
+          label="Etiqueta superior (opcional)"
+          [(value)]="etiqueta"
+          placeholder="Ej: ESPECIALIDAD o INGENIERÍA"
+          helperText="Texto en mayúsculas que se muestra sobre el título del servicio."
+          [disabled]="submitting()"
+        />
+
+        <app-textarea-field
+          class="sm:col-span-2"
+          inputId="service-summary"
+          label="Resumen breve"
+          [(value)]="resumen"
+          placeholder="Síntesis corta de la propuesta de valor del servicio para tarjetas..."
+          [rows]="2"
+          [disabled]="submitting()"
+        />
+      </div>
+    </fieldset>
+
+    <!-- 2. Detalle y Contenido -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">2. Contenido Extenso</h4>
+        <p class="text-caption text-text-muted">Descripción detallada de las capacidades y alcance de este servicio.</p>
+      </div>
+
+      <app-textarea-field
+        inputId="service-description"
+        label="Descripción completa"
+        [(value)]="descripcion"
+        placeholder="Explica en detalle los procesos constructivos, equipamiento, normativas y garantías aplicadas..."
+        [rows]="4"
+        [error]="errors().descripcion"
+        [disabled]="submitting()"
+        required
+      />
+    </fieldset>
+
+    <!-- 3. Fotografía Principal del Servicio -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">3. Fotografía Representativa</h4>
+        <p class="text-caption text-text-muted">Imagen principal que acompaña a la ficha y tarjeta del servicio.</p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <label class="form-label mb-0">Imagen representativa</label>
+          <p class="text-caption text-text-muted mb-2">
+            Enlace público de la imagen (JPG, WebP, PNG).
+          </p>
+          <app-image-uploader
+            folder="isanorte/servicios"
+            [ngModel]="imagenUrl()"
+            (ngModelChange)="updateImageUrl($event)"
+            name="serviceImage"
+          />
+        </div>
+
+        <app-input-field
+          inputId="service-image-alt"
+          label="Texto alternativo de la imagen"
+          [(value)]="imagenAlt"
+          placeholder="Ej: Maquinaria pesada trabajando en excavación de zanjas"
+          helperText="Requerido para posicionamiento SEO y lectores de pantalla accesibles."
+          [disabled]="submitting()"
+        />
+      </div>
+    </fieldset>
+
+    <!-- 4. Publicación y Posición -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">4. Publicación y Orden</h4>
+        <p class="text-caption text-text-muted">Define la visibilidad pública y la posición en el catálogo.</p>
+      </div>
+
+      <app-input-field
+        inputId="service-order"
+        label="Orden de aparición"
+        type="number"
+        inputMode="numeric"
+        [(value)]="orden"
+        helperText="0 se muestra primero; 1, 2, 3... descienden en la lista."
+        [error]="errors().orden"
+        [disabled]="submitting()"
+        [required]="mode() === 'edit'"
+      />
+
+      <div class="grid gap-3 sm:grid-cols-2 pt-1">
+        <label
+          class="flex items-center gap-3 rounded-card border border-border bg-surface-soft p-3.5 cursor-pointer hover:bg-surface-hover transition-colors">
+          <input class="form-choice" type="checkbox" name="service-active" [checked]="activo()"
+            [disabled]="submitting()" (change)="updateActive($event)" />
+          <div>
+            <span class="font-medium text-body-sm text-text-primary">Servicio activo en la web</span>
+            <p class="text-caption text-text-muted">Si se desactiva, no se mostrará a los clientes.</p>
+          </div>
+        </label>
+
+        <label
+          class="flex items-center gap-3 rounded-card border border-border bg-surface-soft p-3.5 cursor-pointer hover:bg-surface-hover transition-colors">
+          <input class="form-choice" type="checkbox" name="service-featured" [checked]="destacado()"
+            [disabled]="submitting()" (change)="updateFeatured($event)" />
+          <div>
+            <span class="font-medium text-body-sm text-text-primary">Servicio destacado</span>
+            <p class="text-caption text-text-muted">Resalta prioritariamente en la portada de ISANORTE.</p>
+          </div>
+        </label>
+      </div>
+    </fieldset>
+  </form>
+
+  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
+      Cancelar
+    </app-button>
+    <app-button variant="primary" [loading]="submitting()" [disabled]="submitting()" (click)="submit()">
+      {{ mode() === 'create' ? 'Crear servicio' : 'Guardar cambios' }}
+    </app-button>
+  </div>
+</app-modal>

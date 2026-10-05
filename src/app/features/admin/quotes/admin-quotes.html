@@ -1,0 +1,163 @@
+<header class="max-w-3xl">
+  <p class="text-eyebrow uppercase text-text-muted">Gestión comercial</p>
+  <h1 class="mt-3 text-heading-1 text-text-primary">Cotizaciones</h1>
+  <p class="mt-3 text-body text-text-secondary">
+    Consulta solicitudes recibidas, sus productos y el historial de cambios de estado.
+  </p>
+</header>
+
+@if (facade.success(); as success) {
+  <app-alert
+    class="mt-7"
+    variant="success"
+    title="Cambio guardado"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+  >
+    {{ success }}
+  </app-alert>
+}
+
+@if (facade.error(); as error) {
+  <app-alert
+    class="mt-7"
+    variant="error"
+    title="No pudimos completar la operación"
+    dismissible
+    (dismissed)="facade.clearFeedback()"
+  >
+    {{ error }}
+  </app-alert>
+}
+
+<section class="mt-8" aria-labelledby="quotes-list-title">
+  <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h2 id="quotes-list-title" class="text-heading-3 text-text-primary">Solicitudes recibidas</h2>
+      @if (!facade.loading()) {
+        <p class="mt-1 text-body-sm text-text-muted" aria-live="polite">
+          {{ facade.filteredQuotes().length }}
+          {{ facade.filteredQuotes().length === 1 ? 'resultado' : 'resultados' }}
+        </p>
+      }
+    </div>
+  </div>
+
+  <div class="mb-5 grid gap-4 rounded-card border border-border bg-surface p-4 sm:grid-cols-2">
+    <app-input-field
+      inputId="admin-quotes-search"
+      type="search"
+      label="Buscar cotización"
+      placeholder="Código, cliente, correo o teléfono"
+      autocomplete="off"
+      [value]="facade.searchTerm()"
+      (valueChange)="facade.setSearchTerm($event)"
+    />
+    <app-select-field
+      inputId="admin-quotes-status"
+      label="Estado"
+      [options]="statusOptions"
+      [value]="facade.selectedStatus()"
+      (valueChange)="updateStatusFilter($event)"
+    />
+  </div>
+
+  @if (facade.loading()) {
+    <div class="rounded-card border border-border bg-surface py-14">
+      <app-loading label="Cargando cotizaciones" size="large" />
+    </div>
+  } @else if (facade.quotes().length === 0) {
+    <app-empty-state
+      emptyStateId="admin-quotes-empty"
+      title="No hay solicitudes de cotización"
+      description="Las solicitudes realizadas desde el flujo público aparecerán aquí."
+    />
+  } @else if (facade.filteredQuotes().length === 0) {
+    <app-empty-state
+      emptyStateId="admin-quotes-filter-empty"
+      title="No hay cotizaciones que coincidan"
+      description="Prueba con otro estado o término de búsqueda."
+      compact
+    />
+  } @else {
+    <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+      <table class="w-full min-w-[78rem] border-collapse text-left">
+        <caption class="sr-only">
+          Listado administrativo de solicitudes de cotización
+        </caption>
+        <thead class="border-b border-border bg-background-soft">
+          <tr>
+            <th scope="col" class="table-heading">Código</th>
+            <th scope="col" class="table-heading">Cliente</th>
+            <th scope="col" class="table-heading">Contacto</th>
+            <th scope="col" class="table-heading">Fecha</th>
+            <th scope="col" class="table-heading">Productos</th>
+            <th scope="col" class="table-heading">Total estimado</th>
+            <th scope="col" class="table-heading">Estado</th>
+            <th scope="col" class="table-heading text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          @for (quote of facade.filteredQuotes(); track quote.id) {
+            <tr class="transition-colors duration-fast hover:bg-surface-hover">
+              <th
+                scope="row"
+                class="px-5 py-4 font-mono text-body-sm font-semibold text-text-primary"
+              >
+                {{ quote.codigo }}
+              </th>
+              <td class="px-5 py-4 text-body-sm text-text-primary">{{ quote.nombreCliente }}</td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                <span class="block">{{ quote.emailCliente }}</span>
+                <span class="mt-1 block">{{ quote.telefonoCliente }}</span>
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                @if (quote.fechaCreacion) {
+                  {{ quote.fechaCreacion | date: 'dd/MM/yyyy' }}
+                } @else {
+                  Sin fecha
+                }
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">{{ productCount(quote) }}</td>
+              <td class="px-5 py-4 text-body-sm font-semibold text-text-primary">
+                @if (quote.totalEstimado !== null) {
+                  {{ quote.totalEstimado | number: '1.2-2' }}
+                } @else {
+                  <span class="font-normal text-text-muted">Por confirmar</span>
+                }
+              </td>
+              <td class="px-5 py-4">
+                <app-badge [variant]="statusVariant(quote.estado)" dot>
+                  {{ statusLabel(quote.estado) }}
+                </app-badge>
+              </td>
+              <td class="px-5 py-4 text-right">
+                <app-button
+                  size="small"
+                  variant="secondary"
+                  [disabled]="facade.loadingDetail()"
+                  (click)="facade.openDetail(quote)"
+                >
+                  Ver
+                </app-button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (facade.detailOpen()) {
+  <app-quote-detail
+    [quote]="facade.selectedQuote()"
+    [loading]="facade.loadingDetail()"
+    [error]="facade.detailError()"
+    [statusError]="facade.statusError()"
+    [success]="facade.success()"
+    [changingStatus]="facade.changingStatusId() !== null"
+    (closed)="facade.closeDetail()"
+    (statusChanged)="facade.changeStatus($event)"
+  />
+}
