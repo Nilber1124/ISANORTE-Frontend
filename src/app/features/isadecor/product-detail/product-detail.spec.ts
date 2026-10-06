@@ -12,7 +12,7 @@ import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-
 describe('ProductDetail integration', () => {
   afterEach(() => localStorage.clear());
 
-  it('preserves detail and quote navigation without a public price comparator', async () => {
+  it('preserves detail and quote navigation with the product comparators', async () => {
     const product: PublicProductDetailResponse = {
       sku: 'MESA-1',
       slug: 'mesa',
@@ -43,10 +43,6 @@ describe('ProductDetail integration', () => {
             getRecommendedProducts: () => of([]),
             getProductReviews: () => of([]),
             getProductReviewSummary: () => of({ promedio: 0, total: 0, distribucion: [] }),
-            compareProductPrice: () => {
-              calls++;
-              return of(comparison);
-            },
           },
         },
       ],
@@ -66,8 +62,8 @@ describe('ProductDetail integration', () => {
             '/isadecor/cotizacion?producto=mesa',
         ),
     ).toBe(true);
-    expect(root.querySelector('app-product-price-comparison')).toBeNull();
-    expect(root.querySelector('app-product-competitor-comparison')).toBeNull();
+    expect(root.querySelector('app-product-price-comparison')).not.toBeNull();
+    expect(root.querySelector('app-product-competitor-comparison')).not.toBeNull();
     expect(root.textContent).toContain('Descripción de la mesa existente.');
   });
 

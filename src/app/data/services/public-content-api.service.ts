@@ -101,6 +101,30 @@ export class PublicContentApiService {
     );
   }
 
+  compareProductPrice(
+    siteKey: string,
+    unitSlug: string,
+    productSlug: string,
+    request: ProductPriceComparisonRequest,
+  ): Observable<ProductPriceComparisonResponse> {
+    return this.http.post<ProductPriceComparisonResponse>(
+      `${this.productResourceUrl(siteKey, unitSlug, productSlug)}/comparar-precio`,
+      request,
+      { context: conSesionCliente() },
+    );
+  }
+
+  compareProductCompetitors(
+    siteKey: string,
+    unitSlug: string,
+    productSlug: string,
+  ): Observable<ProductCompetitorComparisonResponse> {
+    return this.http.get<ProductCompetitorComparisonResponse>(
+      `${this.productResourceUrl(siteKey, unitSlug, productSlug)}/comparacion-competidores`,
+      { context: conSesionCliente() },
+    );
+  }
+
   markReviewUseful(reviewId: string): Observable<ProductReviewResponse> {
     return this.http.post<ProductReviewResponse>(
       `${this.apiBaseUrl}/api/publico/resenas/${encodeURIComponent(reviewId)}/util`,

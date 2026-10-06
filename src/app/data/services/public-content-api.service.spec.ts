@@ -3,6 +3,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { API_BASE_URL } from '../../core/config/api.config';
+import { REQUIERE_SESION_CLIENTE } from '../../core/auth/cliente-session.context';
+import { ProductCompetitorComparisonResponse } from '../models/product/product-competitor-comparison-response.model';
+import { ProductPriceComparisonResponse } from '../models/product/product-price-comparison-response.model';
 import {
   PublicContactRequest,
   PublicContactRequestStatus,
@@ -247,6 +250,61 @@ describe('PublicContentApiService', () => {
     request.flush(detailResponse);
 
     expect(result).toEqual(detailResponse);
+  });
+
+  it('posts a protected product price comparison using the documented path and body', () => {
+    const response: ProductPriceComparisonResponse = {
+      producto: 'Wall Panel Roble',
+      urlExterna: 'https://tienda.example/productos/wall-panel-roble',
+      dominioExterno: 'tienda.example',
+      nombreProductoExterno: 'Wall Panel Roble',
+      precioInterno: 49.9,
+      precioExterno: 54.9,
+      monedaInterna: 'PEN',
+      monedaExterna: 'PEN',
+      diferencia: 5,
+      porcentajeDiferencia: 10.02,
+      comparable: true,
+      estado: 'SUCCESS',
+      mensaje: 'Comparación completada.',
+      fechaConsulta: '2026-10-06T12:00:00Z',
+    };
+    const body = { urlExterna: 'https://tienda.example/productos/wall-panel-roble' };
+
+    api.compareProductPrice('isanorte central', 'isadecor premium', 'wall panel roble', body).subscribe();
+
+    const request = http.expectOne(
+      'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/productos/wall%20panel%20roble/comparar-precio',
+    );
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(body);
+    expect(request.request.context.get(REQUIERE_SESION_CLIENTE)).toBe(true);
+    request.flush(response);
+  });
+
+  it('gets a protected competitor comparison using the documented path', () => {
+    const response: ProductCompetitorComparisonResponse = {
+      productoIsadecor: {
+        nombre: 'Wall Panel Roble',
+        precio: 49.9,
+        precioAnterior: null,
+        moneda: 'PEN',
+        unidadPrecio: null,
+        caracteristicas: [],
+      },
+      competidores: [],
+      diferenciasEncontradas: [],
+      fechaConsulta: '2026-10-06T12:00:00Z',
+    };
+
+    api.compareProductCompetitors('isanorte central', 'isadecor premium', 'wall panel roble').subscribe();
+
+    const request = http.expectOne(
+      'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/productos/wall%20panel%20roble/comparacion-competidores',
+    );
+    expect(request.request.method).toBe('GET');
+    expect(request.request.context.get(REQUIERE_SESION_CLIENTE)).toBe(true);
+    request.flush(response);
   });
 
   it('uses the canonical public quote path, encodes parameters, posts the payload and returns the confirmation', () => {

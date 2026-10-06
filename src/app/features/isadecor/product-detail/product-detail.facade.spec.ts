@@ -41,8 +41,41 @@ const product: PublicProductDetailResponse = {
   configuracionCalculo: null,
 };
 
+const comparison: ProductPriceComparisonResponse = {
+  producto: 'Wall Panel Roble',
+  urlExterna: 'https://tienda.example/productos/wall-panel-roble',
+  dominioExterno: 'tienda.example',
+  nombreProductoExterno: 'Wall Panel Roble',
+  precioInterno: 49.9,
+  precioExterno: 54.9,
+  monedaInterna: 'PEN',
+  monedaExterna: 'PEN',
+  diferencia: 5,
+  porcentajeDiferencia: 10.02,
+  comparable: true,
+  estado: 'SUCCESS',
+  mensaje: 'Comparación completada.',
+  fechaConsulta: '2026-10-06T12:00:00Z',
+};
+
+const competitorComparison: ProductCompetitorComparisonResponse = {
+  productoIsadecor: {
+    nombre: 'Wall Panel Roble',
+    precio: 49.9,
+    precioAnterior: 59.9,
+    moneda: 'PEN',
+    unidadPrecio: null,
+    caracteristicas: [],
+  },
+  competidores: [],
+  diferenciasEncontradas: [],
+  fechaConsulta: '2026-10-06T12:00:00Z',
+};
+
 class PublicApiStub {
   productResponse$: Observable<PublicProductDetailResponse> = of(product);
+  comparisonResponse$: Observable<ProductPriceComparisonResponse> = of(comparison);
+  competitorResponse$: Observable<ProductCompetitorComparisonResponse> = of(competitorComparison);
   readonly productCalls: unknown[][] = [];
   readonly comparisonCalls: unknown[][] = [];
   readonly competitorCalls: unknown[][] = [];

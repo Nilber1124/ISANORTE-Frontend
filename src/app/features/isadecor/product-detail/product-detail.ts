@@ -17,6 +17,8 @@ import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../shared/components/loading/loading';
 import { ProductGallery } from './components/product-gallery/product-gallery';
 import { ProductInfo } from './components/product-info/product-info';
+import { ProductCompetitorComparison } from './components/product-competitor-comparison/product-competitor-comparison';
+import { ProductPriceComparison } from './components/product-price-comparison/product-price-comparison';
 import { ProductDetailFacade } from './product-detail.facade';
 
 interface VariantAvailabilityPresentation {
@@ -35,6 +37,8 @@ interface VariantAvailabilityPresentation {
     Loading,
     ProductGallery,
     ProductInfo,
+    ProductCompetitorComparison,
+    ProductPriceComparison,
     RouterLink,
   ],
   providers: [ProductDetailFacade],
