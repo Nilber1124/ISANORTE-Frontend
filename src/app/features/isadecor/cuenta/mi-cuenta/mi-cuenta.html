@@ -1,0 +1,129 @@
+<main class="bg-background">
+  <div class="app-container py-10 sm:py-14">
+    <header class="flex flex-col gap-6 border-b border-border pb-8 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-5">
+        <span
+          class="flex size-16 shrink-0 items-center justify-center rounded-full bg-brand text-heading-4 font-semibold text-white"
+          aria-hidden="true"
+          >{{ iniciales() }}</span
+        >
+        <div class="min-w-0">
+          <p class="text-eyebrow uppercase text-text-muted">Mi cuenta</p>
+          <h1 class="mt-1 truncate text-heading-2 text-text-primary">{{ nombreCompleto() }}</h1>
+          <p class="mt-1 truncate text-body-sm text-text-secondary">{{ cliente()?.email }}</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <a
+          routerLink="/isadecor/catalogo"
+          class="inline-flex min-h-10 items-center rounded-button border border-border-strong px-4 py-2 text-body-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        >
+          Ir al catálogo
+        </a>
+        <button
+          type="button"
+          class="inline-flex min-h-10 cursor-pointer items-center rounded-button px-4 py-2 text-body-sm font-semibold text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          (click)="cerrarSesion()"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    </header>
+
+    <dl class="mt-8 grid gap-4 sm:grid-cols-3">
+      <div class="rounded-panel border border-border bg-surface p-5">
+        <dt class="text-caption uppercase tracking-wider text-text-muted">Cotizaciones</dt>
+        <dd class="mt-2 text-heading-3 text-text-primary">{{ totalCotizaciones() }}</dd>
+      </div>
+      <div class="rounded-panel border border-border bg-surface p-5">
+        <dt class="text-caption uppercase tracking-wider text-text-muted">En curso</dt>
+        <dd class="mt-2 text-heading-3 text-text-primary">{{ cotizacionesEnCurso() }}</dd>
+      </div>
+      <div class="rounded-panel border border-border bg-surface p-5">
+        <dt class="text-caption uppercase tracking-wider text-text-muted">Miembro desde</dt>
+        <dd class="mt-2 text-heading-3 text-text-primary">
+          @if (cliente()?.fechaCreacion; as fecha) {
+            {{ fecha | date: 'MM/yyyy' }}
+          } @else {
+            —
+          }
+        </dd>
+      </div>
+    </dl>
+
+    <section id="cotizaciones" class="mt-12 scroll-mt-28" aria-labelledby="mis-cotizaciones-titulo">
+      <div class="flex items-end justify-between gap-4">
+        <h2 id="mis-cotizaciones-titulo" class="text-heading-3 text-text-primary">Mis cotizaciones</h2>
+      </div>
+
+      @if (loading()) {
+        <div class="py-16">
+          <app-loading label="Cargando tus cotizaciones" size="large" />
+        </div>
+      } @else if (error(); as message) {
+        <div class="mt-6">
+          <app-alert variant="error" title="No se pudo cargar">{{ message }}</app-alert>
+        </div>
+      } @else if (cotizaciones().length === 0) {
+        <div class="mt-6 rounded-panel border border-dashed border-border-strong bg-surface-soft px-6 py-14 text-center">
+          <p class="text-body text-text-primary">Aún no has solicitado cotizaciones.</p>
+          <p class="mt-2 text-body-sm text-text-secondary">Elige un producto del catálogo y solicita tu cotización en minutos.</p>
+          <a
+            routerLink="/isadecor/catalogo"
+            class="mt-6 inline-flex min-h-10 items-center rounded-button bg-accent px-5 py-2 text-body-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          >
+            Explorar el catálogo
+          </a>
+        </div>
+      } @else {
+        <ul class="mt-6 divide-y divide-border overflow-hidden rounded-panel border border-border bg-surface">
+          @for (cotizacion of cotizaciones(); track cotizacion.codigo) {
+            <li class="p-5 sm:p-6">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div class="min-w-0">
+                  <p class="font-mono text-body-sm font-semibold text-text-primary">{{ cotizacion.codigo }}</p>
+                  <p class="mt-1 text-caption text-text-muted">
+                    {{ cotizacion.fechaCreacion | date: 'dd/MM/yyyy · HH:mm' }}
+                  </p>
+                </div>
+                <app-badge [variant]="estadoVariant(cotizacion.estado)" size="medium">
+                  {{ estadoLabel(cotizacion.estado) }}
+                </app-badge>
+              </div>
+
+              <ul class="mt-4 space-y-2 border-t border-border pt-4">
+                @for (detalle of cotizacion.detalles; track $index) {
+                  <li class="flex items-center justify-between gap-4 text-body-sm">
+                    <span class="text-text-primary">
+                      {{ detalle.nombreProducto }}
+                      <span class="text-text-muted">× {{ detalle.cantidad }}</span>
+                    </span>
+                    <span class="shrink-0 text-text-secondary">
+                      @if (detalle.subtotal !== null) {
+                        S/ {{ detalle.subtotal | number: '1.2-2' }}
+                      } @else {
+                        Por consultar
+                      }
+                    </span>
+                  </li>
+                }
+              </ul>
+
+              <div class="mt-4 flex items-center justify-end gap-2 text-body-sm">
+                <span class="text-text-secondary">Total estimado</span>
+                <span class="font-semibold text-text-primary">
+                  @if (cotizacion.totalEstimado !== null) {
+                    S/ {{ cotizacion.totalEstimado | number: '1.2-2' }}
+                  } @else {
+                    Por confirmar
+                  }
+                </span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+</main>

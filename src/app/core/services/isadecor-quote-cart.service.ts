@@ -1,6 +1,18 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import {
+  DestroyRef,
+  Injectable,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 
+import { ClienteAuthService } from '../auth/cliente-auth.service';
+import { CarritoClienteItem } from '../../data/models/cliente/cliente.model';
+import { ClienteApiService } from '../../data/services/cliente-api.service';
 import {
   PublicProductDetailResponse,
   PublicProductVariantResponse,
@@ -26,12 +38,19 @@ export interface IsadecorQuoteCartItem {
 
 const STORAGE_KEY = 'isadecor_quote_cart_v1';
 const MAX_QUANTITY = 999_999;
+const GUARDADO_DEBOUNCE_MS = 400;
 
 @Injectable({ providedIn: 'root' })
 export class IsadecorQuoteCartService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly document = inject(DOCUMENT);
+  private readonly cuenta = inject(ClienteAuthService);
+  private readonly cuentaApi = inject(ClienteApiService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly _items = signal<readonly IsadecorQuoteCartItem[]>([]);
+  /** Con sesión, el carrito solo se escribe en la cuenta una vez fusionado con la copia del servidor. */
+  private cuentaSincronizada = false;
+  private guardadoPendiente: ReturnType<typeof setTimeout> | null = null;
 
   readonly items = this._items.asReadonly();
   readonly itemCount = computed(() => this._items().length);
@@ -53,6 +72,17 @@ export class IsadecorQuoteCartService {
 
   constructor() {
     this.restoreFromStorage();
+
+    if (isPlatformBrowser(this.platformId)) {
+      // Al iniciar o cerrar sesión, el carrito cambia de origen: cuenta (servidor) o navegador (invitado).
+      effect(() => {
+        const autenticado = this.cuenta.authenticated();
+        untracked(() => (autenticado ? this.cargarDesdeCuenta() : this.restaurarInvitado()));
+      });
+      this.destroyRef.onDestroy(() => {
+        if (this.guardadoPendiente !== null) clearTimeout(this.guardadoPendiente);
+      });
+    }
   }
 
   addProduct(
@@ -169,6 +199,11 @@ export class IsadecorQuoteCartService {
 
   private setItems(items: readonly IsadecorQuoteCartItem[]): void {
     this._items.set(items);
+    if (this.cuenta.authenticated()) {
+      this.guardarEnCuenta();
+      return;
+    }
+
     const storage = this.storage();
     if (!storage) return;
 
@@ -180,19 +215,123 @@ export class IsadecorQuoteCartService {
   }
 
   private restoreFromStorage(): void {
+    this._items.set(this.leerLocal());
+  }
+
+  private leerLocal(): IsadecorQuoteCartItem[] {
     const storage = this.storage();
-    if (!storage) return;
+    if (!storage) return [];
 
     try {
       const raw = storage.getItem(STORAGE_KEY);
-      if (!raw) return;
+      if (!raw) return [];
       const parsed: unknown = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return;
+      if (!Array.isArray(parsed)) return [];
 
-      this._items.set(parsed.flatMap((value) => this.parseStoredItem(value)));
+      return parsed.flatMap((value) => this.parseStoredItem(value));
     } catch {
       // Invalid or inaccessible storage must not prevent navigation.
+      return [];
     }
+  }
+
+  private borrarLocal(): void {
+    try {
+      this.storage()?.removeItem(STORAGE_KEY);
+    } catch {
+      // Sin almacenamiento disponible no hay nada que borrar.
+    }
+  }
+
+  private restaurarInvitado(): void {
+    this.cuentaSincronizada = false;
+    this._items.set(this.leerLocal());
+  }
+
+  /**
+   * Fusiona el carrito del navegador (invitado o agregado antes de cargar) con el de la cuenta,
+   * guarda el resultado en el servidor y vacía la copia local para que no se duplique.
+   */
+  private cargarDesdeCuenta(): void {
+    this.cuentaSincronizada = false;
+    this.cuentaApi.obtenerCarrito().subscribe({
+      next: (respuesta) => {
+        if (!this.cuenta.authenticated()) return;
+
+        const delServidor = respuesta.items.flatMap((item) => this.parseStoredItem(this.desdeCuenta(item)));
+        this._items.set(this.combinar(delServidor, this._items()));
+        this.borrarLocal();
+        this.cuentaSincronizada = true;
+        this.guardarEnCuenta();
+      },
+      error: () => {
+        // Sin copia del servidor el carrito queda en memoria y no se sobrescribe la cuenta.
+        this.cuentaSincronizada = false;
+      },
+    });
+  }
+
+  private guardarEnCuenta(): void {
+    if (!this.cuentaSincronizada) return;
+    if (this.guardadoPendiente !== null) clearTimeout(this.guardadoPendiente);
+
+    this.guardadoPendiente = setTimeout(() => {
+      this.guardadoPendiente = null;
+      const items = this._items().map((item) => this.haciaCuenta(item));
+      this.cuentaApi.guardarCarrito({ items }).subscribe({
+        error: () => {
+          // Si falla el guardado, el próximo cambio o inicio de sesión vuelve a intentarlo.
+        },
+      });
+    }, GUARDADO_DEBOUNCE_MS);
+  }
+
+  private combinar(
+    base: readonly IsadecorQuoteCartItem[],
+    extra: readonly IsadecorQuoteCartItem[],
+  ): IsadecorQuoteCartItem[] {
+    const porClave = new Map(base.map((item) => [item.key, item]));
+    for (const item of extra) {
+      const actual = porClave.get(item.key);
+      porClave.set(
+        item.key,
+        actual
+          ? { ...actual, quantity: Math.min(actual.quantity + item.quantity, MAX_QUANTITY) }
+          : item,
+      );
+    }
+    return [...porClave.values()];
+  }
+
+  private haciaCuenta(item: IsadecorQuoteCartItem): CarritoClienteItem {
+    return {
+      productoSlug: item.productSlug,
+      productoNombre: item.productName,
+      productoSku: item.productSku,
+      imagenUrl: item.imageUrl,
+      imagenAlt: item.imageAlt,
+      variante: item.variant
+        ? { sku: item.variant.sku, nombre: item.variant.name, precio: item.variant.price }
+        : null,
+      cantidad: item.quantity,
+      precioUnitario: item.unitPrice,
+    };
+  }
+
+  /** Traduce el contrato del servidor al formato local y reutiliza su validación. */
+  private desdeCuenta(item: CarritoClienteItem): unknown {
+    return {
+      productSlug: item.productoSlug,
+      productName: item.productoNombre,
+      productSku: item.productoSku,
+      imageUrl: item.imagenUrl,
+      imageAlt: item.imagenAlt,
+      variant: item.variante
+        ? { sku: item.variante.sku, name: item.variante.nombre, price: item.variante.precio }
+        : null,
+      quantity: item.cantidad,
+      unitPrice: item.precioUnitario,
+    };
   }
 
   private parseStoredItem(value: unknown): IsadecorQuoteCartItem[] {

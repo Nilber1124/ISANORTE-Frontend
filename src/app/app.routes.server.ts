@@ -35,7 +35,19 @@ export const serverRoutes: ServerRoute[] = [
   },
   {
     path: 'isadecor/cotizacion',
-    renderMode: RenderMode.Prerender,
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'proyectos/:slug',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'isadecor/ingresar',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'isadecor/mi-cuenta',
+    renderMode: RenderMode.Client,
   },
   {
     path: 'isadecor/productos/:slug',

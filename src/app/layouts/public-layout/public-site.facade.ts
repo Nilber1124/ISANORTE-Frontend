@@ -121,6 +121,16 @@ export class PublicSiteFacade {
       .filter((value): value is string => value !== null)
       .filter((value, index, values) => values.indexOf(value) === index);
   });
+  /** Enlace de WhatsApp con el número de la empresa; null si no hay un número válido. */
+  readonly whatsappHref = computed(() => {
+    const company = this.company();
+    const numero = [company?.whatsapp, ...this.contactPhones()]
+      .map((value) => (value ?? '').replace(/\D/g, ''))
+      .find((value) => value.length >= 8);
+    if (!numero) return null;
+    const mensaje = `Hola, quisiera más información de ${this.siteName() || 'su empresa'}.`;
+    return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+  });
   readonly address = computed(() => this.optionalText(this.company()?.direccion ?? null));
   readonly city = computed(() => this.optionalText(this.company()?.ciudad ?? null));
   readonly hasContactDetails = computed(

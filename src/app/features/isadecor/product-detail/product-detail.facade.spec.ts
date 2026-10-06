@@ -6,28 +6,9 @@ import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
-import { ProductPriceComparisonResponse } from '../../../data/models/product/product-price-comparison-response.model';
-import { ProductCompetitorComparisonResponse } from '../../../data/models/product/product-competitor-comparison-response.model';
 import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { ProductDetailFacade } from './product-detail.facade';
-
-const comparison: ProductPriceComparisonResponse = {
-  producto: 'Mesa',
-  urlExterna: 'https://tienda.example/mesa',
-  dominioExterno: 'tienda.example',
-  nombreProductoExterno: 'Mesa externa',
-  precioInterno: 850,
-  precioExterno: 920,
-  monedaInterna: 'PEN',
-  monedaExterna: 'PEN',
-  diferencia: 70,
-  porcentajeDiferencia: 8.24,
-  comparable: true,
-  estado: 'SUCCESS',
-  mensaje: 'ISADECOR tiene un precio S/ 70.00 menor.',
-  fechaConsulta: '2026-09-22T12:00:00Z',
-};
 
 const product: PublicProductDetailResponse = {
   sku: 'WP-ROBLE-001',
@@ -54,37 +35,11 @@ const product: PublicProductDetailResponse = {
 
 class PublicApiStub {
   productResponse$: Observable<PublicProductDetailResponse> = of(product);
-  comparisonResponse$: Observable<ProductPriceComparisonResponse> = of(comparison);
-  competitorResponse$: Observable<ProductCompetitorComparisonResponse> = of({
-    productoIsadecor: {
-      nombre: 'Wall Panel Roble',
-      precio: 49.9,
-      precioAnterior: 59.9,
-      moneda: 'PEN',
-      unidadPrecio: 'm2',
-      caracteristicas: [],
-    },
-    competidores: [],
-    diferenciasEncontradas: [],
-    fechaConsulta: '2026-09-22T12:00:00Z',
-  });
   readonly productCalls: unknown[][] = [];
-  readonly comparisonCalls: unknown[][] = [];
-  readonly competitorCalls: unknown[][] = [];
 
   getProductDetail(...args: unknown[]): Observable<PublicProductDetailResponse> {
     this.productCalls.push(args);
     return this.productResponse$;
-  }
-
-  compareProductPrice(...args: unknown[]): Observable<ProductPriceComparisonResponse> {
-    this.comparisonCalls.push(args);
-    return this.comparisonResponse$;
-  }
-
-  compareProductCompetitors(...args: unknown[]): Observable<ProductCompetitorComparisonResponse> {
-    this.competitorCalls.push(args);
-    return this.competitorResponse$;
   }
 }
 
@@ -117,64 +72,6 @@ describe('ProductDetailFacade', () => {
     expect(facade.unitSlug).toBe(ISADECOR_UNIT_SLUG);
     expect(publicApi.productCalls).toEqual([[PUBLIC_SITE_KEY, ISADECOR_UNIT_SLUG, 'wall-panel-roble']]);
     expect(facade.error()).toBeNull();
-  });
-
-  it('only compares on explicit action and submits no client price', () => {
-    facade.load('wall-panel-roble');
-    expect(publicApi.comparisonCalls).toEqual([]);
-    facade.comparePrice('https://tienda.example/mesa');
-    expect(publicApi.comparisonCalls).toEqual([
-      [PUBLIC_SITE_KEY, ISADECOR_UNIT_SLUG, 'wall-panel-roble', { urlExterna: 'https://tienda.example/mesa' }],
-    ]);
-    expect(facade.comparisonResult()).toEqual(comparison);
-    expect(facade.product()).toEqual(product);
-  });
-
-  it('compares competitors using canonical siteKey and centralized unitSlug', () => {
-    facade.load('wall-panel-roble');
-    expect(publicApi.competitorCalls).toEqual([]);
-    facade.compareCompetitors();
-    expect(publicApi.competitorCalls).toEqual([[PUBLIC_SITE_KEY, ISADECOR_UNIT_SLUG, 'wall-panel-roble']]);
-    expect(facade.competitorComparisonLoading()).toBe(false);
-    expect(facade.competitorComparisonResult()).toBeTruthy();
-  });
-
-  it('keeps comparison loading independent and prevents concurrent requests', () => {
-    facade.load('wall-panel-roble');
-    const response = new Subject<ProductPriceComparisonResponse>();
-    publicApi.comparisonResponse$ = response;
-    facade.comparePrice('https://tienda.example/mesa');
-    facade.comparePrice('https://tienda.example/otra');
-    expect(publicApi.comparisonCalls.length).toBe(1);
-    expect(facade.comparisonLoading()).toBe(true);
-    expect(facade.loading()).toBe(false);
-    response.next(comparison);
-    response.complete();
-    expect(facade.comparisonLoading()).toBe(false);
-  });
-
-  it('handles backend errors without losing the product', () => {
-    facade.load('wall-panel-roble');
-    publicApi.comparisonResponse$ = throwError(
-      () => new HttpErrorResponse({ status: 503 }),
-    );
-    facade.comparePrice('https://tienda.example/mesa');
-    expect(facade.comparisonError()).toContain('No pudimos');
-    expect(facade.comparisonResult()).toBeNull();
-    expect(facade.comparisonLoading()).toBe(false);
-    expect(facade.error()).toBeNull();
-    expect(facade.product()).toEqual(product);
-  });
-
-  it('cancels stale comparison results when a different detail is loaded', () => {
-    facade.load('wall-panel-roble');
-    const response = new Subject<ProductPriceComparisonResponse>();
-    publicApi.comparisonResponse$ = response;
-    facade.comparePrice('https://tienda.example/mesa');
-    facade.load('otro-producto');
-    response.next(comparison);
-    expect(facade.comparisonResult()).toBeNull();
-    expect(facade.comparisonLoading()).toBe(false);
   });
 
   it('stores the product returned by the API', () => {

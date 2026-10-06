@@ -365,27 +365,6 @@
         </div>
       </section>
 
-      <!-- Market Transparency & Price Verification Section -->
-      <section class="mt-20 lg:mt-28 border-t border-border/60 pt-6" aria-label="Comparativa de mercado y precios">
-        <app-product-competitor-comparison
-          [unitSlug]="facade.unitSlug"
-          [loading]="facade.competitorComparisonLoading()"
-          [result]="facade.competitorComparisonResult()"
-          [error]="facade.competitorComparisonError()"
-          (compare)="facade.compareCompetitors()"
-        />
-
-        <div class="mt-8">
-          <app-product-price-comparison
-            [unitSlug]="facade.unitSlug"
-            [loading]="facade.comparisonLoading()"
-            [result]="facade.comparisonResult()"
-            [error]="facade.comparisonError()"
-            (compare)="facade.comparePrice($event)"
-            (edited)="facade.clearComparison()"
-          />
-        </div>
-      </section>
     }
   </div>
 </main>

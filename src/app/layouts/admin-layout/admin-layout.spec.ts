@@ -4,14 +4,24 @@ import { RouterTestingHarness } from '@angular/router/testing';
 
 import { routes } from '../../app.routes';
 
+/** /admin está protegido por authGuard: la prueba necesita una sesión de administrador vigente. */
+function sesionAdministradorVigente(): string {
+  const encode = (value: object) => btoa(JSON.stringify(value));
+  const exp = Math.floor(Date.now() / 1000) + 3600;
+  return `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode({ sub: 'admin@example.com', exp })}.firma`;
+}
+
 describe('AdminLayout', () => {
   beforeEach(() => {
+    sessionStorage.setItem('isanorte.admin.token', sesionAdministradorVigente());
     TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
   });
 
+  afterEach(() => sessionStorage.clear());
+
   it('renders the admin layout, navigation and dashboard at /admin', async () => {
     const harness = await RouterTestingHarness.create('/admin');
-    const element = harness.routeNativeElement as HTMLElement;
+    const element = harness.fixture.nativeElement as HTMLElement;
 
     expect(element.querySelector('app-admin-topbar')).toBeTruthy();
     expect(element.querySelector('app-admin-sidebar')).toBeTruthy();
@@ -23,14 +33,14 @@ describe('AdminLayout', () => {
 
   it('marks Dashboard active only at the exact /admin route', async () => {
     const harness = await RouterTestingHarness.create('/admin');
-    let element = harness.routeNativeElement as HTMLElement;
+    let element = harness.fixture.nativeElement as HTMLElement;
     const dashboardLink = element.querySelector(
       'nav[aria-label="Navegación administrativa"] a[href="/admin"]',
     );
     expect(dashboardLink?.getAttribute('aria-current')).toBe('page');
 
     await harness.navigateByUrl('/admin/productos');
-    element = harness.routeNativeElement as HTMLElement;
+    element = harness.fixture.nativeElement as HTMLElement;
     expect(
       element
         .querySelector('nav[aria-label="Navegación administrativa"] a[href="/admin"]')
@@ -43,7 +53,7 @@ describe('AdminLayout', () => {
 
   it('opens and closes the mobile navigation from native buttons', async () => {
     const harness = await RouterTestingHarness.create('/admin');
-    const element = harness.routeNativeElement as HTMLElement;
+    const element = harness.fixture.nativeElement as HTMLElement;
     const menuButton = element.querySelector(
       'button[aria-controls="admin-sidebar"]',
     ) as HTMLButtonElement;

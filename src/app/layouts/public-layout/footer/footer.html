@@ -1,23 +1,12 @@
-<footer class="bg-brand text-white pt-20 pb-8 border-t-[4px] border-accent">
-  <div class="app-container mb-16 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
+<footer class="bg-brand text-white pt-12 pb-6 border-t-[4px] border-accent">
+  <div class="app-container mb-10 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
     <div class="pr-4">
-      <div class="flex items-center gap-3 mb-6">
-        @if (facade.brandLogoWhite() || facade.brandLogo(); as logoUrl) {
-          <img
-            class="h-9 w-auto max-w-48 object-contain"
-            [src]="logoUrl"
-            [alt]="facade.siteName()"
-          />
-        } @else {
-          <img
-            class="h-9 w-auto max-w-48 object-contain"
-            src="/images/isanorte-isotipo.svg"
-            [alt]="facade.siteName() || 'ISANORTE'"
-          />
-        }
-        @if (facade.companyName(); as companyName) {
-          <span class="font-bold tracking-widest text-lg leading-tight">{{ companyName }}</span>
-        }
+      <div class="mb-6">
+        <img
+          class="h-10 w-auto max-w-64 object-contain"
+          [src]="facade.brandLogoWhite() || facade.brandLogo() || '/images/isanorte-logo-horizontal-white.svg'"
+          [alt]="facade.siteName() || 'ISANORTE'"
+        />
       </div>
       @if (facade.companySummary(); as summary) {
         <p class="text-body-sm text-text-secondary mb-8">{{ summary }}</p>
@@ -42,10 +31,57 @@
           }
         </div>
       }
+      @if (facade.contactEmails().length > 0 || facade.contactPhones().length > 0) {
+        <div>
+          <h4 class="text-eyebrow text-text-muted mb-4">{{ 'Contacto' | uppercase }}</h4>
+          <ul class="space-y-3 text-body-sm text-text-secondary">
+            @for (email of facade.contactEmails(); track email) {
+              <li class="flex items-start gap-3">
+                <svg
+                  class="size-5 text-accent shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                <a [href]="'mailto:' + email" class="hover:text-accent transition-colors">{{
+                  email
+                }}</a>
+              </li>
+            }
+            @for (phone of facade.contactPhones(); track phone) {
+              <li class="flex items-start gap-3">
+                <svg
+                  class="size-5 text-accent shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                  ></path>
+                </svg>
+                <a [href]="'tel:' + phone" class="hover:text-accent transition-colors">{{ phone }}</a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
     </div>
 
     <div>
-      <h4 class="text-eyebrow text-text-muted mb-6">{{ 'Navegación' | uppercase }}</h4>
+      <h4 class="text-eyebrow text-text-muted mb-4">{{ 'Navegación' | uppercase }}</h4>
       <ul class="space-y-3">
         @for (link of navigationLinks; track link.url) {
           <li>
@@ -60,71 +96,11 @@
       </ul>
     </div>
 
-    <div>
-      <h4 class="text-eyebrow text-text-muted mb-6">{{ 'Servicios' | uppercase }}</h4>
-      <ul class="space-y-3">
-        <li>
-          <a
-            routerLink="/servicios"
-            class="text-body-sm text-text-secondary hover:text-accent transition-colors"
-          >
-            Servicios
-          </a>
-        </li>
-      </ul>
-    </div>
 
-    @if (facade.contactEmails().length > 0 || facade.contactPhones().length > 0) {
-      <div>
-        <h4 class="text-eyebrow text-text-muted mb-6">{{ 'Contacto' | uppercase }}</h4>
-        <ul class="space-y-4 text-body-sm text-text-secondary">
-          @for (email of facade.contactEmails(); track email) {
-            <li class="flex items-start gap-3">
-              <svg
-                class="size-5 text-accent shrink-0 mt-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                ></path>
-              </svg>
-              <a [href]="'mailto:' + email" class="hover:text-accent transition-colors">{{
-                email
-              }}</a>
-            </li>
-          }
-          @for (phone of facade.contactPhones(); track phone) {
-            <li class="flex items-start gap-3">
-              <svg
-                class="size-5 text-accent shrink-0 mt-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                ></path>
-              </svg>
-              <a [href]="'tel:' + phone" class="hover:text-accent transition-colors">{{ phone }}</a>
-            </li>
-          }
-        </ul>
-      </div>
-    }
 
     @if (direccionIsanorte(); as direccion) {
       <div class="min-w-0">
-        <h4 class="mb-6 text-eyebrow text-text-muted">{{ 'Ubicación' | uppercase }}</h4>
+        <h4 class="mb-4 text-eyebrow text-text-muted">{{ 'Ubicación' | uppercase }}</h4>
         <app-location-map
           [direccion]="direccion"
           [mapEmbedUrl]="mapEmbedUrlIsanorte()"
@@ -136,7 +112,7 @@
 
   <div class="app-container">
     <div
-      class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-caption text-text-muted"
+      class="border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-caption text-text-muted"
     >
       <p>
         © {{ currentYear }}
@@ -144,10 +120,6 @@
           {{ footerText }}
         }
       </p>
-      <div class="flex gap-6" aria-label="Información legal pendiente">
-        <span>Política de Privacidad</span>
-        <span>Términos y Condiciones</span>
-      </div>
     </div>
   </div>
 </footer>

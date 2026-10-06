@@ -7,8 +7,6 @@ import { Subject, finalize, takeUntil } from 'rxjs';
 import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { SeoRobots } from '../../../data/models/content/page-seo.model';
-import { ProductPriceComparisonResponse } from '../../../data/models/product/product-price-comparison-response.model';
-import { ProductCompetitorComparisonResponse } from '../../../data/models/product/product-competitor-comparison-response.model';
 import {
   PublicPageSeoDefaults,
   applyPublicPageSeo,
@@ -33,20 +31,6 @@ export class ProductDetailFacade {
   readonly unitSlug: string = ISADECOR_UNIT_SLUG;
 
   private readonly publicApi = inject(PublicContentApiService);
-  private readonly comparisonCancelled = new Subject<void>();
-  private readonly competitorComparisonCancelled = new Subject<void>();
-  private readonly _comparisonLoading = signal(false);
-  private readonly _comparisonResult = signal<ProductPriceComparisonResponse | null>(null);
-  private readonly _comparisonError = signal<string | null>(null);
-  readonly comparisonLoading = this._comparisonLoading.asReadonly();
-  readonly comparisonResult = this._comparisonResult.asReadonly();
-  readonly comparisonError = this._comparisonError.asReadonly();
-  private readonly _competitorComparisonLoading = signal(false);
-  private readonly _competitorComparisonResult = signal<ProductCompetitorComparisonResponse | null>(null);
-  private readonly _competitorComparisonError = signal<string | null>(null);
-  readonly competitorComparisonLoading = this._competitorComparisonLoading.asReadonly();
-  readonly competitorComparisonResult = this._competitorComparisonResult.asReadonly();
-  readonly competitorComparisonError = this._competitorComparisonError.asReadonly();
   private readonly destroyRef = inject(DestroyRef);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
@@ -100,11 +84,6 @@ export class ProductDetailFacade {
 
     if (normalizedSlug.length === 0) {
       this.currentSlug = null;
-      this.comparisonCancelled.next();
-      this.competitorComparisonCancelled.next();
-      this.clearComparison();
-      this._competitorComparisonResult.set(null);
-      this._competitorComparisonError.set(null);
       this._product.set(null);
       this._loading.set(false);
       this._notFound.set(true);
@@ -121,12 +100,6 @@ export class ProductDetailFacade {
     }
 
     this.currentSlug = normalizedSlug;
-    this.comparisonCancelled.next();
-    this.competitorComparisonCancelled.next();
-    this.clearComparison();
-    this._competitorComparisonResult.set(null);
-    this._competitorComparisonError.set(null);
-
     this._product.set(null);
     this._error.set(null);
     this._notFound.set(false);
@@ -192,61 +165,6 @@ export class ProductDetailFacade {
           );
           applyPublicPageSeo(this.title, this.meta, null, this.seoDefaults, this.document);
         },
-      });
-  }
-
-  clearComparison(): void {
-    if (this._comparisonLoading()) return;
-    this._comparisonResult.set(null);
-    this._comparisonError.set(null);
-  }
-
-  comparePrice(urlExterna: string, unitSlug: string = this.unitSlug): void {
-    const product = this._product();
-    if (!isPlatformBrowser(this.platformId) || !product || this._comparisonLoading()) return;
-    this.clearComparison();
-    this._comparisonLoading.set(true);
-    this.publicApi
-      .compareProductPrice(this.siteKey, unitSlug, product.slug, { urlExterna })
-      .pipe(
-        takeUntil(this.comparisonCancelled),
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this._comparisonLoading.set(false)),
-      )
-      .subscribe({
-        next: (result) => this._comparisonResult.set(result),
-        error: (error: unknown) => {
-          const status = error instanceof HttpErrorResponse ? error.status : 0;
-          this._comparisonError.set(
-            status === 404
-              ? 'El producto ya no está disponible públicamente para comparar.'
-              : status === 400
-                ? 'Ingresa una URL válida del producto.'
-                : 'No pudimos completar la comparación. Inténtalo nuevamente.',
-          );
-        },
-      });
-  }
-
-  compareCompetitors(unitSlug: string = this.unitSlug): void {
-    const product = this._product();
-    if (!isPlatformBrowser(this.platformId) || !product || this._competitorComparisonLoading()) return;
-    this._competitorComparisonResult.set(null);
-    this._competitorComparisonError.set(null);
-    this._competitorComparisonLoading.set(true);
-    this.publicApi
-      .compareProductCompetitors(this.siteKey, unitSlug, product.slug)
-      .pipe(
-        takeUntil(this.competitorComparisonCancelled),
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this._competitorComparisonLoading.set(false)),
-      )
-      .subscribe({
-        next: (result) => this._competitorComparisonResult.set(result),
-        error: () =>
-          this._competitorComparisonError.set(
-            'No pudimos buscar productos similares. Inténtalo nuevamente.',
-          ),
       });
   }
 

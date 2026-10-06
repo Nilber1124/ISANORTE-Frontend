@@ -3,17 +3,21 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
+  HostListener,
   afterNextRender,
   computed,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { finalize } from 'rxjs';
 
 import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
+import { ClienteAuthService } from '../../../core/auth/cliente-auth.service';
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 
@@ -40,6 +44,27 @@ export class Navbar {
   private readonly publicContentApi = inject(PublicContentApiService);
   private readonly destroyRef = inject(DestroyRef);
   readonly cart = inject(IsadecorQuoteCartService);
+  readonly cliente = inject(ClienteAuthService);
+  private readonly router = inject(Router);
+  private readonly cuentaContenedor = viewChild<ElementRef<HTMLElement>>('cuentaContenedor');
+
+  /** false durante SSR y la primera hidratación: el estado de sesión solo existe en el navegador. */
+  readonly hidratado = signal(false);
+  readonly cuentaMenuOpen = signal(false);
+  readonly nombreCompleto = computed(() => {
+    const cliente = this.cliente.cliente();
+    return cliente ? [cliente.nombre, cliente.apellido].filter(Boolean).join(' ') : '';
+  });
+  readonly primerNombre = computed(() => this.cliente.cliente()?.nombre.split(' ')[0] ?? '');
+  readonly iniciales = computed(() => {
+    const cliente = this.cliente.cliente();
+    if (!cliente) return '';
+    return [cliente.nombre, cliente.apellido]
+      .filter(Boolean)
+      .map((parte) => parte!.trim().charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
+  });
 
   readonly dynamicCategories = signal<readonly IsadecorSubCategory[]>([]);
   readonly loadingCategories = signal(true);
@@ -61,8 +86,32 @@ export class Navbar {
 
   constructor() {
     afterNextRender(() => {
+      this.hidratado.set(true);
       this.loadCategories();
     });
+  }
+
+  @HostListener('document:click', ['$event.target'])
+  onDocumentClick(target: EventTarget | null): void {
+    const contenedor = this.cuentaContenedor()?.nativeElement;
+    if (this.cuentaMenuOpen() && contenedor && !contenedor.contains(target as Node)) {
+      this.cerrarCuentaMenu();
+    }
+  }
+
+  toggleCuentaMenu(): void {
+    this.cuentaMenuOpen.update((open) => !open);
+  }
+
+  cerrarCuentaMenu(): void {
+    this.cuentaMenuOpen.set(false);
+  }
+
+  cerrarSesion(): void {
+    this.cliente.logout();
+    this.cerrarCuentaMenu();
+    this.closeMenu();
+    void this.router.navigateByUrl('/isadecor');
   }
 
   loadCategories(): void {

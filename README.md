@@ -53,6 +53,15 @@ La aplicación detectará cualquier cambio que hagas en los archivos fuente (`.t
 
 ---
 
+### Backend local o desplegado
+
+El proxy de `ng serve` está en `proxy.conf.js` y lee la variable `BACKEND_TARGET`:
+
+- `npm start`: envía `/api` al backend local (`http://localhost:8080`).
+- `npm run start:render`: envía `/api` al backend desplegado (`https://isanorte-backend.onrender.com`).
+
+Para otro destino, usa `BACKEND_TARGET=<url> npm start`.
+
 ## 🏗️ Construcción para Producción
 
 Cuando estés listo para desplegar tu aplicación frontend en un servidor público, compila el proyecto ejecutando:

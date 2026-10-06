@@ -88,9 +88,10 @@ export class CinematicTour {
       const fade = this.crossFade() / 1000;
       const blurIn = 6;
 
-      const startScale = 1.05 * k;
-      const endScale = 1.16 * k;
-      const exitScale = 1.2 * k;
+      // La escala nunca baja de 1: con k reducido (móvil) la capa debe seguir cubriendo todo el contenedor.
+      const startScale = 1 + 0.05 * k;
+      const endScale = 1 + 0.16 * k;
+      const exitScale = 1 + 0.2 * k;
 
       // Movimiento de cámara alternado para dar variedad entre ambientes.
       const move = (i: number) => {

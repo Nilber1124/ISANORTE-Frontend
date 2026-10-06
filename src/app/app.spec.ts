@@ -32,6 +32,7 @@ describe('App', () => {
       'nosotros',
       'servicios',
       'proyectos',
+      'proyectos/:slug',
       'contacto',
     ]);
   });
@@ -48,6 +49,8 @@ describe('App', () => {
       'catalogo',
       'carrito',
       'cotizacion',
+      'ingresar',
+      'mi-cuenta',
       'productos/:slug',
     ]);
     expect(publicRoute?.children?.some((route) => route.path?.startsWith('isadecor'))).toBe(false);

@@ -3,29 +3,42 @@ import { RenderMode } from '@angular/ssr';
 import { serverRoutes } from './app.routes.server';
 
 describe('server routes', () => {
-  it('renders every route under PublicLayout per request instead of freezing global content', () => {
-    const publicPaths = [
-      '',
-      'nosotros',
-      'servicios',
-      'proyectos',
-      'contacto',
-      'isadecor',
-      'isadecor/catalogo',
-      'isadecor/carrito',
-      'isadecor/cotizacion',
-      'isadecor/productos/:slug',
-    ];
+  it('prerenders the static public pages and renders guarded or dynamic pages on the client', () => {
+    const modes = (paths: string[]) =>
+      paths.map((path) => serverRoutes.find((route) => route.path === path)?.renderMode);
 
     expect(
-      publicPaths.map((path) => serverRoutes.find((route) => route.path === path)?.renderMode),
-    ).toEqual(publicPaths.map(() => RenderMode.Server));
+      modes(['', 'nosotros', 'servicios', 'proyectos', 'contacto', 'isadecor', 'isadecor/catalogo', 'isadecor/carrito']),
+    ).toEqual([
+      RenderMode.Prerender,
+      RenderMode.Prerender,
+      RenderMode.Prerender,
+      RenderMode.Prerender,
+      RenderMode.Prerender,
+      RenderMode.Prerender,
+      RenderMode.Prerender,
+      RenderMode.Prerender,
+    ]);
+
+    expect(
+      modes([
+        'isadecor/cotizacion',
+        'isadecor/ingresar',
+        'isadecor/mi-cuenta',
+        'isadecor/productos/:slug',
+        'proyectos/:slug',
+      ]),
+    ).toEqual([
+      RenderMode.Client,
+      RenderMode.Client,
+      RenderMode.Client,
+      RenderMode.Client,
+      RenderMode.Client,
+    ]);
   });
 
-  it('keeps Admin and unmatched technical routing modes unchanged', () => {
-    expect(serverRoutes.find((route) => route.path === 'admin/**')?.renderMode).toBe(
-      RenderMode.Prerender,
-    );
+  it('keeps the admin area on the client and the unmatched fallback prerendered', () => {
+    expect(serverRoutes.find((route) => route.path === 'admin/**')?.renderMode).toBe(RenderMode.Client);
     expect(serverRoutes.at(-1)).toEqual({ path: '**', renderMode: RenderMode.Prerender });
   });
 });

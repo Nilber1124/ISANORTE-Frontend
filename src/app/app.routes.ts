@@ -8,10 +8,14 @@ import { About } from './features/isanorte/about/about';
 import { Contact } from './features/isanorte/contact/contact';
 import { Home as IsanorteHome } from './features/isanorte/home/home';
 import { Projects } from './features/isanorte/projects/projects';
+import { ProjectDetail } from './features/isanorte/projects/project-detail/project-detail';
 import { Services } from './features/isanorte/services/services';
 import { IsadecorLayout } from './layouts/isadecor-layout/isadecor-layout';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 import { authGuard } from './core/auth/auth.guard';
+import { clienteGuard } from './core/auth/cliente.guard';
+import { IsadecorIngresar } from './features/isadecor/cuenta/ingresar/ingresar';
+import { MiCuenta } from './features/isadecor/cuenta/mi-cuenta/mi-cuenta';
 
 export const routes: Routes = [
   {
@@ -121,6 +125,7 @@ export const routes: Routes = [
       { path: 'nosotros', component: About },
       { path: 'servicios', component: Services },
       { path: 'proyectos', component: Projects },
+      { path: 'proyectos/:slug', component: ProjectDetail },
       { path: 'contacto', component: Contact },
     ],
   },
@@ -131,7 +136,9 @@ export const routes: Routes = [
       { path: '', component: IsadecorHome },
       { path: 'catalogo', component: Catalog },
       { path: 'carrito', component: Cart },
-      { path: 'cotizacion', component: Quote },
+      { path: 'cotizacion', component: Quote, canActivate: [clienteGuard] },
+      { path: 'ingresar', component: IsadecorIngresar },
+      { path: 'mi-cuenta', component: MiCuenta, canActivate: [clienteGuard] },
       { path: 'productos/:slug', component: ProductDetail },
     ],
   },

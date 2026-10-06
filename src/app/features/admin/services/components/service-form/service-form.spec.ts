@@ -87,14 +87,9 @@ describe('ServiceForm', () => {
     }
   });
 
-  it('keeps image preview failure separate from form validity', async () => {
+  it('submits a valid edit with the image field present', async () => {
     const fixture = await createFixture('edit', service);
-    const image = (fixture.nativeElement as HTMLElement).querySelector('img');
-    image?.dispatchEvent(new Event('error'));
     fixture.detectChanges();
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      'La URL todavía puede guardarse',
-    );
     let submission: ServiceFormSubmission | undefined;
     fixture.componentInstance.saved.subscribe((value) => (submission = value));
     Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'))

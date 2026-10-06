@@ -20,7 +20,8 @@ import { PublicSiteFacade } from '../public-site.facade';
 })
 export class Navbar {
   readonly facade = inject(PublicSiteFacade);
-  readonly navigationLinks = PUBLIC_NAVIGATION_LINKS;
+  /** Contacto tiene botón propio en la cabecera, así que no se repite en la lista. */
+  readonly navigationLinks = PUBLIC_NAVIGATION_LINKS.filter((link) => link.url !== '/contacto');
   readonly desktopUnitsOpen = signal(false);
   readonly mobileMenuOpen = signal(false);
   readonly mobileUnitsOpen = signal(false);

@@ -14,6 +14,7 @@ import { HomeBusinessUnitActionView } from './home-view.model';
 
 export interface ProjectCard {
   id: string;
+  slug: string;
   title: string;
   location: string;
   bgImageUrl: string;
@@ -82,6 +83,7 @@ export class Home {
   readonly projects = computed<ProjectCard[]>(() =>
     this.facade.projects().map((item) => ({
       id: item.id,
+      slug: item.slug,
       title: item.name,
       location: item.metadata,
       bgImageUrl: item.imageUrl ?? '/images/residencia-aura.jpg',

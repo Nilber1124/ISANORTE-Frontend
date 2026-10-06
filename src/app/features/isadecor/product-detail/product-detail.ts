@@ -17,8 +17,6 @@ import { Loading } from '../../../shared/components/loading/loading';
 import { ProductGallery } from './components/product-gallery/product-gallery';
 import { ProductInfo } from './components/product-info/product-info';
 import { ProductDetailFacade } from './product-detail.facade';
-import { ProductPriceComparison } from './components/product-price-comparison/product-price-comparison';
-import { ProductCompetitorComparison } from './components/product-competitor-comparison/product-competitor-comparison';
 
 interface VariantAvailabilityPresentation {
   label: string;
@@ -35,8 +33,6 @@ interface VariantAvailabilityPresentation {
     Loading,
     ProductGallery,
     ProductInfo,
-    ProductPriceComparison,
-    ProductCompetitorComparison,
     RouterLink,
   ],
   providers: [ProductDetailFacade],
