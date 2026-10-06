@@ -1513,6 +1513,90 @@ paths:
       x-access-intent: PUBLICO
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SolicitudContactoCreateRequest'}}}}
       responses: {'201': {description: Recibida, content: {application/json: {schema: {$ref: '#/components/schemas/SolicitudContactoPublicResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}}
+  /api/publico/cuenta/registro:
+    post:
+      tags: [Público]
+      operationId: registrarCuentaCliente
+      x-access-intent: PUBLICO
+      summary: Crea una cuenta de cliente y devuelve su sesión
+      description: Requiere aceptar el tratamiento de datos personales. El correo se normaliza a minúsculas. Un correo repetido responde 409.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ClienteRegistroRequest'}}}}
+      responses:
+        '201': {description: Cuenta creada con token Bearer, content: {application/json: {schema: {$ref: '#/components/schemas/ClienteAuthResponse'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /api/publico/cuenta/login:
+    post:
+      tags: [Público]
+      operationId: loginCuentaCliente
+      x-access-intent: PUBLICO
+      summary: Inicia sesión de cliente
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ClienteLoginRequest'}}}}
+      responses:
+        '200': {description: Sesión de cliente, content: {application/json: {schema: {$ref: '#/components/schemas/ClienteAuthResponse'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {description: Correo o contraseña incorrectos}
+  /api/publico/cuenta/me:
+    get:
+      tags: [Público]
+      operationId: obtenerCuentaCliente
+      x-access-intent: CLIENTE
+      security: [{clienteBearer: []}]
+      summary: Datos de la cuenta autenticada
+      responses:
+        '200': {description: Cuenta del cliente, content: {application/json: {schema: {$ref: '#/components/schemas/ClienteResponse'}}}}
+        '401': {description: Falta el token de cliente o expiró}
+        '403': {description: El token no tiene rol CLIENTE}
+  /api/publico/cuenta/cotizaciones:
+    get:
+      tags: [Público]
+      operationId: listarMisCotizacionesCliente
+      x-access-intent: CLIENTE
+      security: [{clienteBearer: []}]
+      summary: Cotizaciones solicitadas por el cliente autenticado, más recientes primero
+      responses:
+        '200': {description: Cotizaciones del cliente, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/PublicCotizacionResponse'}}}}}
+        '401': {description: Falta el token de cliente o expiró}
+        '403': {description: El token no tiene rol CLIENTE}
+  /api/publico/cuenta/carrito:
+    get:
+      tags: [Público]
+      operationId: obtenerCarritoCuenta
+      x-access-intent: CLIENTE
+      security: [{clienteBearer: []}]
+      summary: Carrito guardado en la cuenta del cliente
+      responses:
+        '200': {description: Ítems del carrito, content: {application/json: {schema: {$ref: '#/components/schemas/CarritoClienteResponse'}}}}
+        '401': {description: Falta el token de cliente o expiró}
+    put:
+      tags: [Público]
+      operationId: reemplazarCarritoCuenta
+      x-access-intent: CLIENTE
+      security: [{clienteBearer: []}]
+      summary: Reemplaza el carrito de la cuenta
+      description: Reemplaza el contenido completo. Las líneas repetidas (mismo producto y variante) se suman con tope de 999999. Máximo 50 líneas.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CarritoClienteRequest'}}}}
+      responses:
+        '200': {description: Carrito guardado, content: {application/json: {schema: {$ref: '#/components/schemas/CarritoClienteResponse'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {description: Falta el token de cliente o expiró}
+  /api/publico/sitios/{clave}/unidades/{unidadSlug}/cotizaciones:
+    post:
+      tags: [Público]
+      operationId: crearCotizacionPublica
+      x-access-intent: CLIENTE
+      security: [{clienteBearer: []}]
+      summary: Registra una cotización vinculada a la cuenta del cliente
+      description: Requiere sesión de cliente. La cotización queda asociada a la cuenta autenticada.
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}, example: isanorte}
+        - {name: unidadSlug, in: path, required: true, schema: {type: string}, example: isadecor}
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PublicCotizacionRequest'}}}}
+      responses:
+        '201': {description: Cotización registrada, content: {application/json: {schema: {$ref: '#/components/schemas/PublicCotizacionResponse'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {description: Falta el token de cliente o expiró}
+        '404': {$ref: '#/components/responses/NotFound'}
   /api/publico/sitios/{clave}:
     get:
       tags: [Público]
@@ -1612,10 +1696,11 @@ paths:
     post:
       tags: [Público]
       operationId: compararPrecioProductoPublico
-      x-access-intent: PUBLICO
+      x-access-intent: CLIENTE
+      security: [{clienteBearer: []}]
       summary: Comparar precioBase con el precio extraído de una URL de producto
       description: |
-        Consulta explícita sin persistencia ni historial. Valida sitio, empresa, unidad activa
+        Requiere sesión de cliente (Authorization: Bearer). Consulta explícita sin persistencia ni historial. Valida sitio, empresa, unidad activa
         y producto publicado. La moneda interna de esta versión es PEN.
         El servidor obtiene precioBase; nunca acepta un precio interno del cliente.
         Solo HTTP/HTTPS, puertos estándar y direcciones públicas. Hasta 3 redirecciones
@@ -1644,7 +1729,8 @@ paths:
     get:
       tags: [Público]
       operationId: compararProductosCompetidores
-      x-access-intent: PUBLICO
+      x-access-intent: CLIENTE
+      security: [{clienteBearer: []}]
       summary: Busca productos similares en PISOPAK y DECORPLAS
       description: Consulta bajo acción explícita, sin persistencia. El backend recupera el producto publicado de ISADECOR, consulta únicamente dominios oficiales, puntúa candidatos y compara precios solo con moneda y unidad compatibles.
       parameters:
@@ -1657,9 +1743,12 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/ComparacionCompetidoresResponse'}
+        '401': {description: Requiere sesión de cliente}
         '404': {$ref: '#/components/responses/NotFound'}
 
 components:
+  securitySchemes:
+    clienteBearer: {type: http, scheme: bearer, bearerFormat: JWT, description: Token emitido por POST /api/publico/cuenta/login o /registro}
   parameters:
     UuidId:
       name: id
@@ -1921,6 +2010,108 @@ components:
         competidores: {type: array, items: {$ref: '#/components/schemas/ResultadoCompetidor'}}
         diferenciasEncontradas: {type: array, items: {type: string}}
         fechaConsulta: {type: string, format: date-time}
+    ClienteRegistroRequest:
+      type: object
+      required: [nombre, email, password, aceptaTratamientoDatos]
+      properties:
+        nombre: {type: string, maxLength: 120}
+        apellido: {type: string, maxLength: 120, nullable: true}
+        email: {type: string, format: email, maxLength: 150}
+        password: {type: string, minLength: 8, maxLength: 200}
+        telefono: {type: string, maxLength: 30, nullable: true}
+        aceptaTratamientoDatos: {type: boolean, enum: [true]}
+    ClienteLoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: {type: string, format: email}
+        password: {type: string}
+    ClienteResponse:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        nombre: {type: string}
+        apellido: {type: string, nullable: true}
+        email: {type: string}
+        telefono: {type: string, nullable: true}
+        fechaCreacion: {type: string, format: date-time}
+    ClienteAuthResponse:
+      type: object
+      properties:
+        token: {type: string}
+        tipo: {type: string, enum: [Bearer]}
+        expiracion: {type: string, format: date-time}
+        cliente: {$ref: '#/components/schemas/ClienteResponse'}
+    PublicCotizacionRequest:
+      type: object
+      description: Los datos de contacto se pueden prellenar desde la cuenta; el vínculo lo fija el token.
+      required: [nombreCliente, emailCliente, telefonoCliente]
+      properties:
+        nombreCliente: {type: string}
+        emailCliente: {type: string, format: email}
+        telefonoCliente: {type: string}
+        empresaCliente: {type: string, nullable: true}
+        ciudad: {type: string, nullable: true}
+        mensaje: {type: string, nullable: true}
+        canal: {type: string, enum: [FORMULARIO]}
+        productoSlug: {type: string, nullable: true}
+        varianteSku: {type: string, nullable: true}
+        cantidad: {type: integer, minimum: 1, nullable: true}
+        notas: {type: string, nullable: true}
+        detalles:
+          type: array
+          nullable: true
+          items:
+            type: object
+            required: [productoSlug]
+            properties:
+              productoSlug: {type: string}
+              varianteSku: {type: string, nullable: true}
+              cantidad: {type: integer, minimum: 1}
+              notas: {type: string, nullable: true}
+    PublicCotizacionResponse:
+      type: object
+      properties:
+        codigo: {type: string, example: COT-20261006-1A2B3C4D}
+        nombreCliente: {type: string}
+        emailCliente: {type: string}
+        telefonoCliente: {type: string}
+        empresaCliente: {type: string, nullable: true}
+        ciudad: {type: string, nullable: true}
+        mensaje: {type: string, nullable: true}
+        canal: {type: string}
+        estado: {type: string, enum: [NUEVA, EN_REVISION, CONTACTADA, COTIZADA, CERRADA, CANCELADA]}
+        totalEstimado: {type: number, nullable: true}
+        detalles: {type: array, items: {type: object}}
+        fechaCreacion: {type: string, format: date-time}
+    CarritoClienteItem:
+      type: object
+      required: [productoSlug, productoNombre, productoSku, cantidad]
+      properties:
+        productoSlug: {type: string, maxLength: 200}
+        productoNombre: {type: string, maxLength: 200}
+        productoSku: {type: string, maxLength: 100}
+        imagenUrl: {type: string, maxLength: 500, nullable: true}
+        imagenAlt: {type: string, maxLength: 300, nullable: true}
+        variante:
+          type: object
+          nullable: true
+          required: [sku, nombre]
+          properties:
+            sku: {type: string, maxLength: 100}
+            nombre: {type: string, maxLength: 200}
+            precio: {type: number, minimum: 0, nullable: true}
+        cantidad: {type: integer, minimum: 1, maximum: 999999}
+        precioUnitario: {type: number, minimum: 0, nullable: true, description: Referencial. La cotización se recalcula en el servidor.}
+    CarritoClienteRequest:
+      type: object
+      required: [items]
+      properties:
+        items: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/CarritoClienteItem'}}
+    CarritoClienteResponse:
+      type: object
+      properties:
+        items: {type: array, items: {$ref: '#/components/schemas/CarritoClienteItem'}}
     ComparacionPrecioRequest:
       type: object
       description: La ausencia, vacío o formato inválido de URL devuelve INVALID_URL; más de 2048 caracteres devuelve HTTP 400.

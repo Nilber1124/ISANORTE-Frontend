@@ -61,7 +61,6 @@ export class BusinessUnitForm implements OnInit {
   readonly activo = signal(true);
   readonly destacado = signal(false);
   readonly submitted = signal(false);
-  readonly previewFailed = signal(false);
   readonly companyOptions = computed<readonly SelectOption[]>(() =>
     this.companies().map((company) => ({ value: company.id, label: company.nombreComercial })),
   );
@@ -131,10 +130,6 @@ export class BusinessUnitForm implements OnInit {
   }
   protected updateImageUrl(value: string): void {
     this.imagenUrl.set(value);
-    this.previewFailed.set(false);
-  }
-  protected markPreviewFailed(): void {
-    this.previewFailed.set(true);
   }
   protected updateActive(event: Event): void {
     this.activo.set((event.target as HTMLInputElement).checked);

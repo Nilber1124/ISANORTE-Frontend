@@ -1,0 +1,22 @@
+@if (href(); as url) {
+  <a
+    [href]="url"
+    target="_blank"
+    rel="noopener"
+    class="fixed bottom-5 right-5 z-40 inline-flex size-14 cursor-pointer items-center justify-center rounded-full bg-brand text-white shadow-floating ring-1 ring-white/15 transition-transform duration-normal hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:bottom-6 sm:right-6"
+    aria-label="Escribir por WhatsApp"
+  >
+    <svg class="size-7" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M9 9.5c0 3 2.5 5.5 5.5 5.5l.8-1.2-1.8-.9-.7.6a4 4 0 0 1-2-2l.6-.7-.9-1.8z"
+        fill="currentColor"
+      />
+    </svg>
+  </a>
+}

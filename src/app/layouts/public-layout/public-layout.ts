@@ -3,11 +3,12 @@ import { RouterOutlet } from '@angular/router';
 
 import { Footer } from './footer/footer';
 import { Navbar } from './navbar/navbar';
+import { WhatsappFloat } from '../../shared/components/whatsapp-float/whatsapp-float';
 import { PublicSiteFacade } from './public-site.facade';
 
 @Component({
   selector: 'app-public-layout',
-  imports: [RouterOutlet, Navbar, Footer],
+  imports: [RouterOutlet, Navbar, Footer, WhatsappFloat],
   providers: [PublicSiteFacade],
   templateUrl: './public-layout.html',
   styleUrl: './public-layout.css',
@@ -15,6 +16,7 @@ import { PublicSiteFacade } from './public-site.facade';
 })
 export class PublicLayout {
   private readonly publicSite = inject(PublicSiteFacade);
+  readonly whatsappHref = this.publicSite.whatsappHref;
 
   constructor() {
     this.publicSite.load();

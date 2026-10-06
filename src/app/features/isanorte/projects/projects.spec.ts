@@ -1,6 +1,7 @@
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter, RouterLink } from '@angular/router';
 
 import {
   PublicPageContent,
@@ -95,17 +96,17 @@ describe('Projects', () => {
 
   beforeEach(async () => {
     facade = new PublicProjectsFacadeStub();
-    await TestBed.configureTestingModule({ imports: [Projects] })
+    await TestBed.configureTestingModule({ imports: [Projects], providers: [provideRouter([])] })
       .overrideComponent(Projects, {
         set: {
-          imports: [NgClass, NgTemplateOutlet, Alert, CardStub],
+          imports: [NgClass, NgTemplateOutlet, Alert, CardStub, RouterLink],
           providers: [{ provide: PublicProjectsFacade, useValue: facade }],
         },
       })
       .compileComponents();
   });
 
-  it('renders backend projects, real filters and metadata without a card route', () => {
+  it('renders backend projects, real filters, metadata and detail links', () => {
     const fixture = TestBed.createComponent(Projects);
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;

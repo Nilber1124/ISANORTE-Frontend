@@ -68,7 +68,7 @@
 }
 
 <ng-template #projectTile let-project>
-  <div class="group aspect-[4/3]" [attr.data-project-slug]="project.slug">
+  <a class="group block aspect-[4/3] cursor-pointer" [routerLink]="['/proyectos', project.slug]" [attr.data-project-slug]="project.slug" [attr.aria-label]="'Ver proyecto ' + project.nombre">
     <app-card padding="none" class="h-full">
       @if (facade.coverFor(project); as cover) {
         <img
@@ -90,5 +90,5 @@
         }
       </div>
     </app-card>
-  </div>
+  </a>
 </ng-template>

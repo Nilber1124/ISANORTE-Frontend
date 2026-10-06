@@ -97,12 +97,4 @@ describe('BusinessUnitForm', () => {
       expect(submission?.mode).toBe('edit');
     }
   });
-  it('renders preview fallback without preventing a valid update', async () => {
-    const value = await fixture('edit', unit, [company]);
-    (value.nativeElement as HTMLElement).querySelector('img')?.dispatchEvent(new Event('error'));
-    value.detectChanges();
-    expect((value.nativeElement as HTMLElement).textContent).toContain(
-      'La URL todavía puede guardarse',
-    );
-  });
 });

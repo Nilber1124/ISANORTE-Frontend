@@ -59,7 +59,6 @@ export class ServiceForm implements OnInit {
   readonly destacado = signal(false);
   readonly activo = signal(true);
   readonly submitted = signal(false);
-  readonly previewFailed = signal(false);
   readonly errors = computed<ServiceFormErrors>(() => this.validationErrors());
 
   ngOnInit(): void {
@@ -119,11 +118,6 @@ export class ServiceForm implements OnInit {
 
   protected updateImageUrl(value: string): void {
     this.imagenUrl.set(value);
-    this.previewFailed.set(false);
-  }
-
-  protected markPreviewFailed(): void {
-    this.previewFailed.set(true);
   }
 
   protected updateFeatured(event: Event): void {

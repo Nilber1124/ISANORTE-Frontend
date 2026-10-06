@@ -6,31 +6,13 @@ import { of } from 'rxjs';
 import { ProductDetail } from './product-detail';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
-import { ProductPriceComparisonResponse } from '../../../data/models/product/product-price-comparison-response.model';
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 
-const comparison: ProductPriceComparisonResponse = {
-  producto: 'Mesa',
-  urlExterna: 'https://tienda.example/mesa',
-  dominioExterno: 'tienda.example',
-  nombreProductoExterno: 'Mesa externa',
-  precioInterno: 850,
-  precioExterno: 920,
-  monedaInterna: 'PEN',
-  monedaExterna: 'PEN',
-  diferencia: 70,
-  porcentajeDiferencia: 8.24,
-  comparable: true,
-  estado: 'SUCCESS',
-  mensaje: 'ISADECOR tiene un precio S/ 70.00 menor.',
-  fechaConsulta: '2026-09-22T12:00:00Z',
-};
-
-describe('ProductDetail price comparison integration', () => {
+describe('ProductDetail integration', () => {
   afterEach(() => localStorage.clear());
 
-  it('preserves detail and quote navigation, and compares only after the form is submitted', async () => {
+  it('preserves detail and quote navigation without a public price comparator', async () => {
     const product: PublicProductDetailResponse = {
       sku: 'MESA-1',
       slug: 'mesa',
@@ -51,7 +33,6 @@ describe('ProductDetail price comparison integration', () => {
       documentos: [],
       configuracionCalculo: null,
     };
-    let calls = 0;
     TestBed.configureTestingModule({
       providers: [
         provideRouter([{ path: 'isadecor/productos/:slug', component: ProductDetail }]),
@@ -85,15 +66,8 @@ describe('ProductDetail price comparison integration', () => {
             '/isadecor/cotizacion?producto=mesa',
         ),
     ).toBe(true);
-    expect(calls).toBe(0);
-    const section = root.querySelector('app-product-price-comparison')!;
-    const input = section.querySelector('input')!;
-    input.value = 'https://tienda.example/mesa';
-    input.dispatchEvent(new Event('input'));
-    section.querySelector('form')!.dispatchEvent(new Event('submit', { cancelable: true }));
-    harness.detectChanges();
-    expect(calls).toBe(1);
-    expect(section.textContent).toContain('ISADECOR tiene un precio S/ 70.00 menor.');
+    expect(root.querySelector('app-product-price-comparison')).toBeNull();
+    expect(root.querySelector('app-product-competitor-comparison')).toBeNull();
     expect(root.textContent).toContain('Descripción de la mesa existente.');
   });
 

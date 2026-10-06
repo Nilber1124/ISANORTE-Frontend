@@ -58,7 +58,7 @@ describe('Footer', () => {
   it('renders backend branding, summary, contact, networks and footer text', () => {
     const footer = fixture.nativeElement as HTMLElement;
     expect(footer.querySelector('img')?.getAttribute('src')).toBe('/footer-logo.svg');
-    expect(footer.textContent).toContain('Empresa Backend');
+    expect(footer.querySelector('img')?.getAttribute('alt')).toBe('Sitio Backend');
     expect(footer.textContent).toContain('Resumen corporativo backend');
     expect(footer.textContent).toContain('Av. Backend 123');
     expect(footer.textContent).toContain('Ciudad Backend');
@@ -75,7 +75,7 @@ describe('Footer', () => {
     expect(footer.querySelector('a[href="/nosotros"]')).toBeTruthy();
     expect(footer.querySelector('a[href="/proyectos"]')).toBeTruthy();
     expect(footer.querySelector('a[href="/contacto"]')).toBeTruthy();
-    expect(footer.querySelectorAll('a[href="/servicios"]')).toHaveLength(2);
+    expect(footer.querySelectorAll('a[href="/servicios"]')).toHaveLength(1);
     expect(footer.querySelector('a[href="#"]')).toBeNull();
     expect(footer.querySelector('a[href="/isadecor"]')).toBeNull();
     expect(footer.textContent).not.toContain('Construcción');

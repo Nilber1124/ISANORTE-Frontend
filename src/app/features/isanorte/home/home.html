@@ -8,11 +8,13 @@
     <div class="absolute inset-0 bg-black/60"></div>
     <div class="relative z-10 app-container">
       <div class="max-w-4xl">
-        <div
-          class="inline-flex items-center px-4 py-1.5 rounded-full border border-accent text-accent text-caption font-semibold uppercase tracking-wider mb-8 animate-fade-in-up"
-        >
-          {{ hero.tag }}
-        </div>
+        @if (hero.tag) {
+          <div
+            class="inline-flex items-center px-4 py-1.5 rounded-full border border-accent text-accent text-caption font-semibold uppercase tracking-wider mb-8 animate-fade-in-up"
+          >
+            {{ hero.tag }}
+          </div>
+        }
         <h1
           class="text-display-xl text-white mb-6 whitespace-pre-line animate-fade-in-up"
           style="animation-delay: 100ms"
@@ -270,7 +272,7 @@
       </div>
       <app-carousel [items]="projects()" variant="marquee" ariaLabel="Carrusel de proyectos">
         <ng-template #cardTemplate let-project>
-          <app-card href="/proyectos" padding="none" class="group h-full">
+          <app-card [href]="'/proyectos/' + project.slug" padding="none" class="group h-full">
             <div
               class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
               [style.backgroundImage]="'url(' + project.bgImageUrl + ')'"

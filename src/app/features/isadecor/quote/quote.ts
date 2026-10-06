@@ -22,6 +22,7 @@ import { InputField } from '../../../shared/components/input-field/input-field';
 import { Loading } from '../../../shared/components/loading/loading';
 import { SelectField, SelectOption } from '../../../shared/components/select-field/select-field';
 import { TextareaField } from '../../../shared/components/textarea-field/textarea-field';
+import { ClienteAuthService } from '../../../core/auth/cliente-auth.service';
 import { QuoteFacade } from './quote.facade';
 
 interface AvailabilityPresentation {
@@ -58,6 +59,7 @@ interface QuoteFieldErrors {
 export class Quote {
   readonly facade = inject(QuoteFacade);
   private readonly route = inject(ActivatedRoute);
+  private readonly clienteAuth = inject(ClienteAuthService);
 
   readonly nombreCliente = signal('');
   readonly emailCliente = signal('');
@@ -82,6 +84,13 @@ export class Quote {
   constructor() {
     const params = this.route.snapshot.queryParamMap;
     this.cantidad.set(String(this.parseInitialQuantity(params.get('cantidad'))));
+
+    const cliente = this.clienteAuth.cliente();
+    if (cliente) {
+      this.nombreCliente.set([cliente.nombre, cliente.apellido].filter(Boolean).join(' '));
+      this.emailCliente.set(cliente.email);
+      this.telefonoCliente.set(cliente.telefono ?? '');
+    }
 
     afterNextRender(() => this.facade.loadProduct(params.get('producto') ?? ''));
   }

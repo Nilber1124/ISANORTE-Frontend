@@ -1,0 +1,128 @@
+<main class="bg-background">
+  <div class="grid min-h-[calc(100vh-5rem)] lg:grid-cols-2">
+    <section
+      class="relative isolate flex overflow-hidden bg-background-deep text-white"
+      aria-label="Beneficios de tu cuenta ISADECOR"
+    >
+      <img
+        src="/images/isadecor-hero.jpg"
+        alt=""
+        width="1376"
+        height="768"
+        class="absolute inset-0 -z-10 size-full object-cover opacity-70"
+      />
+      <div class="absolute inset-0 -z-10 bg-gradient-to-t from-black via-black/70 to-black/20" aria-hidden="true"></div>
+
+      <div class="flex w-full flex-col justify-end gap-8 px-6 py-12 sm:px-10 lg:px-14 lg:py-16">
+        <img
+          src="/images/isadecor-logo-horizontal-white.svg"
+          alt="ISADECOR"
+          class="h-9 w-auto self-start"
+        />
+        <div class="max-w-md">
+          <p class="text-eyebrow uppercase text-white/60">Cuenta de cliente</p>
+          <h1 class="mt-3 text-heading-2 text-white">Tu proyecto, en un solo lugar.</h1>
+          <ul class="mt-6 space-y-3 text-body-sm text-white/80">
+            <li class="flex gap-3"><span class="text-accent" aria-hidden="true">✓</span> Historial y seguimiento de tus cotizaciones</li>
+            <li class="flex gap-3"><span class="text-accent" aria-hidden="true">✓</span> Comparación de precios con otras tiendas</li>
+            <li class="flex gap-3"><span class="text-accent" aria-hidden="true">✓</span> Solicitudes ágiles desde el catálogo</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="flex items-center justify-center px-6 py-12 sm:px-10 lg:py-16" aria-labelledby="ingresar-titulo">
+      <div class="w-full max-w-md">
+        <h2 id="ingresar-titulo" class="text-heading-2 text-text-primary">
+          {{ modo() === 'ingresar' ? 'Inicia sesión' : 'Crea tu cuenta' }}
+        </h2>
+        <p class="mt-2 text-body-sm text-text-secondary">
+          Explorar el catálogo es libre. Tu cuenta se necesita para cotizar y comparar precios.
+        </p>
+
+        <div class="mt-8 flex gap-6 border-b border-border" role="tablist" aria-label="Tipo de acceso">
+          @for (opcion of [{ valor: 'ingresar', texto: 'Iniciar sesión' }, { valor: 'registrar', texto: 'Registrarme' }]; track opcion.valor) {
+            <button
+              type="button"
+              role="tab"
+              class="-mb-px cursor-pointer border-b-2 pb-3 text-body-sm font-semibold transition-colors duration-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+              [attr.aria-selected]="modo() === opcion.valor"
+              [class.border-text-primary]="modo() === opcion.valor"
+              [class.text-text-primary]="modo() === opcion.valor"
+              [class.border-transparent]="modo() !== opcion.valor"
+              [class.text-text-muted]="modo() !== opcion.valor"
+              (click)="cambiarModo($any(opcion.valor))"
+            >
+              {{ opcion.texto }}
+            </button>
+          }
+        </div>
+
+        <form class="mt-7 space-y-5" novalidate (submit)="submit($event)">
+          @if (modo() === 'registrar') {
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label for="cliente-nombre" class="form-label">Nombre</label>
+                <input id="cliente-nombre" name="nombre" type="text" class="form-control" autocomplete="given-name" required
+                  [value]="nombre()" [disabled]="loading()" (input)="nombre.set(valor($event))" />
+              </div>
+              <div>
+                <label for="cliente-apellido" class="form-label">Apellido <span class="text-text-muted">(opcional)</span></label>
+                <input id="cliente-apellido" name="apellido" type="text" class="form-control" autocomplete="family-name"
+                  [value]="apellido()" [disabled]="loading()" (input)="apellido.set(valor($event))" />
+              </div>
+            </div>
+          }
+
+          <div>
+            <label for="cliente-email" class="form-label">Correo electrónico</label>
+            <input id="cliente-email" name="email" type="email" class="form-control" autocomplete="email" required
+              placeholder="tu@correo.com" [value]="email()" [disabled]="loading()" (input)="email.set(valor($event))" />
+          </div>
+
+          @if (modo() === 'registrar') {
+            <div>
+              <label for="cliente-telefono" class="form-label">Teléfono <span class="text-text-muted">(opcional)</span></label>
+              <input id="cliente-telefono" name="telefono" type="tel" class="form-control" autocomplete="tel"
+                [value]="telefono()" [disabled]="loading()" (input)="telefono.set(valor($event))" />
+            </div>
+          }
+
+          <div>
+            <label for="cliente-password" class="form-label">Contraseña</label>
+            <div class="relative">
+              <input id="cliente-password" name="password" [type]="showPassword() ? 'text' : 'password'"
+                class="form-control pr-24" required
+                [attr.autocomplete]="modo() === 'registrar' ? 'new-password' : 'current-password'"
+                [placeholder]="modo() === 'registrar' ? 'Mínimo 8 caracteres' : 'Tu contraseña'"
+                [value]="password()" [disabled]="loading()" (input)="password.set(valor($event))" />
+              <button type="button"
+                class="absolute inset-y-0 right-3 cursor-pointer rounded-control px-2 text-body-sm font-semibold text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                (click)="showPassword.update((value) => !value)">
+                {{ showPassword() ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </div>
+          </div>
+
+          @if (modo() === 'registrar') {
+            <label class="flex cursor-pointer items-start gap-3 text-body-sm text-text-secondary">
+              <input type="checkbox" class="mt-1 size-4 accent-accent" name="aceptaDatos" [checked]="aceptaDatos()"
+                [disabled]="loading()" (change)="aceptaDatos.set($any($event.target).checked)" />
+              <span>Acepto que ISADECOR (ISANORTE) trate mis datos personales para gestionar mis cotizaciones y mi cuenta.</span>
+            </label>
+          }
+
+          @if (error(); as message) {
+            <app-alert variant="error" title="No se pudo completar">{{ message }}</app-alert>
+          }
+
+          <app-button class="w-full [&>button]:w-full" type="submit" variant="accent" size="large"
+            [loading]="loading()" [disabled]="loading()">
+            {{ loading() ? 'Procesando…' : modo() === 'ingresar' ? 'Iniciar sesión' : 'Crear cuenta' }}
+          </app-button>
+        </form>
+      </div>
+    </section>
+  </div>
+</main>

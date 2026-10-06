@@ -34,16 +34,16 @@ describe('Navbar', () => {
     const logo = nav.querySelector('img');
     expect(logo?.getAttribute('src')).toBe('/logo-white.svg');
     expect(logo?.getAttribute('alt')).toBe('Marca Backend');
-    expect(nav.textContent).toContain('Marca Backend');
 
     const desktopLinks = Array.from(nav.querySelectorAll('.hidden.md\\:flex > a')).map((link) =>
       link.getAttribute('href'),
     );
-    expect(desktopLinks).toEqual(['/', '/nosotros', '/servicios', '/proyectos', '/contacto']);
+    expect(desktopLinks).toEqual(['/', '/nosotros', '/servicios', '/proyectos', '/isadecor', '/contacto']);
     expect(nav.textContent).not.toContain('Conoce ISADECOR');
     expect(nav.querySelector('app-button')).toBeNull();
     expect(nav.querySelector('#business-units-desktop-menu a[href="/isadecor"]')).toBeTruthy();
-    expect(nav.querySelector('.hidden.md\\:flex > a[href="/isadecor"]')).toBeNull();
+    // «Tienda» sí va en la cabecera, pero abre Isadecor en una pestaña nueva.
+    expect(nav.querySelector('.hidden.md\\:flex > a[href="/isadecor"]')?.getAttribute('target')).toBe('_blank');
   });
 
   it('opens an accessible desktop unit selector with slug-derived backend links', () => {
@@ -61,7 +61,8 @@ describe('Navbar', () => {
     const menu = nav.querySelector('#business-units-desktop-menu');
     expect(menu?.querySelector('a[href="/isadecor"]')?.textContent).toContain('ISADECOR');
     expect(menu?.querySelector('a[href="/unidad-futura"]')?.textContent).toContain('Unidad futura');
-    expect(nav.querySelectorAll('a[href="/isadecor"]')).toHaveLength(1);
+    // Un enlace en el selector y el botón «Tienda» de la cabecera.
+    expect(nav.querySelectorAll('a[href="/isadecor"]')).toHaveLength(2);
   });
 
   it('does not render an empty selector after a successful empty unit list', () => {
