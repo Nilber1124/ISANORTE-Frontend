@@ -59,6 +59,9 @@ describe('ProductDetail price comparison integration', () => {
           provide: PublicContentApiService,
           useValue: {
             getProductDetail: () => of(product),
+            getRecommendedProducts: () => of([]),
+            getProductReviews: () => of([]),
+            getProductReviewSummary: () => of({ promedio: 0, total: 0, distribucion: [] }),
             compareProductPrice: () => {
               calls++;
               return of(comparison);
@@ -124,6 +127,9 @@ describe('ProductDetail price comparison integration', () => {
           provide: PublicContentApiService,
           useValue: {
             getProductDetail: () => of(product),
+            getRecommendedProducts: () => of([]),
+            getProductReviews: () => of([]),
+            getProductReviewSummary: () => of({ promedio: 0, total: 0, distribucion: [] }),
           },
         },
       ],
@@ -188,7 +194,12 @@ describe('ProductDetail price comparison integration', () => {
         provideRouter([{ path: 'isadecor/productos/:slug', component: ProductDetail }]),
         {
           provide: PublicContentApiService,
-          useValue: { getProductDetail: () => of(product) },
+          useValue: {
+            getProductDetail: () => of(product),
+            getRecommendedProducts: () => of([]),
+            getProductReviews: () => of([]),
+            getProductReviewSummary: () => of({ promedio: 0, total: 0, distribucion: [] }),
+          },
         },
       ],
     });

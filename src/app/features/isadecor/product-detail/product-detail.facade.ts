@@ -3,12 +3,18 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
-import { Subject, finalize, takeUntil } from 'rxjs';
+import { Subject, catchError, finalize, forkJoin, of, takeUntil } from 'rxjs';
 import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { SeoRobots } from '../../../data/models/content/page-seo.model';
 import { ProductPriceComparisonResponse } from '../../../data/models/product/product-price-comparison-response.model';
 import { ProductCompetitorComparisonResponse } from '../../../data/models/product/product-competitor-comparison-response.model';
+import {
+  ProductReviewOrder,
+  ProductReviewResponse,
+  RecommendedProductResponse,
+  ReviewSummaryResponse,
+} from '../../../data/models/product/product-review.model';
 import {
   PublicPageSeoDefaults,
   applyPublicPageSeo,
@@ -35,6 +41,7 @@ export class ProductDetailFacade {
   private readonly publicApi = inject(PublicContentApiService);
   private readonly comparisonCancelled = new Subject<void>();
   private readonly competitorComparisonCancelled = new Subject<void>();
+  private readonly detailCancelled = new Subject<void>();
   private readonly _comparisonLoading = signal(false);
   private readonly _comparisonResult = signal<ProductPriceComparisonResponse | null>(null);
   private readonly _comparisonError = signal<string | null>(null);
@@ -61,11 +68,31 @@ export class ProductDetailFacade {
   private readonly _loading = signal(true);
   private readonly _error = signal<string | null>(null);
   private readonly _notFound = signal(false);
+  private readonly _recommendedProducts = signal<readonly RecommendedProductResponse[]>([]);
+  private readonly _reviews = signal<readonly ProductReviewResponse[]>([]);
+  private readonly _reviewSummary = signal<ReviewSummaryResponse | null>(null);
+  private readonly _communityLoading = signal(false);
+  private readonly _communityError = signal<string | null>(null);
+  private readonly _reviewOrder = signal<ProductReviewOrder>('RECIENTES');
+  private readonly _reviewFilter = signal<number | null>(null);
 
   readonly product = this._product.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
   readonly notFound = this._notFound.asReadonly();
+  readonly recommendedProducts = this._recommendedProducts.asReadonly();
+  readonly reviews = this._reviews.asReadonly();
+  readonly reviewSummary = this._reviewSummary.asReadonly();
+  readonly communityLoading = this._communityLoading.asReadonly();
+  readonly communityError = this._communityError.asReadonly();
+  readonly reviewOrder = this._reviewOrder.asReadonly();
+  readonly reviewFilter = this._reviewFilter.asReadonly();
+  readonly visibleReviews = computed(() => {
+    const rating = this._reviewFilter();
+    return rating === null
+      ? this._reviews()
+      : this._reviews().filter((review) => review.calificacion === rating);
+  });
 
   constructor() {
     this.destroyRef.onDestroy(() => clearPublicPageSeo(this.title, this.meta));
@@ -102,6 +129,7 @@ export class ProductDetailFacade {
       this.currentSlug = null;
       this.comparisonCancelled.next();
       this.competitorComparisonCancelled.next();
+      this.detailCancelled.next();
       this.clearComparison();
       this._competitorComparisonResult.set(null);
       this._competitorComparisonError.set(null);
@@ -121,6 +149,7 @@ export class ProductDetailFacade {
     }
 
     this.currentSlug = normalizedSlug;
+    this.detailCancelled.next();
     this.comparisonCancelled.next();
     this.competitorComparisonCancelled.next();
     this.clearComparison();
@@ -128,6 +157,11 @@ export class ProductDetailFacade {
     this._competitorComparisonError.set(null);
 
     this._product.set(null);
+    this._recommendedProducts.set([]);
+    this._reviews.set([]);
+    this._reviewSummary.set(null);
+    this._communityError.set(null);
+    this._reviewFilter.set(null);
     this._error.set(null);
     this._notFound.set(false);
     this._loading.set(true);
@@ -136,6 +170,7 @@ export class ProductDetailFacade {
     this.publicApi
       .getProductDetail(this.siteKey, unitSlug, normalizedSlug)
       .pipe(
+        takeUntil(this.detailCancelled),
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {
           this.requestInFlight = false;
@@ -145,6 +180,7 @@ export class ProductDetailFacade {
       .subscribe({
         next: (product) => {
           this._product.set(product);
+          this.loadCommunity(normalizedSlug, unitSlug);
           const seoTitle = product.tituloSeo?.trim();
           const seoDescription = product.descripcionSeo?.trim();
           const defaultTitle = product.nombre?.trim() || this.seoDefaults.title;
@@ -192,6 +228,27 @@ export class ProductDetailFacade {
           );
           applyPublicPageSeo(this.title, this.meta, null, this.seoDefaults, this.document);
         },
+      });
+  }
+
+  setReviewOrder(order: ProductReviewOrder): void {
+    if (this._reviewOrder() === order) return;
+    this._reviewOrder.set(order);
+    if (this.currentSlug) {
+      this.loadReviews(this.currentSlug, this.unitSlug);
+    }
+  }
+
+  toggleReviewFilter(rating: number): void {
+    this._reviewFilter.update((current) => current === rating ? null : rating);
+  }
+
+  markReviewUseful(reviewId: string): void {
+    this.publicApi.markReviewUseful(reviewId)
+      .pipe(takeUntil(this.detailCancelled), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => this._reviews.update((reviews) =>
+          reviews.map((review) => review.id === updated.id ? updated : review)),
       });
   }
 
@@ -248,6 +305,42 @@ export class ProductDetailFacade {
             'No pudimos buscar productos similares. Inténtalo nuevamente.',
           ),
       });
+  }
+
+  private loadCommunity(slug: string, unitSlug: string): void {
+    this._communityLoading.set(true);
+    forkJoin({
+      recommendations: this.publicApi.getRecommendedProducts(this.siteKey, unitSlug, slug),
+      summary: this.publicApi.getProductReviewSummary(this.siteKey, unitSlug, slug),
+    })
+      .pipe(
+        takeUntil(this.detailCancelled),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._communityLoading.set(false)),
+        catchError(() => {
+          this._communityError.set('No pudimos cargar las recomendaciones y opiniones en este momento.');
+          return of(null);
+        }),
+      )
+      .subscribe((result) => {
+        if (!result) return;
+        this._recommendedProducts.set(result.recommendations);
+        this._reviewSummary.set(result.summary);
+      });
+    this.loadReviews(slug, unitSlug);
+  }
+
+  private loadReviews(slug: string, unitSlug: string): void {
+    this.publicApi.getProductReviews(this.siteKey, unitSlug, slug, this._reviewOrder())
+      .pipe(
+        takeUntil(this.detailCancelled),
+        takeUntilDestroyed(this.destroyRef),
+        catchError(() => {
+          this._communityError.set('No pudimos cargar los comentarios en este momento.');
+          return of([] as ProductReviewResponse[]);
+        }),
+      )
+      .subscribe((reviews) => this._reviews.set(reviews));
   }
 
   private sortByOrder<T extends { orden: number | null }>(items: readonly T[]): T[] {

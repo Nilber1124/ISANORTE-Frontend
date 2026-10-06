@@ -1546,6 +1546,68 @@ paths:
         - {name: slug, in: path, required: true, schema: {type: string}}
       responses: {'200': {description: Unidad activa, content: {application/json: {schema: {$ref: '#/components/schemas/PublicBusinessUnitResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
 
+  /api/publico/sitios/{clave}/unidades/{unidadSlug}/productos/{productoSlug}/recomendados:
+    get:
+      tags: [Público]
+      operationId: obtenerProductosRecomendados
+      x-access-intent: PUBLICO
+      description: Devuelve hasta cuatro productos publicados, priorizando categorías compartidas y excluyendo el producto actual.
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}}
+        - {name: unidadSlug, in: path, required: true, schema: {type: string}}
+        - {name: productoSlug, in: path, required: true, schema: {type: string}}
+      responses: {'200': {description: Recomendaciones automáticas, content: {application/json: {schema: {type: array, maxItems: 4, items: {$ref: '#/components/schemas/ProductoRecomendadoResponse'}}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+
+  /api/publico/sitios/{clave}/unidades/{unidadSlug}/productos/{productoSlug}/resenas:
+    get:
+      tags: [Público]
+      operationId: obtenerResenasProducto
+      x-access-intent: PUBLICO
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}}
+        - {name: unidadSlug, in: path, required: true, schema: {type: string}}
+        - {name: productoSlug, in: path, required: true, schema: {type: string}}
+        - {name: orden, in: query, required: false, schema: {$ref: '#/components/schemas/OrdenResena'}}
+      responses: {'200': {description: Reseñas persistidas, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/ResenaProductoResponse'}}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+    post:
+      tags: [Público]
+      operationId: crearResenaProducto
+      x-access-intent: CLIENTE_AUTENTICADO_PENDIENTE
+      description: Preparado para tokens de cliente; no acepta identidad manual ni tokens administrativos.
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}}
+        - {name: unidadSlug, in: path, required: true, schema: {type: string}}
+        - {name: productoSlug, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/CrearResenaRequest'}}}
+      responses:
+        '201': {description: Reseña creada, content: {application/json: {schema: {$ref: '#/components/schemas/ResenaProductoResponse'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {description: Visitante no autenticado}
+        '403': {description: Identidad sin rol de cliente}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /api/publico/sitios/{clave}/unidades/{unidadSlug}/productos/{productoSlug}/resenas/resumen:
+    get:
+      tags: [Público]
+      operationId: obtenerResumenResenasProducto
+      x-access-intent: PUBLICO
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}}
+        - {name: unidadSlug, in: path, required: true, schema: {type: string}}
+        - {name: productoSlug, in: path, required: true, schema: {type: string}}
+      responses: {'200': {description: Promedio y distribución reales, content: {application/json: {schema: {$ref: '#/components/schemas/ResumenResenasResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+
+  /api/publico/resenas/{resenaId}/util:
+    post:
+      tags: [Público]
+      operationId: marcarResenaUtil
+      x-access-intent: PUBLICO
+      parameters:
+        - {name: resenaId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses: {'200': {description: Reseña actualizada, content: {application/json: {schema: {$ref: '#/components/schemas/ResenaProductoResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+
   /api/publico/sitios/{clave}/unidades/{unidadSlug}/productos/{productoSlug}/comparar-precio:
     post:
       tags: [Público]
@@ -1752,6 +1814,67 @@ components:
             type: array
             items: {$ref: '#/components/schemas/UnidadNegocioResponse'}
   schemas:
+    ProductoRecomendadoResponse:
+      type: object
+      required: [nombre, slug, cantidadResenas]
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+        precioBase: {type: number, format: decimal, nullable: true}
+        imagen:
+          type: object
+          nullable: true
+          properties:
+            url: {type: string}
+            alt: {type: string, nullable: true}
+            esPrincipal: {type: boolean}
+            orden: {type: integer}
+        categoria:
+          type: object
+          nullable: true
+          properties:
+            nombre: {type: string}
+            slug: {type: string}
+        calificacionPromedio: {type: number, format: decimal, nullable: true}
+        cantidadResenas: {type: integer, format: int64, minimum: 0}
+    ResenaProductoResponse:
+      type: object
+      required: [id, nombreCliente, calificacion, comentario, fechaCreacion, compraVerificada, cantidadUtil]
+      properties:
+        id: {type: string, format: uuid}
+        nombreCliente: {type: string}
+        calificacion: {type: integer, minimum: 1, maximum: 5}
+        titulo: {type: string, nullable: true}
+        comentario: {type: string}
+        fechaCreacion: {type: string, format: date-time}
+        compraVerificada: {type: boolean}
+        cantidadUtil: {type: integer, minimum: 0}
+    ResumenResenasResponse:
+      type: object
+      required: [promedio, total, distribucion]
+      properties:
+        promedio: {type: number, format: decimal, minimum: 0, maximum: 5}
+        total: {type: integer, format: int64, minimum: 0}
+        distribucion:
+          type: array
+          items: {$ref: '#/components/schemas/DistribucionResenasResponse'}
+    DistribucionResenasResponse:
+      type: object
+      required: [calificacion, cantidad, porcentaje]
+      properties:
+        calificacion: {type: integer, minimum: 1, maximum: 5}
+        cantidad: {type: integer, format: int64, minimum: 0}
+        porcentaje: {type: number, format: decimal, minimum: 0, maximum: 100}
+    CrearResenaRequest:
+      type: object
+      required: [calificacion, comentario]
+      properties:
+        calificacion: {type: integer, minimum: 1, maximum: 5}
+        titulo: {type: string, maxLength: 160, nullable: true}
+        comentario: {type: string, minLength: 1, maxLength: 4000}
+    OrdenResena:
+      type: string
+      enum: [RECIENTES, MAYOR_CALIFICACION, MENOR_CALIFICACION, MAS_UTILES]
     EstadoComparacionCompetidor:
       type: string
       enum: [FOUND, NO_SIMILAR_PRODUCT_FOUND, STORE_UNAVAILABLE]

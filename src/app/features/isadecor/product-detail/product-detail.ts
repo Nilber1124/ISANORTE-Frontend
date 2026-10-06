@@ -1,10 +1,11 @@
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { ProductDocumentType } from '../../../data/models/product/product-document-type.enum';
+import { ProductReviewOrder } from '../../../data/models/product/product-review.model';
 import {
   PublicProductDocumentResponse,
   PublicProductDetailResponse,
@@ -30,6 +31,7 @@ interface VariantAvailabilityPresentation {
   imports: [
     Badge,
     Button,
+    DatePipe,
     DecimalPipe,
     EmptyState,
     Loading,
@@ -52,6 +54,9 @@ export class ProductDetail {
   readonly selectedVariant = signal<PublicProductVariantResponse | null>(null);
   readonly cartFeedback = signal<string | null>(null);
   readonly activeTab = signal<'descripcion' | 'especificaciones' | 'recursos'>('descripcion');
+  readonly loginNotice = signal<string | null>(null);
+  readonly failedRecommendationImages = signal<ReadonlySet<string>>(new Set());
+  readonly stars = [1, 2, 3, 4, 5] as const;
   private readonly route = inject(ActivatedRoute);
 
   constructor() {
@@ -60,6 +65,8 @@ export class ProductDetail {
       this.cartQuantity.set(1);
       this.selectedVariant.set(null);
       this.cartFeedback.set(null);
+      this.loginNotice.set(null);
+      this.failedRecommendationImages.set(new Set());
       this.facade.load(params.get('slug') ?? '');
     });
   }
@@ -134,6 +141,28 @@ export class ProductDetail {
   protected quoteQueryParams(slug: string): { producto: string; cantidad?: number } {
     const quantity = this.quoteQuantity();
     return quantity === null ? { producto: slug } : { producto: slug, cantidad: quantity };
+  }
+
+  protected changeReviewOrder(event: Event): void {
+    this.facade.setReviewOrder((event.target as HTMLSelectElement).value as ProductReviewOrder);
+  }
+
+  protected clientInitial(name: string): string {
+    return name.trim().charAt(0).toLocaleUpperCase('es') || '?';
+  }
+
+  protected recommendationImageAvailable(slug: string): boolean {
+    return !this.failedRecommendationImages().has(slug);
+  }
+
+  protected markRecommendationImageAsFailed(slug: string): void {
+    this.failedRecommendationImages.update((current) => new Set([...current, slug]));
+  }
+
+  protected showClientLoginNotice(): void {
+    this.loginNotice.set(
+      'El inicio de sesión para clientes estará disponible cuando se complete ese módulo.',
+    );
   }
 
   private formatFileSize(bytes: number): string {

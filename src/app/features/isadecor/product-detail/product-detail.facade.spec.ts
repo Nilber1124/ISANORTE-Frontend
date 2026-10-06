@@ -8,6 +8,12 @@ import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
 import { ProductPriceComparisonResponse } from '../../../data/models/product/product-price-comparison-response.model';
 import { ProductCompetitorComparisonResponse } from '../../../data/models/product/product-competitor-comparison-response.model';
+import {
+  ProductReviewOrder,
+  ProductReviewResponse,
+  RecommendedProductResponse,
+  ReviewSummaryResponse,
+} from '../../../data/models/product/product-review.model';
 import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { ProductDetailFacade } from './product-detail.facade';
@@ -71,10 +77,32 @@ class PublicApiStub {
   readonly productCalls: unknown[][] = [];
   readonly comparisonCalls: unknown[][] = [];
   readonly competitorCalls: unknown[][] = [];
+  readonly recommendationCalls: unknown[][] = [];
+  readonly reviewCalls: unknown[][] = [];
+  readonly summaryCalls: unknown[][] = [];
 
   getProductDetail(...args: unknown[]): Observable<PublicProductDetailResponse> {
     this.productCalls.push(args);
     return this.productResponse$;
+  }
+
+  getRecommendedProducts(...args: unknown[]): Observable<RecommendedProductResponse[]> {
+    this.recommendationCalls.push(args);
+    return of([]);
+  }
+
+  getProductReviews(...args: [...unknown[], ProductReviewOrder]): Observable<ProductReviewResponse[]> {
+    this.reviewCalls.push(args);
+    return of([]);
+  }
+
+  getProductReviewSummary(...args: unknown[]): Observable<ReviewSummaryResponse> {
+    this.summaryCalls.push(args);
+    return of({ promedio: 0, total: 0, distribucion: [] });
+  }
+
+  markReviewUseful(): Observable<ProductReviewResponse> {
+    return throwError(() => new Error('not configured'));
   }
 
   compareProductPrice(...args: unknown[]): Observable<ProductPriceComparisonResponse> {

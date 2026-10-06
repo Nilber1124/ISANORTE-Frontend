@@ -7,6 +7,13 @@ import { PublicContactRequest, PublicContactResponse } from '../models/contact/p
 import { ProductCompetitorComparisonResponse } from '../models/product/product-competitor-comparison-response.model';
 import { ProductPriceComparisonRequest } from '../models/product/product-price-comparison-request.model';
 import { ProductPriceComparisonResponse } from '../models/product/product-price-comparison-response.model';
+import {
+  CreateProductReviewRequest,
+  ProductReviewOrder,
+  ProductReviewResponse,
+  RecommendedProductResponse,
+  ReviewSummaryResponse,
+} from '../models/product/product-review.model';
 import { PublicHomeResponse } from '../models/public-content/public-home.model';
 import { PublicPageResponse, PublicPageType } from '../models/public-content/public-page.model';
 import { PublicProductCatalogResponse } from '../models/public-content/public-product-catalog.model';
@@ -58,6 +65,57 @@ export class PublicContentApiService {
         `/productos/${encodeURIComponent(productSlug)}`);
   }
 
+  getRecommendedProducts(
+    siteKey: string,
+    unitSlug: string,
+    productSlug: string,
+  ): Observable<RecommendedProductResponse[]> {
+    return this.http.get<RecommendedProductResponse[]>(
+      `${this.productResourceUrl(siteKey, unitSlug, productSlug)}/recomendados`,
+    );
+  }
+
+  getProductReviews(
+    siteKey: string,
+    unitSlug: string,
+    productSlug: string,
+    order: ProductReviewOrder,
+  ): Observable<ProductReviewResponse[]> {
+    return this.http.get<ProductReviewResponse[]>(
+      `${this.productResourceUrl(siteKey, unitSlug, productSlug)}/resenas`,
+      { params: { orden: order } },
+    );
+  }
+
+  getProductReviewSummary(
+    siteKey: string,
+    unitSlug: string,
+    productSlug: string,
+  ): Observable<ReviewSummaryResponse> {
+    return this.http.get<ReviewSummaryResponse>(
+      `${this.productResourceUrl(siteKey, unitSlug, productSlug)}/resenas/resumen`,
+    );
+  }
+
+  createProductReview(
+    siteKey: string,
+    unitSlug: string,
+    productSlug: string,
+    request: CreateProductReviewRequest,
+  ): Observable<ProductReviewResponse> {
+    return this.http.post<ProductReviewResponse>(
+      `${this.productResourceUrl(siteKey, unitSlug, productSlug)}/resenas`,
+      request,
+    );
+  }
+
+  markReviewUseful(reviewId: string): Observable<ProductReviewResponse> {
+    return this.http.post<ProductReviewResponse>(
+      `${this.apiBaseUrl}/api/publico/resenas/${encodeURIComponent(reviewId)}/util`,
+      {},
+    );
+  }
+
   createQuote(
     siteKey: string,
     unitSlug: string,
@@ -71,6 +129,11 @@ export class PublicContentApiService {
 
   submitContact(request: PublicContactRequest): Observable<PublicContactResponse> {
     return this.http.post<PublicContactResponse>(`${this.apiBaseUrl}/api/publico/contacto`, request);
+  }
+
+  private productResourceUrl(siteKey: string, unitSlug: string, productSlug: string): string {
+    return `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}` +
+      `/productos/${encodeURIComponent(productSlug)}`;
   }
 }
 
