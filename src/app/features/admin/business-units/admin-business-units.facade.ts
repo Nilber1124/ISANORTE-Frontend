@@ -14,6 +14,7 @@ import {
 import { CompanyResponse } from '../../../data/models/company/company-response.model';
 import { BusinessUnitApiService } from '../../../data/services/business-unit-api.service';
 import { CompanyApiService } from '../../../data/services/company-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 export type BusinessUnitFormMode = 'create' | 'edit';
 
@@ -23,6 +24,7 @@ export class AdminBusinessUnitsFacade {
   private readonly companyApi = inject(CompanyApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
 
   private readonly _businessUnits = signal<readonly BusinessUnitResponse[]>([]);
   private readonly _companies = signal<readonly CompanyResponse[]>([]);
@@ -31,7 +33,6 @@ export class AdminBusinessUnitsFacade {
   private readonly _submitting = signal(false);
   private readonly _changingActiveId = signal<string | null>(null);
   private readonly _error = signal<string | null>(null);
-  private readonly _success = signal<string | null>(null);
   private readonly _selectedBusinessUnit = signal<BusinessUnitResponse | null>(null);
   private readonly _formMode = signal<BusinessUnitFormMode>('create');
   private readonly _formOpen = signal(false);
@@ -45,7 +46,6 @@ export class AdminBusinessUnitsFacade {
   readonly submitting = this._submitting.asReadonly();
   readonly changingActiveId = this._changingActiveId.asReadonly();
   readonly error = this._error.asReadonly();
-  readonly success = this._success.asReadonly();
   readonly selectedBusinessUnit = this._selectedBusinessUnit.asReadonly();
   readonly formMode = this._formMode.asReadonly();
   readonly formOpen = this._formOpen.asReadonly();
@@ -62,7 +62,6 @@ export class AdminBusinessUnitsFacade {
     this._selectedBusinessUnit.set(null);
     this._formMode.set('create');
     this._error.set(null);
-    this._success.set(null);
     this._formOpen.set(true);
   }
 
@@ -70,7 +69,6 @@ export class AdminBusinessUnitsFacade {
     this._selectedBusinessUnit.set(businessUnit);
     this._formMode.set('edit');
     this._error.set(null);
-    this._success.set(null);
     this._formOpen.set(true);
   }
 
@@ -85,7 +83,6 @@ export class AdminBusinessUnitsFacade {
     if (this._submitting()) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
     this.businessUnitApi
       .create(request)
       .pipe(
@@ -95,7 +92,7 @@ export class AdminBusinessUnitsFacade {
       .subscribe({
         next: (businessUnit) => {
           this.upsertBusinessUnit(businessUnit);
-          this._success.set('Unidad de negocio creada correctamente.');
+          this.toastService.show('Unidad de negocio creada correctamente.', 'success');
           this._formOpen.set(false);
           this._selectedBusinessUnit.set(null);
         },
@@ -108,7 +105,6 @@ export class AdminBusinessUnitsFacade {
     if (this._submitting() || selectedBusinessUnit === null) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
     this.businessUnitApi
       .update(selectedBusinessUnit.id, request)
       .pipe(
@@ -118,7 +114,7 @@ export class AdminBusinessUnitsFacade {
       .subscribe({
         next: (businessUnit) => {
           this.upsertBusinessUnit(businessUnit);
-          this._success.set('Unidad de negocio actualizada correctamente.');
+          this.toastService.show('Unidad de negocio actualizada correctamente.', 'success');
           this._formOpen.set(false);
           this._selectedBusinessUnit.set(null);
         },
@@ -130,7 +126,6 @@ export class AdminBusinessUnitsFacade {
     if (this._changingActiveId() !== null || this._submitting()) return;
     this._changingActiveId.set(businessUnit.id);
     this._error.set(null);
-    this._success.set(null);
     this.businessUnitApi
       .changeActive(businessUnit.id, { activo: active })
       .pipe(
@@ -140,10 +135,11 @@ export class AdminBusinessUnitsFacade {
       .subscribe({
         next: (updatedBusinessUnit) => {
           this.upsertBusinessUnit(updatedBusinessUnit);
-          this._success.set(
+          this.toastService.show(
             active
               ? 'Unidad de negocio activada correctamente.'
               : 'Unidad de negocio desactivada correctamente.',
+            'success',
           );
         },
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
@@ -152,7 +148,6 @@ export class AdminBusinessUnitsFacade {
 
   clearFeedback(): void {
     this._error.set(null);
-    this._success.set(null);
   }
   openResources(unit: BusinessUnitResponse): void {
     this.clearFeedback();
@@ -216,7 +211,7 @@ export class AdminBusinessUnitsFacade {
     const updated = { ...unit, recursos };
     this.upsertBusinessUnit(updated);
     this._managedBusinessUnit.set(updated);
-    this._success.set('Recursos actualizados correctamente.');
+    this.toastService.show('Recursos actualizados correctamente.', 'success');
   }
 
   private loadBusinessUnits(): void {

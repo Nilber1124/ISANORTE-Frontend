@@ -1,5 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { ToastService } from '../../../core/services/toast.service';
 
 import { CategoryResponse } from '../../../data/models/category/category-response.model';
 import { CategoryApiService } from '../../../data/services/category-api.service';
@@ -14,6 +15,7 @@ export class AdminIsadecorLandingFacade {
   private readonly quickAccessService = inject(IsadecorHeroQuickAccessService);
   private readonly categoryApi = inject(CategoryApiService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
 
   readonly items = this.quickAccessService.items;
   readonly visibleItems = this.quickAccessService.visibleItems;
@@ -22,7 +24,6 @@ export class AdminIsadecorLandingFacade {
   private readonly _categories = signal<readonly CategoryResponse[]>([]);
   private readonly _loading = signal(false);
   private readonly _error = signal<string | null>(null);
-  private readonly _success = signal<string | null>(null);
   private readonly _editingItem = signal<HomeQuickAccessItem | null>(null);
   private readonly _modalOpen = signal(false);
 
@@ -32,7 +33,6 @@ export class AdminIsadecorLandingFacade {
   readonly categories = this._categories.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
-  readonly success = this._success.asReadonly();
   readonly editingItem = this._editingItem.asReadonly();
   readonly modalOpen = this._modalOpen.asReadonly();
 
@@ -80,10 +80,10 @@ export class AdminIsadecorLandingFacade {
   saveItem(updated: HomeQuickAccessItem): void {
     if (updated.id) {
       this.quickAccessService.updateItem(updated.id, updated);
-      this._success.set(`Tarjeta "${updated.title}" actualizada correctamente.`);
+      this.toastService.show(`Tarjeta "${updated.title}" actualizada correctamente.`, 'success');
     } else {
       this.quickAccessService.addItem(updated);
-      this._success.set(`Nueva tarjeta "${updated.title}" agregada al Hero.`);
+      this.toastService.show(`Nueva tarjeta "${updated.title}" agregada al Hero.`, 'success');
     }
     this._error.set(null);
     this.closeModal();
@@ -92,16 +92,17 @@ export class AdminIsadecorLandingFacade {
   toggleItemVisibility(item: HomeQuickAccessItem): void {
     this.quickAccessService.toggleItemVisibility(item.id);
     const nowVisible = item.visible === false;
-    this._success.set(
+    this.toastService.show(
       nowVisible
         ? `Tarjeta "${item.title}" activada: ahora se muestra en el Hero.`
         : `Tarjeta "${item.title}" desactivada: ocultada del Hero.`,
+      'success',
     );
   }
 
   deleteItem(id: string): void {
     this.quickAccessService.deleteItem(id);
-    this._success.set('Tarjeta eliminada del listado.');
+    this.toastService.show('Tarjeta eliminada del listado.', 'success');
   }
 
   moveItem(index: number, direction: 'up' | 'down'): void {
@@ -120,12 +121,12 @@ export class AdminIsadecorLandingFacade {
     }));
 
     this.quickAccessService.saveAll(reindexed);
-    this._success.set('Orden de tarjetas actualizado.');
+    this.toastService.show('Orden de tarjetas actualizado.', 'success');
   }
 
   resetToDefaults(): void {
     this.quickAccessService.resetToDefaults();
-    this._success.set('Tarjetas restablecidas a sus valores por defecto.');
+    this.toastService.show('Tarjetas restablecidas a sus valores por defecto.', 'success');
     this._error.set(null);
   }
 
@@ -151,10 +152,10 @@ export class AdminIsadecorLandingFacade {
   saveCollection(updated: CollectionHighlightConfig): void {
     if (updated.id) {
       this.quickAccessService.updateCollection(updated.id, updated);
-      this._success.set('Colección destacada actualizada correctamente.');
+      this.toastService.show('Colección destacada actualizada correctamente.', 'success');
     } else {
       this.quickAccessService.addCollection(updated);
-      this._success.set('Nueva colección destacada agregada a la lista.');
+      this.toastService.show('Nueva colección destacada agregada a la lista.', 'success');
     }
     this._error.set(null);
     this.closeCollectionModal();
@@ -163,26 +164,29 @@ export class AdminIsadecorLandingFacade {
   toggleCollectionVisibility(col: CollectionHighlightConfig): void {
     this.quickAccessService.toggleCollectionVisibility(col.id);
     const nowVisible = col.visible === false;
-    this._success.set(
+    this.toastService.show(
       nowVisible
         ? 'Colección activada: ahora se muestra en la landing.'
         : 'Colección desactivada: ocultada de la landing.',
+      'success',
     );
   }
 
   deleteCollection(id: string): void {
     this.quickAccessService.deleteCollection(id);
-    this._success.set('Colección eliminada de la lista.');
+    this.toastService.show('Colección eliminada de la lista.', 'success');
   }
 
   resetCollectionsToDefaults(): void {
     this.quickAccessService.resetCollectionsToDefaults();
-    this._success.set('Colecciones destacadas restablecidas a sus valores por defecto.');
+    this.toastService.show(
+      'Colecciones destacadas restablecidas a sus valores por defecto.',
+      'success',
+    );
     this._error.set(null);
   }
 
   clearFeedback(): void {
     this._error.set(null);
-    this._success.set(null);
   }
 }

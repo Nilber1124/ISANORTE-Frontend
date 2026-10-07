@@ -16,8 +16,8 @@ import { FormsModule } from '@angular/forms';
 import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { Alert } from '../../../../../shared/components/alert/alert';
 import { Button } from '../../../../../shared/components/button/button';
+import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
-import { Modal } from '../../../../../shared/components/modal/modal';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 import { slugify } from '../../../../../shared/utils/slugify';
 import { ProjectFormMode } from '../../admin-projects.facade';
@@ -34,7 +34,7 @@ interface ProjectFormErrors {
 
 @Component({
   selector: 'app-project-form',
-  imports: [Alert, Button, InputField, Modal, TextareaField, ImageUploaderComponent, FormsModule],
+  imports: [Alert, Button, Drawer, InputField, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './project-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

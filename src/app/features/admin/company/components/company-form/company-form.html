@@ -1,8 +1,7 @@
-<app-modal
-  modalId="company-form-modal"
+<app-drawer
+  drawerId="company-form-drawer"
   [title]="modalTitle()"
   [description]="modalDescription()"
-  size="medium"
   [open]="true"
   [loading]="submitting()"
   (closed)="canceled.emit()"
@@ -240,7 +239,7 @@
     }
   </form>
 
-  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+  <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
     <app-button
       type="button"
       variant="secondary"
@@ -257,4 +256,4 @@
       {{ mode() === 'create' ? 'Registrar' : 'Guardar cambios' }}
     </app-button>
   </div>
-</app-modal>
+</app-drawer>

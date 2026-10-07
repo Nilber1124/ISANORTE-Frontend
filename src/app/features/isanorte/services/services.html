@@ -1,6 +1,36 @@
 @if (facade.loading()) {
-  <div class="app-container flex min-h-[50vh] items-center justify-center" data-services-loading>
-    <p class="text-body text-text-secondary" role="status">Cargando contenido…</p>
+  <div aria-label="Cargando servicios" role="status" aria-live="polite" data-services-loading>
+    <div class="animate-pulse bg-background">
+      <div class="app-container py-16 lg:py-24">
+        <div class="mb-5 h-3.5 w-28 rounded bg-surface-hover"></div>
+        <div class="h-10 w-2/3 max-w-xl rounded bg-surface-hover lg:h-14"></div>
+      </div>
+    </div>
+    <div class="h-1 w-full bg-border"></div>
+    <div class="section-space bg-background-soft">
+      <div class="app-container">
+        <div class="flex flex-col gap-8 animate-pulse lg:gap-12">
+          @for (i of [1, 2, 3]; track i) {
+            <div class="grid grid-cols-1 overflow-hidden rounded-card border border-dashed border-border bg-surface shadow-card lg:grid-cols-2">
+              <div class="aspect-[4/3] bg-surface-hover lg:aspect-auto lg:min-h-[22rem]"></div>
+              <div class="flex flex-col justify-center gap-4 p-6 md:p-8 lg:p-10">
+                <div class="h-3.5 w-20 rounded bg-surface-hover"></div>
+                <div class="h-8 w-3/4 rounded bg-surface-hover"></div>
+                <div class="space-y-2">
+                  <div class="h-4 w-full rounded bg-surface-hover"></div>
+                  <div class="h-4 w-5/6 rounded bg-surface-hover"></div>
+                </div>
+                <div class="mt-2 space-y-3">
+                  @for (j of [1, 2, 3]; track j) {
+                    <div class="h-4 w-4/5 rounded bg-surface-hover"></div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
   </div>
 } @else if (facade.error(); as error) {
   <div class="app-container py-16" data-services-error>

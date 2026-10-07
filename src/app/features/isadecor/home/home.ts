@@ -5,6 +5,7 @@ import { Alert } from '../../../shared/components/alert/alert';
 import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../shared/components/loading/loading';
+import { RevealStagger } from '../../../shared/components/reveal-stagger/reveal-stagger';
 import { SectionTitle } from '../../../shared/components/section-title/section-title';
 import { CatalogFacade } from '../catalog/catalog.facade';
 import { ProductCard } from '../catalog/components/product-card/product-card';
@@ -68,7 +69,7 @@ const DEFAULT_CATEGORY_HIGHLIGHTS: readonly HomeCategoryHighlight[] = [
 
 @Component({
   selector: 'app-isadecor-home',
-  imports: [Alert, Button, EmptyState, Loading, ProductCard, RouterLink, SectionTitle],
+  imports: [Alert, Button, EmptyState, Loading, ProductCard, RevealStagger, RouterLink, SectionTitle],
   providers: [CatalogFacade],
   templateUrl: './home.html',
   styleUrl: './home.css',

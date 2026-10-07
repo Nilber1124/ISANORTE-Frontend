@@ -1,8 +1,7 @@
-<app-modal
-  modalId="category-form-modal"
+<app-drawer
+  drawerId="category-form-drawer"
   [title]="mode() === 'create' ? 'Nueva categoría' : 'Editar categoría'"
   description="Define la taxonomía comercial, portada visual y asignación de catálogo."
-  size="large"
   [open]="true"
   [loading]="submitting()"
   (closed)="canceled.emit()"
@@ -136,7 +135,7 @@
     </div>
   </form>
 
-  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+  <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
     <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
       Cancelar
     </app-button>
@@ -150,4 +149,4 @@
       Guardar categoría
     </app-button>
   </div>
-</app-modal>
+</app-drawer>

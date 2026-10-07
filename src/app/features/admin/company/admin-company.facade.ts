@@ -16,6 +16,7 @@ import {
 } from '../../../data/models/company/company-statistic.model';
 import { SocialNetworkRequest } from '../../../data/models/company/social-network-request.model';
 import { CompanyApiService } from '../../../data/services/company-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 export type CompanyFormMode = 'create' | 'edit';
 
@@ -24,13 +25,13 @@ export class AdminCompanyFacade {
   private readonly companyApi = inject(CompanyApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
 
   private readonly _companies = signal<readonly CompanyResponse[]>([]);
   private readonly _selectedCompanyId = signal<string | null>(null);
   private readonly _loading = signal(true);
   private readonly _submitting = signal(false);
   private readonly _error = signal<string | null>(null);
-  private readonly _success = signal<string | null>(null);
 
   private readonly _companyFormOpen = signal(false);
   private readonly _companyFormMode = signal<CompanyFormMode>('create');
@@ -54,7 +55,6 @@ export class AdminCompanyFacade {
   readonly loading = this._loading.asReadonly();
   readonly submitting = this._submitting.asReadonly();
   readonly error = this._error.asReadonly();
-  readonly success = this._success.asReadonly();
 
   readonly companyFormOpen = this._companyFormOpen.asReadonly();
   readonly companyFormMode = this._companyFormMode.asReadonly();
@@ -95,14 +95,12 @@ export class AdminCompanyFacade {
   openCompanyCreate(): void {
     this._companyFormMode.set('create');
     this._error.set(null);
-    this._success.set(null);
     this._companyFormOpen.set(true);
   }
 
   openCompanyEdit(): void {
     this._companyFormMode.set('edit');
     this._error.set(null);
-    this._success.set(null);
     this._companyFormOpen.set(true);
   }
 
@@ -116,7 +114,6 @@ export class AdminCompanyFacade {
     if (this._submitting()) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
     this.companyApi
       .create(request)
       .pipe(
@@ -126,7 +123,7 @@ export class AdminCompanyFacade {
       .subscribe({
         next: (company) => {
           this.upsertCompany(company);
-          this._success.set('Empresa registrada correctamente.');
+          this.toastService.show('Empresa registrada correctamente.', 'success');
           this._companyFormOpen.set(false);
           this._selectedCompanyId.set(company.id);
         },
@@ -139,7 +136,6 @@ export class AdminCompanyFacade {
     if (this._submitting() || company === null) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
     this.companyApi
       .update(company.id, request)
       .pipe(
@@ -149,7 +145,7 @@ export class AdminCompanyFacade {
       .subscribe({
         next: (updatedCompany) => {
           this.upsertCompany(updatedCompany);
-          this._success.set('Datos de empresa actualizados correctamente.');
+          this.toastService.show('Datos de empresa actualizados correctamente.', 'success');
           this._companyFormOpen.set(false);
         },
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
@@ -159,14 +155,12 @@ export class AdminCompanyFacade {
   openSocialNetworkCreate(): void {
     this._selectedSocialNetwork.set(null);
     this._error.set(null);
-    this._success.set(null);
     this._socialFormOpen.set(true);
   }
 
   openSocialNetworkEdit(network: SocialNetworkResponse): void {
     this._selectedSocialNetwork.set(network);
     this._error.set(null);
-    this._success.set(null);
     this._socialFormOpen.set(true);
   }
 
@@ -182,7 +176,6 @@ export class AdminCompanyFacade {
     if (this._savingSocialNetwork() || company === null) return;
     this._savingSocialNetwork.set(true);
     this._error.set(null);
-    this._success.set(null);
     this.companyApi
       .createSocialNetwork(company.id, request)
       .pipe(
@@ -192,7 +185,7 @@ export class AdminCompanyFacade {
       .subscribe({
         next: (network) => {
           this.upsertSocialNetwork(company, network);
-          this._success.set('Red social creada correctamente.');
+          this.toastService.show('Red social creada correctamente.', 'success');
           this._socialFormOpen.set(false);
         },
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
@@ -205,7 +198,6 @@ export class AdminCompanyFacade {
     if (this._savingSocialNetwork() || company === null || network === null) return;
     this._savingSocialNetwork.set(true);
     this._error.set(null);
-    this._success.set(null);
     this.companyApi
       .updateSocialNetwork(company.id, network.id, request)
       .pipe(
@@ -215,7 +207,7 @@ export class AdminCompanyFacade {
       .subscribe({
         next: (updatedNetwork) => {
           this.upsertSocialNetwork(company, updatedNetwork);
-          this._success.set('Red social actualizada correctamente.');
+          this.toastService.show('Red social actualizada correctamente.', 'success');
           this._socialFormOpen.set(false);
         },
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
@@ -227,7 +219,6 @@ export class AdminCompanyFacade {
     if (this._deletingSocialNetworkId() !== null || company === null) return;
     this._deletingSocialNetworkId.set(networkId);
     this._error.set(null);
-    this._success.set(null);
     this.companyApi
       .deleteSocialNetwork(company.id, networkId)
       .pipe(
@@ -237,7 +228,7 @@ export class AdminCompanyFacade {
       .subscribe({
         next: () => {
           this.removeSocialNetwork(company, networkId);
-          this._success.set('Red social eliminada correctamente.');
+          this.toastService.show('Red social eliminada correctamente.', 'success');
         },
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
       });
@@ -245,7 +236,6 @@ export class AdminCompanyFacade {
 
   clearFeedback(): void {
     this._error.set(null);
-    this._success.set(null);
   }
   openStatistics(): void {
     this.clearFeedback();
@@ -311,7 +301,7 @@ export class AdminCompanyFacade {
   ): void {
     const updated = { ...company, estadisticas };
     this.upsertCompany(updated);
-    this._success.set('Estadísticas actualizadas correctamente.');
+    this.toastService.show('Estadísticas actualizadas correctamente.', 'success');
   }
 
   private upsertCompany(company: CompanyResponse): void {

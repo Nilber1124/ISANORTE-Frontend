@@ -34,7 +34,7 @@ export const HOME_HERO_FALLBACK: {
     { id: 'fallback-dormitorio', imageUrl: '/images/recorrido-dormitorio.jpg' },
   ],
   actions: [
-    { label: 'SOLICITAR COTIZACIÓN', url: '#cotizar', order: 0 },
-    { label: 'HABLA CON UN ASESOR', url: '#contacto', order: 1 },
+    { label: 'SOLICITAR COTIZACIÓN', url: '/contacto', order: 0 },
+    { label: 'HABLA CON UN ASESOR', url: '/contacto', order: 1 },
   ],
 };

@@ -17,10 +17,6 @@
       {{ facade.error() }}
     </app-alert>
   }
-  @if (facade.success()) {
-    <app-alert variant="success">{{ facade.success() }}</app-alert>
-  }
-
   @if (facade.loading()) {
     <app-loading label="Cargando configuraciones" />
   } @else if (facade.configs().length === 0) {

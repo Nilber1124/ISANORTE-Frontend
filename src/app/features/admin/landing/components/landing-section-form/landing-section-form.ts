@@ -17,7 +17,7 @@ import { SiteConfigResponse } from '../../../../../data/models/site-config/site-
 import { Badge } from '../../../../../shared/components/badge/badge';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
-import { Modal } from '../../../../../shared/components/modal/modal';
+import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import { FormsModule } from '@angular/forms';
 import {
   SelectField,
@@ -31,7 +31,7 @@ export type LandingSectionTab = 'textos' | 'imagen' | 'boton' | 'ajustes';
 
 @Component({
   selector: 'app-landing-section-form',
-  imports: [Badge, Modal, InputField, SelectField, TextareaField, Button, ImageUploaderComponent, FormsModule],
+  imports: [Badge, Drawer, InputField, SelectField, TextareaField, Button, ImageUploaderComponent, FormsModule],
   templateUrl: './landing-section-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -69,7 +69,6 @@ export class LandingSectionForm {
     '/proyectos',
     '/nosotros',
     '/contacto',
-    '#cotizar',
     'https://wa.me/51987654321',
   ];
 
@@ -200,7 +199,7 @@ export class LandingSectionForm {
   }
 
   private resetForm(): void {
-    this.activeTab.set('textos');
+    this.activeTab.set(this.mode() === 'create' ? 'ajustes' : 'textos');
     const data = this.initialData();
     if (data) {
       this.tipo.set(data.tipo);

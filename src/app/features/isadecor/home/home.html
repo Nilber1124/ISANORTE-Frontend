@@ -19,28 +19,32 @@
 
     <!-- Contenido principal del Hero -->
     <div class="app-container flex flex-1 items-center py-16 sm:py-20 lg:py-24">
-      <div class="max-w-2xl animate-fade-in-up">
-        <p class="text-eyebrow font-semibold uppercase text-accent">{{ hero.kicker }}</p>
-        <h1 class="mt-4 text-display text-white">{{ hero.title }}</h1>
-        <p class="mt-6 max-w-xl text-body-lg text-white/80">{{ hero.description }}</p>
-        <div class="mt-8 flex flex-wrap gap-4">
-          <app-button variant="accent" size="large" [href]="hero.primaryCta.url">
-            {{ hero.primaryCta.label }}
-          </app-button>
-          <app-button variant="secondary" size="large" [href]="hero.secondaryCta.url">
-            {{ hero.secondaryCta.label }}
-          </app-button>
+      <app-reveal-stagger [stagger]="0.13" [duration]="0.9" [ease]="'power3.out'" [trigger]="'load'">
+        <div class="max-w-2xl">
+          <p data-reveal="up" data-reveal-order="0" class="text-eyebrow font-semibold uppercase text-accent">{{ hero.kicker }}</p>
+          <h1 data-reveal="up" data-reveal-order="1" class="mt-4 text-display text-white">{{ hero.title }}</h1>
+          <p data-reveal="up" data-reveal-order="2" class="mt-6 max-w-xl text-body-lg text-white/80">{{ hero.description }}</p>
+          <div data-reveal="up" data-reveal-order="3" class="mt-8 flex flex-wrap gap-4">
+            <app-button variant="accent" size="large" [href]="hero.primaryCta.url">
+              {{ hero.primaryCta.label }}
+            </app-button>
+            <app-button variant="secondary" size="large" [href]="hero.secondaryCta.url">
+              {{ hero.secondaryCta.label }}
+            </app-button>
+          </div>
         </div>
-      </div>
+      </app-reveal-stagger>
     </div>
 
     <!-- Barra de accesos directos al pie del Hero (Estilo Decorplas + Identidad ISANORTE) -->
     @if (heroQuickAccess().length > 0) {
       <div class="relative z-10 border-t border-white/15 bg-black/65 backdrop-blur-md">
         <div class="app-container px-0 sm:px-4">
+          <app-reveal-stagger [stagger]="0.09" [startDelay]="0.55" [duration]="0.7" [trigger]="'load'">
           <nav aria-label="Accesos directos a líneas principales" class="grid grid-cols-1 divide-y divide-white/15 sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-flow-col lg:auto-cols-fr">
             @for (item of heroQuickAccess(); track item.id) {
               <a
+                data-reveal="up"
                 [routerLink]="catalogUrl"
                 [queryParams]="item.queryParams"
                 class="group relative flex flex-col justify-between p-4.5 sm:p-6 transition-all duration-normal hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -77,13 +81,16 @@
               </a>
             }
           </nav>
+          </app-reveal-stagger>
         </div>
       </div>
     }
   </section>
 
   <section class="app-container py-16 sm:py-20 lg:py-24" aria-labelledby="catalog-highlight-title">
+    <app-reveal-stagger [stagger]="0.14" [duration]="0.85" [ease]="'power3.out'" [trigger]="'view'">
     <app-section-title
+      data-reveal="up"
       id="catalog-highlight-title"
       eyebrow="Nuestras Colecciones"
       title="Diseña Espacios que Inspiran"
@@ -92,8 +99,10 @@
     />
 
     <div class="mt-12 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
-      @for (category of featuredCategories(); track category.id) {
+      @for (category of featuredCategories(); track category.id; let i = $index) {
         <a
+          data-reveal="scale"
+          [attr.data-reveal-order]="i + 1"
           [routerLink]="catalogUrl"
           [queryParams]="category.queryParams"
           class="group flex h-full flex-col overflow-hidden rounded-panel border border-border bg-surface shadow-card transition-all duration-normal hover:-translate-y-1.5 hover:border-border-strong hover:shadow-floating focus-visible:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
@@ -164,6 +173,7 @@
         </a>
       }
     </div>
+    </app-reveal-stagger>
   </section>
 
   <section
@@ -171,7 +181,9 @@
     aria-labelledby="featured-products-title"
   >
     <div class="app-container">
+      <app-reveal-stagger [stagger]="0.1" [duration]="0.8" [ease]="'power3.out'" [trigger]="'view'">
       <app-section-title
+        data-reveal="up"
         id="featured-products-title"
         eyebrow="Productos"
         title="Productos destacados"
@@ -199,8 +211,8 @@
             />
           } @else {
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              @for (product of featuredProducts(); track product.slug) {
-                <app-product-card [product]="product" />
+              @for (product of featuredProducts(); track product.slug; let i = $index) {
+                <app-product-card data-reveal="up" [attr.data-reveal-order]="i + 1" [product]="product" />
               }
             </div>
           }
@@ -223,19 +235,21 @@
         }
       </div>
 
-      <div class="mt-10 text-center">
+      <div data-reveal="up" class="mt-10 text-center">
         <app-button variant="secondary" size="large" [href]="catalogUrl">
           Ver todo el catálogo
         </app-button>
       </div>
+      </app-reveal-stagger>
     </div>
   </section>
 
   <section class="app-container py-14 sm:py-16 lg:py-20" aria-labelledby="quote-title">
+    <app-reveal-stagger [stagger]="0.15" [duration]="0.9" [ease]="'power3.out'" [trigger]="'view'">
     <div
       class="grid overflow-hidden rounded-panel border border-border bg-surface shadow-card lg:grid-cols-2"
     >
-      <div class="relative min-h-64 lg:min-h-80">
+      <div data-reveal="slide-left" class="relative min-h-64 lg:min-h-80">
         <img
           [src]="quote.imageUrl"
           [alt]="quote.title"
@@ -243,7 +257,7 @@
           class="absolute inset-0 h-full w-full object-cover"
         />
       </div>
-      <div class="flex items-center p-6 sm:p-10 lg:p-14">
+      <div data-reveal="slide-right" class="flex items-center p-6 sm:p-10 lg:p-14">
         <div>
           <h2 id="quote-title" class="text-heading-1 text-text-primary">{{ quote.title }}</h2>
           <p class="mt-4 text-body text-text-secondary">{{ quote.description }}</p>
@@ -255,5 +269,6 @@
         </div>
       </div>
     </div>
+    </app-reveal-stagger>
   </section>
 </main>

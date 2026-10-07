@@ -10,12 +10,14 @@ import {
 import { SiteConfigResponse } from '../../../../../data/models/site-config/site-config-response.model';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
-import { Modal } from '../../../../../shared/components/modal/modal';
+import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
+import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-page-seo-form',
-  imports: [Button, InputField, Modal, TextareaField],
+  imports: [Button, Drawer, InputField, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './page-seo-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

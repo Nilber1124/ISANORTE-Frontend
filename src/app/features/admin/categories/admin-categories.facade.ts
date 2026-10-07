@@ -10,6 +10,7 @@ import { CategoryResponse } from '../../../data/models/category/category-respons
 import { CategoryUpdateRequest } from '../../../data/models/category/category-update-request.model';
 import { BusinessUnitApiService } from '../../../data/services/business-unit-api.service';
 import { CategoryApiService } from '../../../data/services/category-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 export type CategoryFormMode = 'create' | 'edit';
 
@@ -19,6 +20,7 @@ export class AdminCategoriesFacade {
   private readonly businessUnitApi = inject(BusinessUnitApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
 
   private readonly _categories = signal<readonly CategoryResponse[]>([]);
   private readonly _businessUnits = signal<readonly BusinessUnitResponse[]>([]);
@@ -27,7 +29,6 @@ export class AdminCategoriesFacade {
   private readonly _submitting = signal(false);
   private readonly _changingActiveId = signal<string | null>(null);
   private readonly _error = signal<string | null>(null);
-  private readonly _success = signal<string | null>(null);
   private readonly _selectedCategory = signal<CategoryResponse | null>(null);
   private readonly _formMode = signal<CategoryFormMode>('create');
   private readonly _formOpen = signal(false);
@@ -39,7 +40,6 @@ export class AdminCategoriesFacade {
   readonly submitting = this._submitting.asReadonly();
   readonly changingActiveId = this._changingActiveId.asReadonly();
   readonly error = this._error.asReadonly();
-  readonly success = this._success.asReadonly();
   readonly selectedCategory = this._selectedCategory.asReadonly();
   readonly formMode = this._formMode.asReadonly();
   readonly formOpen = this._formOpen.asReadonly();
@@ -55,7 +55,6 @@ export class AdminCategoriesFacade {
     this._selectedCategory.set(null);
     this._formMode.set('create');
     this._error.set(null);
-    this._success.set(null);
     this._formOpen.set(true);
   }
 
@@ -63,7 +62,6 @@ export class AdminCategoriesFacade {
     this._selectedCategory.set(category);
     this._formMode.set('edit');
     this._error.set(null);
-    this._success.set(null);
     this._formOpen.set(true);
   }
 
@@ -78,7 +76,6 @@ export class AdminCategoriesFacade {
     if (this._submitting()) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
 
     this.categoryApi
       .create(request)
@@ -89,7 +86,7 @@ export class AdminCategoriesFacade {
       .subscribe({
         next: (category) => {
           this.upsertCategory(category);
-          this._success.set('Categoría creada correctamente.');
+          this.toastService.show('Categoría creada correctamente.', 'success');
           this._formOpen.set(false);
           this._selectedCategory.set(null);
         },
@@ -102,7 +99,6 @@ export class AdminCategoriesFacade {
     if (this._submitting() || selectedCategory === null) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
 
     this.categoryApi
       .update(selectedCategory.id, request)
@@ -113,7 +109,7 @@ export class AdminCategoriesFacade {
       .subscribe({
         next: (category) => {
           this.upsertCategory(category);
-          this._success.set('Categoría actualizada correctamente.');
+          this.toastService.show('Categoría actualizada correctamente.', 'success');
           this._formOpen.set(false);
           this._selectedCategory.set(null);
         },
@@ -125,7 +121,6 @@ export class AdminCategoriesFacade {
     if (this._changingActiveId() !== null || this._submitting()) return;
     this._changingActiveId.set(category.id);
     this._error.set(null);
-    this._success.set(null);
 
     this.categoryApi
       .changeActive(category.id, { activo: active })
@@ -136,8 +131,9 @@ export class AdminCategoriesFacade {
       .subscribe({
         next: (updatedCategory) => {
           this.upsertCategory(updatedCategory);
-          this._success.set(
+          this.toastService.show(
             active ? 'Categoría activada correctamente.' : 'Categoría desactivada correctamente.',
+            'success',
           );
         },
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
@@ -146,7 +142,6 @@ export class AdminCategoriesFacade {
 
   clearFeedback(): void {
     this._error.set(null);
-    this._success.set(null);
   }
 
   private loadCategories(): void {

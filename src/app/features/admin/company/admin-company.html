@@ -17,10 +17,6 @@
   <app-alert class="mb-6" variant="error" title="Error">{{ facade.error() }}</app-alert>
 }
 
-@if (facade.success() && !facade.companyFormOpen() && !facade.socialFormOpen()) {
-  <app-alert class="mb-6" variant="success" title="Éxito">{{ facade.success() }}</app-alert>
-}
-
 @if (facade.loading()) {
   <div class="mt-12 flex justify-center">
     <app-loading size="large" />

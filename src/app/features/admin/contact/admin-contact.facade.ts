@@ -8,12 +8,14 @@ import {
   ContactRequestStatus,
 } from '../../../data/models/contact/contact-request.model';
 import { ContactRequestApiService } from '../../../data/services/contact-request-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Injectable()
 export class AdminContactFacade {
   private readonly api = inject(ContactRequestApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
   readonly requests = signal<readonly ContactRequestResponse[]>([]);
   readonly selected = signal<ContactRequestResponse | null>(null);
   readonly filter = signal<ContactRequestStatus | null>(null);
@@ -21,7 +23,6 @@ export class AdminContactFacade {
   readonly detailLoading = signal(false);
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
-  readonly success = signal<string | null>(null);
   load(status: ContactRequestStatus | null = this.filter()): void {
     if (!isPlatformBrowser(this.platformId)) return;
     this.filter.set(status);
@@ -74,14 +75,13 @@ export class AdminContactFacade {
               ? items.filter((item) => item.id !== updated.id)
               : items.map((item) => (item.id === updated.id ? updated : item)),
           );
-          this.success.set('Estado actualizado correctamente.');
+          this.toastService.show('Estado actualizado correctamente.', 'success');
         },
         error: (error: unknown) => this.error.set(this.message(error)),
       });
   }
   clearFeedback(): void {
     this.error.set(null);
-    this.success.set(null);
   }
   private message(error: unknown): string {
     if (error instanceof HttpErrorResponse) {

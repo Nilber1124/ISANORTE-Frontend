@@ -16,7 +16,7 @@ import { ImageUploaderComponent } from '../../../../../shared/components/image-u
 import { Alert } from '../../../../../shared/components/alert/alert';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
-import { Modal } from '../../../../../shared/components/modal/modal';
+import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import {
   SelectField,
   SelectOption,
@@ -37,7 +37,7 @@ interface FormErrors {
 
 @Component({
   selector: 'app-business-unit-form',
-  imports: [Alert, Button, InputField, Modal, SelectField, TextareaField, ImageUploaderComponent, FormsModule],
+  imports: [Alert, Button, Drawer, InputField, SelectField, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './business-unit-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

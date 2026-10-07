@@ -1,8 +1,7 @@
-<app-modal
-  modalId="page-content-form"
+<app-drawer
+  drawerId="page-content-form-drawer"
   [title]="content() ? 'Editar contenido' : 'Nuevo contenido'"
   description="La página y el sitio forman su identidad y no cambian después de crear."
-  size="large"
   [open]="true"
   [loading]="saving()"
   (closed)="closed.emit()"
@@ -109,8 +108,8 @@
       />Contenido activo</label
     >
   </form>
-  <div modal-actions class="flex w-full justify-end gap-3">
-    <app-button variant="secondary" (click)="closed.emit()">Cancelar</app-button
-    ><app-button [loading]="saving()" (click)="submit()">Guardar</app-button>
+  <div drawer-actions class="flex w-full justify-end gap-3">
+    <app-button variant="secondary" (click)="closed.emit()">Cancelar</app-button>
+    <app-button [loading]="saving()" (click)="submit()">Guardar</app-button>
   </div>
-</app-modal>
+</app-drawer>

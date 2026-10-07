@@ -1,48 +1,184 @@
 <header class="max-w-3xl">
-  <p class="text-eyebrow uppercase text-text-muted">Administración</p>
-  <h1 class="mt-3 text-heading-1 text-text-primary">Panel administrativo</h1>
+  <p class="text-eyebrow uppercase text-text-muted">Panel administrativo</p>
+  <h1 class="mt-3 text-heading-1 text-text-primary">ISANORTE Admin</h1>
   <p class="mt-3 text-body-lg text-text-secondary">
-    Accede a las áreas de gestión de contenido de ISANORTE e ISADECOR.
+    Resumen de la actividad actual de ISANORTE e ISADECOR.
   </p>
 </header>
 
-<section class="mt-10" aria-labelledby="admin-access-title">
-  <div class="flex flex-wrap items-end justify-between gap-4">
-    <div>
-      <h2 id="admin-access-title" class="text-heading-3 text-text-primary">Accesos principales</h2>
-      <p class="mt-2 text-body-sm text-text-secondary">
-        Los módulos se habilitarán progresivamente.
-      </p>
-    </div>
-    <app-badge variant="info">Estructura inicial</app-badge>
-  </div>
+@if (facade.error()) {
+  <app-alert class="mt-8" variant="error" title="Error al cargar el panel">
+    {{ facade.error() }}
+  </app-alert>
+}
 
-  <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-    @for (access of accesses; track access.route) {
-      <app-card padding="medium">
-        <div class="flex h-full flex-col">
-          <h3 class="text-heading-4 text-text-primary">{{ access.title }}</h3>
-          <p class="mt-3 text-body-sm text-text-secondary">{{ access.description }}</p>
-          <a
-            [routerLink]="access.route"
-            class="mt-6 inline-flex min-h-11 items-center self-start rounded-control text-body-sm font-semibold text-text-primary underline decoration-border-strong underline-offset-4 transition-colors duration-fast hover:text-accent-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-          >
-            Ver módulo
-            <span class="ml-2" aria-hidden="true">→</span>
-          </a>
-        </div>
-      </app-card>
-    }
-  </div>
+<!-- Stat tiles -->
+<section class="mt-10" aria-labelledby="stats-title">
+  <h2 id="stats-title" class="sr-only">Métricas generales</h2>
+
+  @if (facade.loading()) {
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      @for (_ of [1, 2, 3, 4]; track $index) {
+        <div class="h-32 animate-pulse rounded-card bg-surface-hover"></div>
+      }
+    </div>
+  } @else {
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <a
+        routerLink="/admin/cotizaciones"
+        class="group rounded-card border border-border bg-surface-elevated p-5 transition-colors duration-fast hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      >
+        <p class="text-eyebrow uppercase text-text-muted">Cotizaciones nuevas</p>
+        <p class="mt-3 font-numeric text-[2.5rem] font-bold leading-none text-text-primary tabular-nums">
+          {{ facade.pendingQuotes() }}
+        </p>
+        <p class="mt-3 flex items-center gap-1.5 text-body-sm text-accent group-hover:underline">
+          Ver cotizaciones
+          <span aria-hidden="true">→</span>
+        </p>
+      </a>
+
+      <a
+        routerLink="/admin/productos"
+        class="group rounded-card border border-border bg-surface-elevated p-5 transition-colors duration-fast hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      >
+        <p class="text-eyebrow uppercase text-text-muted">Productos publicados</p>
+        <p class="mt-3 font-numeric text-[2.5rem] font-bold leading-none text-text-primary tabular-nums">
+          {{ facade.publishedProducts() }}
+        </p>
+        <p class="mt-3 flex items-center gap-1.5 text-body-sm text-accent group-hover:underline">
+          Ver productos
+          <span aria-hidden="true">→</span>
+        </p>
+      </a>
+
+      <a
+        routerLink="/admin/proyectos"
+        class="group rounded-card border border-border bg-surface-elevated p-5 transition-colors duration-fast hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      >
+        <p class="text-eyebrow uppercase text-text-muted">Proyectos activos</p>
+        <p class="mt-3 font-numeric text-[2.5rem] font-bold leading-none text-text-primary tabular-nums">
+          {{ facade.activeProjects() }}
+        </p>
+        <p class="mt-3 flex items-center gap-1.5 text-body-sm text-accent group-hover:underline">
+          Ver proyectos
+          <span aria-hidden="true">→</span>
+        </p>
+      </a>
+
+      <a
+        routerLink="/admin/servicios"
+        class="group rounded-card border border-border bg-surface-elevated p-5 transition-colors duration-fast hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      >
+        <p class="text-eyebrow uppercase text-text-muted">Servicios activos</p>
+        <p class="mt-3 font-numeric text-[2.5rem] font-bold leading-none text-text-primary tabular-nums">
+          {{ facade.activeServices() }}
+        </p>
+        <p class="mt-3 flex items-center gap-1.5 text-body-sm text-accent group-hover:underline">
+          Ver servicios
+          <span aria-hidden="true">→</span>
+        </p>
+      </a>
+    </div>
+  }
 </section>
 
-<section
-  class="mt-10 rounded-card border border-border bg-background-soft p-6 sm:p-8"
-  aria-labelledby="admin-security-title"
->
-  <h2 id="admin-security-title" class="text-heading-4 text-text-primary">Estado de seguridad</h2>
-  <p class="mt-3 max-w-3xl text-body-sm text-text-secondary">
-    Admin actualmente sin autenticación; la protección real está pendiente de Spring Security/JWT.
-    Este entorno no simula sesiones, roles ni permisos.
-  </p>
+<!-- Recent quotes -->
+<section class="mt-10" aria-labelledby="recent-quotes-title">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <h2 id="recent-quotes-title" class="text-heading-3 text-text-primary">
+      Cotizaciones recientes
+    </h2>
+    <a
+      routerLink="/admin/cotizaciones"
+      class="text-body-sm font-semibold text-accent underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+    >
+      Ver todas
+    </a>
+  </div>
+
+  @if (facade.loading()) {
+    <div class="mt-4 space-y-2">
+      @for (_ of [1, 2, 3, 4, 5]; track $index) {
+        <div class="h-14 animate-pulse rounded-control bg-surface-hover"></div>
+      }
+    </div>
+  } @else if (facade.recentQuotes().length === 0) {
+    <p class="mt-6 text-body-sm text-text-muted">No hay cotizaciones registradas aún.</p>
+  } @else {
+    <div class="mt-4 overflow-hidden rounded-card border border-border">
+      <table class="w-full text-body-sm">
+        <thead>
+          <tr class="border-b border-border bg-surface">
+            <th class="px-4 py-3 text-left font-semibold text-text-secondary" scope="col">
+              Cliente
+            </th>
+            <th class="hidden px-4 py-3 text-left font-semibold text-text-secondary sm:table-cell" scope="col">
+              Código
+            </th>
+            <th class="px-4 py-3 text-left font-semibold text-text-secondary" scope="col">
+              Estado
+            </th>
+            <th class="hidden px-4 py-3 text-right font-semibold text-text-secondary lg:table-cell" scope="col">
+              Fecha
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (quote of facade.recentQuotes(); track quote.id) {
+            <tr class="border-b border-border last:border-0 transition-colors hover:bg-surface-hover">
+              <td class="px-4 py-3 font-medium text-text-primary">{{ quote.nombreCliente }}</td>
+              <td class="hidden px-4 py-3 font-mono text-caption text-text-muted sm:table-cell">
+                {{ quote.codigo }}
+              </td>
+              <td class="px-4 py-3">
+                <app-badge [variant]="statusVariant(quote.estado)" size="small">
+                  {{ statusLabel(quote.estado) }}
+                </app-badge>
+              </td>
+              <td class="hidden px-4 py-3 text-right text-text-muted lg:table-cell">
+                {{ quote.fechaCreacion | date: 'dd MMM yyyy' : undefined : 'es' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+<!-- Quick access -->
+<section class="mt-10" aria-labelledby="quick-access-title">
+  <h2 id="quick-access-title" class="text-heading-3 text-text-primary">Accesos rápidos</h2>
+
+  <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <a
+      routerLink="/admin/landing"
+      class="flex items-center gap-3 rounded-card border border-border bg-surface-elevated px-4 py-3.5 text-body-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+    >
+      <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
+      Landing ISANORTE
+    </a>
+    <a
+      routerLink="/admin/categorias"
+      class="flex items-center gap-3 rounded-card border border-border bg-surface-elevated px-4 py-3.5 text-body-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+    >
+      <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
+      Categorías
+    </a>
+    <a
+      routerLink="/admin/empresa"
+      class="flex items-center gap-3 rounded-card border border-border bg-surface-elevated px-4 py-3.5 text-body-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+    >
+      <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
+      Datos de empresa
+    </a>
+    <a
+      routerLink="/admin/configuracion"
+      class="flex items-center gap-3 rounded-card border border-border bg-surface-elevated px-4 py-3.5 text-body-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+    >
+      <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
+      Configuración del sitio
+    </a>
+  </div>
 </section>

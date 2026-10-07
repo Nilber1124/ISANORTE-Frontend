@@ -27,6 +27,7 @@ import { ProductUpdateRequest } from '../../../data/models/product/product-updat
 import { BusinessUnitApiService } from '../../../data/services/business-unit-api.service';
 import { CategoryApiService } from '../../../data/services/category-api.service';
 import { ProductApiService } from '../../../data/services/product-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 export type ProductFormMode = 'create' | 'edit';
 
@@ -37,6 +38,7 @@ export class AdminProductsFacade {
   private readonly businessUnitApi = inject(BusinessUnitApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
 
   private readonly _products = signal<readonly ProductResponse[]>([]);
   private readonly _categories = signal<readonly CategoryResponse[]>([]);
@@ -51,7 +53,6 @@ export class AdminProductsFacade {
   private readonly _calculationConfigOperating = signal(false);
   private readonly _changingStatusId = signal<string | null>(null);
   private readonly _error = signal<string | null>(null);
-  private readonly _success = signal<string | null>(null);
   private readonly _imageError = signal<string | null>(null);
   private readonly _imageSuccess = signal<string | null>(null);
   private readonly _variantError = signal<string | null>(null);
@@ -79,7 +80,6 @@ export class AdminProductsFacade {
   readonly calculationConfigOperating = this._calculationConfigOperating.asReadonly();
   readonly changingStatusId = this._changingStatusId.asReadonly();
   readonly error = this._error.asReadonly();
-  readonly success = this._success.asReadonly();
   readonly imageError = this._imageError.asReadonly();
   readonly imageSuccess = this._imageSuccess.asReadonly();
   readonly variantError = this._variantError.asReadonly();
@@ -105,7 +105,6 @@ export class AdminProductsFacade {
     this._selectedProduct.set(null);
     this._formMode.set('create');
     this._error.set(null);
-    this._success.set(null);
     this._imageError.set(null);
     this._imageSuccess.set(null);
     this._variantError.set(null);
@@ -123,7 +122,6 @@ export class AdminProductsFacade {
     this._selectedProduct.set(product);
     this._formMode.set('edit');
     this._error.set(null);
-    this._success.set(null);
     this._imageError.set(null);
     this._imageSuccess.set(null);
     this._variantError.set(null);
@@ -167,7 +165,6 @@ export class AdminProductsFacade {
     if (this._submitting()) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
 
     this.productApi
       .create(request)
@@ -178,7 +175,7 @@ export class AdminProductsFacade {
       .subscribe({
         next: (product) => {
           this.upsertProduct(product);
-          this._success.set('Producto creado correctamente.');
+          this.toastService.show('Producto creado correctamente.', 'success');
           this._formOpen.set(false);
           this._selectedProduct.set(null);
         },
@@ -191,7 +188,6 @@ export class AdminProductsFacade {
     if (this._submitting() || selectedProduct === null) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
 
     this.productApi
       .update(selectedProduct.id, request)
@@ -202,7 +198,7 @@ export class AdminProductsFacade {
       .subscribe({
         next: (product) => {
           this.upsertProduct(product);
-          this._success.set('Producto actualizado correctamente.');
+          this.toastService.show('Producto actualizado correctamente.', 'success');
           this._formOpen.set(false);
           this._selectedProduct.set(null);
         },
@@ -214,7 +210,6 @@ export class AdminProductsFacade {
     if (this._changingStatusId() !== null || this._submitting()) return;
     this._changingStatusId.set(product.id);
     this._error.set(null);
-    this._success.set(null);
 
     this.productApi
       .changeStatus(product.id, { estado: status })
@@ -225,7 +220,7 @@ export class AdminProductsFacade {
       .subscribe({
         next: (updatedProduct) => {
           this.upsertProduct(updatedProduct);
-          this._success.set('Estado de publicación actualizado correctamente.');
+          this.toastService.show('Estado de publicación actualizado correctamente.', 'success');
         },
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
       });
@@ -233,7 +228,6 @@ export class AdminProductsFacade {
 
   clearFeedback(): void {
     this._error.set(null);
-    this._success.set(null);
   }
 
   clearImageFeedback(): void {

@@ -1,6 +1,6 @@
-<app-modal modalId="service-form-modal" [title]="mode() === 'create' ? 'Nuevo servicio' : 'Editar servicio'"
+<app-drawer drawerId="service-form-drawer" [title]="mode() === 'create' ? 'Nuevo servicio' : 'Editar servicio'"
   description="Define la información, fotografía y visibilidad pública que estructuran este servicio en la web de ISANORTE."
-  size="large" [open]="true" [loading]="submitting()" (closed)="canceled.emit()">
+  [open]="true" [loading]="submitting()" (closed)="canceled.emit()">
   @if (serverError(); as error) {
   <app-alert class="mb-5" variant="error" title="No se guardó el servicio">
     {{ error }}
@@ -157,7 +157,7 @@
     </fieldset>
   </form>
 
-  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+  <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
     <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
       Cancelar
     </app-button>
@@ -165,4 +165,4 @@
       {{ mode() === 'create' ? 'Crear servicio' : 'Guardar cambios' }}
     </app-button>
   </div>
-</app-modal>
+</app-drawer>

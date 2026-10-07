@@ -7,6 +7,7 @@ import { finalize } from 'rxjs';
 import { QuoteResponse } from '../../../data/models/quote/quote-response.model';
 import { QuoteStatus } from '../../../data/models/quote/quote-status.enum';
 import { QuoteApiService } from '../../../data/services/quote-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 export type QuoteStatusFilter = QuoteStatus | 'ALL';
 
@@ -15,11 +16,11 @@ export class AdminQuotesFacade {
   private readonly quoteApi = inject(QuoteApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
 
   private readonly _quotes = signal<readonly QuoteResponse[]>([]);
   private readonly _loading = signal(true);
   private readonly _error = signal<string | null>(null);
-  private readonly _success = signal<string | null>(null);
   private readonly _selectedStatus = signal<QuoteStatusFilter>('ALL');
   private readonly _searchTerm = signal('');
   private readonly _selectedQuote = signal<QuoteResponse | null>(null);
@@ -32,7 +33,6 @@ export class AdminQuotesFacade {
   readonly quotes = this._quotes.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
-  readonly success = this._success.asReadonly();
   readonly selectedStatus = this._selectedStatus.asReadonly();
   readonly searchTerm = this._searchTerm.asReadonly();
   readonly selectedQuote = this._selectedQuote.asReadonly();
@@ -92,7 +92,6 @@ export class AdminQuotesFacade {
     this._loadingDetail.set(true);
     this._detailError.set(null);
     this._statusError.set(null);
-    this._success.set(null);
 
     this.quoteApi
       .getById(quote.id)
@@ -121,7 +120,6 @@ export class AdminQuotesFacade {
     this._changingStatusId.set(quote.id);
     this._statusError.set(null);
     this._error.set(null);
-    this._success.set(null);
 
     this.quoteApi
       .changeStatus(quote.id, { estado: status })
@@ -133,7 +131,7 @@ export class AdminQuotesFacade {
         next: (updatedQuote) => {
           this.upsertQuote(updatedQuote);
           this._selectedQuote.set(updatedQuote);
-          this._success.set('Estado actualizado correctamente.');
+          this.toastService.show('Estado actualizado correctamente.', 'success');
         },
         error: (error: unknown) => this._statusError.set(this.statusErrorMessage(error)),
       });
@@ -141,7 +139,6 @@ export class AdminQuotesFacade {
 
   clearFeedback(): void {
     this._error.set(null);
-    this._success.set(null);
   }
 
   private upsertQuote(quote: QuoteResponse): void {

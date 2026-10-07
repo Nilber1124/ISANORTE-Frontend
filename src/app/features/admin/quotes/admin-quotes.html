@@ -6,18 +6,6 @@
   </p>
 </header>
 
-@if (facade.success(); as success) {
-  <app-alert
-    class="mt-7"
-    variant="success"
-    title="Cambio guardado"
-    dismissible
-    (dismissed)="facade.clearFeedback()"
-  >
-    {{ success }}
-  </app-alert>
-}
-
 @if (facade.error(); as error) {
   <app-alert
     class="mt-7"
@@ -155,7 +143,6 @@
     [loading]="facade.loadingDetail()"
     [error]="facade.detailError()"
     [statusError]="facade.statusError()"
-    [success]="facade.success()"
     [changingStatus]="facade.changingStatusId() !== null"
     (closed)="facade.closeDetail()"
     (statusChanged)="facade.changeStatus($event)"

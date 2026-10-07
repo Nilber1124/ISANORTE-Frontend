@@ -1,12 +1,11 @@
-<app-modal
-  modalId="admin-project-form"
+<app-drawer
+  drawerId="admin-project-form"
   [title]="mode() === 'create' ? 'Nuevo proyecto' : 'Editar proyecto'"
   [description]="
     mode() === 'create'
       ? 'Registra la información de la obra, fotografía principal y especialidades técnicas asociadas.'
       : 'Actualiza los datos del proyecto, imagen representativa y servicios de ingeniería vinculados.'
   "
-  size="large"
   [open]="true"
   [loading]="submitting()"
   (closed)="canceled.emit()"
@@ -211,7 +210,7 @@
     </fieldset>
   </form>
 
-  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+  <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
     <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
       Cancelar
     </app-button>
@@ -219,4 +218,4 @@
       {{ mode() === 'create' ? 'Crear proyecto' : 'Guardar cambios' }}
     </app-button>
   </div>
-</app-modal>
+</app-drawer>

@@ -10,6 +10,7 @@ import { ProjectUpdateRequest } from '../../../data/models/project/project-updat
 import { ServiceResponse } from '../../../data/models/service/service-response.model';
 import { ProjectApiService } from '../../../data/services/project-api.service';
 import { ServiceApiService } from '../../../data/services/service-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 export type ProjectFormMode = 'create' | 'edit';
 
@@ -19,6 +20,7 @@ export class AdminProjectsFacade {
   private readonly serviceApi = inject(ServiceApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
 
   private readonly _projects = signal<readonly ProjectResponse[]>([]);
   private readonly _services = signal<readonly ServiceResponse[]>([]);
@@ -27,7 +29,6 @@ export class AdminProjectsFacade {
   private readonly _submitting = signal(false);
   private readonly _changingActiveId = signal<string | null>(null);
   private readonly _error = signal<string | null>(null);
-  private readonly _success = signal<string | null>(null);
   private readonly _selectedProject = signal<ProjectResponse | null>(null);
   private readonly _formMode = signal<ProjectFormMode>('create');
   private readonly _formOpen = signal(false);
@@ -39,7 +40,6 @@ export class AdminProjectsFacade {
   readonly submitting = this._submitting.asReadonly();
   readonly changingActiveId = this._changingActiveId.asReadonly();
   readonly error = this._error.asReadonly();
-  readonly success = this._success.asReadonly();
   readonly selectedProject = this._selectedProject.asReadonly();
   readonly formMode = this._formMode.asReadonly();
   readonly formOpen = this._formOpen.asReadonly();
@@ -54,7 +54,6 @@ export class AdminProjectsFacade {
     this._selectedProject.set(null);
     this._formMode.set('create');
     this._error.set(null);
-    this._success.set(null);
     this._formOpen.set(true);
   }
 
@@ -62,7 +61,6 @@ export class AdminProjectsFacade {
     this._selectedProject.set(project);
     this._formMode.set('edit');
     this._error.set(null);
-    this._success.set(null);
     this._formOpen.set(true);
   }
 
@@ -77,7 +75,6 @@ export class AdminProjectsFacade {
     if (this._submitting()) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
 
     this.projectApi
       .create(request)
@@ -88,7 +85,7 @@ export class AdminProjectsFacade {
       .subscribe({
         next: (project) => {
           this.upsertProject(project);
-          this._success.set('Proyecto creado correctamente. Ya puedes gestionar sus imágenes.');
+          this.toastService.show('Proyecto creado correctamente.', 'success');
           this._formOpen.set(false);
           this._selectedProject.set(null);
         },
@@ -101,7 +98,6 @@ export class AdminProjectsFacade {
     if (project === null || this._submitting()) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
 
     this.projectApi
       .update(project.id, request)
@@ -112,7 +108,7 @@ export class AdminProjectsFacade {
       .subscribe({
         next: (updatedProject) => {
           this.upsertProject(updatedProject);
-          this._success.set('Proyecto actualizado correctamente.');
+          this.toastService.show('Proyecto actualizado correctamente.', 'success');
           this._formOpen.set(false);
           this._selectedProject.set(null);
         },
@@ -124,7 +120,6 @@ export class AdminProjectsFacade {
     if (this._changingActiveId() !== null || this._submitting()) return;
     this._changingActiveId.set(project.id);
     this._error.set(null);
-    this._success.set(null);
 
     this.projectApi
       .changeActive(project.id, { activo: project.activo !== true })
@@ -135,10 +130,11 @@ export class AdminProjectsFacade {
       .subscribe({
         next: (updatedProject) => {
           this.upsertProject(updatedProject);
-          this._success.set(
+          this.toastService.show(
             updatedProject.activo === true
               ? 'Proyecto activado correctamente.'
               : 'Proyecto desactivado correctamente.',
+            'success',
           );
         },
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
@@ -147,7 +143,6 @@ export class AdminProjectsFacade {
 
   clearFeedback(): void {
     this._error.set(null);
-    this._success.set(null);
   }
 
   private loadProjects(): void {

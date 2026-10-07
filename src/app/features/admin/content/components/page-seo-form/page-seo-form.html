@@ -1,12 +1,12 @@
-<app-modal
-  modalId="page-seo-form"
+<app-drawer
+  drawerId="page-seo-form-drawer"
   [title]="seo() ? 'Editar SEO' : 'Nuevo SEO'"
   description="El tipo de página y el sitio no cambian después de crear."
-  size="large"
   [open]="true"
   [loading]="saving()"
   (closed)="closed.emit()"
-  ><form class="grid gap-5 sm:grid-cols-2" (submit)="submit(); $event.preventDefault()">
+>
+  <form class="grid gap-5 sm:grid-cols-2" (submit)="submit(); $event.preventDefault()">
     <label class="form-label"
       >Sitio<select
         class="form-control mt-2"
@@ -62,13 +62,15 @@
       [rows]="4"
       required
     />
-    <app-input-field
-      class="sm:col-span-2"
-      inputId="seo-og-image"
-      label="OG image URL"
-      type="url"
-      [(value)]="ogImageUrl"
-    />
+    <div class="sm:col-span-2 space-y-2">
+      <label class="form-label mb-0">OG Image (Open Graph)</label>
+      <app-image-uploader
+        [ngModel]="ogImageUrl()"
+        (ngModelChange)="ogImageUrl.set($event)"
+        name="seo-og-image"
+        folder="isanorte/seo"
+      />
+    </div>
     <label class="form-label sm:col-span-2"
       >Robots<select
         class="form-control mt-2"
@@ -81,9 +83,9 @@
       </select></label
     >
   </form>
-  <div modal-actions class="flex w-full justify-end gap-3">
-    <app-button variant="secondary" (click)="closed.emit()">Cancelar</app-button
-    ><app-button
+  <div drawer-actions class="flex w-full justify-end gap-3">
+    <app-button variant="secondary" (click)="closed.emit()">Cancelar</app-button>
+    <app-button
       [loading]="saving()"
       [disabled]="
         !title().trim() ||
@@ -91,7 +93,6 @@
         (tipoPagina() === 'UNIDAD_NEGOCIO' && !unidadNegocioId())
       "
       (click)="submit()"
-      >Guardar</app-button
-    >
-  </div></app-modal
->
+    >Guardar</app-button>
+  </div>
+</app-drawer>

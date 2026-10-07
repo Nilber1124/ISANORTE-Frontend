@@ -8,16 +8,6 @@
   </div>
   <app-button (click)="facade.openCreate()">Nueva unidad</app-button>
 </header>
-@if (facade.success(); as success) {
-  <app-alert
-    class="mt-7"
-    variant="success"
-    title="Cambio guardado"
-    dismissible
-    (dismissed)="facade.clearFeedback()"
-    >{{ success }}</app-alert
-  >
-}
 @if (facade.error() && !facade.formOpen()) {
   <app-alert
     class="mt-7"

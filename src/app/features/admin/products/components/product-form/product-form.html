@@ -1,8 +1,7 @@
-<app-modal
-  modalId="product-form-modal"
+<app-drawer
+  drawerId="product-form-drawer"
   [title]="mode() === 'create' ? 'Nuevo producto' : 'Editar producto'"
   description="Gestiona la información comercial, precios, inventario y relaciones del catálogo."
-  size="large"
   [open]="true"
   [loading]="submitting()"
   (closed)="canceled.emit()"
@@ -1192,7 +1191,7 @@
     </section>
   </form>
 
-  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+  <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
     <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
       Cancelar
     </app-button>
@@ -1206,7 +1205,7 @@
       Guardar producto
     </app-button>
   </div>
-</app-modal>
+</app-drawer>
 
 @if (previewModalUrl(); as previewUrl) {
   <app-modal

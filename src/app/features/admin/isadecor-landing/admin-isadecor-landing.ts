@@ -13,6 +13,7 @@ import { Alert } from '../../../shared/components/alert/alert';
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { InputField } from '../../../shared/components/input-field/input-field';
+import { ImageUploaderComponent } from '../../../shared/components/image-uploader/image-uploader.component';
 import { Modal } from '../../../shared/components/modal/modal';
 import { SelectField, SelectOption } from '../../../shared/components/select-field/select-field';
 import { AdminIsadecorLandingFacade } from './admin-isadecor-landing.facade';
@@ -28,6 +29,7 @@ import {
     Badge,
     Button,
     FormsModule,
+    ImageUploaderComponent,
     InputField,
     Modal,
     RouterLink,

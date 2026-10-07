@@ -1,10 +1,8 @@
-<app-modal
-  modalId="admin-quote-detail"
+<app-drawer
+  drawerId="admin-quote-detail"
   title="Detalle de cotización"
   description="Información administrativa de la solicitud recibida."
-  size="large"
   [open]="true"
-  [showFooter]="false"
   [dismissible]="!changingStatus()"
   (closed)="closed.emit()"
 >
@@ -177,11 +175,6 @@
         <p class="mt-1 text-body-sm text-text-secondary">
           El backend registrará automáticamente este cambio en el historial.
         </p>
-        @if (success(); as statusSuccess) {
-          <app-alert class="mt-4" variant="success" title="Cambio guardado">
-            {{ statusSuccess }}
-          </app-alert>
-        }
         @if (statusError(); as statusError) {
           <app-alert class="mt-4" variant="error" title="No se actualizó el estado">
             {{ statusError }}
@@ -209,4 +202,4 @@
       </section>
     </div>
   }
-</app-modal>
+</app-drawer>

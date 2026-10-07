@@ -29,6 +29,7 @@ import { ProductUpdateRequest } from '../../../../../data/models/product/product
 import { Alert } from '../../../../../shared/components/alert/alert';
 import { Badge, BadgeVariant } from '../../../../../shared/components/badge/badge';
 import { Button } from '../../../../../shared/components/button/button';
+import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { Modal } from '../../../../../shared/components/modal/modal';
@@ -104,6 +105,7 @@ interface ProductFormErrors {
     Badge,
     Button,
     DecimalPipe,
+    Drawer,
     FormsModule,
     ImageUploaderComponent,
     InputField,

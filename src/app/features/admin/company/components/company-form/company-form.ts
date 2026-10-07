@@ -5,7 +5,7 @@ import { CompanyResponse } from '../../../../../data/models/company/company-resp
 import { CompanyUpdateRequest } from '../../../../../data/models/company/company-update-request.model';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
-import { Modal } from '../../../../../shared/components/modal/modal';
+import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 import { CompanyFormMode } from '../../admin-company.facade';
 
@@ -19,7 +19,7 @@ export interface CompanyFormSubmission {
 
 @Component({
   selector: 'app-company-form',
-  imports: [Button, InputField, Modal, TextareaField],
+  imports: [Button, Drawer, InputField, TextareaField],
   templateUrl: './company-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

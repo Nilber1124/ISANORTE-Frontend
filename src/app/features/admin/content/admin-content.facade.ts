@@ -20,6 +20,7 @@ import { BusinessUnitApiService } from '../../../data/services/business-unit-api
 import { PageContentApiService } from '../../../data/services/page-content-api.service';
 import { PageSeoApiService } from '../../../data/services/page-seo-api.service';
 import { SiteConfigApiService } from '../../../data/services/site-config-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Injectable()
 export class AdminContentFacade {
@@ -29,6 +30,7 @@ export class AdminContentFacade {
   private readonly unitApi = inject(BusinessUnitApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
 
   readonly contents = signal<readonly PageContentResponse[]>([]);
   readonly seoPages = signal<readonly PageSeoResponse[]>([]);
@@ -37,7 +39,6 @@ export class AdminContentFacade {
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
-  readonly success = signal<string | null>(null);
 
   load(): void {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -81,8 +82,9 @@ export class AdminContentFacade {
       .subscribe({
         next: (saved) => {
           this.contents.update((items) => this.upsert(items, saved));
-          this.success.set(
+          this.toastService.show(
             current ? 'Contenido actualizado correctamente.' : 'Contenido creado correctamente.',
+            'success',
           );
         },
         error: (error: unknown) => this.error.set(this.errorMessage(error, 'contenido')),
@@ -103,8 +105,9 @@ export class AdminContentFacade {
       .subscribe({
         next: (saved) => {
           this.seoPages.update((items) => this.upsert(items, saved));
-          this.success.set(
+          this.toastService.show(
             current ? 'SEO actualizado correctamente.' : 'SEO creado correctamente.',
+            'success',
           );
         },
         error: (error: unknown) => this.error.set(this.errorMessage(error, 'SEO')),
@@ -113,7 +116,6 @@ export class AdminContentFacade {
 
   clearFeedback(): void {
     this.error.set(null);
-    this.success.set(null);
   }
 
   private startSaving(): void {

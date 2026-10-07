@@ -17,7 +17,7 @@ import { Alert } from '../../../../../shared/components/alert/alert';
 import { Badge } from '../../../../../shared/components/badge/badge';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
-import { Modal } from '../../../../../shared/components/modal/modal';
+import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 import { slugify } from '../../../../../shared/utils/slugify';
 import { ServiceFormMode } from '../../admin-services.facade';
@@ -35,7 +35,7 @@ interface ServiceFormErrors {
 
 @Component({
   selector: 'app-service-form',
-  imports: [Alert, Button, InputField, Modal, TextareaField, ImageUploaderComponent, FormsModule],
+  imports: [Alert, Button, Drawer, InputField, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './service-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

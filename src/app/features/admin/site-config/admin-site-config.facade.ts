@@ -10,6 +10,7 @@ import { SiteConfigResponse } from '../../../data/models/site-config/site-config
 import { SiteConfigUpdateRequest } from '../../../data/models/site-config/site-config-update-request.model';
 import { CompanyApiService } from '../../../data/services/company-api.service';
 import { SiteConfigApiService } from '../../../data/services/site-config-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 export type SiteConfigFormMode = 'create' | 'edit';
 
@@ -19,6 +20,7 @@ export class AdminSiteConfigFacade {
   private readonly companyApi = inject(CompanyApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
 
   private readonly _configs = signal<readonly SiteConfigResponse[]>([]);
   private readonly _companies = signal<readonly CompanyResponse[]>([]);
@@ -27,7 +29,6 @@ export class AdminSiteConfigFacade {
   private readonly _loadingFormData = signal(true);
   private readonly _submitting = signal(false);
   private readonly _error = signal<string | null>(null);
-  private readonly _success = signal<string | null>(null);
   private readonly _formOpen = signal(false);
   private readonly _formMode = signal<SiteConfigFormMode>('create');
 
@@ -43,7 +44,6 @@ export class AdminSiteConfigFacade {
   readonly loadingFormData = this._loadingFormData.asReadonly();
   readonly submitting = this._submitting.asReadonly();
   readonly error = this._error.asReadonly();
-  readonly success = this._success.asReadonly();
   readonly formOpen = this._formOpen.asReadonly();
   readonly formMode = this._formMode.asReadonly();
 
@@ -127,7 +127,7 @@ export class AdminSiteConfigFacade {
         next: (created) => {
           this._configs.update((configs) => [...configs, created]);
           this._selectedConfigId.set(created.id);
-          this._success.set('Configuración creada correctamente.');
+          this.toastService.show('Configuración creada correctamente.', 'success');
           this._formOpen.set(false);
         },
         error: (error: HttpErrorResponse) => this.handleSaveError(error),
@@ -163,7 +163,7 @@ export class AdminSiteConfigFacade {
             configs.map((config) => (config.id === updated.id ? updated : config)),
           );
           this._selectedConfigId.set(updated.id);
-          this._success.set('Configuración actualizada correctamente.');
+          this.toastService.show('Configuración actualizada correctamente.', 'success');
           this._formOpen.set(false);
         },
         error: (error: HttpErrorResponse) => this.handleSaveError(error),
@@ -172,7 +172,6 @@ export class AdminSiteConfigFacade {
 
   clearFeedback(): void {
     this._error.set(null);
-    this._success.set(null);
   }
 
   private loadConfigs(): void {

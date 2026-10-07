@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'ghost' | 'whatsapp';
 export type ButtonSize = 'small' | 'medium' | 'large';
 export type ButtonType = 'button' | 'submit' | 'reset';
 
@@ -36,6 +36,8 @@ export class Button {
         'border-transparent bg-accent text-accent-contrast hover:bg-accent-hover active:bg-accent-hover btn-sweep btn-sweep-accent',
       ghost:
         'border-transparent bg-transparent text-text-secondary shadow-none hover:bg-surface-hover hover:text-text-primary active:bg-background-muted',
+      whatsapp:
+        'border-transparent bg-green-500 text-white hover:bg-green-600 active:bg-green-700',
     };
     const sizes: Record<ButtonSize, string> = {
       small: 'min-h-10 px-4 py-2 text-body-sm',

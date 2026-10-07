@@ -25,7 +25,7 @@ import { Button } from '../../../../shared/components/button/button';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
 import { ImageUploaderComponent } from '../../../../shared/components/image-uploader/image-uploader.component';
 import { InputField } from '../../../../shared/components/input-field/input-field';
-import { Modal } from '../../../../shared/components/modal/modal';
+import { Drawer } from '../../../../shared/components/drawer/drawer';
 import { FormsModule } from '@angular/forms';
 
 export type DynamicChildKind = 'scene' | 'action' | 'benefit' | 'resource' | 'statistic';
@@ -48,7 +48,7 @@ export interface DynamicChildSave {
 
 @Component({
   selector: 'app-dynamic-child-manager',
-  imports: [Badge, Button, EmptyState, InputField, Modal, ImageUploaderComponent, FormsModule],
+  imports: [Badge, Button, Drawer, EmptyState, InputField, ImageUploaderComponent, FormsModule],
   templateUrl: './dynamic-child-manager.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -81,7 +81,6 @@ export class DynamicChildManager {
     '/proyectos',
     '/nosotros',
     '/contacto',
-    '#cotizar',
     'https://wa.me/51987654321',
   ];
 

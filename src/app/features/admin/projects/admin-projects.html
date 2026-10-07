@@ -9,18 +9,6 @@
   <app-button variant="primary" (click)="facade.openCreate()">Nuevo proyecto</app-button>
 </header>
 
-@if (facade.success(); as success) {
-  <app-alert
-    class="mt-7"
-    variant="success"
-    title="Cambio guardado"
-    dismissible
-    (dismissed)="facade.clearFeedback()"
-  >
-    {{ success }}
-  </app-alert>
-}
-
 @if (facade.error() && !facade.formOpen()) {
   <app-alert
     class="mt-7"
@@ -95,8 +83,24 @@
               <td class="max-w-64 px-5 py-4 text-body-sm text-text-secondary">
                 {{ serviceNames(project) }}
               </td>
-              <td class="px-5 py-4 text-body-sm text-text-secondary">
-                {{ project.destacado === true ? 'Sí' : 'No' }}
+              <td class="px-5 py-4">
+                <svg
+                  class="size-5"
+                  [class.text-accent]="project.destacado === true"
+                  [class.fill-accent]="project.destacado === true"
+                  [class.text-border]="project.destacado !== true"
+                  [class.fill-none]="project.destacado !== true"
+                  viewBox="0 0 20 20"
+                  [attr.aria-label]="project.destacado === true ? 'Destacado' : 'No destacado'"
+                  role="img"
+                >
+                  <path
+                    d="M10 2.5l2.02 4.09 4.51.66-3.27 3.18.77 4.49L10 12.5l-4.03 2.42.77-4.49L3.47 7.25l4.51-.66L10 2.5z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
+                  />
+                </svg>
               </td>
               <td class="px-5 py-4">
                 <app-badge [variant]="project.activo === true ? 'success' : 'neutral'" dot>

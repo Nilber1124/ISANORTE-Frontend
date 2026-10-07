@@ -11,12 +11,12 @@ import { SiteConfigResponse } from '../../../../../data/models/site-config/site-
 import { Button } from '../../../../../shared/components/button/button';
 import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
-import { Modal } from '../../../../../shared/components/modal/modal';
+import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 
 @Component({
   selector: 'app-page-content-form',
-  imports: [Button, InputField, Modal, TextareaField, ImageUploaderComponent, FormsModule],
+  imports: [Button, Drawer, InputField, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './page-content-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

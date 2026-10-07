@@ -1,6 +1,33 @@
 @if (facade.loading()) {
-  <div class="app-container flex min-h-[50vh] items-center justify-center" data-projects-loading>
-    <p class="text-body text-text-secondary" role="status">Cargando contenido…</p>
+  <div aria-label="Cargando proyectos" role="status" aria-live="polite" data-projects-loading>
+    <div class="animate-pulse bg-background">
+      <div class="app-container py-16 lg:py-24">
+        <div class="mb-5 h-3.5 w-28 rounded bg-surface-hover"></div>
+        <div class="h-10 w-2/3 max-w-xl rounded bg-surface-hover lg:h-14"></div>
+      </div>
+    </div>
+    <div class="h-1 w-full bg-border"></div>
+    <div class="section-space bg-background-soft">
+      <div class="app-container animate-pulse">
+        <div class="flex flex-wrap gap-3">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <div class="h-10 w-24 rounded-button bg-surface-hover"></div>
+          }
+        </div>
+        <div class="mt-8 rounded-panel border border-dashed border-border bg-surface p-4 shadow-card md:p-6">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6">
+            @for (i of [1, 2]; track i) {
+              <div class="aspect-[4/3] rounded-card bg-surface-hover"></div>
+            }
+          </div>
+          <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-6 lg:grid-cols-3 lg:gap-6">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="aspect-[4/3] rounded-card bg-surface-hover"></div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 } @else if (facade.error(); as error) {
   <div class="app-container py-16" data-projects-error>

@@ -1,9 +1,8 @@
-<app-modal
-  modalId="landing-section-modal"
+<app-drawer
+  drawerId="landing-section-drawer"
   [open]="open()"
-  title="Editar sección de la portada"
+  [title]="mode() === 'create' ? 'Nueva sección' : 'Editar sección'"
   description="Personaliza los textos, imágenes y botones interactivos que verán los clientes en la página de inicio."
-  size="large"
   [loading]="submitting()"
   (closed)="closed.emit()"
 >
@@ -43,74 +42,6 @@
         <app-badge [variant]="visible() ? 'success' : 'neutral'" dot>
           {{ visible() ? 'Visible en la web' : 'Oculta al público' }}
         </app-badge>
-      </div>
-    </div>
-
-    <!-- Simulador / Previsualización interactiva en tiempo real -->
-    <div class="overflow-hidden rounded-card border border-border bg-surface shadow-soft transition-all">
-      <div class="flex items-center justify-between border-b border-border bg-background-soft px-4 py-2.5">
-        <div class="flex items-center gap-2">
-          <span class="relative flex size-2">
-            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75"></span>
-            <span class="relative inline-flex size-2 rounded-full bg-success"></span>
-          </span>
-          <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
-            Simulación en vivo (Así se verá en la web)
-          </span>
-        </div>
-        <span class="text-caption text-text-muted font-medium">
-          {{ imagenUrl().trim() ? 'Con fotografía' : 'Fondo por defecto' }}
-        </span>
-      </div>
-
-      <div class="relative min-h-[160px] p-6 flex flex-col justify-end overflow-hidden">
-        @if (imagenUrl().trim() && !previewFailed()) {
-          <img
-            [src]="imagenUrl()"
-            alt="Fondo de la sección"
-            class="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
-            (error)="markPreviewFailed()"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/30 backdrop-blur-[1px]"></div>
-        } @else {
-          <div class="absolute inset-0 bg-gradient-to-br from-surface-soft via-surface to-background-soft"></div>
-        }
-
-        <div class="relative z-10 space-y-2">
-          @if (etiqueta().trim()) {
-            <p class="text-caption font-bold tracking-widest text-accent uppercase">
-              {{ etiqueta() }}
-            </p>
-          }
-          <h4 class="text-heading-3 font-display text-text-primary leading-tight">
-            {{ titulo().trim() || 'Título principal de la sección' }}
-          </h4>
-          @if (subtitulo().trim()) {
-            <p class="text-body-sm font-medium text-text-secondary">
-              {{ subtitulo() }}
-            </p>
-          }
-          @if (contenido().trim()) {
-            <p class="text-body-sm text-text-muted line-clamp-2 max-w-2xl">
-              {{ contenido() }}
-            </p>
-          }
-          @if (textoBoton().trim()) {
-            <div class="pt-2">
-              <span class="inline-flex items-center gap-2 rounded-button bg-action-primary px-4 py-2 text-body-sm font-semibold text-action-primary-text shadow-sm transition-transform hover:-translate-y-0.5">
-                <span>{{ textoBoton() }}</span>
-                @if (enlaceBoton().trim()) {
-                  <span class="inline-flex items-center gap-1 text-caption font-mono opacity-80">
-                    <svg class="size-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
-                    </svg>
-                    {{ enlaceBoton() }}
-                  </span>
-                }
-              </span>
-            </div>
-          }
-        </div>
       </div>
     </div>
 
@@ -351,8 +282,8 @@
             label="Tipo de sección en la web"
             [options]="typeOptions"
             [(value)]="tipo"
-            [disabled]="true"
-            helperText="El tipo de sección define su ubicación y diseño fijo en la web."
+            [disabled]="mode() === 'edit' || submitting()"
+            [helperText]="mode() === 'edit' ? 'El tipo no puede cambiarse una vez creada la sección.' : 'Define el diseño y la ubicación de la sección en la portada.'"
             [required]="true"
           />
 
@@ -390,7 +321,7 @@
     }
   </form>
 
-  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+  <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
     <app-button
       type="button"
       variant="secondary"
@@ -408,4 +339,4 @@
       Guardar cambios
     </app-button>
   </div>
-</app-modal>
+</app-drawer>

@@ -58,18 +58,6 @@
   </button>
 </nav>
 
-@if (facade.success(); as success) {
-  <app-alert
-    class="mt-7"
-    variant="success"
-    title="Cambios guardados"
-    dismissible
-    (dismissed)="facade.clearFeedback()"
-  >
-    {{ success }}
-  </app-alert>
-}
-
 @if (facade.error(); as error) {
   <app-alert
     class="mt-7"
@@ -670,12 +658,15 @@
         <h4 class="text-caption font-bold uppercase tracking-wider text-text-muted">
           2. Imagen de Portada
         </h4>
-        <app-input-field
-          inputId="col-image-url"
-          label="Ruta de la imagen"
-          helperText="Ruta de la foto (ej: /images/isadecor-left-1.jpg, /images/isadecor-left-2.jpg, /images/isadecor-top.jpg)"
-          [(value)]="colImageUrl"
-        />
+        <div class="space-y-2">
+          <label class="form-label mb-0">Imagen de portada</label>
+          <app-image-uploader
+            [ngModel]="colImageUrl()"
+            (ngModelChange)="colImageUrl.set($event)"
+            name="col-image-url"
+            folder="isadecor/landing"
+          />
+        </div>
       </div>
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">

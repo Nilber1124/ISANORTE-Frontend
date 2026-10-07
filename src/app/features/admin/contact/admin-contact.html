@@ -15,16 +15,6 @@
     >{{ error }}</app-alert
   >
 }
-@if (facade.success(); as success) {
-  <app-alert
-    class="mt-6"
-    variant="success"
-    title="Cambio guardado"
-    dismissible
-    (dismissed)="facade.clearFeedback()"
-    >{{ success }}</app-alert
-  >
-}
 <section class="mt-8">
   <div class="mb-4 flex flex-wrap items-end justify-between gap-4">
     <h2 class="text-heading-3 text-text-primary">Bandeja</h2>

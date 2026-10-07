@@ -16,6 +16,7 @@ import {
 import { SiteConfigResponse } from '../../../data/models/site-config/site-config-response.model';
 import { LandingSectionApiService } from '../../../data/services/landing-section-api.service';
 import { SiteConfigApiService } from '../../../data/services/site-config-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 export type LandingFormMode = 'create' | 'edit';
 
@@ -23,6 +24,7 @@ export type LandingFormMode = 'create' | 'edit';
 export class AdminLandingFacade {
   private readonly landingApi = inject(LandingSectionApiService);
   private readonly siteConfigApi = inject(SiteConfigApiService);
+  private readonly toastService = inject(ToastService);
 
   readonly sections = signal<LandingSectionResponse[]>([]);
   readonly siteConfigurations = signal<SiteConfigResponse[]>([]);
@@ -32,7 +34,6 @@ export class AdminLandingFacade {
   readonly changingVisibilityId = signal<string | null>(null);
 
   readonly error = signal<string | null>(null);
-  readonly success = signal<string | null>(null);
 
   readonly selectedSection = signal<LandingSectionResponse | null>(null);
   readonly formMode = signal<LandingFormMode>('create');
@@ -100,7 +101,7 @@ export class AdminLandingFacade {
           this.sections.update((curr) =>
             [...curr, newSection].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)),
           );
-          this.success.set('Sección creada exitosamente.');
+          this.toastService.show('Sección creada exitosamente.', 'success');
           this.formOpen.set(false);
           this.selectedSection.set(null);
         }),
@@ -129,7 +130,7 @@ export class AdminLandingFacade {
               .map((s) => (s.id === updatedSection.id ? updatedSection : s))
               .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)),
           );
-          this.success.set('Sección actualizada exitosamente.');
+          this.toastService.show('Sección actualizada exitosamente.', 'success');
           this.formOpen.set(false);
           this.selectedSection.set(null);
         }),
@@ -280,7 +281,7 @@ export class AdminLandingFacade {
     const updated = { ...section, [key]: items };
     this.sections.update((all) => all.map((item) => (item.id === updated.id ? updated : item)));
     this.managedSection.set(updated);
-    this.success.set('Contenido de la sección actualizado.');
+    this.toastService.show('Contenido de la sección actualizado.', 'success');
   }
 
   private handleError(err: HttpErrorResponse): void {
@@ -297,6 +298,5 @@ export class AdminLandingFacade {
 
   private clearMessages(): void {
     this.error.set(null);
-    this.success.set(null);
   }
 }

@@ -12,6 +12,7 @@ import {
   ServiceBenefitResponse,
 } from '../../../data/models/service/service-benefit.model';
 import { ServiceApiService } from '../../../data/services/service-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 export type ServiceFormMode = 'create' | 'edit';
 
@@ -20,13 +21,13 @@ export class AdminServicesFacade {
   private readonly serviceApi = inject(ServiceApiService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly toastService = inject(ToastService);
 
   private readonly _services = signal<readonly ServiceResponse[]>([]);
   private readonly _loading = signal(true);
   private readonly _submitting = signal(false);
   private readonly _changingActiveId = signal<string | null>(null);
   private readonly _error = signal<string | null>(null);
-  private readonly _success = signal<string | null>(null);
   private readonly _selectedService = signal<ServiceResponse | null>(null);
   private readonly _formMode = signal<ServiceFormMode>('create');
   private readonly _formOpen = signal(false);
@@ -38,7 +39,6 @@ export class AdminServicesFacade {
   readonly submitting = this._submitting.asReadonly();
   readonly changingActiveId = this._changingActiveId.asReadonly();
   readonly error = this._error.asReadonly();
-  readonly success = this._success.asReadonly();
   readonly selectedService = this._selectedService.asReadonly();
   readonly formMode = this._formMode.asReadonly();
   readonly formOpen = this._formOpen.asReadonly();
@@ -69,7 +69,6 @@ export class AdminServicesFacade {
     this._selectedService.set(null);
     this._formMode.set('create');
     this._error.set(null);
-    this._success.set(null);
     this._formOpen.set(true);
   }
 
@@ -77,7 +76,6 @@ export class AdminServicesFacade {
     this._selectedService.set(service);
     this._formMode.set('edit');
     this._error.set(null);
-    this._success.set(null);
     this._formOpen.set(true);
   }
 
@@ -92,7 +90,6 @@ export class AdminServicesFacade {
     if (this._submitting()) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
 
     this.serviceApi
       .create(request)
@@ -103,7 +100,7 @@ export class AdminServicesFacade {
       .subscribe({
         next: (service) => {
           this.upsertService(service);
-          this._success.set('Servicio creado correctamente.');
+          this.toastService.show('Servicio creado correctamente.', 'success');
           this._formOpen.set(false);
           this._selectedService.set(null);
         },
@@ -116,7 +113,6 @@ export class AdminServicesFacade {
     if (this._submitting() || selectedService === null) return;
     this._submitting.set(true);
     this._error.set(null);
-    this._success.set(null);
 
     this.serviceApi
       .update(selectedService.id, request)
@@ -127,7 +123,7 @@ export class AdminServicesFacade {
       .subscribe({
         next: (service) => {
           this.upsertService(service);
-          this._success.set('Servicio actualizado correctamente.');
+          this.toastService.show('Servicio actualizado correctamente.', 'success');
           this._formOpen.set(false);
           this._selectedService.set(null);
         },
@@ -139,7 +135,6 @@ export class AdminServicesFacade {
     if (this._changingActiveId() !== null || this._submitting()) return;
     this._changingActiveId.set(service.id);
     this._error.set(null);
-    this._success.set(null);
 
     this.serviceApi
       .changeActive(service.id, { activo: active })
@@ -150,8 +145,9 @@ export class AdminServicesFacade {
       .subscribe({
         next: (updatedService) => {
           this.upsertService(updatedService);
-          this._success.set(
+          this.toastService.show(
             active ? 'Servicio activado correctamente.' : 'Servicio desactivado correctamente.',
+            'success',
           );
         },
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
@@ -160,7 +156,6 @@ export class AdminServicesFacade {
 
   clearFeedback(): void {
     this._error.set(null);
-    this._success.set(null);
   }
 
   openBenefits(service: ServiceResponse): void {
@@ -222,7 +217,7 @@ export class AdminServicesFacade {
     const updated = { ...service, beneficios };
     this.upsertService(updated);
     this._managedService.set(updated);
-    this._success.set('Beneficios actualizados correctamente.');
+    this.toastService.show('Beneficios actualizados correctamente.', 'success');
   }
 
   private upsertService(service: ServiceResponse): void {

@@ -15,12 +15,14 @@ import { SiteConfigUpdateRequest } from '../../../../../data/models/site-config/
 import { Alert } from '../../../../../shared/components/alert/alert';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
-import { Modal } from '../../../../../shared/components/modal/modal';
+import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import {
   SelectField,
   SelectOption,
 } from '../../../../../shared/components/select-field/select-field';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
+import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
+import { FormsModule } from '@angular/forms';
 import { SiteConfigFormMode } from '../../admin-site-config.facade';
 
 export type SiteConfigFormSubmission =
@@ -29,7 +31,7 @@ export type SiteConfigFormSubmission =
 
 @Component({
   selector: 'app-site-config-form',
-  imports: [Alert, Button, InputField, Modal, SelectField, TextareaField],
+  imports: [Alert, Button, Drawer, InputField, SelectField, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './site-config-form.html',
   styleUrl: './site-config-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,10 +58,6 @@ export class SiteConfigForm implements OnInit {
   readonly textoPiePagina = signal('');
   readonly empresaId = signal('');
   readonly empresaError = signal<string | undefined>(undefined);
-  readonly logoFailed = signal(false);
-  readonly whiteLogoFailed = signal(false);
-  readonly faviconFailed = signal(false);
-
   readonly companyOptions = computed<readonly SelectOption[]>(() =>
     this.companies().map((company) => ({ value: company.id, label: company.nombreComercial })),
   );
@@ -102,21 +100,6 @@ export class SiteConfigForm implements OnInit {
       return;
     }
     this.saved.emit({ mode: 'edit', request: this.editableFields() });
-  }
-
-  protected updateLogoUrl(value: string): void {
-    this.logoUrl.set(value);
-    this.logoFailed.set(false);
-  }
-
-  protected updateWhiteLogoUrl(value: string): void {
-    this.logoBlancoUrl.set(value);
-    this.whiteLogoFailed.set(false);
-  }
-
-  protected updateFaviconUrl(value: string): void {
-    this.faviconUrl.set(value);
-    this.faviconFailed.set(false);
   }
 
   private editableFields(): SiteConfigUpdateRequest {

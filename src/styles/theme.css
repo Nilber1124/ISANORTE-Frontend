@@ -9,6 +9,7 @@
   --color-surface-soft: var(--theme-surface-soft);
   --color-surface-hover: var(--theme-surface-hover);
   --color-surface-elevated: var(--theme-surface-elevated);
+  --color-surface-card: var(--theme-surface-card);
   --color-border: var(--theme-border);
   --color-border-strong: var(--theme-border-strong);
   --color-border-light: var(--theme-border-strong);
@@ -259,6 +260,18 @@
   }
 }
 
+@keyframes drawer-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @keyframes loading-dot {
 
   0%,
@@ -298,6 +311,10 @@
 
 @utility animate-modal-panel {
   animation: modal-panel-enter var(--duration-normal) var(--ease-standard) both;
+}
+
+@utility animate-drawer-panel {
+  animation: drawer-panel-enter var(--duration-normal) var(--ease-standard) both;
 }
 
 @utility animate-loading-dot {

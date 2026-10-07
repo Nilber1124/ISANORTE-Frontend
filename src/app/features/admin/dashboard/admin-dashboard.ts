@@ -1,43 +1,48 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
-import { Badge } from '../../../shared/components/badge/badge';
-import { Card } from '../../../shared/components/card/card';
-
-interface DashboardAccess {
-  title: string;
-  description: string;
-  route: string;
-}
+import { Alert } from '../../../shared/components/alert/alert';
+import { Badge, BadgeVariant } from '../../../shared/components/badge/badge';
+import { AdminDashboardFacade } from './admin-dashboard.facade';
+import { QuoteStatus } from '../../../data/models/quote/quote-status.enum';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [Badge, Card, RouterLink],
+  imports: [Alert, Badge, RouterLink, DatePipe],
+  providers: [AdminDashboardFacade],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminDashboard {
-  readonly accesses: readonly DashboardAccess[] = [
-    {
-      title: 'Productos',
-      description: 'Gestiona el catálogo de productos ISADECOR.',
-      route: '/admin/productos',
-    },
-    {
-      title: 'Categorías',
-      description: 'Organiza las categorías disponibles para el catálogo.',
-      route: '/admin/categorias',
-    },
-    {
-      title: 'Cotizaciones',
-      description: 'Gestiona las solicitudes recibidas desde ISADECOR.',
-      route: '/admin/cotizaciones',
-    },
-    {
-      title: 'Proyectos',
-      description: 'Administra los proyectos publicados por ISANORTE.',
-      route: '/admin/proyectos',
-    },
-  ];
+export class AdminDashboard implements OnInit {
+  readonly facade = inject(AdminDashboardFacade);
+
+  ngOnInit(): void {
+    this.facade.load();
+  }
+
+  statusLabel(status: QuoteStatus): string {
+    const labels: Record<QuoteStatus, string> = {
+      [QuoteStatus.NUEVA]: 'Nueva',
+      [QuoteStatus.EN_REVISION]: 'En revisión',
+      [QuoteStatus.CONTACTADA]: 'Contactada',
+      [QuoteStatus.COTIZADA]: 'Cotizada',
+      [QuoteStatus.CERRADA]: 'Cerrada',
+      [QuoteStatus.CANCELADA]: 'Cancelada',
+    };
+    return labels[status] ?? status;
+  }
+
+  statusVariant(status: QuoteStatus): BadgeVariant {
+    const variants: Record<QuoteStatus, BadgeVariant> = {
+      [QuoteStatus.NUEVA]: 'accent',
+      [QuoteStatus.EN_REVISION]: 'info',
+      [QuoteStatus.CONTACTADA]: 'warning',
+      [QuoteStatus.COTIZADA]: 'neutral',
+      [QuoteStatus.CERRADA]: 'success',
+      [QuoteStatus.CANCELADA]: 'error',
+    };
+    return variants[status] ?? 'neutral';
+  }
 }

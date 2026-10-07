@@ -9,7 +9,7 @@ import { Button } from '../../../../../shared/components/button/button';
 import { Card } from '../../../../../shared/components/card/card';
 import { EmptyState } from '../../../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../../../shared/components/loading/loading';
-import { Modal } from '../../../../../shared/components/modal/modal';
+import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import {
   SelectField,
   SelectOption,
@@ -25,8 +25,8 @@ import {
     DatePipe,
     DecimalPipe,
     EmptyState,
+    Drawer,
     Loading,
-    Modal,
     SelectField,
   ],
   templateUrl: './quote-detail.html',
@@ -38,7 +38,6 @@ export class QuoteDetail {
   readonly loading = input(false);
   readonly error = input<string | null>(null);
   readonly statusError = input<string | null>(null);
-  readonly success = input<string | null>(null);
   readonly changingStatus = input(false);
 
   readonly closed = output<void>();

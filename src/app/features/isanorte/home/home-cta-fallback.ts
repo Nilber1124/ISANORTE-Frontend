@@ -12,8 +12,8 @@ export const HOME_CTA_FALLBACK: {
   },
   action: {
     label: 'SOLICITAR ASESORÍA GRATUITA',
-    url: '#contacto',
-    persistedUrl: '#contacto',
+    url: '/contacto',
+    persistedUrl: '/contacto',
     order: 0,
   },
   bgImageUrl: '/images/asesora-consultoria.jpg',

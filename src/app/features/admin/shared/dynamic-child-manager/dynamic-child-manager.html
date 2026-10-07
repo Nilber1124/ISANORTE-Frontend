@@ -1,8 +1,7 @@
-<app-modal
-  modalId="dynamic-child-manager"
+<app-drawer
+  drawerId="dynamic-child-manager-drawer"
   [title]="title()"
   [description]="parentName()"
-  size="large"
   [open]="true"
   [loading]="saving()"
   (closed)="closed.emit()"
@@ -478,4 +477,4 @@
       </div>
     </section>
   }
-</app-modal>
+</app-drawer>
