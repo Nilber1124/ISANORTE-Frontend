@@ -20,7 +20,7 @@ Crear movimiento moderno, sobrio y consistente, subordinado al contenido, sin ro
    - hover, focus y transiciones simples: CSS/Tailwind;
    - secuencia, reveal coordinado, parallax o scroll: GSAP;
    - ScrollTrigger solo cuando el scroll controle realmente la animación.
-3. Elige un patrón coherente: `heroEntrance`, `fadeUp`, `staggerReveal`, `imageReveal`, `parallaxImage` o `sectionReveal`.
+3. Elige un patrón coherente: `heroEntrance`, `fadeUp`, `staggerReveal`, `imageReveal`, `parallaxImage` o `sectionReveal`. Si hay duda sobre si el carácter del movimiento (velocidad, easing, intensidad, narrativa) corresponde a la identidad de marca ISANORTE — sobria, técnica, premium — cargar la skill global `brand` antes de definir los valores de la animación.
 4. Define primero el estado SSR legible. La página debe conservar contenido y acciones aunque GSAP no cargue.
 5. Inicializa GSAP únicamente en browser, preferentemente con `afterNextRender()` como el código actual. Importa y registra ScrollTrigger solo si se usa.
 6. Limita el scope de selectores al componente y conserva referencias a timeline, tween, trigger, listener, timer u observer.

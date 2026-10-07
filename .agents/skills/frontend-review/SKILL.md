@@ -59,9 +59,11 @@ Detectar regresiones y desviaciones del proyecto con evidencia concreta, y confi
 - [ ] Arquitectura y responsabilidades respetan AGENTS.md.
 - [ ] Tipos, Signals, OnPush, imports y cleanup son correctos.
 - [ ] UI, responsive, temas y estados fueron comprobados.
+- [ ] Jerarquía visual, escala tipográfica y carácter de marca son coherentes con ISANORTE o ISADECOR.
 - [ ] Accesibilidad y reduced motion fueron comprobados.
 - [ ] Toda integración coincide con el contrato real.
 - [ ] SSR, prerender e hidratación no presentan regresiones.
 - [ ] Rendimiento e imágenes no empeoraron sin justificación.
+- [ ] Si se generó un artifact visual (prototipo, referencia de componente, comparación de variantes), se cargó `artifact-design` antes de escribirlo.
 - [ ] `git diff --check` pasa.
 - [ ] `npm run build` y tests pertinentes pasan, o sus limitaciones están documentadas.

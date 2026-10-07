@@ -25,6 +25,7 @@ Entregar una feature Angular moderna, tipada, responsive, accesible y compatible
    - contenido local existente;
    - inputs o estado visual;
    - API documentada en `docs/openapi.yaml`.
+   - Si la feature incluye gráficos, indicadores KPI, sparklines, tablas analíticas o cualquier visualización de datos, cargar la skill global `dataviz` antes de escribir código de visualización.
 6. Decide la complejidad mínima:
    - feature visual/simple: componente con estado local;
    - coordinación de datos/errores/filtros/formulario complejo: facade;
