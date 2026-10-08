@@ -1,0 +1,162 @@
+@if (facade.announcements().length > 0) {
+  <aside
+    class="announcement-ribbon"
+    [class.is-open]="open()"
+    aria-label="Anuncios"
+    (keydown)="handleKeydown($event)"
+  >
+    <div
+      id="announcement-ribbon-panel"
+      class="announcement-ribbon__panel"
+      role="region"
+      aria-roledescription="carrusel"
+      [attr.aria-label]="'Anuncios de ' + destination()"
+      [attr.aria-hidden]="open() ? null : 'true'"
+      [attr.inert]="open() ? null : ''"
+      (mouseenter)="pause()"
+      (mouseleave)="resume()"
+      (focusin)="pause()"
+      (focusout)="handleFocusOut($event)"
+      (touchstart)="handleTouchStart($event)"
+      (touchend)="handleTouchEnd($event)"
+    >
+      <div
+        class="announcement-ribbon__track"
+        [style.transform]="'translateX(-' + currentIndex() * 100 + '%)'"
+      >
+        @for (announcement of facade.announcements(); track announcement.id; let index = $index) {
+          <article
+            class="announcement-ribbon__slide"
+            role="group"
+            [attr.aria-label]="'Anuncio ' + (index + 1) + ' de ' + facade.announcements().length"
+            [attr.aria-hidden]="index !== currentIndex()"
+          >
+            <button
+              class="announcement-ribbon__visual"
+              type="button"
+              [attr.tabindex]="index === currentIndex() ? 0 : -1"
+              (click)="openDetail(announcement)"
+            >
+              <img [src]="announcement.imagenUrl" [alt]="announcement.titulo" />
+            </button>
+            <div class="announcement-ribbon__text">
+              <span class="announcement-ribbon__tag">{{ announcement.etiqueta }}</span>
+              <button
+                class="announcement-ribbon__title"
+                type="button"
+                [attr.tabindex]="index === currentIndex() ? 0 : -1"
+                (click)="openDetail(announcement)"
+              >
+                {{ announcement.titulo }}
+              </button>
+              <p>{{ announcement.descripcionResumida }}</p>
+              <button
+                class="announcement-ribbon__cta"
+                type="button"
+                [attr.tabindex]="index === currentIndex() ? 0 : -1"
+                (click)="openDetail(announcement)"
+              >
+                Ver detalles
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+
+      <div class="announcement-ribbon__controls">
+        <div class="announcement-ribbon__dots" aria-label="Seleccionar anuncio">
+          @for (announcement of facade.announcements(); track announcement.id; let index = $index) {
+            <button
+              type="button"
+              class="announcement-ribbon__dot"
+              [attr.aria-label]="'Ir al anuncio ' + (index + 1)"
+              [attr.aria-current]="index === currentIndex() ? 'true' : null"
+              (click)="goTo(index)"
+            ></button>
+          }
+        </div>
+        @if (facade.announcements().length > 1) {
+          <div class="announcement-ribbon__buttons">
+            <button
+              type="button"
+              class="announcement-ribbon__button"
+              aria-label="Anuncio anterior"
+              (click)="previous()"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              class="announcement-ribbon__button"
+              aria-label="Anuncio siguiente"
+              (click)="next()"
+            >
+              →
+            </button>
+          </div>
+        }
+      </div>
+      <div class="announcement-ribbon__bar" [class.is-running]="progressRunning()"></div>
+    </div>
+
+    <button
+      type="button"
+      class="announcement-ribbon__tab"
+      [attr.aria-expanded]="open()"
+      aria-controls="announcement-ribbon-panel"
+      [attr.aria-label]="open() ? 'Ocultar anuncios' : 'Mostrar anuncios'"
+      (click)="toggle()"
+    >
+      <span class="announcement-ribbon__badge">{{ facade.announcements().length }}</span>
+      <span class="announcement-ribbon__label">Anuncios</span>
+      <span class="announcement-ribbon__arrow" aria-hidden="true">❯</span>
+    </button>
+  </aside>
+}
+
+@if (detail(); as announcement) {
+  <app-modal
+    modalId="announcement-detail"
+    [title]="announcement.titulo"
+    [description]="announcement.descripcionResumida"
+    size="large"
+    [open]="true"
+    (closed)="closeDetail()"
+  >
+    <div class="grid gap-6 sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      <img
+        class="max-h-[360px] w-full rounded-card object-cover"
+        [src]="announcement.imagenUrl"
+        [alt]="announcement.titulo"
+      />
+      <div>
+        <span class="announcement-ribbon__tag">{{ announcement.etiqueta }}</span>
+        <p class="mt-4 whitespace-pre-line text-body text-text-secondary">
+          {{ announcement.contenidoDetallado }}
+        </p>
+        @if (announcement.condiciones) {
+          <section
+            class="mt-5 border-l-[3px] border-accent bg-surface-soft px-4 py-3"
+            aria-labelledby="announcement-conditions-title"
+          >
+            <h3 id="announcement-conditions-title" class="font-semibold text-text-primary">
+              Condiciones
+            </h3>
+            <p class="mt-1.5 whitespace-pre-line text-body-sm text-text-secondary">
+              {{ announcement.condiciones }}
+            </p>
+          </section>
+        }
+        @if (validityText(announcement); as validity) {
+          <p class="mt-1.5 text-body-sm text-text-secondary">{{ validity }}</p>
+        }
+      </div>
+    </div>
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button variant="secondary" (click)="closeDetail()">Cerrar</app-button>
+      <app-button variant="accent" (click)="executeAction(announcement)">{{
+        announcement.textoBoton
+      }}</app-button>
+    </div>
+  </app-modal>
+}

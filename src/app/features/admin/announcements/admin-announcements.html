@@ -1,0 +1,120 @@
+<header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+  <div class="max-w-3xl">
+    <p class="text-eyebrow uppercase text-text-muted">Contenido promocional</p>
+    <h1 class="mt-3 text-heading-1 text-text-primary">Anuncios</h1>
+    <p class="mt-3 text-body text-text-secondary">
+      Administra la cinta lateral que aparece en ISANORTE e ISADECOR.
+    </p>
+  </div>
+  <app-button variant="primary" (click)="facade.openCreate()">Nuevo anuncio</app-button>
+</header>
+
+@if (facade.error() && !facade.formOpen()) {
+<app-alert class="mt-7" variant="error" title="No pudimos completar la operación" dismissible
+  (dismissed)="facade.clearError()">
+  {{ facade.error() }}
+</app-alert>
+}
+
+<section class="mt-8" aria-labelledby="announcements-list-title">
+  <div class="mb-4 flex items-center justify-between gap-3">
+    <h2 id="announcements-list-title" class="text-heading-3 text-text-primary">
+      Anuncios registrados
+    </h2>
+    @if (!facade.loading()) {
+    <span class="text-body-sm text-text-muted">{{ facade.announcements().length }} en total</span>
+    }
+  </div>
+
+  @if (facade.loading()) {
+  <div class="rounded-card border border-border bg-surface py-14">
+    <app-loading label="Cargando anuncios" size="large" />
+  </div>
+  } @else if (facade.announcements().length === 0) {
+  <app-empty-state emptyStateId="admin-announcements-empty" title="No hay anuncios registrados"
+    description="Crea el primer anuncio para activar la cinta lateral.">
+    <app-button empty-state-actions variant="primary" (click)="facade.openCreate()">Nuevo anuncio</app-button>
+  </app-empty-state>
+  } @else {
+  <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+    <table class="w-full min-w-[68rem] border-collapse text-left">
+      <caption class="sr-only">
+        Listado administrativo de anuncios
+      </caption>
+      <thead class="border-b border-border bg-background-soft">
+        <tr>
+          <th class="table-heading">Anuncio</th>
+          <th class="table-heading">Destino</th>
+          <th class="table-heading">Vigencia</th>
+          <th class="table-heading">Orden</th>
+          <th class="table-heading">Estado</th>
+          <th class="table-heading text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-border">
+        @for (announcement of facade.announcements(); track announcement.id) {
+        <tr class="transition-colors duration-fast hover:bg-surface-hover">
+          <th scope="row" class="px-5 py-4">
+            <div class="flex items-center gap-3">
+              <img class="h-12 w-20 rounded-control object-cover" [src]="announcement.imagenUrl" alt="" />
+              <span><span class="block text-body-sm font-semibold text-text-primary">{{
+                  announcement.titulo
+                  }}</span><span class="mt-1 block text-caption text-text-muted">{{
+                  announcement.etiqueta
+                  }}</span></span>
+            </div>
+          </th>
+          <td class="px-5 py-4 text-body-sm text-text-secondary">{{ announcement.destino }}</td>
+          <td class="px-5 py-4 text-caption text-text-secondary">
+            <span class="block">Desde:
+              {{
+              announcement.fechaInicio
+              ? announcement.fechaInicio.slice(0, 16).replace('T', ' ')
+              : 'Inmediata'
+              }}</span>
+            <span class="block">Hasta:
+              {{
+              announcement.fechaFin
+              ? announcement.fechaFin.slice(0, 16).replace('T', ' ')
+              : 'Sin límite'
+              }}</span>
+          </td>
+          <td class="px-5 py-4 text-body-sm text-text-secondary">{{ announcement.orden }}</td>
+          <td class="px-5 py-4">
+            <app-badge [variant]="statusVariant(announcement)" dot>{{
+              status(announcement)
+              }}</app-badge>
+          </td>
+          <td class="px-5 py-4">
+            <div class="flex justify-end gap-2">
+              <app-button size="small" variant="ghost" (click)="facade.openEdit(announcement)">Editar</app-button>
+              <app-button size="small" variant="secondary" [loading]="facade.changingActiveId() === announcement.id"
+                (click)="facade.changeActive(announcement)">{{ announcement.activo ? 'Desactivar' : 'Activar'
+                }}</app-button>
+              <app-button size="small" variant="ghost" (click)="pendingDelete.set(announcement)">Eliminar</app-button>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</section>
+
+@if (facade.formOpen()) {
+<app-announcement-form [mode]="facade.formMode()" [announcement]="facade.selected()" [submitting]="facade.submitting()"
+  [serverError]="facade.error()" (canceled)="facade.closeForm()" (saved)="facade.save($event)" />
+}
+
+@if (pendingDelete(); as announcement) {
+<app-modal modalId="delete-announcement" title="Eliminar anuncio"
+  [description]="'Se eliminará permanentemente ' + announcement.titulo + '.'" size="small" [open]="true"
+  [loading]="facade.deletingId() === announcement.id" (closed)="pendingDelete.set(null)">
+  <p class="text-body-sm text-text-secondary">Esta acción no se puede deshacer.</p>
+  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button variant="secondary" (click)="pendingDelete.set(null)">Cancelar</app-button><app-button variant="primary"
+      (click)="confirmDelete()">Eliminar</app-button>
+  </div>
+</app-modal>
+}

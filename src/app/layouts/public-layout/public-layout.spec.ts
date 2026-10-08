@@ -44,9 +44,13 @@ describe('PublicLayout', () => {
     const request = http.expectOne('/api/publico/sitios/isanorte');
     expect(request.request.method).toBe('GET');
     request.flush(emptySite);
+    const announcements = http.expectOne('/api/publico/anuncios/ISANORTE');
+    expect(announcements.request.method).toBe('GET');
+    announcements.flush([]);
     fixture.detectChanges();
 
     http.expectNone('/api/publico/sitios/isanorte');
+    http.expectNone('/api/publico/anuncios/ISANORTE');
     http.verify();
   });
 });

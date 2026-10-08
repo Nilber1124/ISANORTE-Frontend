@@ -42,7 +42,10 @@ export class AdminSidebar {
     },
     {
       title: 'Contenido',
-      items: [{ label: 'Páginas y SEO', route: '/admin/contenido' }],
+      items: [
+        { label: 'Páginas y SEO', route: '/admin/contenido' },
+        { label: 'Anuncios', route: '/admin/anuncios' },
+      ],
     },
     {
       title: 'Tienda ISADECOR',

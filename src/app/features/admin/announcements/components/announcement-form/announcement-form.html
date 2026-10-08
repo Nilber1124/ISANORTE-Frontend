@@ -1,0 +1,125 @@
+<app-drawer drawerId="announcement-form" [title]="mode() === 'create' ? 'Nuevo anuncio' : 'Editar anuncio'"
+  description="Configura contenido, publicación y destino de la acción." [open]="true" [loading]="submitting()"
+  (closed)="canceled.emit()">
+  @if (serverError(); as error) {
+  <app-alert class="mb-5" variant="error" title="No se guardó el anuncio">{{ error }}</app-alert>
+  }
+  <form id="announcement-editor" class="space-y-5" (submit)="submit(); $event.preventDefault()" novalidate>
+    <fieldset class="form-section">
+      <legend>Contenido</legend>
+      <label class="form-label" for="announcement-title">Título</label><input id="announcement-title"
+        class="form-control" maxlength="160" required [(ngModel)]="titulo" name="titulo" />
+      @if (submitted() && !titulo().trim()) {
+      <p class="form-error">Ingresa el título.</p>
+      }
+      <label class="form-label mt-4" for="announcement-summary">Descripción resumida</label><textarea
+        id="announcement-summary" class="form-control" maxlength="320" rows="3" required
+        [(ngModel)]="descripcionResumida" name="descripcionResumida"></textarea>
+      <label class="form-label mt-4" for="announcement-content">Contenido detallado</label><textarea
+        id="announcement-content" class="form-control" rows="6" required [(ngModel)]="contenidoDetallado"
+        name="contenidoDetallado"></textarea>
+      <label class="form-label mt-4" for="announcement-conditions">Condiciones (opcional)</label><textarea
+        id="announcement-conditions" class="form-control" rows="3" [(ngModel)]="condiciones"
+        name="condiciones"></textarea>
+      <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="form-label" for="announcement-label">Etiqueta</label><input id="announcement-label"
+            class="form-control" maxlength="60" required [(ngModel)]="etiqueta" name="etiqueta" />
+        </div>
+        <div>
+          <label class="form-label" for="announcement-button">Texto del botón</label><input id="announcement-button"
+            class="form-control" maxlength="80" required [(ngModel)]="textoBoton" name="textoBoton" />
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="form-section">
+      <legend>Imagen y vista previa</legend>
+      <app-image-uploader folder="isanorte/anuncios" [ngModel]="imagenUrl()" (ngModelChange)="imagenUrl.set($event)"
+        name="announcementImage" />
+      @if (submitted() && !imagenUrl().trim()) {
+      <p class="form-error">Sube una imagen principal.</p>
+      }
+      <article class="announcement-preview" aria-label="Vista previa del anuncio">
+        <img [src]="imagenUrl() || '/images/isanorte-logo-horizontal-white.svg'" alt="" />
+        <div>
+          <span>{{ etiqueta() || 'Etiqueta' }}</span>
+          <h3>{{ titulo() || 'Título del anuncio' }}</h3>
+          <p>{{ descripcionResumida() || 'La descripción resumida aparecerá aquí.' }}</p>
+          <button type="button">Ver detalles</button>
+        </div>
+      </article>
+    </fieldset>
+
+    <fieldset class="form-section">
+      <legend>Destino y acción</legend>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="form-label" for="announcement-destination">Sitio</label><select id="announcement-destination"
+            class="form-control" [value]="destino()" (change)="setDestination($event)">
+            <option value="ISANORTE">ISANORTE</option>
+            <option value="ISADECOR">ISADECOR</option>
+            <option value="AMBOS">Ambos</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="announcement-action">Tipo de acción</label><select id="announcement-action"
+            class="form-control" [value]="tipoAccion()" (change)="setActionType($event)">
+            @for (type of actionTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <label class="form-label mt-4" for="announcement-target">URL, ruta o sección</label><input
+        id="announcement-target" class="form-control" maxlength="500" required [(ngModel)]="destinoAccion"
+        name="destinoAccion" placeholder="/contacto, #catalogo o https://..." />
+      <p class="form-helper">
+        Usa rutas Angular que comiencen con /, secciones con # y URLs externas completas con
+        https://.
+      </p>
+    </fieldset>
+
+    <fieldset class="form-section">
+      <legend>Programación</legend>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="form-label" for="announcement-start">Inicio (opcional)</label><input id="announcement-start"
+            type="datetime-local" class="form-control" [(ngModel)]="fechaInicio" name="fechaInicio" />
+        </div>
+        <div>
+          <label class="form-label" for="announcement-end">Fin (opcional)</label><input id="announcement-end"
+            type="datetime-local" class="form-control" [(ngModel)]="fechaFin" name="fechaFin" />
+        </div>
+      </div>
+      @if (invalidDates()) {
+      <p class="form-error">La fecha final no puede ser anterior al inicio.</p>
+      }
+      <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="form-label" for="announcement-order">Orden</label><input id="announcement-order" type="number"
+            min="0" step="1" class="form-control" [(ngModel)]="orden" name="orden" />
+        </div>
+        <label class="flex items-center gap-3 rounded-control border border-border bg-surface-soft p-4"><input
+            class="form-choice" type="checkbox" [checked]="activo()" (change)="setActive($event)" /><span><strong
+              class="block text-body-sm text-text-primary">Anuncio activo</strong><small
+              class="text-caption text-text-muted">Solo se publicará dentro de su vigencia.</small></span></label>
+      </div>
+    </fieldset>
+    @if (
+    submitted() &&
+    (!descripcionResumida().trim() ||
+    !contenidoDetallado().trim() ||
+    !destinoAccion().trim() ||
+    !textoBoton().trim())
+    ) {
+    <p class="form-error" role="alert">Completa todos los campos obligatorios.</p>
+    }
+  </form>
+  <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">Cancelar</app-button><app-button
+      [loading]="submitting()" (click)="submit()">{{
+      mode() === 'create' ? 'Crear anuncio' : 'Guardar cambios'
+      }}</app-button>
+  </div>
+</app-drawer>

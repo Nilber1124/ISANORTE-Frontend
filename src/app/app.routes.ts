@@ -115,6 +115,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/contact/admin-contact').then(({ AdminContact }) => AdminContact),
       },
+      {
+        path: 'anuncios',
+        loadComponent: () =>
+          import('./features/admin/announcements/admin-announcements').then(
+            ({ AdminAnnouncements }) => AdminAnnouncements,
+          ),
+        data: { title: 'Anuncios' },
+      },
     ],
   },
   {

@@ -5,10 +5,11 @@ import { Footer } from './footer/footer';
 import { Navbar } from './navbar/navbar';
 import { WhatsappFloat } from '../../shared/components/whatsapp-float/whatsapp-float';
 import { PublicSiteFacade } from './public-site.facade';
+import { AnnouncementRibbon } from '../../features/announcements/announcement-ribbon';
 
 @Component({
   selector: 'app-public-layout',
-  imports: [RouterOutlet, Navbar, Footer, WhatsappFloat],
+  imports: [RouterOutlet, Navbar, Footer, WhatsappFloat, AnnouncementRibbon],
   providers: [PublicSiteFacade],
   templateUrl: './public-layout.html',
   styleUrl: './public-layout.css',

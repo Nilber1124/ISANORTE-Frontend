@@ -20,6 +20,7 @@ servers:
   - url: http://localhost:8080
     description: Desarrollo local con el puerto predeterminado de Spring Boot
 tags:
+  - name: Anuncios
   - name: Administradores
   - name: Categorías
   - name: Configuración del sitio
@@ -1746,6 +1747,71 @@ paths:
         '401': {description: Requiere sesión de cliente}
         '404': {$ref: '#/components/responses/NotFound'}
 
+  /api/anuncios:
+    get:
+      tags: [Anuncios]
+      operationId: listarAnuncios
+      summary: Lista todos los anuncios para administracion
+      x-access-intent: ADMINISTRATIVO
+      responses:
+        '200': {description: Lista ordenada, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/AnuncioResponse'}}}}}
+    post:
+      tags: [Anuncios]
+      operationId: crearAnuncio
+      x-access-intent: ADMINISTRATIVO
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AnuncioRequest'}}}}
+      responses:
+        '201': {description: Anuncio creado, content: {application/json: {schema: {$ref: '#/components/schemas/AnuncioResponse'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /api/anuncios/{id}:
+    get:
+      tags: [Anuncios]
+      operationId: obtenerAnuncio
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      responses:
+        '200': {description: Anuncio encontrado, content: {application/json: {schema: {$ref: '#/components/schemas/AnuncioResponse'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Anuncios]
+      operationId: actualizarAnuncio
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AnuncioRequest'}}}}
+      responses:
+        '200': {description: Anuncio actualizado, content: {application/json: {schema: {$ref: '#/components/schemas/AnuncioResponse'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Anuncios]
+      operationId: eliminarAnuncio
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      responses:
+        '204': {description: Anuncio eliminado}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/anuncios/{id}/activo:
+    patch:
+      tags: [Anuncios]
+      operationId: cambiarEstadoAnuncio
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ActivoRequest'}}}}
+      responses:
+        '200': {description: Estado actualizado, content: {application/json: {schema: {$ref: '#/components/schemas/AnuncioResponse'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/publico/anuncios/{destino}:
+    get:
+      tags: [Anuncios]
+      operationId: listarAnunciosPublicos
+      summary: Lista anuncios activos y vigentes del sitio, incluidos los destinados a ambos
+      x-access-intent: PUBLICO
+      parameters:
+        - {name: destino, in: path, required: true, schema: {type: string, enum: [ISANORTE, ISADECOR]}}
+      responses:
+        '200': {description: Anuncios visibles ordenados, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/AnuncioResponse'}}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+
 components:
   securitySchemes:
     clienteBearer: {type: http, scheme: bearer, bearerFormat: JWT, description: Token emitido por POST /api/publico/cuenta/login o /registro}
@@ -1903,6 +1969,39 @@ components:
             type: array
             items: {$ref: '#/components/schemas/UnidadNegocioResponse'}
   schemas:
+    DestinoAnuncio:
+      type: string
+      enum: [ISANORTE, ISADECOR, AMBOS]
+    TipoAccionAnuncio:
+      type: string
+      enum: [RUTA_INTERNA, URL_EXTERNA, SECCION, PRODUCTO, CATEGORIA, PROYECTO, SERVICIO]
+    AnuncioRequest:
+      type: object
+      required: [titulo, descripcionResumida, contenidoDetallado, imagenUrl, etiqueta, destino, tipoAccion, destinoAccion, textoBoton, activo, orden]
+      properties:
+        titulo: {type: string, maxLength: 160}
+        descripcionResumida: {type: string, maxLength: 320}
+        contenidoDetallado: {type: string}
+        condiciones: {type: string, nullable: true}
+        imagenUrl: {type: string, maxLength: 500}
+        etiqueta: {type: string, maxLength: 60}
+        destino: {$ref: '#/components/schemas/DestinoAnuncio'}
+        tipoAccion: {$ref: '#/components/schemas/TipoAccionAnuncio'}
+        destinoAccion: {type: string, maxLength: 500}
+        textoBoton: {type: string, maxLength: 80}
+        fechaInicio: {type: string, format: date-time, nullable: true}
+        fechaFin: {type: string, format: date-time, nullable: true}
+        activo: {type: boolean}
+        orden: {type: integer, minimum: 0}
+    AnuncioResponse:
+      allOf:
+        - {$ref: '#/components/schemas/AnuncioRequest'}
+        - type: object
+          required: [id, fechaCreacion, fechaActualizacion]
+          properties:
+            id: {type: string, format: uuid}
+            fechaCreacion: {type: string, format: date-time}
+            fechaActualizacion: {type: string, format: date-time}
     ProductoRecomendadoResponse:
       type: object
       required: [nombre, slug, cantidadResenas]
