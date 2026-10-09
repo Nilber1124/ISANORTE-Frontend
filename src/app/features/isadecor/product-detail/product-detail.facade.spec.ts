@@ -82,6 +82,7 @@ class PublicApiStub {
   readonly recommendationCalls: unknown[][] = [];
   readonly reviewCalls: unknown[][] = [];
   readonly summaryCalls: unknown[][] = [];
+  readonly createReviewCalls: unknown[][] = [];
 
   getProductDetail(...args: unknown[]): Observable<PublicProductDetailResponse> {
     this.productCalls.push(args);
@@ -105,6 +106,20 @@ class PublicApiStub {
 
   markReviewUseful(): Observable<ProductReviewResponse> {
     return throwError(() => new Error('not configured'));
+  }
+
+  createProductReview(...args: unknown[]): Observable<ProductReviewResponse> {
+    this.createReviewCalls.push(args);
+    return of({
+      id: 'review-1',
+      nombreCliente: 'Ana Cliente',
+      calificacion: 5,
+      titulo: null,
+      comentario: 'Excelente acabado',
+      fechaCreacion: '2026-10-09T12:00:00',
+      compraVerificada: false,
+      cantidadUtil: 0,
+    });
   }
 
   compareProductPrice(...args: unknown[]): Observable<ProductPriceComparisonResponse> {
@@ -271,5 +286,24 @@ describe('ProductDetailFacade', () => {
 
     facade.load('wall-panel-roble');
     expect(publicApi.productCalls.length).toBe(1);
+  });
+
+  it('publishes once and refreshes the review list and summary after success', () => {
+    facade.load('wall-panel-roble');
+    const initialReviewCalls = publicApi.reviewCalls.length;
+    const initialSummaryCalls = publicApi.summaryCalls.length;
+
+    facade.submitReview({ calificacion: 5, titulo: null, comentario: 'Excelente acabado' });
+
+    expect(publicApi.createReviewCalls).toEqual([[
+      PUBLIC_SITE_KEY,
+      ISADECOR_UNIT_SLUG,
+      'wall-panel-roble',
+      { calificacion: 5, titulo: null, comentario: 'Excelente acabado' },
+    ]]);
+    expect(facade.reviewSubmitted()).toBe(true);
+    expect(facade.reviewSubmitting()).toBe(false);
+    expect(publicApi.reviewCalls.length).toBe(initialReviewCalls + 1);
+    expect(publicApi.summaryCalls.length).toBe(initialSummaryCalls + 1);
   });
 });

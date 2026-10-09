@@ -10,6 +10,7 @@ import { SeoRobots } from '../../../data/models/content/page-seo.model';
 import { ProductPriceComparisonResponse } from '../../../data/models/product/product-price-comparison-response.model';
 import { ProductCompetitorComparisonResponse } from '../../../data/models/product/product-competitor-comparison-response.model';
 import {
+  CreateProductReviewRequest,
   ProductReviewOrder,
   ProductReviewResponse,
   RecommendedProductResponse,
@@ -75,6 +76,10 @@ export class ProductDetailFacade {
   private readonly _communityError = signal<string | null>(null);
   private readonly _reviewOrder = signal<ProductReviewOrder>('RECIENTES');
   private readonly _reviewFilter = signal<number | null>(null);
+  private readonly _reviewSubmitting = signal(false);
+  private readonly _reviewSubmissionError = signal<string | null>(null);
+  private readonly _reviewSubmitted = signal(false);
+  private readonly _reviewAuthenticationRequired = signal(false);
 
   readonly product = this._product.asReadonly();
   readonly loading = this._loading.asReadonly();
@@ -87,6 +92,10 @@ export class ProductDetailFacade {
   readonly communityError = this._communityError.asReadonly();
   readonly reviewOrder = this._reviewOrder.asReadonly();
   readonly reviewFilter = this._reviewFilter.asReadonly();
+  readonly reviewSubmitting = this._reviewSubmitting.asReadonly();
+  readonly reviewSubmissionError = this._reviewSubmissionError.asReadonly();
+  readonly reviewSubmitted = this._reviewSubmitted.asReadonly();
+  readonly reviewAuthenticationRequired = this._reviewAuthenticationRequired.asReadonly();
   readonly visibleReviews = computed(() => {
     const rating = this._reviewFilter();
     return rating === null
@@ -241,6 +250,40 @@ export class ProductDetailFacade {
 
   toggleReviewFilter(rating: number): void {
     this._reviewFilter.update((current) => current === rating ? null : rating);
+  }
+
+  submitReview(request: CreateProductReviewRequest): void {
+    if (!this.currentSlug || this._reviewSubmitting()) return;
+    this._reviewSubmitting.set(true);
+    this._reviewSubmissionError.set(null);
+    this._reviewSubmitted.set(false);
+    this._reviewAuthenticationRequired.set(false);
+    this.publicApi.createProductReview(this.siteKey, this.unitSlug, this.currentSlug, request)
+      .pipe(takeUntil(this.detailCancelled), takeUntilDestroyed(this.destroyRef), finalize(() => this._reviewSubmitting.set(false)))
+      .subscribe({
+        next: () => {
+          this._reviewSubmitted.set(true);
+          this.loadReviews(this.currentSlug!, this.unitSlug);
+          this.publicApi.getProductReviewSummary(this.siteKey, this.unitSlug, this.currentSlug!)
+            .pipe(takeUntil(this.detailCancelled), takeUntilDestroyed(this.destroyRef))
+            .subscribe((summary) => this._reviewSummary.set(summary));
+        },
+        error: (error: unknown) => {
+          const status = error instanceof HttpErrorResponse ? error.status : 0;
+          if (status === 401 || status === 403) this._reviewAuthenticationRequired.set(true);
+          this._reviewSubmissionError.set(status === 401 || status === 403
+            ? 'Tu sesión venció. Inicia sesión nuevamente para conservar y publicar tu opinión.'
+            : status === 409 ? 'Ya publicaste una reseña para este producto.'
+              : status === 400 ? 'Revisa la calificación y el comentario.'
+                : 'No pudimos publicar tu reseña. Inténtalo nuevamente.');
+        },
+      });
+  }
+
+  clearReviewSubmissionState(): void {
+    this._reviewSubmissionError.set(null);
+    this._reviewSubmitted.set(false);
+    this._reviewAuthenticationRequired.set(false);
   }
 
   markReviewUseful(reviewId: string): void {

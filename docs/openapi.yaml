@@ -1657,8 +1657,8 @@ paths:
     post:
       tags: [Público]
       operationId: crearResenaProducto
-      x-access-intent: CLIENTE_AUTENTICADO_PENDIENTE
-      description: Preparado para tokens de cliente; no acepta identidad manual ni tokens administrativos.
+      x-access-intent: CLIENTE_AUTENTICADO
+      description: Requiere un token con rol CLIENTE. La cuenta se resuelve desde el sub del JWT; no acepta identidad en el body ni tokens administrativos.
       parameters:
         - {name: clave, in: path, required: true, schema: {type: string}}
         - {name: unidadSlug, in: path, required: true, schema: {type: string}}

@@ -98,6 +98,7 @@ export class PublicContentApiService {
     return this.http.post<ProductReviewResponse>(
       `${this.productResourceUrl(siteKey, unitSlug, productSlug)}/resenas`,
       request,
+      { context: conSesionCliente() },
     );
   }
 

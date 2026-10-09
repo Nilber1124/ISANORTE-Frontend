@@ -307,6 +307,20 @@ describe('PublicContentApiService', () => {
     request.flush(response);
   });
 
+  it('posts a product review with the client-session context and no client id in the body', () => {
+    const body = { calificacion: 5, titulo: null, comentario: 'Excelente acabado' };
+    api.createProductReview('isanorte', 'isadecor', 'panel-roble', body).subscribe();
+
+    const request = http.expectOne(
+      'https://backend.example/api/publico/sitios/isanorte/unidades/isadecor/productos/panel-roble/resenas',
+    );
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(body);
+    expect(request.request.body.clienteId).toBeUndefined();
+    expect(request.request.context.get(REQUIERE_SESION_CLIENTE)).toBe(true);
+    request.flush({});
+  });
+
   it('uses the canonical public quote path, encodes parameters, posts the payload and returns the confirmation', () => {
     const quoteRequest: PublicQuoteRequest = {
       nombreCliente: 'Carlos',

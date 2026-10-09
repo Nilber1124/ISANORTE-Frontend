@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter, RouterLink } from '@angular/router';
 import { By, Meta, Title } from '@angular/platform-browser';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -35,6 +36,7 @@ describe('ProductDetail integration', () => {
     };
     TestBed.configureTestingModule({
       providers: [
+        provideHttpClient(),
         provideRouter([{ path: 'isadecor/productos/:slug', component: ProductDetail }]),
         {
           provide: PublicContentApiService,
@@ -92,6 +94,7 @@ describe('ProductDetail integration', () => {
     };
     TestBed.configureTestingModule({
       providers: [
+        provideHttpClient(),
         provideRouter([{ path: 'isadecor/productos/:slug', component: ProductDetail }]),
         {
           provide: PublicContentApiService,
@@ -161,6 +164,7 @@ describe('ProductDetail integration', () => {
     };
     TestBed.configureTestingModule({
       providers: [
+        provideHttpClient(),
         provideRouter([{ path: 'isadecor/productos/:slug', component: ProductDetail }]),
         {
           provide: PublicContentApiService,

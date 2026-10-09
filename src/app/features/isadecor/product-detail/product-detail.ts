@@ -1,7 +1,8 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { DOCUMENT, DatePipe, DecimalPipe, isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, Component, PLATFORM_ID, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ClienteAuthService } from '../../../core/auth/cliente-auth.service';
 
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { ProductDocumentType } from '../../../data/models/product/product-document-type.enum';
@@ -15,6 +16,8 @@ import { Badge, BadgeVariant } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../shared/components/loading/loading';
+import { Modal } from '../../../shared/components/modal/modal';
+import { ClienteAuthForm } from '../cuenta/components/cliente-auth-form/cliente-auth-form';
 import { ProductGallery } from './components/product-gallery/product-gallery';
 import { ProductInfo } from './components/product-info/product-info';
 import { ProductCompetitorComparison } from './components/product-competitor-comparison/product-competitor-comparison';
@@ -35,6 +38,8 @@ interface VariantAvailabilityPresentation {
     DecimalPipe,
     EmptyState,
     Loading,
+    Modal,
+    ClienteAuthForm,
     ProductGallery,
     ProductInfo,
     ProductCompetitorComparison,
@@ -54,10 +59,17 @@ export class ProductDetail {
   readonly selectedVariant = signal<PublicProductVariantResponse | null>(null);
   readonly cartFeedback = signal<string | null>(null);
   readonly activeTab = signal<'descripcion' | 'especificaciones' | 'recursos'>('descripcion');
-  readonly loginNotice = signal<string | null>(null);
+  readonly auth = inject(ClienteAuthService);
+  readonly authModalOpen = signal(false);
+  readonly reviewFormOpen = signal(false);
+  readonly reviewRating = signal(0);
+  readonly reviewTitle = signal('');
+  readonly reviewComment = signal('');
   readonly failedRecommendationImages = signal<ReadonlySet<string>>(new Set());
   readonly stars = [1, 2, 3, 4, 5] as const;
   private readonly route = inject(ActivatedRoute);
+  private readonly document = inject(DOCUMENT);
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
@@ -65,9 +77,24 @@ export class ProductDetail {
       this.cartQuantity.set(1);
       this.selectedVariant.set(null);
       this.cartFeedback.set(null);
-      this.loginNotice.set(null);
+      this.authModalOpen.set(false);
+      this.reviewFormOpen.set(false);
+      this.reviewRating.set(0);
+      this.reviewTitle.set('');
+      this.reviewComment.set('');
+      this.facade.clearReviewSubmissionState();
       this.failedRecommendationImages.set(new Set());
       this.facade.load(params.get('slug') ?? '');
+    });
+    effect(() => {
+      if (this.facade.reviewAuthenticationRequired()) this.authModalOpen.set(true);
+    });
+    effect(() => {
+      if (!this.facade.reviewSubmitted()) return;
+      this.reviewFormOpen.set(false);
+      this.reviewRating.set(0);
+      this.reviewTitle.set('');
+      this.reviewComment.set('');
     });
   }
 
@@ -159,10 +186,32 @@ export class ProductDetail {
     this.failedRecommendationImages.update((current) => new Set([...current, slug]));
   }
 
-  protected showClientLoginNotice(): void {
-    this.loginNotice.set(
-      'El inicio de sesión para clientes estará disponible cuando se complete ese módulo.',
-    );
+  protected startReview(rating?: number): void {
+    if (rating) this.reviewRating.set(rating);
+    this.facade.clearReviewSubmissionState();
+    if (!this.auth.token()) { this.authModalOpen.set(true); return; }
+    this.reviewFormOpen.set(true);
+    this.scrollToReviews();
+  }
+
+  protected authenticationCompleted(): void {
+    this.authModalOpen.set(false);
+    this.reviewFormOpen.set(true);
+    this.facade.clearReviewSubmissionState();
+    this.scrollToReviews();
+  }
+
+  protected submitReview(event: Event): void {
+    event.preventDefault();
+    if (this.reviewRating() < 1 || this.reviewRating() > 5 || !this.reviewComment().trim()) return;
+    this.facade.submitReview({ calificacion: this.reviewRating(), titulo: this.reviewTitle().trim() || null, comentario: this.reviewComment().trim() });
+  }
+
+  protected textValue(event: Event): string { return (event.target as HTMLInputElement | HTMLTextAreaElement).value; }
+
+  private scrollToReviews(): void {
+    if (!this.browser) return;
+    requestAnimationFrame(() => this.document.getElementById('product-review-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
   }
 
   private formatFileSize(bytes: number): string {
