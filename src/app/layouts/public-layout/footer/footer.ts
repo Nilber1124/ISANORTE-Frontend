@@ -20,15 +20,7 @@ export class Footer {
   readonly direccionIsanorte = computed(() =>
     [this.facade.address(), this.facade.city()].filter((value) => value !== null).join(', '),
   );
-  readonly mapEmbedUrlIsanorte = computed(() =>
-    this.googleMapsUrl(this.direccionIsanorte(), true),
-  );
-  readonly mapUrlIsanorte = computed(() => this.googleMapsUrl(this.direccionIsanorte(), false));
-
-  private googleMapsUrl(direccion: string, embed: boolean): string {
-    const query = encodeURIComponent(direccion);
-    return embed
-      ? `https://www.google.com/maps?q=${query}&output=embed`
-      : `https://www.google.com/maps/search/?api=1&query=${query}`;
-  }
+  readonly mapEmbedUrlIsanorte =
+    'https://www.google.com/maps?q=-7.1462778,-78.5206944&output=embed';
+  readonly mapUrlIsanorte = 'https://www.google.com/maps?q=-7.1462778,-78.5206944';
 }

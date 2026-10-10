@@ -39,6 +39,12 @@ describe('Isadecor Footer', () => {
     expect(footer.querySelector('a[href="tel:+593 98 765 4321"]')).toBeTruthy();
     expect(footer.textContent).toContain('Av. República del Salvador 100');
     expect(footer.textContent).toContain('Quito');
+    expect(footer.querySelector('iframe')?.getAttribute('src')).toBe(
+      'https://www.google.com/maps?q=-7.1462778,-78.5206944&output=embed',
+    );
+    expect(
+      footer.querySelector('a[href="https://www.google.com/maps?q=-7.1462778,-78.5206944"]'),
+    ).toBeTruthy();
     expect(footer.textContent).not.toContain('hola@isanorte.com');
   });
 

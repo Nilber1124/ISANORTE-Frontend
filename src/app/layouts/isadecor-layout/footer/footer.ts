@@ -39,15 +39,7 @@ export class Footer {
   readonly direccionIsadecor = computed(() =>
     [this.facade.address(), this.facade.city()].filter((value) => value !== null).join(', '),
   );
-  readonly mapEmbedUrlIsadecor = computed(() =>
-    this.googleMapsUrl(this.direccionIsadecor(), true),
-  );
-  readonly mapUrlIsadecor = computed(() => this.googleMapsUrl(this.direccionIsadecor(), false));
-
-  private googleMapsUrl(direccion: string, embed: boolean): string {
-    const query = encodeURIComponent(direccion);
-    return embed
-      ? `https://www.google.com/maps?q=${query}&output=embed`
-      : `https://www.google.com/maps/search/?api=1&query=${query}`;
-  }
+  readonly mapEmbedUrlIsadecor =
+    'https://www.google.com/maps?q=-7.1462778,-78.5206944&output=embed';
+  readonly mapUrlIsadecor = 'https://www.google.com/maps?q=-7.1462778,-78.5206944';
 }
