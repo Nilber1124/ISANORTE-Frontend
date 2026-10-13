@@ -63,7 +63,16 @@ export class ProjectForm implements OnInit {
   readonly activo = signal(true);
   readonly servicioIds = signal<readonly string[]>([]);
   readonly submitted = signal(false);
+  readonly slugLocked = signal(false);
+
   readonly errors = computed<ProjectFormErrors>(() => this.validationErrors());
+
+  readonly imagenAltWarning = computed<string | null>(() => {
+    if (!this.submitted()) return null;
+    return this.imagenUrl().trim() && !this.imagenAlt().trim()
+      ? 'Recomendado para SEO y accesibilidad.'
+      : null;
+  });
 
   ngOnInit(): void {
     const project = this.project();
@@ -81,6 +90,7 @@ export class ProjectForm implements OnInit {
     this.destacado.set(project.destacado === true);
     this.activo.set(project.activo === true);
     this.servicioIds.set(project.servicios?.map((service) => service.id) ?? []);
+    this.slugLocked.set(true);
   }
 
   protected submit(): void {
@@ -111,7 +121,13 @@ export class ProjectForm implements OnInit {
 
   protected updateNombre(value: string): void {
     this.nombre.set(value);
-    this.slug.set(slugify(value));
+    if (!this.slugLocked()) {
+      this.slug.set(slugify(value));
+    }
+  }
+
+  protected unlockSlug(): void {
+    this.slugLocked.set(false);
   }
 
   protected generateSlug(): void {
@@ -122,18 +138,29 @@ export class ProjectForm implements OnInit {
   protected updateImageUrl(value: string): void {
     this.imagenUrl.set(value);
     this.previewFailed.set(false);
+    if (value.trim() && !this.imagenAlt().trim()) {
+      this.imagenAlt.set(this.nombre().trim());
+    }
+  }
+
+  protected clearImageUrl(): void {
+    this.imagenUrl.set('');
+    this.previewFailed.set(false);
   }
 
   protected markPreviewFailed(): void {
     this.previewFailed.set(true);
   }
 
-  protected updateFeatured(event: Event): void {
-    this.destacado.set((event.target as HTMLInputElement).checked);
+  protected toggleFeatured(): void {
+    this.destacado.update((v) => !v);
   }
 
-  protected updateActive(event: Event): void {
-    this.activo.set((event.target as HTMLInputElement).checked);
+  protected toggleActive(): void {
+    this.activo.update((v) => !v);
+    if (!this.activo()) {
+      this.destacado.set(false);
+    }
   }
 
   protected updateService(serviceId: string, event: Event): void {

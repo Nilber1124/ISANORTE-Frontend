@@ -32,6 +32,31 @@
     }
   </div>
 
+  @if (hasNoFeaturedActive()) {
+    <div
+      class="mb-4 flex items-start gap-3 rounded-card border border-amber-200 bg-amber-50 p-3.5 dark:border-amber-800/60 dark:bg-amber-950/30"
+      role="alert"
+    >
+      <svg
+        class="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+        />
+      </svg>
+      <p class="text-caption text-amber-700 dark:text-amber-300">
+        <span class="font-medium">Ningún servicio se muestra en la portada.</span>
+        Activa al menos un servicio y marca la opción "Mostrar en la página de inicio".
+      </p>
+    </div>
+  }
+
   @if (facade.loading()) {
     <div class="rounded-card border border-border bg-surface py-14">
       <app-loading label="Cargando servicios" size="large" />

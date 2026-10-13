@@ -39,6 +39,12 @@ export class ServiceApiService {
     return this.http.get<ServiceResponse>(`${this.resourceUrl}/slug/${encodeURIComponent(slug)}`);
   }
 
+  checkSlugAvailable(slug: string, excludeId?: string): Observable<{ available: boolean }> {
+    const params: Record<string, string> = { slug };
+    if (excludeId) params['excludeId'] = excludeId;
+    return this.http.get<{ available: boolean }>(`${this.resourceUrl}/slug-disponible`, { params });
+  }
+
   create(request: ServiceCreateRequest): Observable<ServiceResponse> {
     return this.http.post<ServiceResponse>(this.resourceUrl, request);
   }

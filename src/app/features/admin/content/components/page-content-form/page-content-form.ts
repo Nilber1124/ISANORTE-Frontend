@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, input, output, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import {
@@ -12,11 +12,12 @@ import { Button } from '../../../../../shared/components/button/button';
 import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { Drawer } from '../../../../../shared/components/drawer/drawer';
+import { SelectField, SelectOption } from '../../../../../shared/components/select-field/select-field';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 
 @Component({
   selector: 'app-page-content-form',
-  imports: [Button, Drawer, InputField, TextareaField, ImageUploaderComponent, FormsModule],
+  imports: [Button, Drawer, InputField, SelectField, TextareaField, ImageUploaderComponent, FormsModule],
   templateUrl: './page-content-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -28,6 +29,30 @@ export class PageContentForm implements OnInit {
   readonly saved = output<PageContentRequest | PageContentUpdateRequest>();
 
   readonly pageTypes = Object.values(PublicPageType);
+
+  readonly pageOptions: SelectOption[] = [
+    { value: PublicPageType.NOSOTROS, label: 'Nosotros' },
+    { value: PublicPageType.SERVICIOS, label: 'Servicios' },
+    { value: PublicPageType.PROYECTOS, label: 'Proyectos' },
+    { value: PublicPageType.CONTACTO, label: 'Contacto' },
+  ];
+
+  readonly siteOptions = computed<SelectOption[]>(() =>
+    this.configurations().map((c) => ({
+      value: c.id,
+      label: c.clave || c.tituloSitio || c.id,
+    })),
+  );
+
+  readonly paginaLabel = computed(() => {
+    const labels: Record<string, string> = {
+      NOSOTROS: 'Nosotros',
+      SERVICIOS: 'Servicios',
+      PROYECTOS: 'Proyectos',
+      CONTACTO: 'Contacto',
+    };
+    return labels[this.pagina()] ?? this.pagina();
+  });
   readonly configuracionSitioId = signal('');
   readonly pagina = signal<PublicPageType>(PublicPageType.NOSOTROS);
   readonly eyebrow = signal('');
@@ -88,11 +113,11 @@ export class PageContentForm implements OnInit {
     [next[index], next[target]] = [next[target], next[index]];
     this.tags.set(next);
   }
-  protected updateActive(event: Event): void {
-    this.activo.set((event.target as HTMLInputElement).checked);
+  protected toggleActive(): void {
+    this.activo.update((v) => !v);
   }
-  protected updatePage(event: Event): void {
-    this.pagina.set((event.target as HTMLSelectElement).value as PublicPageType);
+  protected updatePage(value: string): void {
+    this.pagina.set(value as PublicPageType);
   }
   protected submit(): void {
     const editable: PageContentUpdateRequest = {

@@ -1,7 +1,15 @@
-import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 
 import { ServiceResponse } from '../../../data/models/service/service-response.model';
 import { Alert } from '../../../shared/components/alert/alert';
+// Badge import retained for status indicators
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
@@ -26,6 +34,13 @@ import {
 export class AdminServices {
   readonly facade = inject(AdminServicesFacade);
   readonly serviceToDeactivate = signal<ServiceResponse | null>(null);
+
+  readonly hasNoFeaturedActive = computed(
+    () =>
+      !this.facade.loading() &&
+      this.facade.services().length > 0 &&
+      !this.facade.services().some((s) => s.activo === true && s.destacado === true),
+  );
 
   constructor() {
     afterNextRender(() => this.facade.load());

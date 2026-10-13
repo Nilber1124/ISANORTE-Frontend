@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, afterNextRender, computed, inject, signal } from '@angular/core';
 
 import { ProjectResponse } from '../../../data/models/project/project-response.model';
 import { Alert } from '../../../shared/components/alert/alert';
@@ -22,6 +22,24 @@ import { ProjectForm, ProjectFormSubmission } from './components/project-form/pr
 export class AdminProjects {
   readonly facade = inject(AdminProjectsFacade);
   readonly projectToDeactivate = signal<ProjectResponse | null>(null);
+  readonly projectToDelete = signal<ProjectResponse | null>(null);
+  readonly activeFilter = signal<'all' | 'active' | 'inactive'>('all');
+
+  readonly filteredProjects = computed(() => {
+    const f = this.activeFilter();
+    const all = this.facade.projects();
+    if (f === 'active') return all.filter((p) => p.activo === true);
+    if (f === 'inactive') return all.filter((p) => p.activo !== true);
+    return all;
+  });
+
+  readonly summaryText = computed(() => {
+    const all = this.facade.projects();
+    if (all.length === 0) return '';
+    const total = all.length;
+    const active = all.filter((p) => p.activo === true).length;
+    return `${total} ${total === 1 ? 'proyecto' : 'proyectos'} · ${active} ${active === 1 ? 'activo' : 'activos'}`;
+  });
 
   constructor() {
     afterNextRender(() => this.facade.load());
@@ -53,6 +71,26 @@ export class AdminProjects {
   protected closeDeactivation(): void {
     if (this.facade.changingActiveId() !== null) return;
     this.projectToDeactivate.set(null);
+  }
+
+  protected toggleDestacado(project: ProjectResponse): void {
+    this.facade.toggleDestacado(project);
+  }
+
+  protected requestDelete(project: ProjectResponse): void {
+    this.projectToDelete.set(project);
+  }
+
+  protected confirmDelete(): void {
+    const project = this.projectToDelete();
+    if (project === null) return;
+    this.facade.delete(project);
+    this.projectToDelete.set(null);
+  }
+
+  protected closeDelete(): void {
+    if (this.facade.deletingId() !== null) return;
+    this.projectToDelete.set(null);
   }
 
   protected serviceNames(project: ProjectResponse): string {

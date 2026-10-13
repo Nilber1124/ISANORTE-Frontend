@@ -86,6 +86,20 @@ export class AdminAnnouncements {
     return 'neutral';
   }
 
+  protected destinationLabel(destination: string): string {
+    const labels: Record<string, string> = {
+      ISANORTE: 'ISANORTE',
+      ISADECOR: 'ISADECOR',
+      AMBOS: 'Ambos sitios',
+    };
+    return labels[destination] ?? destination;
+  }
+
+  protected formatPeriodDate(dateStr: string | null, fallback: string): string {
+    if (!dateStr) return fallback;
+    return dateStr.slice(0, 16).replace('T', ' ');
+  }
+
   protected confirmDelete(): void {
     const announcement = this.pendingDelete();
     if (!announcement) return;

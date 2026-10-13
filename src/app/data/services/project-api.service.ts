@@ -49,4 +49,8 @@ export class ProjectApiService {
       request,
     );
   }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.resourceUrl}/${encodeURIComponent(id)}`);
+  }
 }

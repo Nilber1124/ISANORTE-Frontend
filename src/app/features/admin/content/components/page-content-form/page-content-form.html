@@ -1,115 +1,258 @@
 <app-drawer
   drawerId="page-content-form-drawer"
   [title]="content() ? 'Editar contenido' : 'Nuevo contenido'"
-  description="La página y el sitio forman su identidad y no cambian después de crear."
+  [description]="
+    content()
+      ? 'Actualiza los textos e imágenes que aparecen en la página seleccionada.'
+      : 'Define los textos e imágenes para una página del sitio. La página y el sitio no se pueden cambiar después.'
+  "
   [open]="true"
   [loading]="saving()"
   (closed)="closed.emit()"
 >
-  <form class="grid gap-5 sm:grid-cols-2" (submit)="submit(); $event.preventDefault()">
-    <label class="form-label"
-      >Sitio<select
-        class="form-control mt-2"
-        [value]="configuracionSitioId()"
-        [disabled]="!!content() || saving()"
-        (change)="configuracionSitioId.set($any($event.target).value)"
-      >
-        @for (config of configurations(); track config.id) {
-          <option [value]="config.id">{{ config.clave || config.tituloSitio || config.id }}</option>
+  <form class="space-y-5" (submit)="submit(); $event.preventDefault()" novalidate>
+
+    <!-- 1. Identificación -->
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">1. Identificación</h4>
+        <p class="text-caption text-text-muted">Sitio y página a la que pertenece este contenido.</p>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        @if (!content()) {
+          <app-select-field
+            inputId="content-site"
+            label="Sitio"
+            [options]="siteOptions()"
+            [value]="configuracionSitioId()"
+            (valueChange)="configuracionSitioId.set($event)"
+            [disabled]="saving()"
+          />
+          <app-select-field
+            inputId="content-page"
+            label="Página"
+            [options]="pageOptions"
+            [value]="pagina()"
+            (valueChange)="updatePage($event)"
+            [disabled]="saving()"
+          />
+        } @else {
+          <div class="flex flex-col gap-1.5">
+            <span class="form-label">Página</span>
+            <div class="rounded-card border border-border bg-surface-soft px-3.5 py-2.5">
+              <span class="text-body-sm font-semibold text-text-primary">{{ paginaLabel() }}</span>
+            </div>
+            <p class="text-caption text-text-muted">No se puede cambiar después de crear.</p>
+          </div>
         }
-      </select></label
-    >
-    <label class="form-label"
-      >Página<select
-        class="form-control mt-2"
-        [value]="pagina()"
-        [disabled]="!!content() || saving()"
-        (change)="updatePage($event)"
-      >
-        @for (type of pageTypes; track type) {
-          <option [value]="type">{{ type }}</option>
-        }
-      </select></label
-    >
-    <app-input-field inputId="content-eyebrow" label="Eyebrow" [(value)]="eyebrow" />
-    <app-input-field inputId="content-title" label="Título" [(value)]="titulo" />
-    <app-textarea-field
-      class="sm:col-span-2"
-      inputId="content-introduction"
-      label="Introducción"
-      [(value)]="introduccion"
-      [rows]="3"
-    />
-    <app-textarea-field
-      class="sm:col-span-2"
-      inputId="content-description"
-      label="Descripción"
-      [(value)]="descripcion"
-      [rows]="5"
-    />
-    <div class="flex flex-col gap-1.5">
-      <span class="text-caption font-semibold text-text-primary">Imagen URL</span>
-      <app-image-uploader [ngModel]="imagenUrl()" (ngModelChange)="imagenUrl.set($event)" name="content-image" folder="isanorte/content" />
-    </div>
-    <app-input-field inputId="content-image-alt" label="Texto alternativo" [(value)]="imagenAlt" />
-    <div class="sm:col-span-2 flex flex-col gap-1.5">
-      <span class="text-caption font-semibold text-text-primary">Imagen de fondo URL</span>
-      <app-image-uploader [ngModel]="imagenFondoUrl()" (ngModelChange)="imagenFondoUrl.set($event)" name="content-background" folder="isanorte/content" />
-    </div>
-    <section class="sm:col-span-2 rounded-card border border-border p-4">
-      <h3 class="text-body-sm font-semibold">Tags ordenados</h3>
-      <div class="mt-3 flex gap-2">
+      </div>
+    </fieldset>
+
+    <!-- 2. Textos -->
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">2. Textos</h4>
+        <p class="text-caption text-text-muted">Eyebrow, título e introducción que aparecen en el encabezado de la página.</p>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <app-input-field
+          inputId="content-eyebrow"
+          label="Eyebrow"
+          [(value)]="eyebrow"
+          placeholder="Ej: QUIÉNES SOMOS"
+          helperText="Texto pequeño en mayúsculas sobre el título principal."
+          [disabled]="saving()"
+        />
+
+        <app-input-field
+          inputId="content-title"
+          label="Título"
+          [(value)]="titulo"
+          placeholder="Ej: Más de 20 años construyendo confianza"
+          [disabled]="saving()"
+        />
+
+        <app-textarea-field
+          class="sm:col-span-2"
+          inputId="content-introduction"
+          label="Introducción"
+          [(value)]="introduccion"
+          placeholder="Párrafo corto que complementa el título…"
+          [rows]="2"
+          [disabled]="saving()"
+        />
+
+        <app-textarea-field
+          class="sm:col-span-2"
+          inputId="content-description"
+          label="Descripción"
+          [(value)]="descripcion"
+          placeholder="Texto más extenso que aparece en el cuerpo de la página…"
+          [rows]="4"
+          [disabled]="saving()"
+        />
+      </div>
+    </fieldset>
+
+    <!-- 3. Imágenes -->
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">3. Imágenes</h4>
+        <p class="text-caption text-text-muted">Imagen principal y de fondo del encabezado de la página.</p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <label class="form-label mb-0">Imagen principal</label>
+          <p class="text-caption text-text-muted">
+            JPG, WebP o PNG, horizontal (16:9), mínimo 1200 px. Máx. 5 MB.
+          </p>
+          <app-image-uploader
+            [ngModel]="imagenUrl()"
+            (ngModelChange)="imagenUrl.set($event)"
+            name="content-image"
+            folder="isanorte/content"
+            [showHint]="false"
+          />
+        </div>
+
+        <app-input-field
+          inputId="content-image-alt"
+          label="Texto alternativo"
+          [(value)]="imagenAlt"
+          placeholder="Ej: Equipo ISANORTE en obra de losa"
+          helperText="Describe la imagen. Mejora accesibilidad y SEO."
+          [disabled]="saving()"
+        />
+
+        <div class="space-y-2">
+          <label class="form-label mb-0">Imagen de fondo</label>
+          <p class="text-caption text-text-muted">
+            Opcional. Se usa como fondo decorativo del encabezado. Mismas especificaciones.
+          </p>
+          <app-image-uploader
+            [ngModel]="imagenFondoUrl()"
+            (ngModelChange)="imagenFondoUrl.set($event)"
+            name="content-background"
+            folder="isanorte/content"
+            [showHint]="false"
+          />
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 4. Tags -->
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">4. Tags</h4>
+        <p class="text-caption text-text-muted">Palabras clave opcionales. Se usan principalmente en la página Nosotros.</p>
+      </div>
+
+      <div class="flex gap-2">
         <app-input-field
           class="flex-1"
           inputId="content-tag"
           label="Nuevo tag"
           [(value)]="tagDraft"
-        /><app-button class="self-end" variant="secondary" type="button" (click)="addTag()">{{
-          editingTagIndex() === null ? 'Agregar' : 'Guardar tag'
-        }}</app-button>
+          placeholder="Ej: Experiencia, Compromiso"
+          [disabled]="saving()"
+        />
+        <app-button
+          class="self-end"
+          variant="secondary"
+          type="button"
+          [disabled]="!tagDraft().trim() || saving()"
+          (click)="addTag()"
+        >
+          {{ editingTagIndex() === null ? 'Agregar' : 'Guardar' }}
+        </app-button>
       </div>
-      <div class="mt-3 space-y-2">
-        @for (tag of tags(); track $index) {
-          <div class="flex items-center gap-2 rounded-control bg-surface-soft px-3 py-2">
-            <span class="flex-1 text-body-sm">{{ tag }}</span
-            ><app-button size="small" variant="ghost" type="button" (click)="editTag($index)"
-              >Editar</app-button
-            ><app-button
-              size="small"
-              variant="ghost"
-              type="button"
-              [disabled]="$first"
-              (click)="moveTag($index, -1)"
-              >Subir</app-button
-            ><app-button
-              size="small"
-              variant="ghost"
-              type="button"
-              [disabled]="$last"
-              (click)="moveTag($index, 1)"
-              >Bajar</app-button
-            ><app-button size="small" variant="ghost" type="button" (click)="removeTag($index)"
-              >Quitar</app-button
+
+      @if (tags().length > 0) {
+        <div class="space-y-2" role="list" aria-label="Tags agregados">
+          @for (tag of tags(); track $index) {
+            <div
+              class="flex items-center gap-2 rounded-card border border-border bg-surface-soft px-3.5 py-2.5 transition-colors"
+              role="listitem"
             >
-          </div>
-        } @empty {
-          <p class="text-body-sm text-text-muted">
-            Sin tags. Son opcionales y se usan principalmente en Nosotros.
-          </p>
-        }
+              <span class="flex-1 text-body-sm text-text-primary">{{ tag }}</span>
+              <app-button size="small" variant="ghost" type="button" (click)="editTag($index)">
+                Editar
+              </app-button>
+              <app-button
+                size="small"
+                variant="ghost"
+                type="button"
+                [disabled]="$first"
+                (click)="moveTag($index, -1)"
+                aria-label="Subir tag"
+              >
+                ↑
+              </app-button>
+              <app-button
+                size="small"
+                variant="ghost"
+                type="button"
+                [disabled]="$last"
+                (click)="moveTag($index, 1)"
+                aria-label="Bajar tag"
+              >
+                ↓
+              </app-button>
+              <app-button size="small" variant="ghost" type="button" (click)="removeTag($index)">
+                Quitar
+              </app-button>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-caption text-text-muted">Sin tags aún.</p>
+      }
+    </fieldset>
+
+    <!-- 5. Publicación -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 shadow-xs">
+      <div class="border-b border-border pb-2 mb-4">
+        <h4 class="text-body-sm font-semibold text-text-primary">5. Publicación</h4>
+        <p class="text-caption text-text-muted">Controla si este contenido se aplica a la página.</p>
       </div>
-    </section>
-    <label class="sm:col-span-2 flex items-center gap-3 text-body-sm"
-      ><input
-        class="form-choice"
-        type="checkbox"
-        [checked]="activo()"
-        (change)="updateActive($event)"
-      />Contenido activo</label
-    >
+
+      <div class="flex items-start gap-4 rounded-card border border-border bg-surface-soft p-3.5">
+        <button
+          type="button"
+          role="switch"
+          [attr.aria-checked]="activo()"
+          [attr.aria-disabled]="saving() ? true : null"
+          class="relative mt-0.5 inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:pointer-events-none"
+          [class.bg-accent]="activo()"
+          [class.bg-border]="!activo()"
+          [disabled]="saving()"
+          (click)="toggleActive()"
+        >
+          <span
+            class="inline-block size-4 transform rounded-full bg-white shadow-sm transition-transform duration-200"
+            [class.translate-x-6]="activo()"
+            [class.translate-x-1]="!activo()"
+          ></span>
+        </button>
+        <div>
+          <p class="text-body-sm font-medium text-text-primary">Contenido activo</p>
+          <p class="text-caption text-text-muted">
+            Si está activo, la web pública usará estos textos en la página seleccionada.
+          </p>
+        </div>
+      </div>
+    </fieldset>
   </form>
-  <div drawer-actions class="flex w-full justify-end gap-3">
-    <app-button variant="secondary" (click)="closed.emit()">Cancelar</app-button>
-    <app-button [loading]="saving()" (click)="submit()">Guardar</app-button>
+
+  <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button variant="secondary" [disabled]="saving()" (click)="closed.emit()">
+      Cancelar
+    </app-button>
+    <app-button variant="primary" [loading]="saving()" (click)="submit()">
+      {{ content() ? 'Guardar cambios' : 'Crear contenido' }}
+    </app-button>
   </div>
 </app-drawer>

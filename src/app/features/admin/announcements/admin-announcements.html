@@ -2,75 +2,143 @@
   <div class="max-w-3xl">
     <p class="text-eyebrow uppercase text-text-muted">Tienda ISADECOR</p>
     <h1 class="mt-3 text-heading-1 text-text-primary">Contenido del Home ISADECOR</h1>
-    <p class="mt-3 text-body text-text-secondary">Publica y organiza la cinta, promociones, anuncios, productos destacados y categorías superiores.</p>
+    <p class="mt-3 text-body text-text-secondary">Publica y organiza la cinta, promociones, anuncios, productos
+      destacados y categorías superiores.</p>
   </div>
-  @if (activeTab() !== 'products') { <app-button variant="primary" (click)="facade.openCreate()">Crear contenido</app-button> }
+  @if (activeTab() !== 'products') { <app-button variant="primary" (click)="facade.openCreate()">Crear
+    contenido</app-button> }
 </header>
 
 <nav class="mt-7 overflow-x-auto border-b border-border" aria-label="Secciones del Home ISADECOR">
   <div class="flex min-w-max gap-1">
-    <button class="home-tab" [class.home-tab--active]="activeTab() === 'ribbon'" type="button" (click)="activeTab.set('ribbon')">Cinta de anuncios</button>
-    <button class="home-tab" [class.home-tab--active]="activeTab() === 'promotions'" type="button" (click)="activeTab.set('promotions')">Promociones</button>
-    <button class="home-tab" [class.home-tab--active]="activeTab() === 'announcements'" type="button" (click)="activeTab.set('announcements')">Anuncios</button>
-    <button class="home-tab" [class.home-tab--active]="activeTab() === 'products'" type="button" (click)="activeTab.set('products')">Productos destacados</button>
-    <button class="home-tab" [class.home-tab--active]="activeTab() === 'categories'" type="button" (click)="activeTab.set('categories')">Categorías superiores</button>
+    <button class="home-tab" [class.home-tab--active]="activeTab() === 'ribbon'" type="button"
+      (click)="activeTab.set('ribbon')">Cinta de anuncios</button>
+    <button class="home-tab" [class.home-tab--active]="activeTab() === 'promotions'" type="button"
+      (click)="activeTab.set('promotions')">Promociones</button>
+    <button class="home-tab" [class.home-tab--active]="activeTab() === 'announcements'" type="button"
+      (click)="activeTab.set('announcements')">Anuncios</button>
+    <button class="home-tab" [class.home-tab--active]="activeTab() === 'products'" type="button"
+      (click)="activeTab.set('products')">Productos destacados</button>
+    <button class="home-tab" [class.home-tab--active]="activeTab() === 'categories'" type="button"
+      (click)="activeTab.set('categories')">Categorías superiores</button>
   </div>
 </nav>
 
 @if (facade.error() && !facade.formOpen()) {
-  <app-alert class="mt-7" variant="error" title="No pudimos completar la operación" dismissible (dismissed)="facade.clearError()">{{ facade.error() }}</app-alert>
+<app-alert class="mt-7" variant="error" title="No pudimos completar la operación" dismissible
+  (dismissed)="facade.clearError()">{{ facade.error() }}</app-alert>
 }
 
 @if (activeTab() === 'products') {
-  <section class="mt-8" aria-labelledby="featured-products-admin-title">
-    <div class="mb-5"><h2 id="featured-products-admin-title" class="text-heading-3 text-text-primary">Productos del catálogo</h2><p class="mt-1 text-body-sm text-text-secondary">Activa los productos que aparecerán en el Home y define su orden. Los productos no publicados no se muestran públicamente.</p></div>
-    @if (facade.productsLoading()) {
-      <div class="rounded-card border border-border bg-surface py-14"><app-loading label="Cargando productos" size="large" /></div>
-    } @else if (isadecorProducts().length === 0) {
-      <app-empty-state emptyStateId="home-featured-products-empty" title="No hay productos ISADECOR" description="Crea productos en el catálogo antes de seleccionarlos para el Home." />
-    } @else {
-      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        @for (product of isadecorProducts(); track product.id) {
-          <article class="rounded-card border border-border bg-surface p-5 shadow-card">
-            <div class="flex items-start justify-between gap-4"><div><h3 class="text-body font-semibold text-text-primary">{{ product.nombre }}</h3><p class="mt-1 text-caption text-text-muted">{{ product.sku }} · {{ product.estado }}</p></div><app-badge [variant]="product.destacado ? 'success' : 'neutral'">{{ product.destacado ? 'Destacado' : 'Disponible' }}</app-badge></div>
-            <div class="mt-5 grid grid-cols-[1fr_7rem] items-end gap-4">
-              <label class="flex min-h-11 items-center gap-3 rounded-control border border-border bg-surface-soft px-4"><input class="form-choice" type="checkbox" [checked]="product.destacado === true" [disabled]="facade.changingFeaturedId() === product.id" (change)="updateFeatured(product, $event)" /><span class="text-body-sm text-text-primary">Mostrar en Home</span></label>
-              <div><label class="form-label" [for]="'featured-order-' + product.id">Orden</label><input class="form-control" type="number" min="0" step="1" [id]="'featured-order-' + product.id" [value]="product.ordenDestacado ?? 0" [disabled]="facade.changingFeaturedId() === product.id" (change)="updateFeaturedOrder(product, $event)" /></div>
-            </div>
-          </article>
-        }
+<section class="mt-8" aria-labelledby="featured-products-admin-title">
+  <div class="mb-5">
+    <h2 id="featured-products-admin-title" class="text-heading-3 text-text-primary">Productos del catálogo</h2>
+    <p class="mt-1 text-body-sm text-text-secondary">Activa los productos que aparecerán en el Home y define su orden.
+      Los productos no publicados no se muestran públicamente.</p>
+  </div>
+  @if (facade.productsLoading()) {
+  <div class="rounded-card border border-border bg-surface py-14"><app-loading label="Cargando productos"
+      size="large" /></div>
+  } @else if (isadecorProducts().length === 0) {
+  <app-empty-state emptyStateId="home-featured-products-empty" title="No hay productos ISADECOR"
+    description="Crea productos en el catálogo antes de seleccionarlos para el Home." />
+  } @else {
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    @for (product of isadecorProducts(); track product.id) {
+    <article class="rounded-card border border-border bg-surface p-5 shadow-card">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h3 class="text-body font-semibold text-text-primary">{{ product.nombre }}</h3>
+          <p class="mt-1 text-caption text-text-muted">{{ product.sku }} · {{ product.estado }}</p>
+        </div><app-badge [variant]="product.destacado ? 'success' : 'neutral'">{{ product.destacado ? 'Destacado' :
+          'Disponible' }}</app-badge>
       </div>
+      <div class="mt-5 grid grid-cols-[1fr_7rem] items-end gap-4">
+        <label class="flex min-h-11 items-center gap-3 rounded-control border border-border bg-surface-soft px-4"><input
+            class="form-choice" type="checkbox" [checked]="product.destacado === true"
+            [disabled]="facade.changingFeaturedId() === product.id" (change)="updateFeatured(product, $event)" /><span
+            class="text-body-sm text-text-primary">Mostrar en Home</span></label>
+        <div><label class="form-label" [for]="'featured-order-' + product.id">Orden</label><input class="form-control"
+            type="number" min="0" step="1" [id]="'featured-order-' + product.id" [value]="product.ordenDestacado ?? 0"
+            [disabled]="facade.changingFeaturedId() === product.id" (change)="updateFeaturedOrder(product, $event)" />
+        </div>
+      </div>
+    </article>
     }
-  </section>
+  </div>
+  }
+</section>
 } @else {
-  <section class="mt-8" aria-labelledby="home-content-list-title">
-    <div class="mb-4 flex items-center justify-between gap-3"><h2 id="home-content-list-title" class="text-heading-3 text-text-primary">Elementos configurados</h2>@if (!facade.loading()) { <span class="text-body-sm text-text-muted">{{ visibleAnnouncements().length }} en esta sección</span> }</div>
-    @if (facade.loading()) {
-      <div class="rounded-card border border-border bg-surface py-14"><app-loading label="Cargando contenido" size="large" /></div>
-    } @else if (visibleAnnouncements().length === 0) {
-      <app-empty-state emptyStateId="admin-home-content-empty" title="Esta sección está vacía" description="Crea el primer elemento para completar el Home."><app-button empty-state-actions variant="primary" (click)="facade.openCreate()">Crear contenido</app-button></app-empty-state>
-    } @else {
-      <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
-        <table class="w-full min-w-[62rem] border-collapse text-left">
-          <caption class="sr-only">Contenido administrable del Home ISADECOR</caption>
-          <thead class="border-b border-border bg-background-soft"><tr><th class="table-heading">Contenido</th><th class="table-heading">Ubicación</th><th class="table-heading">Destino</th><th class="table-heading">Orden</th><th class="table-heading">Estado</th><th class="table-heading text-right">Acciones</th></tr></thead>
-          <tbody class="divide-y divide-border">
-            @for (announcement of visibleAnnouncements(); track announcement.id) {
-              <tr class="transition-colors duration-fast hover:bg-surface-hover">
-                <th scope="row" class="px-5 py-4"><div class="flex items-center gap-3"><img class="h-14 w-20 rounded-control object-cover" [src]="announcement.imagenUrl" alt="" /><span><span class="block text-body-sm font-semibold text-text-primary">{{ announcement.titulo }}</span><span class="mt-1 line-clamp-1 block max-w-md text-caption font-normal text-text-muted">{{ announcement.descripcionResumida }}</span></span></div></th>
-                <td class="px-5 py-4 text-caption text-text-secondary">{{ announcement.ubicacion }}</td><td class="px-5 py-4 text-caption text-text-secondary">{{ announcement.destinoAccion }}</td><td class="px-5 py-4 text-body-sm text-text-secondary">{{ announcement.orden }}</td><td class="px-5 py-4"><app-badge [variant]="statusVariant(announcement)" dot>{{ status(announcement) }}</app-badge></td>
-                <td class="px-5 py-4"><div class="flex justify-end gap-2"><app-button size="small" variant="ghost" (click)="facade.openEdit(announcement)">Editar</app-button><app-button size="small" variant="secondary" [loading]="facade.changingActiveId() === announcement.id" (click)="facade.changeActive(announcement)">{{ announcement.activo ? 'Desactivar' : 'Activar' }}</app-button><app-button size="small" variant="ghost" (click)="pendingDelete.set(announcement)">Eliminar</app-button></div></td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  </section>
+<section class="mt-8" aria-labelledby="home-content-list-title">
+  <div class="mb-4 flex items-center justify-between gap-3">
+    <h2 id="home-content-list-title" class="text-heading-3 text-text-primary">Elementos configurados</h2>@if
+    (!facade.loading()) { <span class="text-body-sm text-text-muted">{{ visibleAnnouncements().length }} en esta
+      sección</span> }
+  </div>
+  @if (facade.loading()) {
+  <div class="rounded-card border border-border bg-surface py-14"><app-loading label="Cargando contenido"
+      size="large" /></div>
+  } @else if (visibleAnnouncements().length === 0) {
+  <app-empty-state emptyStateId="admin-home-content-empty" title="Esta sección está vacía"
+    description="Crea el primer elemento para completar el Home."><app-button empty-state-actions variant="primary"
+      (click)="facade.openCreate()">Crear contenido</app-button></app-empty-state>
+  } @else {
+  <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+    <table class="w-full min-w-[62rem] border-collapse text-left">
+      <caption class="sr-only">Contenido administrable del Home ISADECOR</caption>
+      <thead class="border-b border-border bg-background-soft">
+        <tr>
+          <th class="table-heading">Contenido</th>
+          <th class="table-heading">Ubicación</th>
+          <th class="table-heading">Destino</th>
+          <th class="table-heading">Orden</th>
+          <th class="table-heading">Estado</th>
+          <th class="table-heading text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-border">
+        @for (announcement of visibleAnnouncements(); track announcement.id) {
+        <tr class="transition-colors duration-fast hover:bg-surface-hover">
+          <th scope="row" class="px-5 py-4">
+            <div class="flex items-center gap-3"><img class="h-14 w-20 rounded-control object-cover"
+                [src]="announcement.imagenUrl" alt="" /><span><span
+                  class="block text-body-sm font-semibold text-text-primary">{{ announcement.titulo }}</span><span
+                  class="mt-1 line-clamp-1 block max-w-md text-caption font-normal text-text-muted">{{
+                  announcement.descripcionResumida }}</span></span></div>
+          </th>
+          <td class="px-5 py-4 text-caption text-text-secondary">{{ announcement.ubicacion }}</td>
+          <td class="px-5 py-4 text-caption text-text-secondary">{{ announcement.destinoAccion }}</td>
+          <td class="px-5 py-4 text-body-sm text-text-secondary">{{ announcement.orden }}</td>
+          <td class="px-5 py-4"><app-badge [variant]="statusVariant(announcement)" dot>{{ status(announcement)
+              }}</app-badge></td>
+          <td class="px-5 py-4">
+            <div class="flex justify-end gap-2"><app-button size="small" variant="ghost"
+                (click)="facade.openEdit(announcement)">Editar</app-button><app-button size="small" variant="secondary"
+                [loading]="facade.changingActiveId() === announcement.id" (click)="facade.changeActive(announcement)">{{
+                announcement.activo ? 'Desactivar' : 'Activar' }}</app-button><app-button size="small" variant="ghost"
+                (click)="pendingDelete.set(announcement)">Eliminar</app-button></div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</section>
 }
 
-@if (facade.formOpen()) { <app-announcement-form [mode]="facade.formMode()" [announcement]="facade.selected()" [defaultLocation]="activeLocation()" [categories]="isadecorCategories()" [products]="isadecorProducts()" [submitting]="facade.submitting()" [serverError]="facade.error()" (canceled)="facade.closeForm()" (saved)="facade.save($event)" /> }
+@if (facade.formOpen()) { <app-announcement-form [mode]="facade.formMode()" [announcement]="facade.selected()"
+  [defaultLocation]="activeLocation()" [categories]="isadecorCategories()" [products]="isadecorProducts()"
+  [submitting]="facade.submitting()" [serverError]="facade.error()" (canceled)="facade.closeForm()"
+  (saved)="facade.save($event)" /> }
 
 @if (pendingDelete(); as announcement) {
-  <app-modal modalId="delete-announcement" title="Eliminar contenido" [description]="'Se eliminará permanentemente ' + announcement.titulo + '.'" size="small" [open]="true" [loading]="facade.deletingId() === announcement.id" (closed)="pendingDelete.set(null)"><p class="text-body-sm text-text-secondary">El elemento desaparecerá del Home y esta acción no se puede deshacer.</p><div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end"><app-button variant="secondary" (click)="pendingDelete.set(null)">Cancelar</app-button><app-button variant="primary" (click)="confirmDelete()">Eliminar</app-button></div></app-modal>
+<app-modal modalId="delete-announcement" title="Eliminar contenido"
+  [description]="'Se eliminará permanentemente ' + announcement.titulo + '.'" size="small" [open]="true"
+  [loading]="facade.deletingId() === announcement.id" (closed)="pendingDelete.set(null)">
+  <p class="text-body-sm text-text-secondary">El elemento desaparecerá del Home y esta acción no se puede deshacer.</p>
+  <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end"><app-button
+      variant="secondary" (click)="pendingDelete.set(null)">Cancelar</app-button><app-button variant="primary"
+      (click)="confirmDelete()">Eliminar</app-button></div>
+</app-modal>
 }
