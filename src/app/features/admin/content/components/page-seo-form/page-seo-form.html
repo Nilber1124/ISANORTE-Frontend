@@ -1,91 +1,158 @@
 <app-drawer
   drawerId="page-seo-form-drawer"
   [title]="seo() ? 'Editar SEO' : 'Nuevo SEO'"
-  description="El tipo de página y el sitio no cambian después de crear."
+  [description]="
+    seo()
+      ? 'Actualiza los metadatos que indexan los buscadores para esta página.'
+      : 'Configura el título, la descripción y las directivas SEO de una página. El tipo y el sitio no se pueden cambiar después.'
+  "
   [open]="true"
   [loading]="saving()"
   (closed)="closed.emit()"
 >
-  <form class="grid gap-5 sm:grid-cols-2" (submit)="submit(); $event.preventDefault()">
-    <label class="form-label"
-      >Sitio<select
-        class="form-control mt-2"
-        [value]="configuracionSitioId()"
-        [disabled]="!!seo()"
-        (change)="configuracionSitioId.set($any($event.target).value)"
-      >
-        @for (config of configurations(); track config.id) {
-          <option [value]="config.id">{{ config.clave || config.tituloSitio || config.id }}</option>
-        }
-      </select></label
-    >
-    <label class="form-label"
-      >Tipo de página<select
-        class="form-control mt-2"
-        [value]="tipoPagina()"
-        [disabled]="!!seo()"
-        (change)="typeChanged($event)"
-      >
-        @for (type of types; track type) {
-          <option [value]="type">{{ type }}</option>
-        }
-      </select></label
-    >
-    @if (tipoPagina() === 'UNIDAD_NEGOCIO') {
-      <label class="form-label sm:col-span-2"
-        >Unidad de negocio<select
-          class="form-control mt-2"
-          [value]="unidadNegocioId()"
-          [disabled]="!!seo()"
-          (change)="unidadNegocioId.set($any($event.target).value)"
-          required
-        >
-          <option value="">Selecciona una unidad</option>
-          @for (unit of units(); track unit.id) {
-            <option [value]="unit.id">{{ unit.nombre }}</option>
+  <form class="space-y-5" (submit)="submit(); $event.preventDefault()" novalidate>
+
+    <!-- 1. Identificación -->
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">1. Identificación</h4>
+        <p class="text-caption text-text-muted">Sitio y tipo de página al que aplican estos metadatos.</p>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        @if (!seo()) {
+          <app-select-field
+            inputId="seo-site"
+            label="Sitio"
+            [options]="siteOptions()"
+            [value]="configuracionSitioId()"
+            (valueChange)="configuracionSitioId.set($event)"
+            [disabled]="saving()"
+          />
+          <app-select-field
+            inputId="seo-page-type"
+            label="Tipo de página"
+            [options]="pageTypeOptions"
+            [value]="tipoPagina()"
+            (valueChange)="updatePageType($event)"
+            [disabled]="saving()"
+          />
+          @if (tipoPagina() === 'UNIDAD_NEGOCIO') {
+            <app-select-field
+              class="sm:col-span-2"
+              inputId="seo-unit"
+              label="Unidad de negocio"
+              placeholder="Selecciona una unidad"
+              [options]="unitOptions()"
+              [value]="unidadNegocioId()"
+              (valueChange)="unidadNegocioId.set($event)"
+              [disabled]="saving()"
+              [required]="true"
+            />
           }
-        </select></label
-      >
-    }
-    <app-input-field
-      class="sm:col-span-2"
-      inputId="seo-title"
-      label="Title"
-      [(value)]="title"
-      required
-    />
-    <app-textarea-field
-      class="sm:col-span-2"
-      inputId="seo-description"
-      label="Description"
-      [(value)]="description"
-      [rows]="4"
-      required
-    />
-    <div class="sm:col-span-2 space-y-2">
-      <label class="form-label mb-0">OG Image (Open Graph)</label>
-      <app-image-uploader
-        [ngModel]="ogImageUrl()"
-        (ngModelChange)="ogImageUrl.set($event)"
-        name="seo-og-image"
-        folder="isanorte/seo"
-      />
-    </div>
-    <label class="form-label sm:col-span-2"
-      >Robots<select
-        class="form-control mt-2"
-        [value]="robots()"
-        (change)="robots.set($any($event.target).value)"
-      >
-        @for (value of robotsValues; track value) {
-          <option [value]="value">{{ value }}</option>
+        } @else {
+          <div class="flex flex-col gap-1.5">
+            <span class="form-label">Tipo de página</span>
+            <div class="rounded-card border border-border bg-surface-soft px-3.5 py-2.5">
+              <span class="text-body-sm font-semibold text-text-primary">{{ tipoPaginaLabel() }}</span>
+            </div>
+            <p class="text-caption text-text-muted">No se puede cambiar después de crear.</p>
+          </div>
         }
-      </select></label
-    >
+      </div>
+    </fieldset>
+
+    <!-- 2. Metadatos principales -->
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">2. Metadatos principales</h4>
+        <p class="text-caption text-text-muted">Lo que Google y otros buscadores muestran en los resultados.</p>
+      </div>
+
+      <app-input-field
+        inputId="seo-title"
+        label="Title"
+        [(value)]="title"
+        placeholder="Ej: Construcción residencial y comercial · ISANORTE"
+        helperText="Aparece en la pestaña del navegador y en resultados de búsqueda. Idealmente 50–60 caracteres."
+        [disabled]="saving()"
+        required
+      />
+
+      <div>
+        <app-textarea-field
+          inputId="seo-description"
+          label="Description"
+          [(value)]="description"
+          placeholder="Ej: ISANORTE ofrece soluciones integrales de construcción residencial y comercial en Perú, con más de 20 años de experiencia."
+          [rows]="3"
+          helperText="Aparece bajo el título en resultados de búsqueda. Idealmente 120–160 caracteres."
+          [disabled]="saving()"
+          required
+        />
+        <div class="mt-1 flex justify-end">
+          <span
+            class="tabular-nums text-caption"
+            [class.text-error]="descriptionOverLimit()"
+            [class.text-text-muted]="!descriptionOverLimit()"
+          >
+            {{ descriptionLength() }}/160
+          </span>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 3. Open Graph -->
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">3. Open Graph</h4>
+        <p class="text-caption text-text-muted">
+          Imagen que aparece cuando alguien comparte el enlace en redes sociales o mensajería.
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <label class="form-label mb-0">Imagen OG</label>
+        <p class="text-caption text-text-muted">
+          JPG o PNG, relación 1200×630 px (1.91:1). Máx. 5 MB. Sin imagen se usa la imagen por defecto del sitio.
+        </p>
+        <app-image-uploader
+          [ngModel]="ogImageUrl()"
+          (ngModelChange)="ogImageUrl.set($event)"
+          name="seo-og-image"
+          folder="isanorte/seo"
+          [showHint]="false"
+        />
+      </div>
+    </fieldset>
+
+    <!-- 4. Indexación -->
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">4. Indexación</h4>
+        <p class="text-caption text-text-muted">
+          Directiva <code class="rounded bg-surface-soft px-1 py-0.5 font-mono text-caption">robots</code> para motores de búsqueda.
+        </p>
+      </div>
+
+      <app-select-field
+        inputId="seo-robots"
+        label="Robots"
+        [options]="robotsOptions"
+        [value]="robots()"
+        (valueChange)="robots.set($any($event))"
+        helperText="'Indexar + Seguir enlaces' es la opción correcta para la mayoría de páginas públicas."
+        [disabled]="saving()"
+      />
+    </fieldset>
   </form>
-  <div drawer-actions class="flex w-full justify-end gap-3">
-    <app-button variant="secondary" (click)="closed.emit()">Cancelar</app-button>
+
+  <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button variant="secondary" [disabled]="saving()" (click)="closed.emit()">
+      Cancelar
+    </app-button>
     <app-button
+      variant="primary"
       [loading]="saving()"
       [disabled]="
         !title().trim() ||
@@ -93,6 +160,8 @@
         (tipoPagina() === 'UNIDAD_NEGOCIO' && !unidadNegocioId())
       "
       (click)="submit()"
-    >Guardar</app-button>
+    >
+      {{ seo() ? 'Guardar cambios' : 'Crear SEO' }}
+    </app-button>
   </div>
 </app-drawer>

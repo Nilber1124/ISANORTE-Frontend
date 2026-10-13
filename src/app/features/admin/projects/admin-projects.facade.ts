@@ -28,6 +28,8 @@ export class AdminProjectsFacade {
   private readonly _loadingFormData = signal(true);
   private readonly _submitting = signal(false);
   private readonly _changingActiveId = signal<string | null>(null);
+  private readonly _changingFeaturedId = signal<string | null>(null);
+  private readonly _deletingId = signal<string | null>(null);
   private readonly _error = signal<string | null>(null);
   private readonly _selectedProject = signal<ProjectResponse | null>(null);
   private readonly _formMode = signal<ProjectFormMode>('create');
@@ -39,6 +41,8 @@ export class AdminProjectsFacade {
   readonly loadingFormData = this._loadingFormData.asReadonly();
   readonly submitting = this._submitting.asReadonly();
   readonly changingActiveId = this._changingActiveId.asReadonly();
+  readonly changingFeaturedId = this._changingFeaturedId.asReadonly();
+  readonly deletingId = this._deletingId.asReadonly();
   readonly error = this._error.asReadonly();
   readonly selectedProject = this._selectedProject.asReadonly();
   readonly formMode = this._formMode.asReadonly();
@@ -136,6 +140,66 @@ export class AdminProjectsFacade {
               : 'Proyecto desactivado correctamente.',
             'success',
           );
+        },
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+
+  toggleDestacado(project: ProjectResponse): void {
+    if (this._changingFeaturedId() !== null || this._submitting()) return;
+    this._changingFeaturedId.set(project.id);
+    this._error.set(null);
+
+    const request: ProjectUpdateRequest = {
+      nombre: project.nombre,
+      slug: project.slug,
+      descripcion: project.descripcion,
+      cliente: project.cliente ?? null,
+      ubicacion: project.ubicacion ?? null,
+      fechaProyecto: project.fechaProyecto ?? null,
+      imagenUrl: project.imagenUrl ?? null,
+      imagenAlt: project.imagenAlt ?? null,
+      destacado: project.destacado !== true,
+      activo: project.activo === true,
+      orden: project.orden ?? 0,
+      servicioIds: project.servicios?.map((s) => s.id) ?? [],
+    };
+
+    this.projectApi
+      .update(project.id, request)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._changingFeaturedId.set(null)),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.upsertProject(updated);
+          this.toastService.show(
+            updated.destacado === true
+              ? 'Proyecto marcado como destacado.'
+              : 'Proyecto desmarcado.',
+            'success',
+          );
+        },
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+
+  delete(project: ProjectResponse): void {
+    if (this._deletingId() !== null || this._submitting()) return;
+    this._deletingId.set(project.id);
+    this._error.set(null);
+
+    this.projectApi
+      .delete(project.id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._deletingId.set(null)),
+      )
+      .subscribe({
+        next: () => {
+          this._projects.update((all) => all.filter((p) => p.id !== project.id));
+          this.toastService.show('Proyecto eliminado correctamente.', 'success');
         },
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
       });

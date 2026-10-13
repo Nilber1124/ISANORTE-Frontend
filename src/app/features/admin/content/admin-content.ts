@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } f
 import { PageContentResponse } from '../../../data/models/content/page-content.model';
 import { PageSeoResponse } from '../../../data/models/content/page-seo.model';
 import { Alert } from '../../../shared/components/alert/alert';
+import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../shared/components/loading/loading';
@@ -12,8 +13,9 @@ import { PageSeoForm } from './components/page-seo-form/page-seo-form';
 
 @Component({
   selector: 'app-admin-content',
-  imports: [Alert, Button, EmptyState, Loading, PageContentForm, PageSeoForm],
+  imports: [Alert, Badge, Button, EmptyState, Loading, PageContentForm, PageSeoForm],
   templateUrl: './admin-content.html',
+  styleUrl: './admin-content.css',
   providers: [AdminContentFacade],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -39,5 +41,37 @@ export class AdminContent {
     this.facade.clearFeedback();
     this.selectedSeo.set(item);
     this.seoFormOpen.set(true);
+  }
+
+  protected pageLabel(pagina: string): string {
+    const labels: Record<string, string> = {
+      NOSOTROS: 'Nosotros',
+      SERVICIOS: 'Servicios',
+      PROYECTOS: 'Proyectos',
+      CONTACTO: 'Contacto',
+    };
+    return labels[pagina] ?? pagina;
+  }
+
+  protected seoPageLabel(tipo: string): string {
+    const labels: Record<string, string> = {
+      HOME: 'Inicio',
+      NOSOTROS: 'Nosotros',
+      SERVICIOS: 'Servicios',
+      PROYECTOS: 'Proyectos',
+      CONTACTO: 'Contacto',
+      UNIDAD_NEGOCIO: 'Unidad de negocio',
+    };
+    return labels[tipo] ?? tipo;
+  }
+
+  protected robotsLabel(robots: string): string {
+    const labels: Record<string, string> = {
+      INDEX_FOLLOW: 'Indexar',
+      NOINDEX_FOLLOW: 'No indexar',
+      INDEX_NOFOLLOW: 'No seguir',
+      NOINDEX_NOFOLLOW: 'No indexar / no seguir',
+    };
+    return labels[robots] ?? robots;
   }
 }

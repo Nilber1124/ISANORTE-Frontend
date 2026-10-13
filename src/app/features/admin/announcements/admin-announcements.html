@@ -36,65 +36,106 @@
     <app-button empty-state-actions variant="primary" (click)="facade.openCreate()">Nuevo anuncio</app-button>
   </app-empty-state>
   } @else {
-  <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
-    <table class="w-full min-w-[68rem] border-collapse text-left">
+  <div class="max-w-full overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+    <table class="w-full min-w-[56rem] border-collapse text-left">
       <caption class="sr-only">
         Listado administrativo de anuncios
       </caption>
       <thead class="border-b border-border bg-background-soft">
         <tr>
-          <th class="table-heading">Anuncio</th>
-          <th class="table-heading">Destino</th>
-          <th class="table-heading">Vigencia</th>
-          <th class="table-heading">Orden</th>
-          <th class="table-heading">Estado</th>
-          <th class="table-heading text-right">Acciones</th>
+          <th scope="col" class="table-heading">Anuncio</th>
+          <th scope="col" class="table-heading">Destino</th>
+          <th scope="col" class="table-heading">Vigencia</th>
+          <th scope="col" class="table-heading">Orden</th>
+          <th scope="col" class="table-heading">Estado</th>
+          <th scope="col" class="table-heading text-right">Acciones</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-border">
         @for (announcement of facade.announcements(); track announcement.id) {
-        <tr class="transition-colors duration-fast hover:bg-surface-hover">
-          <th scope="row" class="px-5 py-4">
-            <div class="flex items-center gap-3">
-              <img class="h-12 w-20 rounded-control object-cover" [src]="announcement.imagenUrl" alt="" />
-              <span><span class="block text-body-sm font-semibold text-text-primary">{{
-                  announcement.titulo
-                  }}</span><span class="mt-1 block text-caption text-text-muted">{{
-                  announcement.etiqueta
-                  }}</span></span>
-            </div>
-          </th>
-          <td class="px-5 py-4 text-body-sm text-text-secondary">{{ announcement.destino }}</td>
-          <td class="px-5 py-4 text-caption text-text-secondary">
-            <span class="block">Desde:
-              {{
-              announcement.fechaInicio
-              ? announcement.fechaInicio.slice(0, 16).replace('T', ' ')
-              : 'Inmediata'
-              }}</span>
-            <span class="block">Hasta:
-              {{
-              announcement.fechaFin
-              ? announcement.fechaFin.slice(0, 16).replace('T', ' ')
-              : 'Sin límite'
-              }}</span>
-          </td>
-          <td class="px-5 py-4 text-body-sm text-text-secondary">{{ announcement.orden }}</td>
-          <td class="px-5 py-4">
-            <app-badge [variant]="statusVariant(announcement)" dot>{{
-              status(announcement)
-              }}</app-badge>
-          </td>
-          <td class="px-5 py-4">
-            <div class="flex justify-end gap-2">
-              <app-button size="small" variant="ghost" (click)="facade.openEdit(announcement)">Editar</app-button>
-              <app-button size="small" variant="secondary" [loading]="facade.changingActiveId() === announcement.id"
-                (click)="facade.changeActive(announcement)">{{ announcement.activo ? 'Desactivar' : 'Activar'
-                }}</app-button>
-              <app-button size="small" variant="ghost" (click)="pendingDelete.set(announcement)">Eliminar</app-button>
-            </div>
-          </td>
-        </tr>
+          <tr class="transition-colors duration-fast hover:bg-surface-hover">
+            <th scope="row" class="px-5 py-4 font-normal">
+              <div class="flex items-center gap-3">
+                @if (announcement.imagenUrl) {
+                  <img
+                    class="h-12 w-20 shrink-0 rounded-control object-cover"
+                    [src]="announcement.imagenUrl"
+                    alt=""
+                  />
+                } @else {
+                  <div
+                    class="flex h-12 w-20 shrink-0 items-center justify-center rounded-control bg-background-soft text-text-muted"
+                  >
+                    <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.5"
+                        d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                      />
+                    </svg>
+                  </div>
+                }
+                <div class="min-w-0">
+                  <span class="block text-body-sm font-semibold text-text-primary">
+                    {{ announcement.titulo }}
+                  </span>
+                  @if (announcement.etiqueta) {
+                    <span class="mt-0.5 inline-block text-caption text-text-muted">
+                      {{ announcement.etiqueta }}
+                    </span>
+                  }
+                </div>
+              </div>
+            </th>
+            <td class="px-5 py-4">
+              <span
+                class="inline-flex items-center rounded-control bg-background-soft px-2.5 py-1 text-caption font-semibold uppercase tracking-wider text-text-secondary"
+              >
+                {{ destinationLabel(announcement.destino) }}
+              </span>
+            </td>
+            <td class="px-5 py-4 text-caption text-text-secondary">
+              <div class="space-y-0.5 whitespace-nowrap">
+                <span class="block">
+                  <span class="text-text-muted">Desde:</span> {{ formatPeriodDate(announcement.fechaInicio, 'Inmediata') }}
+                </span>
+                <span class="block">
+                  <span class="text-text-muted">Hasta:</span> {{ formatPeriodDate(announcement.fechaFin, 'Sin límite') }}
+                </span>
+              </div>
+            </td>
+            <td class="px-5 py-4 font-mono text-body-sm text-text-secondary tabular-nums">
+              {{ announcement.orden }}
+            </td>
+            <td class="px-5 py-4">
+              <app-badge [variant]="statusVariant(announcement)" dot>
+                {{ status(announcement) }}
+              </app-badge>
+            </td>
+            <td class="px-5 py-4">
+              <div class="flex justify-end gap-2">
+                <app-button size="small" variant="ghost" (click)="facade.openEdit(announcement)">
+                  Editar
+                </app-button>
+                <app-button
+                  size="small"
+                  variant="secondary"
+                  [loading]="facade.changingActiveId() === announcement.id"
+                  (click)="facade.changeActive(announcement)"
+                >
+                  {{ announcement.activo ? 'Desactivar' : 'Activar' }}
+                </app-button>
+                <app-button
+                  size="small"
+                  variant="ghost"
+                  (click)="pendingDelete.set(announcement)"
+                >
+                  Eliminar
+                </app-button>
+              </div>
+            </td>
+          </tr>
         }
       </tbody>
     </table>

@@ -24,12 +24,6 @@
 <section class="mt-8" aria-labelledby="projects-list-title">
   <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
     <h2 id="projects-list-title" class="text-heading-3 text-text-primary">Proyectos registrados</h2>
-    @if (!facade.loading()) {
-      <span class="text-body-sm text-text-muted" aria-live="polite">
-        {{ facade.projects().length }}
-        {{ facade.projects().length === 1 ? 'proyecto' : 'proyectos' }}
-      </span>
-    }
   </div>
 
   @if (facade.loading()) {
@@ -47,91 +41,176 @@
       >
     </app-empty-state>
   } @else {
-    <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
-      <table class="w-full min-w-[72rem] border-collapse text-left">
-        <caption class="sr-only">
-          Listado administrativo de proyectos ISANORTE
-        </caption>
-        <thead class="border-b border-border bg-background-soft">
-          <tr>
-            <th scope="col" class="table-heading">Proyecto</th>
-            <th scope="col" class="table-heading">Cliente</th>
-            <th scope="col" class="table-heading">Ubicación</th>
-            <th scope="col" class="table-heading">Servicios</th>
-            <th scope="col" class="table-heading">Destacado</th>
-            <th scope="col" class="table-heading">Estado</th>
-            <th scope="col" class="table-heading text-right">Acciones</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          @for (project of facade.projects(); track project.id) {
-            <tr class="transition-colors duration-fast hover:bg-surface-hover">
-              <th scope="row" class="px-5 py-4">
-                <span class="block text-body-sm font-semibold text-text-primary">{{
-                  project.nombre
-                }}</span>
-                <span class="mt-1 block font-mono text-caption text-text-muted">{{
-                  project.slug
-                }}</span>
-              </th>
-              <td class="px-5 py-4 text-body-sm text-text-secondary">
-                {{ project.cliente ?? 'Sin cliente' }}
-              </td>
-              <td class="px-5 py-4 text-body-sm text-text-secondary">
-                {{ project.ubicacion ?? 'Sin ubicación' }}
-              </td>
-              <td class="max-w-64 px-5 py-4 text-body-sm text-text-secondary">
-                {{ serviceNames(project) }}
-              </td>
-              <td class="px-5 py-4">
-                <svg
-                  class="size-5"
-                  [class.text-accent]="project.destacado === true"
-                  [class.fill-accent]="project.destacado === true"
-                  [class.text-border]="project.destacado !== true"
-                  [class.fill-none]="project.destacado !== true"
-                  viewBox="0 0 20 20"
-                  [attr.aria-label]="project.destacado === true ? 'Destacado' : 'No destacado'"
-                  role="img"
-                >
-                  <path
-                    d="M10 2.5l2.02 4.09 4.51.66-3.27 3.18.77 4.49L10 12.5l-4.03 2.42.77-4.49L3.47 7.25l4.51-.66L10 2.5z"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </td>
-              <td class="px-5 py-4">
-                <app-badge [variant]="project.activo === true ? 'success' : 'neutral'" dot>
-                  {{ project.activo === true ? 'Activo' : 'Inactivo' }}
-                </app-badge>
-              </td>
-              <td class="px-5 py-4">
-                <div class="flex justify-end gap-2">
-                  <app-button
-                    size="small"
-                    variant="ghost"
-                    [disabled]="facade.submitting() || facade.changingActiveId() !== null"
-                    (click)="facade.openEdit(project)"
-                    >Editar</app-button
-                  >
-                  <app-button
-                    size="small"
-                    [variant]="project.activo === true ? 'secondary' : 'primary'"
-                    [loading]="facade.changingActiveId() === project.id"
-                    [disabled]="facade.submitting() || facade.changingActiveId() !== null"
-                    (click)="requestActiveChange(project)"
-                  >
-                    {{ project.activo === true ? 'Desactivar' : 'Activar' }}
-                  </app-button>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <span class="text-body-sm text-text-muted" aria-live="polite">{{ summaryText() }}</span>
+      <div class="flex gap-1" role="group" aria-label="Filtrar por estado">
+        <app-button
+          size="small"
+          [variant]="activeFilter() === 'all' ? 'secondary' : 'ghost'"
+          (click)="activeFilter.set('all')"
+          >Todos</app-button
+        >
+        <app-button
+          size="small"
+          [variant]="activeFilter() === 'active' ? 'secondary' : 'ghost'"
+          (click)="activeFilter.set('active')"
+          >Activos</app-button
+        >
+        <app-button
+          size="small"
+          [variant]="activeFilter() === 'inactive' ? 'secondary' : 'ghost'"
+          (click)="activeFilter.set('inactive')"
+          >Inactivos</app-button
+        >
+      </div>
     </div>
+
+    @if (filteredProjects().length === 0) {
+      <div class="rounded-card border border-border bg-surface py-10 text-center">
+        <p class="text-body-sm text-text-muted">
+          No hay proyectos
+          {{ activeFilter() === 'active' ? 'activos' : 'inactivos' }} en este momento.
+        </p>
+      </div>
+    } @else {
+      <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+        <table class="w-full min-w-[80rem] border-collapse text-left">
+          <caption class="sr-only">
+            Listado administrativo de proyectos ISANORTE
+          </caption>
+          <thead class="border-b border-border bg-background-soft">
+            <tr>
+              <th scope="col" class="table-heading">Proyecto</th>
+              <th scope="col" class="table-heading">Cliente</th>
+              <th scope="col" class="table-heading">Ubicación / Periodo</th>
+              <th scope="col" class="table-heading">Servicios</th>
+              <th scope="col" class="table-heading">Orden</th>
+              <th scope="col" class="table-heading">Destacado</th>
+              <th scope="col" class="table-heading">Estado</th>
+              <th scope="col" class="table-heading text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @for (project of filteredProjects(); track project.id) {
+              <tr class="transition-colors duration-fast hover:bg-surface-hover">
+                <th scope="row" class="px-5 py-4">
+                  <span class="block text-body-sm font-semibold text-text-primary">{{
+                    project.nombre
+                  }}</span>
+                  <span class="mt-1 block font-mono text-caption text-text-muted">{{
+                    project.slug
+                  }}</span>
+                </th>
+                <td class="px-5 py-4 text-body-sm text-text-secondary">
+                  {{ project.cliente ?? '—' }}
+                </td>
+                <td class="px-5 py-4 text-body-sm text-text-secondary">
+                  <span class="block">{{ project.ubicacion ?? '—' }}</span>
+                  @if (project.fechaProyecto) {
+                    <span class="block text-caption text-text-muted">{{
+                      project.fechaProyecto
+                    }}</span>
+                  }
+                </td>
+                <td class="max-w-64 px-5 py-4 text-body-sm text-text-secondary">
+                  {{ serviceNames(project) }}
+                </td>
+                <td class="px-5 py-4 text-caption font-mono text-text-muted tabular-nums">
+                  {{ project.orden ?? 0 }}
+                </td>
+                <td class="px-5 py-4">
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center rounded-button p-1 transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:pointer-events-none disabled:opacity-45"
+                    [attr.aria-label]="
+                      project.destacado === true ? 'Quitar destacado' : 'Marcar como destacado'
+                    "
+                    [attr.aria-pressed]="project.destacado === true"
+                    [disabled]="
+                      facade.changingFeaturedId() !== null ||
+                      facade.submitting() ||
+                      facade.changingActiveId() !== null
+                    "
+                    (click)="toggleDestacado(project)"
+                  >
+                    @if (facade.changingFeaturedId() === project.id) {
+                      <span
+                        class="size-5 animate-spin rounded-full border-2 border-border border-t-accent"
+                      ></span>
+                    } @else {
+                      <svg
+                        class="size-5"
+                        [class.text-accent]="project.destacado === true"
+                        [class.fill-accent]="project.destacado === true"
+                        [class.text-border]="project.destacado !== true"
+                        [class.fill-none]="project.destacado !== true"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          d="M10 2.5l2.02 4.09 4.51.66-3.27 3.18.77 4.49L10 12.5l-4.03 2.42.77-4.49L3.47 7.25l4.51-.66L10 2.5z"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    }
+                    <span class="sr-only">{{ project.destacado === true ? 'Sí' : 'No' }}</span>
+                  </button>
+                </td>
+                <td class="px-5 py-4">
+                  <app-badge [variant]="project.activo === true ? 'success' : 'neutral'" dot>
+                    {{ project.activo === true ? 'Activo' : 'Inactivo' }}
+                  </app-badge>
+                </td>
+                <td class="px-5 py-4">
+                  <div class="flex justify-end gap-2">
+                    <app-button
+                      size="small"
+                      variant="ghost"
+                      [disabled]="
+                        facade.submitting() ||
+                        facade.changingActiveId() !== null ||
+                        facade.changingFeaturedId() !== null ||
+                        facade.deletingId() !== null
+                      "
+                      (click)="facade.openEdit(project)"
+                      >Editar</app-button
+                    >
+                    <app-button
+                      size="small"
+                      [variant]="project.activo === true ? 'secondary' : 'primary'"
+                      [loading]="facade.changingActiveId() === project.id"
+                      [disabled]="
+                        facade.submitting() ||
+                        facade.changingActiveId() !== null ||
+                        facade.changingFeaturedId() !== null ||
+                        facade.deletingId() !== null
+                      "
+                      (click)="requestActiveChange(project)"
+                    >
+                      {{ project.activo === true ? 'Desactivar' : 'Activar' }}
+                    </app-button>
+                    <app-button
+                      size="small"
+                      variant="ghost"
+                      [loading]="facade.deletingId() === project.id"
+                      [disabled]="
+                        facade.submitting() ||
+                        facade.changingActiveId() !== null ||
+                        facade.changingFeaturedId() !== null ||
+                        facade.deletingId() !== null
+                      "
+                      (click)="requestDelete(project)"
+                      >Eliminar</app-button
+                    >
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
   }
 </section>
 
@@ -174,6 +253,38 @@
         [disabled]="facade.changingActiveId() !== null"
         (click)="confirmDeactivation()"
         >Desactivar</app-button
+      >
+    </div>
+  </app-modal>
+}
+
+@if (projectToDelete(); as project) {
+  <app-modal
+    modalId="delete-project"
+    title="Eliminar proyecto"
+    [description]="'Vas a eliminar «' + project.nombre + '» de forma permanente.'"
+    size="small"
+    [open]="true"
+    [loading]="facade.deletingId() === project.id"
+    (closed)="closeDelete()"
+  >
+    <p class="text-body-sm text-text-secondary">
+      Se eliminará el registro de la base de datos y la imagen asociada de Cloudinary. Esta acción
+      no se puede deshacer.
+    </p>
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button
+        variant="secondary"
+        [disabled]="facade.deletingId() !== null"
+        (click)="closeDelete()"
+        >Cancelar</app-button
+      >
+      <app-button
+        variant="primary"
+        [loading]="facade.deletingId() !== null"
+        [disabled]="facade.deletingId() !== null"
+        (click)="confirmDelete()"
+        >Eliminar</app-button
       >
     </div>
   </app-modal>

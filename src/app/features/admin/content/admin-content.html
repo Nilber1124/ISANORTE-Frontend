@@ -1,20 +1,61 @@
 <header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-  <div>
+  <div class="max-w-2xl">
     <p class="text-eyebrow uppercase text-text-muted">Contenido ISANORTE</p>
     <h1 class="mt-3 text-heading-1 text-text-primary">Contenido público</h1>
     <p class="mt-3 text-body text-text-secondary">
-      Administra contenido editorial y metadatos SEO. La web pública aún no consume estos datos.
+      Textos editoriales de páginas interiores y metadatos SEO que indexan los buscadores.
     </p>
   </div>
 </header>
-<div class="mt-7 flex gap-2" role="tablist">
-  <app-button [variant]="tab() === 'content' ? 'primary' : 'secondary'" (click)="tab.set('content')"
-    >Páginas</app-button
+
+<!-- Tabs -->
+<div class="mt-7 flex gap-1 rounded-card border border-border bg-surface-soft p-1 w-fit" role="tablist" aria-label="Secciones de contenido">
+  <button
+    type="button"
+    role="tab"
+    [attr.aria-selected]="tab() === 'content'"
+    class="flex items-center gap-2 rounded-control px-4 py-2 text-body-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+    [class.bg-surface]="tab() === 'content'"
+    [class.text-text-primary]="tab() === 'content'"
+    [class.shadow-xs]="tab() === 'content'"
+    [class.text-text-muted]="tab() !== 'content'"
+    [class.hover:text-text-secondary]="tab() !== 'content'"
+    (click)="tab.set('content')"
   >
-  <app-button [variant]="tab() === 'seo' ? 'primary' : 'secondary'" (click)="tab.set('seo')"
-    >SEO</app-button
+    <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+    </svg>
+    Páginas
+    @if (facade.contents().length > 0) {
+      <span class="rounded-badge bg-accent/15 px-1.5 py-0.5 text-caption font-semibold text-accent tabular-nums">
+        {{ facade.contents().length }}
+      </span>
+    }
+  </button>
+  <button
+    type="button"
+    role="tab"
+    [attr.aria-selected]="tab() === 'seo'"
+    class="flex items-center gap-2 rounded-control px-4 py-2 text-body-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+    [class.bg-surface]="tab() === 'seo'"
+    [class.text-text-primary]="tab() === 'seo'"
+    [class.shadow-xs]="tab() === 'seo'"
+    [class.text-text-muted]="tab() !== 'seo'"
+    [class.hover:text-text-secondary]="tab() !== 'seo'"
+    (click)="tab.set('seo')"
   >
+    <svg class="size-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+    </svg>
+    SEO
+    @if (facade.seoPages().length > 0) {
+      <span class="rounded-badge bg-accent/15 px-1.5 py-0.5 text-caption font-semibold text-accent tabular-nums">
+        {{ facade.seoPages().length }}
+      </span>
+    }
+  </button>
 </div>
+
 @if (facade.error(); as error) {
   <app-alert
     class="mt-6"
@@ -22,46 +63,91 @@
     title="No pudimos completar la operación"
     dismissible
     (dismissed)="facade.clearFeedback()"
-    >{{ error }}</app-alert
   >
+    {{ error }}
+  </app-alert>
 }
+
 @if (facade.loading()) {
   <div class="mt-8 rounded-card border border-border bg-surface py-14">
     <app-loading label="Cargando contenido" size="large" />
   </div>
 } @else if (tab() === 'content') {
-  <section class="mt-8">
-    <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-heading-3 text-text-primary">Páginas editoriales</h2>
-      <app-button (click)="openContent(null)">Nuevo contenido</app-button>
+  <section class="mt-8" aria-labelledby="pages-list-title">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 id="pages-list-title" class="text-heading-3 text-text-primary">Páginas editoriales</h2>
+        @if (facade.contents().length > 0) {
+          <p class="mt-0.5 text-caption text-text-muted">
+            Títulos, introducción e imágenes de cada página del sitio.
+          </p>
+        }
+      </div>
+      <app-button variant="primary" (click)="openContent(null)">Nuevo contenido</app-button>
     </div>
+
     @if (facade.contents().length === 0) {
       <app-empty-state
         emptyStateId="content-empty"
         title="Sin contenido de páginas"
         description="Crea el contenido editorial de Nosotros, Servicios, Proyectos o Contacto."
-      />
+      >
+        <app-button empty-state-actions variant="primary" (click)="openContent(null)">
+          Nuevo contenido
+        </app-button>
+      </app-empty-state>
     } @else {
-      <div class="overflow-x-auto rounded-card border border-border bg-surface">
-        <table class="w-full min-w-[42rem] text-left">
+      <div class="max-w-full overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+        <table class="w-full min-w-[52rem] border-collapse text-left">
+          <caption class="sr-only">Contenido editorial por página</caption>
           <thead class="border-b border-border bg-background-soft">
             <tr>
-              <th class="table-heading">Página</th>
-              <th class="table-heading">Título</th>
-              <th class="table-heading">Estado</th>
-              <th class="table-heading text-right">Acción</th>
+              <th scope="col" class="table-heading">Página</th>
+              <th scope="col" class="table-heading">Título</th>
+              <th scope="col" class="table-heading">Eyebrow</th>
+              <th scope="col" class="table-heading">Estado</th>
+              <th scope="col" class="table-heading text-right">Acciones</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
             @for (item of facade.contents(); track item.id) {
-              <tr>
-                <td class="px-5 py-4 text-body-sm font-semibold">{{ item.pagina }}</td>
-                <td class="px-5 py-4 text-body-sm">{{ item.titulo || 'Sin título' }}</td>
-                <td class="px-5 py-4 text-body-sm">{{ item.activo ? 'Activo' : 'Inactivo' }}</td>
-                <td class="px-5 py-4 text-right">
-                  <app-button size="small" variant="secondary" (click)="openContent(item)"
-                    >Editar</app-button
-                  >
+              <tr class="transition-colors duration-fast hover:bg-surface-hover">
+                <td class="px-5 py-4">
+                  <span class="text-body-sm font-semibold text-text-primary">{{ pageLabel(item.pagina) }}</span>
+                </td>
+                <td class="px-5 py-4">
+                  <span class="block text-body-sm font-medium text-text-primary">
+                    {{ item.titulo || '—' }}
+                  </span>
+                  @if (item.introduccion) {
+                    <span class="mt-0.5 block max-w-md truncate text-caption text-text-muted" [title]="item.introduccion">
+                      {{ item.introduccion }}
+                    </span>
+                  }
+                </td>
+                <td class="px-5 py-4">
+                  @if (item.eyebrow) {
+                    <span
+                      class="inline-block rounded-control bg-background-soft px-2.5 py-1 text-caption font-semibold uppercase tracking-wider text-text-secondary"
+                      [title]="item.eyebrow"
+                    >
+                      {{ item.eyebrow }}
+                    </span>
+                  } @else {
+                    <span class="text-body-sm text-text-muted">—</span>
+                  }
+                </td>
+                <td class="px-5 py-4">
+                  @if (item.activo) {
+                    <app-badge variant="success" dot>Activo</app-badge>
+                  } @else {
+                    <app-badge variant="neutral" dot>Inactivo</app-badge>
+                  }
+                </td>
+                <td class="px-5 py-4">
+                  <div class="flex justify-end">
+                    <app-button size="small" variant="ghost" (click)="openContent(item)">Editar</app-button>
+                  </div>
                 </td>
               </tr>
             }
@@ -71,38 +157,67 @@
     }
   </section>
 } @else {
-  <section class="mt-8">
-    <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-heading-3 text-text-primary">Metadatos SEO</h2>
-      <app-button (click)="openSeo(null)">Nuevo SEO</app-button>
+  <section class="mt-8" aria-labelledby="seo-list-title">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 id="seo-list-title" class="text-heading-3 text-text-primary">Metadatos SEO</h2>
+        @if (facade.seoPages().length > 0) {
+          <p class="mt-0.5 text-caption text-text-muted">
+            Títulos, descripciones y directivas de indexación para buscadores.
+          </p>
+        }
+      </div>
+      <app-button variant="primary" (click)="openSeo(null)">Nuevo SEO</app-button>
     </div>
+
     @if (facade.seoPages().length === 0) {
       <app-empty-state
         emptyStateId="seo-empty"
         title="Sin configuraciones SEO"
         description="Agrega metadatos para páginas estáticas o unidades de negocio."
-      />
+      >
+        <app-button empty-state-actions variant="primary" (click)="openSeo(null)">
+          Nuevo SEO
+        </app-button>
+      </app-empty-state>
     } @else {
-      <div class="overflow-x-auto rounded-card border border-border bg-surface">
-        <table class="w-full min-w-[42rem] text-left">
+      <div class="max-w-full overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+        <table class="w-full min-w-[56rem] border-collapse text-left">
+          <caption class="sr-only">Metadatos SEO por página</caption>
           <thead class="border-b border-border bg-background-soft">
             <tr>
-              <th class="table-heading">Tipo</th>
-              <th class="table-heading">Título</th>
-              <th class="table-heading">Robots</th>
-              <th class="table-heading text-right">Acción</th>
+              <th scope="col" class="table-heading">Página</th>
+              <th scope="col" class="table-heading">Título SEO</th>
+              <th scope="col" class="table-heading">Descripción</th>
+              <th scope="col" class="table-heading">Robots</th>
+              <th scope="col" class="table-heading text-right">Acciones</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
             @for (item of facade.seoPages(); track item.id) {
-              <tr>
-                <td class="px-5 py-4 text-body-sm font-semibold">{{ item.tipoPagina }}</td>
-                <td class="px-5 py-4 text-body-sm">{{ item.title }}</td>
-                <td class="px-5 py-4 text-body-sm">{{ item.robots }}</td>
-                <td class="px-5 py-4 text-right">
-                  <app-button size="small" variant="secondary" (click)="openSeo(item)"
-                    >Editar</app-button
-                  >
+              <tr class="transition-colors duration-fast hover:bg-surface-hover">
+                <td class="px-5 py-4">
+                  <span class="text-body-sm font-semibold text-text-primary">{{ seoPageLabel(item.tipoPagina) }}</span>
+                </td>
+                <td class="px-5 py-4 text-body-sm">
+                  <span class="block max-w-xs truncate font-medium text-text-primary" [title]="item.title">
+                    {{ item.title }}
+                  </span>
+                </td>
+                <td class="px-5 py-4 text-body-sm">
+                  <span class="block max-w-md truncate text-text-secondary" [title]="item.description">
+                    {{ item.description }}
+                  </span>
+                </td>
+                <td class="px-5 py-4">
+                  <app-badge [variant]="item.robots === 'INDEX_FOLLOW' ? 'success' : 'neutral'">
+                    {{ robotsLabel(item.robots) }}
+                  </app-badge>
+                </td>
+                <td class="px-5 py-4">
+                  <div class="flex justify-end">
+                    <app-button size="small" variant="ghost" (click)="openSeo(item)">Editar</app-button>
+                  </div>
                 </td>
               </tr>
             }
@@ -112,6 +227,7 @@
     }
   </section>
 }
+
 @if (contentFormOpen()) {
   <app-page-content-form
     [content]="selectedContent()"

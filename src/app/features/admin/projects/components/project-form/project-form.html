@@ -16,17 +16,23 @@
     </app-alert>
   }
 
+  <p class="mb-5 text-caption text-text-muted">
+    <span class="text-error" aria-hidden="true">*</span> Campo obligatorio
+  </p>
+
   <form
     id="project-form"
     class="space-y-5"
     (submit)="submit(); $event.preventDefault()"
     novalidate
   >
-    <!-- 1. Ficha Técnica de la Obra -->
+    <!-- 1. Ficha técnica de la obra -->
     <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
       <div class="border-b border-border pb-2">
-        <h4 class="text-body-sm font-semibold text-text-primary">1. Ficha Técnica de la Obra</h4>
-        <p class="text-caption text-text-muted">Identificación del proyecto, cliente, ubicación geográfica y año.</p>
+        <h4 class="text-body-sm font-semibold text-text-primary">1. Ficha técnica de la obra</h4>
+        <p class="text-caption text-text-muted">
+          Identificación del proyecto, cliente, ubicación geográfica y periodo de ejecución.
+        </p>
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
@@ -41,30 +47,64 @@
             [disabled]="submitting()"
             required
           />
-          @if (slug()) {
-            <p class="mt-1.5 inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-md border border-border">
-              <span class="text-text-secondary font-medium">Ruta automática:</span>
-              <code class="text-accent font-semibold">/{{ slug() }}</code>
-            </p>
-          }
-          <input id="project-slug" type="hidden" [value]="slug()" />
-          @if (errors().slug) {
-            <p class="form-error mt-1" role="alert">{{ errors().slug }}</p>
+
+          @if (mode() === 'create') {
+            @if (slug()) {
+              <p
+                class="mt-1.5 inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-md border border-border"
+              >
+                <span class="text-text-secondary font-medium">Ruta automática:</span>
+                <code class="text-accent font-semibold font-mono">/{{ slug() }}</code>
+              </p>
+            }
+            @if (errors().slug) {
+              <p class="form-error mt-1" role="alert">{{ errors().slug }}</p>
+            }
+          } @else {
+            @if (slugLocked()) {
+              <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                <p
+                  class="inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-md border border-border"
+                >
+                  <span class="text-text-secondary font-medium">Slug actual:</span>
+                  <code class="text-accent font-semibold font-mono">/{{ slug() }}</code>
+                </p>
+                <button
+                  type="button"
+                  class="text-caption text-text-muted underline hover:text-text-primary focus-visible:outline-none"
+                  [disabled]="submitting()"
+                  (click)="unlockSlug()"
+                >
+                  Editar slug
+                </button>
+              </div>
+            } @else {
+              <app-input-field
+                inputId="project-slug"
+                label="Slug URL"
+                [(value)]="slug"
+                placeholder="ej: complejo-los-pinos"
+                helperText="Cambiar el slug puede romper URLs ya indexadas."
+                [error]="errors().slug"
+                [disabled]="submitting()"
+                required
+              />
+            }
           }
         </div>
 
         <app-input-field
           inputId="project-client"
-          label="Cliente o Contratante (opcional)"
+          label="Cliente o contratante"
           [(value)]="cliente"
-          placeholder="Ej: Inversiones Los Pinos S.A.C."
+          placeholder="Ej: Inversiones Los Pinos"
           helperText="Nombre del cliente o entidad licitante."
           [disabled]="submitting()"
         />
 
         <app-input-field
           inputId="project-location"
-          label="Ubicación geográfica (opcional)"
+          label="Ubicación geográfica"
           [(value)]="ubicacion"
           placeholder="Ej: Chiclayo, Lambayeque"
           helperText="Ciudad o distrito donde se ejecutó la obra."
@@ -73,10 +113,10 @@
 
         <app-input-field
           inputId="project-date"
-          label="Fecha o periodo de ejecución"
+          label="Periodo de ejecución"
           [(value)]="fechaProyecto"
-          placeholder="Ej: 2024 - 2025 o Noviembre 2024"
-          helperText="Año o periodo en que se realizó la obra."
+          placeholder="Ej: 2024–2025"
+          helperText="Formato libre, p. ej. año o rango de años."
           [disabled]="submitting()"
         />
 
@@ -86,17 +126,19 @@
           type="number"
           inputMode="numeric"
           [(value)]="orden"
-          helperText="0 se muestra primero; 1, 2, 3... descienden."
+          helperText="Los números menores aparecen primero."
           [disabled]="submitting()"
         />
       </div>
     </fieldset>
 
-    <!-- 2. Memoria y Descripción -->
+    <!-- 2. Memoria descriptiva -->
     <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
       <div class="border-b border-border pb-2">
-        <h4 class="text-body-sm font-semibold text-text-primary">2. Memoria Descriptiva</h4>
-        <p class="text-caption text-text-muted">Resumen técnico de la obra, metrajes, especificaciones y desafíos resueltos.</p>
+        <h4 class="text-body-sm font-semibold text-text-primary">2. Memoria descriptiva</h4>
+        <p class="text-caption text-text-muted">
+          Resumen técnico de la obra: metrajes, especificaciones y desafíos resueltos.
+        </p>
       </div>
 
       <app-textarea-field
@@ -109,20 +151,25 @@
         [disabled]="submitting()"
         required
       />
+      <p class="text-caption text-text-muted text-right -mt-2">
+        {{ descripcion().length }} caracteres
+      </p>
     </fieldset>
 
-    <!-- 3. Fotografía Principal del Proyecto -->
+    <!-- 3. Fotografía representativa -->
     <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
       <div class="border-b border-border pb-2">
-        <h4 class="text-body-sm font-semibold text-text-primary">3. Fotografía Representativa</h4>
-        <p class="text-caption text-text-muted">Imagen de portada para la tarjeta de la obra en el portafolio web.</p>
+        <h4 class="text-body-sm font-semibold text-text-primary">3. Fotografía representativa</h4>
+        <p class="text-caption text-text-muted">
+          Imagen de portada para la tarjeta de la obra en el portafolio web.
+        </p>
       </div>
 
       <div class="space-y-4">
-        <div class="space-y-2">
+        <div class="space-y-1.5">
           <label class="form-label mb-0">Imagen representativa</label>
-          <p class="text-caption text-text-muted mb-2">
-            Enlace público directo (PNG, JPG, WebP).
+          <p class="text-caption text-text-muted">
+            Formato horizontal recomendado (16:9), mínimo 1200 px de ancho.
           </p>
           <app-image-uploader
             folder="isanorte/proyectos"
@@ -137,17 +184,22 @@
           label="Texto alternativo de la imagen"
           [(value)]="imagenAlt"
           placeholder="Ej: Vista frontal de la fachada con ventanería hermética"
-          helperText="Requerido para posicionamiento SEO y accesibilidad."
+          helperText="Recomendado para SEO y accesibilidad. Se completa automáticamente si se deja vacío."
           [disabled]="submitting()"
         />
+        @if (imagenAltWarning(); as warning) {
+          <p class="mt-1 text-caption text-warning" role="status">{{ warning }}</p>
+        }
       </div>
     </fieldset>
 
-    <!-- 4. Servicios Vinculados y Visibilidad -->
+    <!-- 4. Especialidades -->
     <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
       <div class="border-b border-border pb-2">
-        <h4 class="text-body-sm font-semibold text-text-primary">4. Especialidades y Visibilidad</h4>
-        <p class="text-caption text-text-muted">Asocia los servicios constructivos que formaron parte de esta obra.</p>
+        <h4 class="text-body-sm font-semibold text-text-primary">4. Especialidades</h4>
+        <p class="text-caption text-text-muted">
+          Asocia los servicios constructivos que formaron parte de esta obra.
+        </p>
       </div>
 
       @if (loadingFormData()) {
@@ -155,58 +207,95 @@
       } @else if (services().length === 0) {
         <p class="text-body-sm text-text-muted">No hay servicios registrados actualmente.</p>
       } @else {
-        <div>
-          <span class="text-caption font-semibold uppercase tracking-wider text-text-muted mb-2 block">
-            Servicios técnicos involucrados:
-          </span>
-          <div class="grid gap-2.5 sm:grid-cols-2">
-            @for (service of services(); track service.id) {
-              <label
-                class="flex items-center gap-3 rounded-control border border-border bg-surface-soft p-3 text-body-sm text-text-secondary hover:bg-surface-hover hover:border-text-muted transition-colors cursor-pointer"
-              >
-                <input
-                  class="form-choice"
-                  type="checkbox"
-                  [checked]="serviceSelected(service.id)"
-                  [disabled]="submitting()"
-                  (change)="updateService(service.id, $event)"
-                />
-                <span class="font-medium text-text-primary">{{ service.nombre }}</span>
-              </label>
-            }
-          </div>
+        <div class="grid gap-2.5 sm:grid-cols-3">
+          @for (service of services(); track service.id) {
+            <label
+              class="flex items-center gap-3 rounded-control border border-border bg-surface-soft p-3 text-body-sm text-text-secondary hover:bg-surface-hover hover:border-text-muted transition-colors cursor-pointer"
+            >
+              <input
+                class="form-choice"
+                type="checkbox"
+                [checked]="serviceSelected(service.id)"
+                [disabled]="submitting()"
+                (change)="updateService(service.id, $event)"
+              />
+              <span class="font-medium text-text-primary">{{ service.nombre }}</span>
+            </label>
+          }
         </div>
       }
+    </fieldset>
 
-      <div class="grid gap-3 sm:grid-cols-2 pt-2 border-t border-border">
-        <label class="flex items-center gap-3 rounded-card border border-border bg-surface-soft p-3.5 cursor-pointer hover:bg-surface-hover transition-colors">
-          <input
-            class="form-choice"
-            type="checkbox"
-            [checked]="destacado()"
-            [disabled]="submitting()"
-            (change)="updateFeatured($event)"
-          />
-          <div>
-            <span class="font-medium text-body-sm text-text-primary">Proyecto destacado</span>
-            <p class="text-caption text-text-muted">Aparece en la galería principal de la portada.</p>
-          </div>
-        </label>
-
-        <label class="flex items-center gap-3 rounded-card border border-border bg-surface-soft p-3.5 cursor-pointer hover:bg-surface-hover transition-colors">
-          <input
-            class="form-choice"
-            type="checkbox"
-            [checked]="activo()"
-            [disabled]="submitting()"
-            (change)="updateActive($event)"
-          />
-          <div>
-            <span class="font-medium text-body-sm text-text-primary">Proyecto activo en la web</span>
-            <p class="text-caption text-text-muted">Si se desactiva, no se mostrará en el portafolio público.</p>
-          </div>
-        </label>
+    <!-- 5. Visibilidad -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 space-y-3 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">5. Visibilidad</h4>
+        <p class="text-caption text-text-muted">
+          Controla si el proyecto se publica y si aparece como destacado en la portada.
+        </p>
       </div>
+
+      <!-- Switch: Publicado en la web -->
+      <label
+        class="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
+      >
+        <div>
+          <span class="font-medium text-body-sm text-text-primary">Publicado en la web</span>
+          <p class="text-caption text-text-muted">
+            Si se desactiva, no se mostrará en el portafolio público.
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          [attr.aria-checked]="activo()"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-50"
+          [class.bg-accent]="activo()"
+          [class.bg-border]="!activo()"
+          [disabled]="submitting()"
+          (click)="toggleActive(); $event.preventDefault()"
+        >
+          <span
+            class="inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform"
+            [class.translate-x-5]="activo()"
+            [class.translate-x-0]="!activo()"
+          ></span>
+        </button>
+      </label>
+
+      <!-- Switch: Destacar en la portada -->
+      <label
+        class="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors"
+        [class.opacity-50]="!activo()"
+        [class.pointer-events-none]="!activo() || submitting()"
+        [class.hover:bg-surface-hover]="activo()"
+      >
+        <div>
+          <span class="font-medium text-body-sm text-text-primary">Destacar en la portada</span>
+          <p class="text-caption text-text-muted">
+            Aparece en la galería principal del inicio.
+            @if (!activo()) {
+              <span class="text-warning"> Requiere que el proyecto esté publicado.</span>
+            }
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          [attr.aria-checked]="destacado()"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-50"
+          [class.bg-accent]="destacado()"
+          [class.bg-border]="!destacado()"
+          [disabled]="!activo() || submitting()"
+          (click)="toggleFeatured(); $event.preventDefault()"
+        >
+          <span
+            class="inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform"
+            [class.translate-x-5]="destacado()"
+            [class.translate-x-0]="!destacado()"
+          ></span>
+        </button>
+      </label>
     </fieldset>
   </form>
 
