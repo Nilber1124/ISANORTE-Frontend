@@ -42,6 +42,8 @@ function createProduct(
     precioAnterior: null,
     descuentoPorcentaje: null,
     disponibilidad: ProductAvailability.DISPONIBLE,
+    destacado: false,
+    ordenDestacado: 0,
     retiroEnTienda: true,
     imagen: {
       url: `/images/${sku.toLowerCase()}.webp`,

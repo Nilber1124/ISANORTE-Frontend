@@ -61,6 +61,7 @@ export interface ProductResponse {
   descuentoPorcentaje: number | null;
   disponibilidad: ProductAvailability;
   destacado: boolean | null;
+  ordenDestacado: number;
   estado: ProductPublicationStatus;
   tituloSeo: string | null;
   descripcionSeo: string | null;

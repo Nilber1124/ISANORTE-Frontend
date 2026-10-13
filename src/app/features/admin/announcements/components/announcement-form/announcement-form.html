@@ -40,6 +40,14 @@
       @if (submitted() && !imagenUrl().trim()) {
       <p class="form-error">Sube una imagen principal.</p>
       }
+      @if (ubicacion() === 'CATEGORIA_SUPERIOR') {
+      <div class="mt-5">
+        <p class="form-label">Imagen al pasar el puntero</p>
+        <app-image-uploader folder="isanorte/anuncios/hover" [ngModel]="imagenHoverUrl()"
+          (ngModelChange)="imagenHoverUrl.set($event)" name="announcementHoverImage" />
+        <p class="form-helper">En dispositivos táctiles se muestra al enfocar o activar la tarjeta.</p>
+      </div>
+      }
       <article class="announcement-preview" aria-label="Vista previa del anuncio">
         <img [src]="imagenUrl() || '/images/isanorte-logo-horizontal-white.svg'" alt="" />
         <div>
@@ -54,6 +62,17 @@
     <fieldset class="form-section">
       <legend>Destino y acción</legend>
       <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="form-label" for="announcement-location">Ubicación</label><select id="announcement-location"
+            class="form-control" [value]="ubicacion()" (change)="setLocation($event)">
+            <option value="GENERAL">Cinta general</option>
+            <option value="CINTA_HOME">Cinta animada del Home</option>
+            <option value="PROMOCION_PRINCIPAL">Promoción principal</option>
+            <option value="PROMOCION_SECUNDARIA">Promoción secundaria</option>
+            <option value="ANUNCIOS_HOME">Tarjeta de anuncios del Home</option>
+            <option value="CATEGORIA_SUPERIOR">Categoría superior</option>
+          </select>
+        </div>
         <div>
           <label class="form-label" for="announcement-destination">Sitio</label><select id="announcement-destination"
             class="form-control" [value]="destino()" (change)="setDestination($event)">
@@ -71,13 +90,24 @@
           </select>
         </div>
       </div>
-      <label class="form-label mt-4" for="announcement-target">URL, ruta o sección</label><input
-        id="announcement-target" class="form-control" maxlength="500" required [(ngModel)]="destinoAccion"
-        name="destinoAccion" placeholder="/contacto, #catalogo o https://..." />
-      <p class="form-helper">
-        Usa rutas Angular que comiencen con /, secciones con # y URLs externas completas con
-        https://.
-      </p>
+      @if (tipoAccion() === 'CATEGORIA') {
+        <label class="form-label mt-4" for="announcement-target-category">Categoría asociada</label>
+        <select id="announcement-target-category" class="form-control" [(ngModel)]="destinoAccion" name="destinoAccion" required>
+          <option value="">Selecciona una categoría</option>
+          @for (category of categories(); track category.id) { <option [value]="category.slug">{{ category.nombre }}</option> }
+        </select>
+      } @else if (tipoAccion() === 'PRODUCTO') {
+        <label class="form-label mt-4" for="announcement-target-product">Producto asociado</label>
+        <select id="announcement-target-product" class="form-control" [(ngModel)]="destinoAccion" name="destinoAccion" required>
+          <option value="">Selecciona un producto</option>
+          @for (product of products(); track product.id) { <option [value]="product.slug">{{ product.nombre }}</option> }
+        </select>
+      } @else {
+        <label class="form-label mt-4" for="announcement-target">URL, ruta o sección</label><input
+          id="announcement-target" class="form-control" maxlength="500" required [(ngModel)]="destinoAccion"
+          name="destinoAccion" placeholder="/contacto, #catalogo o https://..." />
+        <p class="form-helper">Usa rutas Angular que comiencen con /, secciones con # y URLs externas completas con https://.</p>
+      }
     </fieldset>
 
     <fieldset class="form-section">

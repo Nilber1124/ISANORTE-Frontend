@@ -16,10 +16,15 @@ interface AvailabilityPresentation {
   selector: 'app-product-card',
   imports: [Badge, Card, DecimalPipe, RouterLink],
   templateUrl: './product-card.html',
+  styleUrl: './product-card.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.product-card-host--featured]': "presentation() === 'featured'",
+  },
 })
 export class ProductCard {
   readonly product = input.required<PublicProductCardResponse>();
+  readonly presentation = input<'default' | 'featured'>('default');
 
   private readonly imageFailed = signal(false);
 

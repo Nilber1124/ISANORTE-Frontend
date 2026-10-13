@@ -8,6 +8,11 @@
     <div
       id="announcement-ribbon-panel"
       class="announcement-ribbon__panel"
+      [class]="
+        destination() === 'ISADECOR'
+          ? '!rounded-r-panel !border !border-l-0 !border-border-strong !bg-surface-elevated !text-text-primary !shadow-floating'
+          : ''
+      "
       role="region"
       aria-roledescription="carrusel"
       [attr.aria-label]="'Anuncios de ' + destination()"
@@ -33,25 +38,45 @@
           >
             <button
               class="announcement-ribbon__visual"
+              [class]="destination() === 'ISADECOR' ? '!h-[150px] !bg-background-muted' : ''"
               type="button"
               [attr.tabindex]="index === currentIndex() ? 0 : -1"
               (click)="openDetail(announcement)"
             >
               <img [src]="announcement.imagenUrl" [alt]="announcement.titulo" />
             </button>
-            <div class="announcement-ribbon__text">
-              <span class="announcement-ribbon__tag">{{ announcement.etiqueta }}</span>
+            <div
+              class="announcement-ribbon__text"
+              [class]="destination() === 'ISADECOR' ? '!gap-3 !p-6' : ''"
+            >
+              <span
+                class="announcement-ribbon__tag"
+                [class]="
+                  destination() === 'ISADECOR'
+                    ? '!bg-accent/10 !font-semibold !text-accent-strong'
+                    : ''
+                "
+                >{{ announcement.etiqueta }}</span
+              >
               <button
                 class="announcement-ribbon__title"
+                [class]="destination() === 'ISADECOR' ? '!text-text-primary' : ''"
                 type="button"
                 [attr.tabindex]="index === currentIndex() ? 0 : -1"
                 (click)="openDetail(announcement)"
               >
                 {{ announcement.titulo }}
               </button>
-              <p>{{ announcement.descripcionResumida }}</p>
+              <p [class]="destination() === 'ISADECOR' ? '!text-text-secondary' : ''">
+                {{ announcement.descripcionResumida }}
+              </p>
               <button
                 class="announcement-ribbon__cta"
+                [class]="
+                  destination() === 'ISADECOR'
+                    ? '!rounded-button !bg-accent !text-accent-contrast'
+                    : ''
+                "
                 type="button"
                 [attr.tabindex]="index === currentIndex() ? 0 : -1"
                 (click)="openDetail(announcement)"
@@ -102,6 +127,9 @@
     <button
       type="button"
       class="announcement-ribbon__tab"
+      [class]="
+        destination() === 'ISADECOR' ? '!rounded-r-button !bg-accent !text-accent-contrast' : ''
+      "
       [attr.aria-expanded]="open()"
       aria-controls="announcement-ribbon-panel"
       [attr.aria-label]="open() ? 'Ocultar anuncios' : 'Mostrar anuncios'"

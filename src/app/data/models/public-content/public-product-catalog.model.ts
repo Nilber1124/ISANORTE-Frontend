@@ -22,6 +22,8 @@ export interface PublicProductCardResponse {
   precioAnterior: number | null;
   descuentoPorcentaje: number | null;
   disponibilidad: ProductAvailability;
+  destacado: boolean | null;
+  ordenDestacado: number | null;
   retiroEnTienda: boolean | null;
   imagen: PublicProductImageResponse | null;
   categorias: PublicProductCategoryResponse[];

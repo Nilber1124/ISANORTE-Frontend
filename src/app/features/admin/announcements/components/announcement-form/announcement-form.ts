@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import {
   AnnouncementActionType,
   AnnouncementDestination,
+  AnnouncementLocation,
   AnnouncementRequest,
   AnnouncementResponse,
 } from '../../../../../data/models/announcement/announcement.model';
@@ -20,6 +21,8 @@ import { Button } from '../../../../../shared/components/button/button';
 import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { AnnouncementFormMode } from '../../admin-announcements.facade';
+import { CategoryResponse } from '../../../../../data/models/category/category-response.model';
+import { ProductResponse } from '../../../../../data/models/product/product-response.model';
 
 @Component({
   selector: 'app-announcement-form',
@@ -31,6 +34,9 @@ import { AnnouncementFormMode } from '../../admin-announcements.facade';
 export class AnnouncementForm implements OnInit {
   readonly mode = input.required<AnnouncementFormMode>();
   readonly announcement = input<AnnouncementResponse | null>(null);
+  readonly defaultLocation = input<AnnouncementLocation>('GENERAL');
+  readonly categories = input<readonly CategoryResponse[]>([]);
+  readonly products = input<readonly ProductResponse[]>([]);
   readonly submitting = input(false);
   readonly serverError = input<string | null>(null);
   readonly canceled = output<void>();
@@ -41,8 +47,10 @@ export class AnnouncementForm implements OnInit {
   readonly contenidoDetallado = signal('');
   readonly condiciones = signal('');
   readonly imagenUrl = signal('');
+  readonly imagenHoverUrl = signal('');
   readonly etiqueta = signal('Promoción');
   readonly destino = signal<AnnouncementDestination>('AMBOS');
+  readonly ubicacion = signal<AnnouncementLocation>('GENERAL');
   readonly tipoAccion = signal<AnnouncementActionType>('RUTA_INTERNA');
   readonly destinoAccion = signal('');
   readonly textoBoton = signal('Ver más');
@@ -68,14 +76,21 @@ export class AnnouncementForm implements OnInit {
 
   ngOnInit(): void {
     const value = this.announcement();
-    if (!value) return;
+    if (!value) {
+      this.ubicacion.set(this.defaultLocation());
+      this.destino.set(this.defaultLocation() === 'GENERAL' ? 'AMBOS' : 'ISADECOR');
+      if (this.defaultLocation() === 'CATEGORIA_SUPERIOR') this.tipoAccion.set('CATEGORIA');
+      return;
+    }
     this.titulo.set(value.titulo);
     this.descripcionResumida.set(value.descripcionResumida);
     this.contenidoDetallado.set(value.contenidoDetallado);
     this.condiciones.set(value.condiciones ?? '');
     this.imagenUrl.set(value.imagenUrl);
+    this.imagenHoverUrl.set(value.imagenHoverUrl ?? '');
     this.etiqueta.set(value.etiqueta);
     this.destino.set(value.destino);
+    this.ubicacion.set(value.ubicacion);
     this.tipoAccion.set(value.tipoAccion);
     this.destinoAccion.set(value.destinoAccion);
     this.textoBoton.set(value.textoBoton);
@@ -94,8 +109,10 @@ export class AnnouncementForm implements OnInit {
       contenidoDetallado: this.contenidoDetallado().trim(),
       condiciones: this.optional(this.condiciones()),
       imagenUrl: this.imagenUrl().trim(),
+      imagenHoverUrl: this.optional(this.imagenHoverUrl()),
       etiqueta: this.etiqueta().trim(),
       destino: this.destino(),
+      ubicacion: this.ubicacion(),
       tipoAccion: this.tipoAccion(),
       destinoAccion: this.destinoAccion().trim(),
       textoBoton: this.textoBoton().trim(),
@@ -111,6 +128,9 @@ export class AnnouncementForm implements OnInit {
   }
   protected setActionType(event: Event): void {
     this.tipoAccion.set((event.target as HTMLSelectElement).value as AnnouncementActionType);
+  }
+  protected setLocation(event: Event): void {
+    this.ubicacion.set((event.target as HTMLSelectElement).value as AnnouncementLocation);
   }
   protected setActive(event: Event): void {
     this.activo.set((event.target as HTMLInputElement).checked);

@@ -60,8 +60,8 @@ export const routes: Routes = [
       {
         path: 'isadecor-landing',
         loadComponent: () =>
-          import('./features/admin/isadecor-landing/admin-isadecor-landing').then(
-            ({ AdminIsadecorLanding }) => AdminIsadecorLanding,
+          import('./features/admin/announcements/admin-announcements').then(
+            ({ AdminAnnouncements }) => AdminAnnouncements,
           ),
         data: { title: 'Accesos Rápidos ISADECOR' },
       },

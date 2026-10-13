@@ -198,6 +198,7 @@ const product: ProductResponse = {
   descuentoPorcentaje: 10,
   disponibilidad: ProductAvailability.BAJO_PEDIDO,
   destacado: true,
+  ordenDestacado: 0,
   estado: ProductPublicationStatus.OCULTO,
   tituloSeo: 'Wall Panel',
   descripcionSeo: null,

@@ -44,7 +44,6 @@ export class AdminSidebar {
       title: 'Contenido',
       items: [
         { label: 'Páginas y SEO', route: '/admin/contenido' },
-        { label: 'Anuncios', route: '/admin/anuncios' },
       ],
     },
     {
@@ -53,7 +52,7 @@ export class AdminSidebar {
         { label: 'Categorías', route: '/admin/categorias' },
         { label: 'Productos', route: '/admin/productos' },
         { label: 'Cotizaciones', route: '/admin/cotizaciones' },
-        { label: 'Accesos Rápidos', route: '/admin/isadecor-landing' },
+        { label: 'Contenido del Home', route: '/admin/anuncios', badge: 'Nuevo' },
       ],
     },
     {

@@ -19,11 +19,30 @@
 
     <!-- Contenido principal del Hero -->
     <div class="app-container flex flex-1 items-center py-16 sm:py-20 lg:py-24">
-      <app-reveal-stagger [stagger]="0.13" [duration]="0.9" [ease]="'power3.out'" [trigger]="'load'">
+      <app-reveal-stagger
+        [stagger]="0.13"
+        [duration]="0.9"
+        [ease]="'power3.out'"
+        [trigger]="'load'"
+      >
         <div class="max-w-2xl">
-          <p data-reveal="up" data-reveal-order="0" class="text-eyebrow font-semibold uppercase text-accent">{{ hero.kicker }}</p>
-          <h1 data-reveal="up" data-reveal-order="1" class="mt-4 text-display text-white">{{ hero.title }}</h1>
-          <p data-reveal="up" data-reveal-order="2" class="mt-6 max-w-xl text-body-lg text-white/80">{{ hero.description }}</p>
+          <p
+            data-reveal="up"
+            data-reveal-order="0"
+            class="text-eyebrow font-semibold uppercase text-accent"
+          >
+            {{ hero.kicker }}
+          </p>
+          <h1 data-reveal="up" data-reveal-order="1" class="mt-4 text-display text-white">
+            {{ hero.title }}
+          </h1>
+          <p
+            data-reveal="up"
+            data-reveal-order="2"
+            class="mt-6 max-w-xl text-body-lg text-white/80"
+          >
+            {{ hero.description }}
+          </p>
           <div data-reveal="up" data-reveal-order="3" class="mt-8 flex flex-wrap gap-4">
             <app-button variant="accent" size="large" [href]="hero.primaryCta.url">
               {{ hero.primaryCta.label }}
@@ -37,238 +56,636 @@
     </div>
 
     <!-- Barra de accesos directos al pie del Hero (Estilo Decorplas + Identidad ISANORTE) -->
-    @if (heroQuickAccess().length > 0) {
+    @if (homeCategories().length > 0) {
       <div class="relative z-10 border-t border-white/15 bg-black/65 backdrop-blur-md">
         <div class="app-container px-0 sm:px-4">
-          <app-reveal-stagger [stagger]="0.09" [startDelay]="0.55" [duration]="0.7" [trigger]="'load'">
-          <nav aria-label="Accesos directos a líneas principales" class="grid grid-cols-1 divide-y divide-white/15 sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-flow-col lg:auto-cols-fr">
-            @for (item of heroQuickAccess(); track item.id) {
-              <a
-                data-reveal="up"
-                [routerLink]="catalogUrl"
-                [queryParams]="item.queryParams"
-                class="group relative flex flex-col justify-between p-4.5 sm:p-6 transition-all duration-normal hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-[11px] font-mono font-semibold tracking-wider text-accent uppercase">
-                    {{ item.index }} · {{ item.tag }}
-                  </span>
-                  <svg
-                    class="size-4 text-white/40 transition-all duration-normal group-hover:translate-x-1 group-hover:text-accent"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
+          <app-reveal-stagger
+            [stagger]="0.09"
+            [startDelay]="0.55"
+            [duration]="0.7"
+            [trigger]="'load'"
+          >
+            <nav
+              aria-label="Accesos directos a líneas principales"
+              class="grid grid-cols-1 divide-y divide-white/15 sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-flow-col lg:auto-cols-fr"
+            >
+              @for (item of homeCategories(); track item.id; let i = $index) {
+                <a
+                  data-reveal="up"
+                  [routerLink]="internalRoute(item)"
+                  [queryParams]="contentQueryParams(item)"
+                  [attr.href]="externalUrl(item)"
+                  [attr.target]="externalUrl(item) ? '_blank' : null"
+                  [attr.rel]="externalUrl(item) ? 'noopener noreferrer' : null"
+                  class="quick-access-card group relative flex flex-col justify-between p-4.5 transition-colors duration-normal hover:z-20 hover:bg-white/10 focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:p-6"
+                >
+                  <span
+                    class="quick-access-card__preview absolute inset-x-0 bottom-0 h-0 overflow-hidden border border-white/15 bg-brand opacity-0 shadow-card transition-[height,opacity] duration-300 ease-[var(--ease-standard)]"
                     aria-hidden="true"
                   >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </div>
+                    <img
+                      [src]="item.imagenHoverUrl || item.imagenUrl"
+                      alt=""
+                      class="absolute inset-0 h-full w-full object-cover"
+                    />
+                    <span class="absolute inset-0 bg-black/45"></span>
+                  </span>
+                  <div class="relative z-10 flex items-center justify-between gap-2">
+                    <span
+                      class="text-[11px] font-mono font-semibold tracking-wider text-accent uppercase"
+                    >
+                      {{ (i + 1).toString().padStart(2, '0') }} · CATEGORÍA
+                    </span>
+                    <svg
+                      class="size-4 text-white/40 transition-all duration-normal group-hover:translate-x-1 group-hover:text-accent"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                      />
+                    </svg>
+                  </div>
 
-                <div class="mt-3">
-                  <h2 class="text-body font-bold text-white transition-colors duration-normal group-hover:text-accent">
-                    {{ item.title }}
-                  </h2>
-                  <p class="mt-1 text-caption text-white/60 line-clamp-1">
-                    {{ item.subtitle }}
-                  </p>
-                </div>
+                  <div class="relative z-10 mt-3">
+                    <h2
+                      class="text-body font-bold text-white transition-colors duration-normal group-hover:text-accent"
+                    >
+                      {{ item.titulo }}
+                    </h2>
+                    <p class="mt-1 text-caption text-white/60 line-clamp-1">
+                      {{ item.descripcionResumida }}
+                    </p>
+                  </div>
 
-                <span
-                  class="absolute bottom-0 left-0 h-[2px] w-0 bg-accent transition-all duration-normal group-hover:w-full"
-                  aria-hidden="true"
-                ></span>
-              </a>
-            }
-          </nav>
+                  <span
+                    class="absolute bottom-0 left-0 h-[2px] w-0 bg-accent transition-all duration-normal group-hover:w-full"
+                    aria-hidden="true"
+                  ></span>
+                </a>
+              }
+            </nav>
           </app-reveal-stagger>
         </div>
       </div>
     }
   </section>
 
-  <section class="app-container py-16 sm:py-20 lg:py-24" aria-labelledby="catalog-highlight-title">
-    <app-reveal-stagger [stagger]="0.14" [duration]="0.85" [ease]="'power3.out'" [trigger]="'view'">
-    <app-section-title
-      data-reveal="up"
-      id="catalog-highlight-title"
-      eyebrow="Nuestras Colecciones"
-      title="Diseña Espacios que Inspiran"
-      description="Soluciones arquitectónicas modernas para muros, superficies y cielos rasos con identidad propia."
-      alignment="center"
-    />
-
-    <div class="mt-12 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
-      @for (category of featuredCategories(); track category.id; let i = $index) {
-        <a
-          data-reveal="scale"
-          [attr.data-reveal-order]="i + 1"
-          [routerLink]="catalogUrl"
-          [queryParams]="category.queryParams"
-          class="group flex h-full flex-col overflow-hidden rounded-panel border border-border bg-surface shadow-card transition-all duration-normal hover:-translate-y-1.5 hover:border-border-strong hover:shadow-floating focus-visible:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-        >
-          <!-- Contenedor de Imagen con Badge Flotante -->
-          <div class="relative aspect-[16/11] overflow-hidden bg-background-muted">
-            <img
-              [src]="category.imageUrl"
-              [alt]="category.title"
-              loading="lazy"
-              class="h-full w-full object-cover transition-transform duration-slow ease-out group-hover:scale-105"
-            />
-            <div
-              class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/15"
-              aria-hidden="true"
-            ></div>
-
-            <!-- Badge Flotante de Ubicación (PARED, SUPERFICIES, TECHOS) -->
-            <div class="absolute top-4 left-4 z-10">
-              <span class="inline-flex items-center rounded-md bg-accent px-3 py-1 text-[11px] font-bold tracking-widest uppercase text-accent-contrast shadow-sm">
-                {{ category.badge }}
-              </span>
-            </div>
-
-            <!-- Micro-tagline en la foto -->
-            @if (category.tagline) {
-              <div class="absolute bottom-3.5 left-4 right-4 z-10">
-                <span class="inline-block rounded-full bg-black/65 px-3 py-1 text-[11px] font-medium text-white/95 backdrop-blur-xs">
-                  {{ category.tagline }}
-                </span>
-              </div>
-            }
-          </div>
-
-          <!-- Cuerpo de la tarjeta -->
-          <div class="flex flex-1 flex-col p-6 sm:p-7">
-            <span class="text-[11px] font-semibold uppercase tracking-widest text-accent">
-              {{ category.eyebrow }}
-            </span>
-            <h3 class="mt-1 text-heading-3 font-bold text-text-primary transition-colors duration-normal group-hover:text-accent">
-              {{ category.title }}
-            </h3>
-            <p class="mt-2.5 flex-1 text-body-sm text-text-secondary leading-relaxed">
-              {{ category.description }}
-            </p>
-
-            <div class="mt-6 flex items-center justify-between border-t border-border pt-4">
-              <span class="inline-flex items-center gap-2 text-body-sm font-bold uppercase tracking-wider text-accent">
-                Ver colección
-                <svg
-                  class="size-4 transition-transform duration-normal group-hover:translate-x-1.5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  aria-hidden="true"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </span>
-              <span class="size-8 flex items-center justify-center rounded-full bg-surface-soft text-text-secondary transition-all duration-normal group-hover:bg-accent group-hover:text-accent-contrast">
-                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-                </svg>
-              </span>
-            </div>
-          </div>
-        </a>
-      }
-    </div>
-    </app-reveal-stagger>
-  </section>
-
-  <section
-    class="border-y border-border bg-background-soft py-14 sm:py-16 lg:py-20"
-    aria-labelledby="featured-products-title"
-  >
-    <div class="app-container">
-      <app-reveal-stagger [stagger]="0.1" [duration]="0.8" [ease]="'power3.out'" [trigger]="'view'">
-      <app-section-title
-        data-reveal="up"
-        id="featured-products-title"
-        eyebrow="Productos"
-        title="Productos destacados"
-        description="Una selección de productos publicados que puedes adaptar a tu proyecto."
-        alignment="center"
-      />
-
-      <div class="mt-10">
-        @if (isBrowser()) {
-          @if (facade.loading()) {
-            <div class="rounded-panel border border-border bg-surface py-12 sm:py-16">
-              <app-loading label="Cargando productos destacados" size="large" />
-            </div>
-          } @else if (facade.error()) {
-            <div class="mx-auto max-w-3xl">
-              <app-alert variant="error" title="No se pudieron cargar los productos">
-                <p>{{ facade.error() }}</p>
-              </app-alert>
-            </div>
-          } @else if (featuredProducts().length === 0) {
-            <app-empty-state
-              emptyStateId="home-products-empty"
-              title="Aún no hay productos publicados"
-              description="Vuelve pronto para descubrir las novedades de ISADECOR."
-            />
-          } @else {
-            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              @for (product of featuredProducts(); track product.slug; let i = $index) {
-                <app-product-card data-reveal="up" [attr.data-reveal-order]="i + 1" [product]="product" />
-              }
-            </div>
-          }
-        } @else {
-          <div
-            class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            aria-hidden="true"
-          >
-            @for (skeleton of productSkeletons; track skeleton) {
-              <div class="animate-pulse overflow-hidden rounded-card border border-border bg-surface shadow-card">
-                <div class="aspect-[4/3] bg-background-muted"></div>
-                <div class="space-y-3 p-5">
-                  <div class="h-4 w-3/4 rounded-control bg-background-muted"></div>
-                  <div class="h-3 w-1/2 rounded-control bg-background-muted"></div>
-                  <div class="h-3 w-2/3 rounded-control bg-background-muted"></div>
-                </div>
-              </div>
+  @if (homeRibbon().length > 0) {
+  <aside class="store-marquee" aria-label="Novedades de ISADECOR">
+    <div class="store-marquee__stripe" aria-hidden="true"></div>
+    <div class="store-marquee__viewport">
+      <div class="store-marquee__track">
+        @for (copy of [0, 1, 2, 3]; track copy) {
+          <div class="store-marquee__group" [attr.aria-hidden]="copy === 1 ? 'true' : null">
+            @for (item of homeRibbon(); track item.id) {
+              <a class="store-marquee__item" [routerLink]="internalRoute(item)" [queryParams]="contentQueryParams(item)" [attr.href]="externalUrl(item)" [attr.target]="externalUrl(item) ? '_blank' : null" [attr.rel]="externalUrl(item) ? 'noopener noreferrer' : null">
+                <img
+                  [src]="item.imagenUrl"
+                  [alt]="item.titulo"
+                  class="size-10 shrink-0 rounded-control border border-white/20 object-cover sm:size-12"
+                  loading="lazy"
+                />
+                <span><strong>{{ item.titulo }}</strong> · {{ item.descripcionResumida }}</span>
+                <span class="store-marquee__mark" aria-hidden="true">✦</span>
+              </a>
             }
           </div>
         }
       </div>
+    </div>
+    <div class="store-marquee__stripe store-marquee__stripe--bottom" aria-hidden="true"></div>
+  </aside>
+  }
 
-      <div data-reveal="up" class="mt-10 text-center">
-        <app-button variant="secondary" size="large" [href]="catalogUrl">
-          Ver todo el catálogo
-        </app-button>
+  @if (homePromotions().length > 0) {
+  <section class="app-container py-12 sm:py-14 lg:py-16" aria-labelledby="promotions-title">
+    <app-reveal-stagger [stagger]="0.12" [duration]="0.75" [trigger]="'view'">
+      <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <app-section-title
+          data-reveal="up"
+          id="promotions-title"
+          eyebrow="Promociones"
+          title="Espacios para nuevas ideas"
+          description="Colecciones y novedades seleccionadas por ISADECOR."
+        />
+        <span
+          data-reveal="fade"
+          class="w-fit rounded-full border border-border bg-surface-soft px-3 py-1.5 text-caption font-semibold uppercase tracking-wider text-text-muted"
+        >
+          Contenido actualizado
+        </span>
       </div>
+
+      <div
+        class="mt-8 grid gap-5 md:grid-cols-[minmax(0,1.55fr)_minmax(18rem,0.85fr)] md:grid-rows-2 lg:gap-7"
+      >
+        @for (promotion of homePromotions(); track promotion.id; let i = $index) {
+          <a
+            [routerLink]="internalRoute(promotion)"
+            [queryParams]="contentQueryParams(promotion)"
+            [attr.href]="externalUrl(promotion)"
+            [attr.target]="externalUrl(promotion) ? '_blank' : null"
+            [attr.rel]="externalUrl(promotion) ? 'noopener noreferrer' : null"
+            data-theme="dark"
+            data-reveal="scale"
+            [attr.data-reveal-order]="i + 1"
+            class="promotion-preview torque-card group relative isolate min-h-64 overflow-hidden rounded-panel border-2 border-text-primary bg-background-muted md:min-h-56"
+            [class.promotion-preview--featured]="promotion.ubicacion === 'PROMOCION_PRINCIPAL'"
+          >
+            <img
+              [src]="promotion.imagenUrl"
+              [alt]="promotion.titulo"
+              class="absolute inset-0 -z-20 h-full w-full object-cover transition-transform duration-500 ease-[var(--ease-standard)] group-hover:scale-[1.03]"
+              loading="lazy"
+            />
+            <div
+              class="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/35 to-black/5"
+              aria-hidden="true"
+            ></div>
+            <div class="flex min-h-64 h-full flex-col justify-end p-6 sm:p-8 md:min-h-56">
+              <span class="text-eyebrow uppercase text-accent">{{ promotion.etiqueta.startsWith('DEMO-HOME-') ? 'Promoción' : promotion.etiqueta }}</span>
+              <h3 class="mt-2 max-w-lg text-heading-3 text-white">{{ promotion.titulo }}</h3>
+              <p class="mt-2 max-w-lg text-body-sm text-white/75">{{ promotion.descripcionResumida }}</p>
+            </div>
+          </a>
+        }
+      </div>
+    </app-reveal-stagger>
+  </section>
+  }
+
+  @if (homeAnnouncements().length > 0) {
+  <section
+    data-theme="dark"
+    class="announcement-showcase border-y border-border bg-background-deep py-12 sm:py-14 lg:py-16"
+    aria-labelledby="announcements-title"
+  >
+    <div class="app-container">
+      <app-reveal-stagger [stagger]="0.12" [duration]="0.78" [trigger]="'view'">
+        <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <app-section-title
+            data-reveal="up"
+            id="announcements-title"
+            eyebrow="Anuncios"
+            title="Ideas que merecen atención"
+            description="Información, colecciones y novedades publicadas por ISADECOR."
+          />
+          <span
+            data-reveal="fade"
+            class="w-fit rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-caption font-semibold uppercase tracking-wider text-white/65"
+          >
+            Contenido actualizado
+          </span>
+        </div>
+
+        <div class="announcement-showcase__grid mt-9 grid gap-7 md:grid-cols-3 lg:gap-9">
+          @for (announcement of homeAnnouncements(); track announcement.id; let i = $index) {
+            <a
+              [routerLink]="internalRoute(announcement)"
+              [queryParams]="contentQueryParams(announcement)"
+              [attr.href]="externalUrl(announcement)"
+              [attr.target]="externalUrl(announcement) ? '_blank' : null"
+              [attr.rel]="externalUrl(announcement) ? 'noopener noreferrer' : null"
+              data-reveal="up"
+              [attr.data-reveal-order]="i + 1"
+              class="announcement-poster torque-card group relative isolate flex min-h-[27rem] flex-col justify-end overflow-hidden rounded-panel border-2 border-text-primary bg-surface"
+              [class.announcement-poster--raised]="i === 1"
+            >
+              <span class="decorative-tape" aria-hidden="true"></span>
+              <img
+                [src]="announcement.imagenUrl"
+                [alt]="announcement.titulo"
+                class="absolute inset-0 -z-20 h-full w-full object-cover transition-transform duration-500 ease-[var(--ease-standard)] group-hover:scale-105"
+                loading="lazy"
+              />
+              <span
+                class="absolute inset-0 -z-10 bg-gradient-to-t from-black via-black/55 to-black/5"
+                aria-hidden="true"
+              ></span>
+              <div class="p-6 sm:p-7">
+                <p class="text-caption font-semibold uppercase tracking-[0.14em] text-accent">
+                  {{ announcement.etiqueta.startsWith('DEMO-HOME-') ? 'Anuncio' : announcement.etiqueta }}
+                </p>
+                <h3 class="mt-3 text-heading-3 text-white">{{ announcement.titulo }}</h3>
+                <p class="mt-3 text-body-sm text-white/70">{{ announcement.descripcionResumida }}</p>
+              </div>
+            </a>
+          }
+        </div>
+      </app-reveal-stagger>
+    </div>
+  </section>
+  }
+
+  <section
+    class="border-b border-border bg-background-soft py-12 sm:py-14 lg:py-16"
+    aria-labelledby="catalog-highlight-title"
+  >
+    <div class="app-container">
+      <app-reveal-stagger
+        [stagger]="0.14"
+        [duration]="0.85"
+        [ease]="'power3.out'"
+        [trigger]="'view'"
+      >
+        <app-section-title
+          data-reveal="up"
+          id="catalog-highlight-title"
+          eyebrow="Nuestras Colecciones"
+          title="Diseña Espacios que Inspiran"
+          description="Soluciones arquitectónicas modernas para muros, superficies y cielos rasos con identidad propia."
+          alignment="center"
+        />
+
+        <div class="mt-9 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          @for (category of featuredCategories(); track category.id; let i = $index) {
+            <a
+              data-theme="light"
+              data-reveal="scale"
+              [attr.data-reveal-order]="i + 1"
+              [routerLink]="catalogUrl"
+              [queryParams]="category.queryParams"
+              class="group flex h-full flex-col overflow-hidden rounded-panel border-2 border-brand bg-surface shadow-card transition-all duration-normal hover:-translate-y-1.5 hover:shadow-floating focus-visible:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            >
+              <!-- Contenedor de Imagen con Badge Flotante -->
+              <div class="relative aspect-[16/11] overflow-hidden bg-background-muted">
+                <img
+                  [src]="category.imageUrl"
+                  [alt]="category.title"
+                  loading="lazy"
+                  class="h-full w-full object-cover transition-transform duration-slow ease-out group-hover:scale-105"
+                />
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/15"
+                  aria-hidden="true"
+                ></div>
+
+                <!-- Badge Flotante de Ubicación (PARED, SUPERFICIES, TECHOS) -->
+                <div class="absolute top-4 left-4 z-10">
+                  <span
+                    class="inline-flex items-center rounded-md bg-accent px-3 py-1 text-[11px] font-bold tracking-widest uppercase text-accent-contrast shadow-sm"
+                  >
+                    {{ category.badge }}
+                  </span>
+                </div>
+
+                <!-- Micro-tagline en la foto -->
+                @if (category.tagline) {
+                  <div class="absolute bottom-3.5 left-4 right-4 z-10">
+                    <span
+                      class="inline-block rounded-full bg-black/65 px-3 py-1 text-[11px] font-medium text-white/95 backdrop-blur-xs"
+                    >
+                      {{ category.tagline }}
+                    </span>
+                  </div>
+                }
+              </div>
+
+              <!-- Cuerpo de la tarjeta -->
+              <div class="flex flex-1 flex-col p-6 sm:p-7">
+                <span class="text-[11px] font-semibold uppercase tracking-widest text-accent">
+                  {{ category.eyebrow }}
+                </span>
+                <h3
+                  class="mt-1 text-heading-3 font-bold text-text-primary transition-colors duration-normal group-hover:text-accent"
+                >
+                  {{ category.title }}
+                </h3>
+                <p class="mt-2.5 flex-1 text-body-sm text-text-secondary leading-relaxed">
+                  {{ category.description }}
+                </p>
+
+                <div class="mt-6 flex items-center justify-between border-t border-border pt-4">
+                  <span
+                    class="inline-flex items-center gap-2 text-body-sm font-bold uppercase tracking-wider text-accent"
+                  >
+                    Ver colección
+                    <svg
+                      class="size-4 transition-transform duration-normal group-hover:translate-x-1.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                      />
+                    </svg>
+                  </span>
+                  <span
+                    class="size-8 flex items-center justify-center rounded-full bg-surface-soft text-text-secondary transition-all duration-normal group-hover:bg-accent group-hover:text-accent-contrast"
+                  >
+                    <svg
+                      class="size-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"
+                      />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
       </app-reveal-stagger>
     </div>
   </section>
 
-  <section class="app-container py-14 sm:py-16 lg:py-20" aria-labelledby="quote-title">
-    <app-reveal-stagger [stagger]="0.15" [duration]="0.9" [ease]="'power3.out'" [trigger]="'view'">
-    <div
-      class="grid overflow-hidden rounded-panel border border-border bg-surface shadow-card lg:grid-cols-2"
-    >
-      <div data-reveal="slide-left" class="relative min-h-64 lg:min-h-80">
-        <img
-          [src]="quote.imageUrl"
-          [alt]="quote.title"
-          loading="lazy"
-          class="absolute inset-0 h-full w-full object-cover"
+  <section
+    data-theme="dark"
+    class="border-y border-border bg-background-deep py-12 sm:py-14 lg:py-16"
+    aria-labelledby="featured-products-title"
+  >
+    <div class="app-container">
+      <app-reveal-stagger [stagger]="0.1" [duration]="0.8" [ease]="'power3.out'" [trigger]="'view'">
+        <app-section-title
+          data-reveal="up"
+          id="featured-products-title"
+          eyebrow="Productos"
+          title="Productos destacados"
+          description="Una selección de productos publicados que puedes adaptar a tu proyecto."
+          alignment="center"
         />
-      </div>
-      <div data-reveal="slide-right" class="flex items-center p-6 sm:p-10 lg:p-14">
-        <div>
-          <h2 id="quote-title" class="text-heading-1 text-text-primary">{{ quote.title }}</h2>
-          <p class="mt-4 text-body text-text-secondary">{{ quote.description }}</p>
-          <div class="mt-8">
-            <app-button variant="accent" size="large" [href]="quote.url">
-              {{ quote.ctaLabel }}
-            </app-button>
+
+        <div data-theme="light" class="mt-9">
+          @if (isBrowser()) {
+            @if (facade.loading()) {
+              <div class="rounded-panel border border-border bg-surface py-12 sm:py-16">
+                <app-loading label="Cargando productos destacados" size="large" />
+              </div>
+            } @else if (facade.error()) {
+              <div class="mx-auto max-w-3xl">
+                <app-alert variant="error" title="No se pudieron cargar los productos">
+                  <p>{{ facade.error() }}</p>
+                </app-alert>
+              </div>
+            } @else if (featuredProducts().length === 0) {
+              <app-empty-state
+                emptyStateId="home-products-empty"
+                title="Aún no hay productos publicados"
+                description="Vuelve pronto para descubrir las novedades de ISADECOR."
+              />
+            } @else {
+              <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                @for (product of featuredProducts(); track product.slug; let i = $index) {
+                  <app-product-card
+                    data-reveal="up"
+                    [attr.data-reveal-order]="i + 1"
+                    [product]="product"
+                    presentation="featured"
+                  />
+                }
+              </div>
+            }
+          } @else {
+            <div
+              class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              aria-hidden="true"
+            >
+              @for (skeleton of productSkeletons; track skeleton) {
+                <div
+                  class="animate-pulse overflow-hidden rounded-card border-2 border-brand bg-surface shadow-card"
+                >
+                  <div class="aspect-[4/3] bg-background-muted"></div>
+                  <div class="space-y-3 p-5">
+                    <div class="h-4 w-3/4 rounded-control bg-background-muted"></div>
+                    <div class="h-3 w-1/2 rounded-control bg-background-muted"></div>
+                    <div class="h-3 w-2/3 rounded-control bg-background-muted"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div data-reveal="up" class="mt-10 text-center">
+          <app-button variant="secondary" size="large" [href]="catalogUrl">
+            Ver todo el catálogo
+          </app-button>
+        </div>
+      </app-reveal-stagger>
+    </div>
+  </section>
+
+  <section
+    class="overflow-hidden border-y border-border bg-background-soft py-12 sm:py-14 lg:py-16"
+    aria-labelledby="social-title"
+  >
+    <div class="app-container">
+      <app-reveal-stagger [stagger]="0.1" [duration]="0.75" [trigger]="'view'">
+        <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <app-section-title
+            data-reveal="up"
+            id="social-title"
+            eyebrow="Comunidad"
+            title="Síguenos en redes"
+            description="Una vista previa del espacio que reunirá inspiración, materiales y proyectos de ISADECOR."
+          />
+          <p
+            data-reveal="fade"
+            class="max-w-sm rounded-card border border-dashed border-border-strong bg-surface px-4 py-3 text-body-sm text-text-muted"
+          >
+            Publicaciones recientes de nuestra comunidad en Instagram.
+          </p>
+        </div>
+
+        <div class="instagram-widget-frame mt-10" data-reveal="up">
+          <span class="decorative-tape" aria-hidden="true"></span>
+          <div
+            class="instagram-widget-shell"
+            [class.instagram-widget-shell--ready]="instagramStatus() === 'ready'"
+            aria-live="polite"
+          >
+            @if (instagramStatus() === 'loading') {
+              <div class="instagram-widget-state" role="status">
+                <span class="instagram-widget-spinner" aria-hidden="true"></span>
+                <span>Cargando publicaciones de Instagram…</span>
+              </div>
+            } @else if (instagramStatus() === 'error') {
+              <div class="instagram-widget-state" role="status">
+                No fue posible cargar las publicaciones en este momento.
+              </div>
+            }
+            <div
+              class="elfsight-app-7448127f-39bf-4bfd-8721-816096ec6293"
+              data-elfsight-app-lazy
+            ></div>
+          </div>
+        </div>
+      </app-reveal-stagger>
+    </div>
+  </section>
+
+  <section
+    data-theme="dark"
+    class="border-t border-border bg-background-deep py-8 text-white sm:py-10"
+    aria-labelledby="store-benefits-title"
+  >
+    <div class="app-container">
+      <h2 id="store-benefits-title" class="sr-only">Beneficios de la tienda ISADECOR</h2>
+      <app-reveal-stagger [stagger]="0.08" [duration]="0.65" [trigger]="'view'">
+        <div class="grid gap-0 sm:grid-cols-2 lg:grid-cols-4">
+          @for (benefit of storeBenefits; track benefit.id; let i = $index) {
+            <article
+              data-reveal="up"
+              [attr.data-reveal-order]="i"
+              class="group flex gap-4 border-white/10 py-5 sm:px-6 lg:border-l lg:first:border-l-0 lg:first:pl-0"
+            >
+              <span
+                class="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-accent transition-colors duration-normal group-hover:border-accent/50 group-hover:bg-accent/10"
+                aria-hidden="true"
+              >
+                @switch (benefit.id) {
+                  @case ('catalog') {
+                    <svg
+                      class="size-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4 5.5h16v13H4zM8 9h8M8 13h5"
+                      />
+                    </svg>
+                  }
+                  @case ('selection') {
+                    <svg
+                      class="size-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M6 4h12l1 16-7-3-7 3L6 4z"
+                      />
+                    </svg>
+                  }
+                  @case ('quote') {
+                    <svg
+                      class="size-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4 5h16v14H4zM8 9h8M8 13h5"
+                      />
+                    </svg>
+                  }
+                  @default {
+                    <svg
+                      class="size-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8 3h8v18H8zM11 18h2"
+                      />
+                    </svg>
+                  }
+                }
+              </span>
+              <div>
+                <h3 class="text-body font-semibold text-white">{{ benefit.title }}</h3>
+                <p class="mt-1 text-body-sm text-white/60">{{ benefit.description }}</p>
+              </div>
+            </article>
+          }
+        </div>
+      </app-reveal-stagger>
+    </div>
+  </section>
+
+  <section class="app-container py-12 sm:py-14 lg:py-16" aria-labelledby="quote-title">
+    <app-reveal-stagger [stagger]="0.13" [duration]="0.82" [ease]="'power3.out'" [trigger]="'view'">
+      <div
+        class="quote-showcase grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)] lg:gap-12"
+      >
+        <div data-reveal="slide-left" class="flex flex-col justify-center">
+          <p class="text-eyebrow uppercase text-accent">Tu proyecto, paso a paso</p>
+          <h2 id="quote-title" class="mt-3 text-heading-1 text-text-primary">{{ quote.title }}</h2>
+          <p class="mt-4 max-w-xl text-body-lg text-text-secondary">{{ quote.description }}</p>
+
+          <ol class="mt-8 grid gap-5 sm:grid-cols-3 lg:grid-cols-1">
+            @for (step of quoteSteps; track step.number) {
+              <li class="quote-step grid grid-cols-[3.5rem_1fr] gap-4 border-t border-border pt-4">
+                <span class="quote-step__number" aria-hidden="true">{{ step.number }}</span>
+                <div>
+                  <h3 class="text-body font-semibold text-text-primary">{{ step.title }}</h3>
+                  <p class="mt-1 text-body-sm text-text-secondary">{{ step.description }}</p>
+                </div>
+              </li>
+            }
+          </ol>
+        </div>
+
+        <div
+          data-theme="light"
+          data-reveal="slide-right"
+          class="quote-panel torque-card relative isolate self-center overflow-hidden rounded-panel border-2 border-brand bg-surface p-6 sm:p-8"
+        >
+          <span class="decorative-tape" aria-hidden="true"></span>
+          <div class="relative overflow-hidden rounded-card bg-background-muted">
+            <img
+              [src]="quote.imageUrl"
+              alt="Asesoría para cotizar acabados ISADECOR"
+              loading="lazy"
+              class="aspect-[16/10] w-full object-cover"
+            />
+            <span
+              class="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent"
+              aria-hidden="true"
+            ></span>
+            <p class="absolute bottom-4 left-4 right-4 text-body-sm font-semibold text-white">
+              Cotización real desde el producto que elijas
+            </p>
+          </div>
+
+          <div class="mt-6">
+            <p class="text-eyebrow uppercase text-accent">Flujo de cotización existente</p>
+            <h3 class="mt-2 text-heading-3 text-text-primary">Cuéntanos qué necesita tu espacio</h3>
+            <p class="mt-3 text-body-sm text-text-secondary">
+              Elige un producto del catálogo para completar sus cantidades, variantes y los datos de
+              contacto necesarios.
+            </p>
+            <div class="mt-6">
+              <app-button variant="accent" size="large" [href]="quote.url">
+                {{ quote.ctaLabel }}
+              </app-button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </app-reveal-stagger>
   </section>
 </main>

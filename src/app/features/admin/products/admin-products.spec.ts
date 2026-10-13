@@ -21,6 +21,7 @@ const product: ProductResponse = {
   descuentoPorcentaje: null,
   disponibilidad: ProductAvailability.DISPONIBLE,
   destacado: true,
+  ordenDestacado: 0,
   estado: ProductPublicationStatus.PUBLICADO,
   tituloSeo: null,
   descripcionSeo: null,

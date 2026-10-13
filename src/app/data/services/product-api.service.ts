@@ -74,6 +74,16 @@ export class ProductApiService {
     );
   }
 
+  changeFeatured(
+    id: string,
+    request: { destacado: boolean; ordenDestacado: number },
+  ): Observable<ProductResponse> {
+    return this.http.patch<ProductResponse>(
+      `${this.resourceUrl}/${encodeURIComponent(id)}/destacado`,
+      request,
+    );
+  }
+
   createImage(
     productId: string,
     request: ProductImageCreateRequest,

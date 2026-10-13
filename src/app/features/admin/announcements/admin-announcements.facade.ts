@@ -8,6 +8,10 @@ import {
   AnnouncementResponse,
 } from '../../../data/models/announcement/announcement.model';
 import { AnnouncementApiService } from '../../../data/services/announcement-api.service';
+import { ProductResponse } from '../../../data/models/product/product-response.model';
+import { ProductApiService } from '../../../data/services/product-api.service';
+import { CategoryResponse } from '../../../data/models/category/category-response.model';
+import { CategoryApiService } from '../../../data/services/category-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 export type AnnouncementFormMode = 'create' | 'edit';
@@ -15,6 +19,8 @@ export type AnnouncementFormMode = 'create' | 'edit';
 @Injectable()
 export class AdminAnnouncementsFacade {
   private readonly api = inject(AnnouncementApiService);
+  private readonly productApi = inject(ProductApiService);
+  private readonly categoryApi = inject(CategoryApiService);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -27,6 +33,10 @@ export class AdminAnnouncementsFacade {
   private readonly _formMode = signal<AnnouncementFormMode>('create');
   private readonly _formOpen = signal(false);
   private readonly _error = signal<string | null>(null);
+  private readonly _products = signal<readonly ProductResponse[]>([]);
+  private readonly _productsLoading = signal(true);
+  private readonly _changingFeaturedId = signal<string | null>(null);
+  private readonly _categories = signal<readonly CategoryResponse[]>([]);
 
   readonly announcements = this._announcements.asReadonly();
   readonly loading = this._loading.asReadonly();
@@ -37,6 +47,10 @@ export class AdminAnnouncementsFacade {
   readonly formMode = this._formMode.asReadonly();
   readonly formOpen = this._formOpen.asReadonly();
   readonly error = this._error.asReadonly();
+  readonly products = this._products.asReadonly();
+  readonly productsLoading = this._productsLoading.asReadonly();
+  readonly changingFeaturedId = this._changingFeaturedId.asReadonly();
+  readonly categories = this._categories.asReadonly();
 
   load(): void {
     this._loading.set(true);
@@ -50,6 +64,34 @@ export class AdminAnnouncementsFacade {
       .subscribe({
         next: (items) => this._announcements.set(this.sort(items)),
         error: () => this._error.set('No pudimos cargar los anuncios.'),
+      });
+    this.loadProducts();
+    this.categoryApi.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (categories) => this._categories.set(categories),
+      error: () => this._error.set('No pudimos cargar las categorías del catálogo.'),
+    });
+  }
+
+  updateFeatured(product: ProductResponse, destacado: boolean, ordenDestacado: number): void {
+    if (this._changingFeaturedId() !== null) return;
+    this._changingFeaturedId.set(product.id);
+    this.productApi
+      .changeFeatured(product.id, { destacado, ordenDestacado: Math.max(0, ordenDestacado) })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._changingFeaturedId.set(null)),
+      )
+      .subscribe({
+        next: (updated) => {
+          this._products.update((items) =>
+            items.map((item) => (item.id === updated.id ? updated : item)),
+          );
+          this.toast.show(
+            updated.destacado ? 'Producto agregado a destacados.' : 'Producto retirado de destacados.',
+            'success',
+          );
+        },
+        error: () => this._error.set('No pudimos actualizar el producto destacado.'),
       });
   }
 
@@ -160,5 +202,19 @@ export class AdminAnnouncementsFacade {
       if (error.status === 404) return 'El anuncio ya no existe.';
     }
     return 'No pudimos guardar el anuncio. Comprueba tu conexión.';
+  }
+
+  private loadProducts(): void {
+    this._productsLoading.set(true);
+    this.productApi
+      .getAll()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._productsLoading.set(false)),
+      )
+      .subscribe({
+        next: (products) => this._products.set(products),
+        error: () => this._error.set('No pudimos cargar el catálogo para seleccionar destacados.'),
+      });
   }
 }

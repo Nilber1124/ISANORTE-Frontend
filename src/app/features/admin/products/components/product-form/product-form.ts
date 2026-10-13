@@ -138,6 +138,7 @@ export class ProductForm implements OnInit {
   readonly descuentoPorcentaje = signal('');
   readonly disponibilidad = signal<ProductAvailability>(ProductAvailability.DISPONIBLE);
   readonly destacado = signal(false);
+  readonly ordenDestacado = signal('0');
   readonly retiroEnTienda = signal(false);
   readonly estado = signal<ProductPublicationStatus>(ProductPublicationStatus.BORRADOR);
   readonly tituloSeo = signal('');
@@ -453,6 +454,7 @@ export class ProductForm implements OnInit {
     this.descuentoPorcentaje.set(this.numberValue(product.descuentoPorcentaje));
     this.disponibilidad.set(product.disponibilidad);
     this.destacado.set(product.destacado === true);
+    this.ordenDestacado.set(String(product.ordenDestacado ?? 0));
     this.retiroEnTienda.set(product.retiroEnTienda === true);
     this.estado.set(product.estado);
     this.tituloSeo.set(this.cleanString(product.tituloSeo));
@@ -488,6 +490,7 @@ export class ProductForm implements OnInit {
       descuentoPorcentaje: this.optionalNumber(this.descuentoPorcentaje()),
       disponibilidad: this.disponibilidad(),
       destacado: this.destacado(),
+      ordenDestacado: Number(this.ordenDestacado()) || 0,
       retiroEnTienda: this.retiroEnTienda(),
       estado: this.estado(),
       tituloSeo: this.optionalValue(this.tituloSeo()),

@@ -54,6 +54,7 @@ export interface ProductCreateRequest {
   descuentoPorcentaje?: number | null;
   disponibilidad: ProductAvailability;
   destacado?: boolean | null;
+  ordenDestacado?: number | null;
   retiroEnTienda?: boolean | null;
   estado: ProductPublicationStatus;
   tituloSeo?: string | null;

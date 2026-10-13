@@ -619,6 +619,23 @@ paths:
         '200': {$ref: '#/components/responses/ProductoOk'}
         '400': {$ref: '#/components/responses/BadRequest'}
         '404': {$ref: '#/components/responses/NotFound'}
+  /api/productos/{id}/destacado:
+    patch:
+      tags: [Productos]
+      operationId: cambiarDestacadoProducto
+      summary: Selecciona o retira un producto del Home ISADECOR y define su orden
+      x-access-intent: ADMINISTRATIVO
+      parameters:
+        - $ref: '#/components/parameters/UuidId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DestacadoProductoRequest'}
+      responses:
+        '200': {$ref: '#/components/responses/ProductoOk'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
   /api/productos/{productoId}/variantes:
     post:
       tags: [Productos]
@@ -1808,6 +1825,7 @@ paths:
       x-access-intent: PUBLICO
       parameters:
         - {name: destino, in: path, required: true, schema: {type: string, enum: [ISANORTE, ISADECOR]}}
+        - {name: ubicacion, in: query, required: false, schema: {$ref: '#/components/schemas/UbicacionAnuncio'}}
       responses:
         '200': {description: Anuncios visibles ordenados, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/AnuncioResponse'}}}}}
         '400': {$ref: '#/components/responses/BadRequest'}
@@ -1975,17 +1993,22 @@ components:
     TipoAccionAnuncio:
       type: string
       enum: [RUTA_INTERNA, URL_EXTERNA, SECCION, PRODUCTO, CATEGORIA, PROYECTO, SERVICIO]
+    UbicacionAnuncio:
+      type: string
+      enum: [GENERAL, CINTA_HOME, PROMOCION_PRINCIPAL, PROMOCION_SECUNDARIA, ANUNCIOS_HOME, CATEGORIA_SUPERIOR]
     AnuncioRequest:
       type: object
-      required: [titulo, descripcionResumida, contenidoDetallado, imagenUrl, etiqueta, destino, tipoAccion, destinoAccion, textoBoton, activo, orden]
+      required: [titulo, descripcionResumida, contenidoDetallado, imagenUrl, etiqueta, destino, ubicacion, tipoAccion, destinoAccion, textoBoton, activo, orden]
       properties:
         titulo: {type: string, maxLength: 160}
         descripcionResumida: {type: string, maxLength: 320}
         contenidoDetallado: {type: string}
         condiciones: {type: string, nullable: true}
         imagenUrl: {type: string, maxLength: 500}
+        imagenHoverUrl: {type: string, maxLength: 500, nullable: true}
         etiqueta: {type: string, maxLength: 60}
         destino: {$ref: '#/components/schemas/DestinoAnuncio'}
+        ubicacion: {$ref: '#/components/schemas/UbicacionAnuncio'}
         tipoAccion: {$ref: '#/components/schemas/TipoAccionAnuncio'}
         destinoAccion: {type: string, maxLength: 500}
         textoBoton: {type: string, maxLength: 80}
@@ -2380,6 +2403,7 @@ components:
         descuentoPorcentaje: {type: number, minimum: 0, maximum: 100, nullable: true}
         disponibilidad: {$ref: '#/components/schemas/EstadoDisponibilidad'}
         destacado: {type: boolean, nullable: true}
+        ordenDestacado: {type: integer, minimum: 0, nullable: true}
         estado: {$ref: '#/components/schemas/EstadoPublicacion'}
         tituloSeo: {type: string, nullable: true}
         descripcionSeo: {type: string, nullable: true}
@@ -2624,7 +2648,7 @@ components:
     ProductoUpdateRequest:
       type: object
       description: No acepta hijos; variantes, imágenes, especificaciones, documentos y configuración de cálculo se conservan. unidadNegocioId siempre es obligatorio.
-      required: [sku, nombre, slug, descripcion, disponibilidad, destacado, estado, unidadNegocioId, categoriaIds]
+      required: [sku, nombre, slug, descripcion, disponibilidad, destacado, ordenDestacado, estado, unidadNegocioId, categoriaIds]
       properties:
         sku: {type: string, minLength: 1}
         nombre: {type: string, minLength: 1}
@@ -2636,6 +2660,7 @@ components:
         descuentoPorcentaje: {type: number, minimum: 0, maximum: 100, nullable: true}
         disponibilidad: {$ref: '#/components/schemas/EstadoDisponibilidad'}
         destacado: {type: boolean}
+        ordenDestacado: {type: integer, minimum: 0}
         estado: {$ref: '#/components/schemas/EstadoPublicacion'}
         tituloSeo: {type: string, nullable: true}
         descripcionSeo: {type: string, nullable: true}
@@ -2660,6 +2685,12 @@ components:
         descripcionSeo: Porcelanato de alta resistencia para interiores
         unidadNegocioId: 11111111-1111-4111-8111-111111111111
         categoriaIds: [22222222-2222-4222-8222-222222222222]
+    DestacadoProductoRequest:
+      type: object
+      required: [destacado, ordenDestacado]
+      properties:
+        destacado: {type: boolean}
+        ordenDestacado: {type: integer, minimum: 0}
     ProyectoUpdateRequest:
       type: object
       required: [nombre, slug, descripcion, destacado, activo, orden, servicioIds]
@@ -2957,7 +2988,7 @@ components:
 
     ProductoResponse:
       type: object
-      required: [id, sku, nombre, slug, resumen, descripcion, precioBase, precioAnterior, descuentoPorcentaje, disponibilidad, destacado, estado, tituloSeo, descripcionSeo, unidadNegocio, categorias, variantes, imagenes, especificaciones, documentos, configuracionCalculo, fechaCreacion, fechaActualizacion]
+      required: [id, sku, nombre, slug, resumen, descripcion, precioBase, precioAnterior, descuentoPorcentaje, disponibilidad, destacado, ordenDestacado, estado, tituloSeo, descripcionSeo, unidadNegocio, categorias, variantes, imagenes, especificaciones, documentos, configuracionCalculo, fechaCreacion, fechaActualizacion]
       properties:
         id: {type: string, format: uuid}
         sku: {type: string}
@@ -2970,6 +3001,7 @@ components:
         descuentoPorcentaje: {type: number, nullable: true}
         disponibilidad: {$ref: '#/components/schemas/EstadoDisponibilidad'}
         destacado: {type: boolean, nullable: true}
+        ordenDestacado: {type: integer, minimum: 0}
         estado: {$ref: '#/components/schemas/EstadoPublicacion'}
         tituloSeo: {type: string, nullable: true}
         descripcionSeo: {type: string, nullable: true}

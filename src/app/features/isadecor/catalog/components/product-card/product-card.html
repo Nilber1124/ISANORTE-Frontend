@@ -1,8 +1,11 @@
 <app-card padding="none">
   <article
     class="group relative flex h-full flex-col transition-shadow duration-normal hover:shadow-floating"
+    [class.product-card--featured]="presentation() === 'featured'"
   >
-    <div class="relative aspect-[16/11] overflow-hidden border-b border-border bg-background-muted">
+    <div
+      class="product-card__visual relative aspect-[16/11] overflow-hidden border-b border-border bg-background-muted"
+    >
       @if (showImage()) {
         <img
           class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
@@ -27,18 +30,22 @@
               stroke-width="1.5"
             />
           </svg>
-          <span class="text-caption font-semibold uppercase tracking-wider">Imagen no disponible</span>
+          <span class="text-caption font-semibold uppercase tracking-wider"
+            >Imagen no disponible</span
+          >
         </div>
       }
 
       @if (product().descuentoPorcentaje && product().descuentoPorcentaje! > 0) {
         <div class="absolute left-4 top-4">
-          <app-badge variant="accent">-{{ product().descuentoPorcentaje | number: '1.0-0' }}%</app-badge>
+          <app-badge variant="accent"
+            >-{{ product().descuentoPorcentaje | number: '1.0-0' }}%</app-badge
+          >
         </div>
       }
     </div>
 
-    <div class="flex flex-1 flex-col p-5">
+    <div class="product-card__body flex flex-1 flex-col p-5">
       <div class="flex flex-wrap gap-2">
         @for (category of visibleCategories(); track category.slug) {
           <app-badge>{{ category.nombre }}</app-badge>
@@ -80,7 +87,8 @@
                   S/ {{ product().precioBase | number: '1.2-2' }}
                 </p>
                 @if (
-                  product().precioAnterior !== null && product().precioAnterior! > product().precioBase!
+                  product().precioAnterior !== null &&
+                  product().precioAnterior! > product().precioBase!
                 ) {
                   <p class="text-caption text-text-muted line-through">
                     S/ {{ product().precioAnterior | number: '1.2-2' }}

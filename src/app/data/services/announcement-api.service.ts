@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/config/api.config';
 import {
   AnnouncementDestination,
+  AnnouncementLocation,
   AnnouncementRequest,
   AnnouncementResponse,
 } from '../models/announcement/announcement.model';
@@ -27,9 +28,11 @@ export class AnnouncementApiService {
 
   getPublic(
     destination: Exclude<AnnouncementDestination, 'AMBOS'>,
+    location: AnnouncementLocation = 'GENERAL',
   ): Observable<AnnouncementResponse[]> {
     return this.http.get<AnnouncementResponse[]>(
       `${this.publicUrl}/${encodeURIComponent(destination)}`,
+      { params: { ubicacion: location } },
     );
   }
 
