@@ -121,7 +121,8 @@ export class Navbar {
     this.requestInFlight = true;
     this.loadingCategories.set(true);
     this.publicContentApi
-      .getProductCatalog(PUBLIC_SITE_KEY, ISADECOR_UNIT_SLUG)
+      // El navbar solo necesita el facet de categorías: size=1 minimiza el payload de productos.
+      .getProductCatalog(PUBLIC_SITE_KEY, ISADECOR_UNIT_SLUG, { page: 0, size: 1 })
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => {

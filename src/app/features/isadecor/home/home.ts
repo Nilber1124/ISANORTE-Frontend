@@ -475,6 +475,9 @@ export class Home {
   constructor() {
     afterNextRender(() => {
       this._isBrowser.set(true);
+      // El home solo muestra destacados; sin este filtro, products() traería solo la primera
+      // página (ordenada por nombre) del catálogo completo y podría omitir destacados reales.
+      this.facade.setOnlyFeatured(true);
       this.facade.load();
       this.homeContent.load();
       this.loadInstagramWidget();

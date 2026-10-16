@@ -5,36 +5,44 @@ import { Observable, of, throwError } from 'rxjs';
 import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
 import {
+  CatalogBackendOrder,
   PublicProductCardResponse,
+  PublicProductCatalogCategoryResponse,
+  PublicProductCatalogPageResponse,
   PublicProductCatalogResponse,
-  PublicProductCategoryResponse,
 } from '../../../data/models/public-content/public-product-catalog.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { CatalogFacade } from './catalog.facade';
 
-const categories: PublicProductCategoryResponse[] = [
-  {
-    nombre: 'Mobiliario',
-    slug: 'mobiliario',
-  },
-  {
-    nombre: 'Iluminación',
-    slug: 'iluminacion',
-  },
+interface CatalogQuery {
+  page: number;
+  size: number;
+  categoria?: string | null;
+  q?: string | null;
+  soloDescuento?: boolean;
+  soloDisponible?: boolean;
+  soloDestacados?: boolean;
+  orden?: CatalogBackendOrder;
+}
+
+/** El facade debounce la búsqueda con RxJS (temporizadores reales), así que se espera tiempo real. */
+function flush(ms = 0): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const categories: PublicProductCatalogCategoryResponse[] = [
+  { nombre: 'Mobiliario', slug: 'mobiliario', cantidad: 3 },
+  { nombre: 'Iluminación', slug: 'iluminacion', cantidad: 2 },
 ];
 
-function createProduct(
-  name: string,
-  sku: string,
-  category: PublicProductCategoryResponse,
-): PublicProductCardResponse {
+function createProduct(name: string, sku: string): PublicProductCardResponse {
   return {
     nombre: name,
     sku,
     slug: name
       .toLocaleLowerCase('es')
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[̀-ͯ]/g, '')
       .replace(/\s+/g, '-'),
     resumen: `${name} para interiores`,
     descripcion: `Descripción de ${name}`,
@@ -45,13 +53,22 @@ function createProduct(
     destacado: false,
     ordenDestacado: 0,
     retiroEnTienda: true,
-    imagen: {
-      url: `/images/${sku.toLowerCase()}.webp`,
-      alt: name,
-      esPrincipal: true,
-      orden: 0,
-    },
-    categorias: [category],
+    imagen: null,
+    categorias: [],
+  };
+}
+
+function toPage(
+  products: PublicProductCardResponse[],
+  overrides: Partial<PublicProductCatalogPageResponse> = {},
+): PublicProductCatalogPageResponse {
+  return {
+    contenido: products,
+    pagina: 0,
+    tamano: 12,
+    totalElementos: products.length,
+    totalPaginas: products.length > 0 ? 1 : 0,
+    ...overrides,
   };
 }
 
@@ -59,12 +76,16 @@ class PublicContentApiStub {
   response$: Observable<PublicProductCatalogResponse> = of({
     unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
     categorias: [],
-    productos: [],
+    productos: toPage([]),
   });
-  readonly calls: { siteKey: string; unitSlug: string }[] = [];
+  readonly calls: { siteKey: string; unitSlug: string; query: CatalogQuery }[] = [];
 
-  getProductCatalog(siteKey: string, unitSlug: string): Observable<PublicProductCatalogResponse> {
-    this.calls.push({ siteKey, unitSlug });
+  getProductCatalog(
+    siteKey: string,
+    unitSlug: string,
+    query: CatalogQuery,
+  ): Observable<PublicProductCatalogResponse> {
+    this.calls.push({ siteKey, unitSlug, query });
     return this.response$;
   }
 }
@@ -87,187 +108,256 @@ describe('CatalogFacade', () => {
     publicApi = TestBed.inject(PublicContentApiStub);
   });
 
-  it('loads products and categories from canonical unit catalog successfully', () => {
-    const products = [createProduct('Mesa de nogal', 'MES-001', categories[0])];
+  it('loads the first page from the backend with the default query', async () => {
+    const products = [createProduct('Mesa de nogal', 'MES-001')];
     publicApi.response$ = of({
       unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
       categorias: categories,
-      productos: products,
+      productos: toPage(products),
     });
 
     facade.load();
+    await flush();
 
     expect(facade.siteKey).toBe(PUBLIC_SITE_KEY);
     expect(facade.unitSlug).toBe(ISADECOR_UNIT_SLUG);
-    expect(publicApi.calls).toEqual([{ siteKey: PUBLIC_SITE_KEY, unitSlug: ISADECOR_UNIT_SLUG }]);
+    expect(publicApi.calls.length).toBe(1);
+    expect(publicApi.calls[0].siteKey).toBe(PUBLIC_SITE_KEY);
+    expect(publicApi.calls[0].unitSlug).toBe(ISADECOR_UNIT_SLUG);
+    expect(publicApi.calls[0].query).toEqual({
+      page: 0,
+      size: 12,
+      categoria: null,
+      q: '',
+      soloDescuento: false,
+      soloDisponible: false,
+      soloDestacados: false,
+      orden: 'DESTACADOS',
+    });
     expect(facade.products()).toEqual(products);
     expect(facade.categories()).toEqual(categories);
+    expect(facade.totalItems()).toBe(1);
+    expect(facade.totalPages()).toBe(1);
     expect(facade.loading()).toBe(false);
     expect(facade.error()).toBeNull();
   });
 
-  it('treats empty API responses as a successful empty catalog', () => {
+  it('treats an empty page as a successful empty catalog', async () => {
     facade.load();
+    await flush();
 
     expect(facade.products()).toEqual([]);
     expect(facade.categories()).toEqual([]);
+    expect(facade.totalItems()).toBe(0);
     expect(facade.loading()).toBe(false);
     expect(facade.error()).toBeNull();
   });
 
-  it('filters products by category slug', () => {
-    const furniture = createProduct('Mesa de nogal', 'MES-001', categories[0]);
-    const lamp = createProduct('Lámpara de pie', 'LAM-001', categories[1]);
+  it('refetches with the category slug and resets the page', async () => {
     publicApi.response$ = of({
-      unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
+      unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
       categorias: categories,
-      productos: [furniture, lamp],
+      productos: toPage([createProduct('Panel A', 'PAN-01')], { totalElementos: 30, totalPaginas: 3 }),
     });
     facade.load();
+    await flush();
+    facade.setPage(2);
+    await flush();
+    publicApi.calls.length = 0;
 
-    facade.setSelectedCategory(categories[1].slug);
+    facade.setSelectedCategory('iluminacion');
+    await flush();
 
-    expect(facade.filteredProducts()).toEqual([lamp]);
+    expect(publicApi.calls.length).toBe(1);
+    expect(publicApi.calls[0].query.categoria).toBe('iluminacion');
+    expect(publicApi.calls[0].query.page).toBe(0);
   });
 
-  it('filters products by category name case-insensitively and resolves to slug', () => {
-    const furniture = createProduct('Mesa de nogal', 'MES-001', categories[0]);
-    const lamp = createProduct('Lámpara de pie', 'LAM-001', categories[1]);
+  it('resolves a category typed by display name to its slug', async () => {
     publicApi.response$ = of({
-      unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
+      unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
       categorias: categories,
-      productos: [furniture, lamp],
+      productos: toPage([]),
     });
     facade.load();
+    await flush();
 
     facade.setSelectedCategory('ILUMINACIÓN');
+    await flush();
 
-    expect(facade.selectedCategory()).toBe(categories[1].slug);
-    expect(facade.filteredProducts()).toEqual([lamp]);
+    expect(facade.selectedCategory()).toBe('iluminacion');
   });
 
-  it('searches textual product fields ignoring case and repeated spaces', () => {
-    const furniture = createProduct('Mesa de nogal', 'MES-001', categories[0]);
-    const lamp = createProduct('Lámpara de pie', 'LAM-001', categories[1]);
+  it('debounces the search term and resets the page once it settles', async () => {
     publicApi.response$ = of({
-      unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
+      unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
       categorias: categories,
-      productos: [furniture, lamp],
+      productos: toPage([createProduct('Panel A', 'PAN-01')], { totalElementos: 30, totalPaginas: 3 }),
     });
     facade.load();
+    await flush();
+    facade.setPage(2);
+    await flush();
+    publicApi.calls.length = 0;
 
-    facade.setSearchTerm('  MESA   DE nogal  ');
+    facade.setSearchTerm('mesa de nogal');
+    await flush(100);
+    expect(publicApi.calls.length).toBe(0);
 
-    expect(facade.filteredProducts()).toEqual([furniture]);
+    await flush(300);
+    expect(publicApi.calls.length).toBe(1);
+    expect(publicApi.calls[0].query.q).toBe('mesa de nogal');
+    expect(publicApi.calls[0].query.page).toBe(0);
   });
 
-  it('exposes an understandable error when request fails', () => {
+  it('resets the page when toggling discount or stock filters', async () => {
+    publicApi.response$ = of({
+      unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
+      categorias: categories,
+      productos: toPage([createProduct('Panel A', 'PAN-01')], { totalElementos: 30, totalPaginas: 3 }),
+    });
+    facade.load();
+    await flush();
+    facade.setPage(2);
+    await flush();
+    publicApi.calls.length = 0;
+
+    facade.toggleOnlyDiscount();
+    await flush();
+
+    expect(publicApi.calls.length).toBe(1);
+    expect(publicApi.calls[0].query.soloDescuento).toBe(true);
+    expect(publicApi.calls[0].query.page).toBe(0);
+  });
+
+  it('includes soloDestacados when a consumer like the home page opts in', async () => {
+    facade.load();
+    await flush();
+    publicApi.calls.length = 0;
+
+    facade.setOnlyFeatured(true);
+    await flush();
+
+    expect(publicApi.calls.length).toBe(1);
+    expect(publicApi.calls[0].query.soloDestacados).toBe(true);
+    expect(publicApi.calls[0].query.page).toBe(0);
+  });
+
+  it('maps every sort option to its backend order', async () => {
+    facade.load();
+    await flush();
+    publicApi.calls.length = 0;
+
+    facade.setSortOption('price-asc');
+    await flush();
+    facade.setSortOption('price-desc');
+    await flush();
+    facade.setSortOption('name-asc');
+    await flush();
+    facade.setSortOption('featured');
+    await flush();
+
+    expect(publicApi.calls.map((call) => call.query.orden)).toEqual([
+      'PRECIO_ASC',
+      'PRECIO_DESC',
+      'NOMBRE_ASC',
+      'DESTACADOS',
+    ]);
+  });
+
+  it('exposes an understandable error when the request fails', async () => {
     publicApi.response$ = throwError(() => new Error('Network error'));
 
     facade.load();
+    await flush();
 
     expect(facade.products()).toEqual([]);
     expect(facade.loading()).toBe(false);
     expect(facade.error()).toContain('No pudimos cargar el catálogo');
   });
 
-  it('preserves canonical backend order when sort option is featured', () => {
-    const first = createProduct('Zócalo de aluminio', 'ZOC-01', categories[0]);
-    const second = createProduct('Alféizar moderno', 'ALF-01', categories[0]);
-    publicApi.response$ = of({
-      unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
-      categorias: categories,
-      productos: [first, second],
-    });
+  it('retries the last request when load() is called again after an error', async () => {
+    publicApi.response$ = throwError(() => new Error('Network error'));
     facade.load();
+    await flush();
+    expect(facade.error()).not.toBeNull();
 
-    facade.setSortOption('featured');
-    expect(facade.filteredProducts()[0].slug).toBe('zocalo-de-aluminio');
-    expect(facade.filteredProducts()[1].slug).toBe('alfeizar-moderno');
+    const products = [createProduct('Mesa de nogal', 'MES-001')];
+    publicApi.response$ = of({
+      unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
+      categorias: categories,
+      productos: toPage(products),
+    });
+
+    facade.load();
+    await flush();
+
+    expect(publicApi.calls.length).toBe(2);
+    expect(facade.error()).toBeNull();
+    expect(facade.products()).toEqual(products);
   });
 
-  it('sorts products by price ascending and descending', () => {
-    const cheap = {
-      ...createProduct('Panel Económico', 'PAN-01', categories[0]),
-      precioBase: 50,
-    };
-    const expensive = {
-      ...createProduct('Mármol Importado', 'MAR-01', categories[0]),
-      precioBase: 250,
-    };
+  it('reads category counts directly from the backend facet', async () => {
     publicApi.response$ = of({
-      unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
+      unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
       categorias: categories,
-      productos: [expensive, cheap],
+      productos: toPage([]),
     });
     facade.load();
+    await flush();
 
-    facade.setSortOption('price-asc');
-    expect(facade.filteredProducts()[0].slug).toBe('panel-economico');
-    expect(facade.filteredProducts()[1].slug).toBe('marmol-importado');
-
-    facade.setSortOption('price-desc');
-    expect(facade.filteredProducts()[0].slug).toBe('marmol-importado');
-    expect(facade.filteredProducts()[1].slug).toBe('panel-economico');
-  });
-
-  it('filters products by discount and stock toggles', () => {
-    const discounted = {
-      ...createProduct('Panel Oferta', 'PAN-01', categories[0]),
-      descuentoPorcentaje: 20,
-      disponibilidad: ProductAvailability.DISPONIBLE,
-    };
-    const outOfStock = {
-      ...createProduct('Panel Agotado', 'PAN-02', categories[0]),
-      descuentoPorcentaje: null,
-      disponibilidad: ProductAvailability.AGOTADO,
-    };
-    publicApi.response$ = of({
-      unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
-      categorias: categories,
-      productos: [discounted, outOfStock],
-    });
-    facade.load();
-
-    facade.toggleOnlyDiscount();
-    expect(facade.filteredProducts()).toEqual([discounted]);
-
-    facade.toggleOnlyDiscount();
-    facade.toggleOnlyInStock();
-    expect(facade.filteredProducts()).toEqual([discounted]);
-  });
-
-  it('computes category product counts correctly by category slug', () => {
-    const p1 = createProduct('Panel A', 'PAN-01', categories[0]);
-    const p2 = createProduct('Lámpara B', 'LAM-01', categories[1]);
-    publicApi.response$ = of({
-      unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
-      categorias: categories,
-      productos: [p1, p2],
-    });
-    facade.load();
-
-    expect(facade.getCategoryCount(categories[0].slug)).toBe(1);
-    expect(facade.getCategoryCount(categories[1].slug)).toBe(1);
+    expect(facade.getCategoryCount(categories[0].slug)).toBe(3);
+    expect(facade.getCategoryCount(categories[1].slug)).toBe(2);
     expect(facade.getCategoryCount('non-existent')).toBe(0);
   });
 
-  it('resets all filters, toggles and sort option on clearFilters()', () => {
+  it('clamps setPage within the known page range', async () => {
+    publicApi.response$ = of({
+      unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
+      categorias: categories,
+      productos: toPage([createProduct('Panel A', 'PAN-01')], { totalElementos: 30, totalPaginas: 3 }),
+    });
+    facade.load();
+    await flush();
+
+    facade.setPage(99);
+    expect(facade.currentPage()).toBe(2);
+    await flush();
+
+    facade.setPage(-5);
+    expect(facade.currentPage()).toBe(0);
+    await flush();
+  });
+
+  it('resets all filters, toggles, sort option and page on clearFilters()', async () => {
+    publicApi.response$ = of({
+      unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
+      categorias: categories,
+      productos: toPage([createProduct('Panel A', 'PAN-01')], { totalElementos: 30, totalPaginas: 3 }),
+    });
+    facade.load();
+    await flush();
+
     facade.setSelectedCategory('mobiliario');
     facade.setSearchTerm('mármol');
+    await flush(300);
     facade.setSortOption('price-desc');
     facade.toggleOnlyDiscount();
     facade.toggleOnlyInStock();
+    facade.setPage(2);
+    await flush();
 
     expect(facade.hasActiveFilters()).toBe(true);
 
     facade.clearFilters();
+    await flush();
 
     expect(facade.selectedCategory()).toBeNull();
     expect(facade.searchTerm()).toBe('');
     expect(facade.sortOption()).toBe('featured');
     expect(facade.onlyDiscount()).toBe(false);
     expect(facade.onlyInStock()).toBe(false);
+    expect(facade.currentPage()).toBe(0);
     expect(facade.hasActiveFilters()).toBe(false);
   });
 });

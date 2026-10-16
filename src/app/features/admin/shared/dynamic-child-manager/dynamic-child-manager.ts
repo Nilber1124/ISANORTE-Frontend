@@ -22,6 +22,7 @@ import {
 } from '../../../../data/models/service/service-benefit.model';
 import { Badge } from '../../../../shared/components/badge/badge';
 import { Button } from '../../../../shared/components/button/button';
+import { DocumentUploaderComponent } from '../../../../shared/components/document-uploader/document-uploader.component';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
 import { ImageUploaderComponent } from '../../../../shared/components/image-uploader/image-uploader.component';
 import { InputField } from '../../../../shared/components/input-field/input-field';
@@ -48,7 +49,16 @@ export interface DynamicChildSave {
 
 @Component({
   selector: 'app-dynamic-child-manager',
-  imports: [Badge, Button, Drawer, EmptyState, InputField, ImageUploaderComponent, FormsModule],
+  imports: [
+    Badge,
+    Button,
+    Drawer,
+    DocumentUploaderComponent,
+    EmptyState,
+    InputField,
+    ImageUploaderComponent,
+    FormsModule,
+  ],
   templateUrl: './dynamic-child-manager.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -75,6 +85,7 @@ export class DynamicChildManager {
   readonly previewFailed = signal(false);
   readonly resourceType = signal<BusinessUnitResourceType>(BusinessUnitResourceType.IMAGEN_FONDO);
   readonly resourceTypes = Object.values(BusinessUnitResourceType);
+  readonly resourceUrlMode = signal<'subir' | 'enlace'>('subir');
 
   protected readonly quickLinks: readonly string[] = [
     '/servicios',
@@ -121,6 +132,10 @@ export class DynamicChildManager {
     this.previewFailed.set(false);
   }
 
+  protected setResourceUrlMode(mode: 'subir' | 'enlace'): void {
+    this.resourceUrlMode.set(mode);
+  }
+
   protected markPreviewFailed(): void {
     this.previewFailed.set(true);
   }
@@ -137,6 +152,7 @@ export class DynamicChildManager {
     this.active.set(true);
     this.previewFailed.set(false);
     this.resourceType.set(BusinessUnitResourceType.IMAGEN_FONDO);
+    this.resourceUrlMode.set('subir');
     this.formOpen.set(true);
   }
 
@@ -158,6 +174,7 @@ export class DynamicChildManager {
       const value = item as BusinessUnitResourceResponse;
       this.resourceType.set(value.tipo);
       this.url.set(value.url);
+      this.resourceUrlMode.set(value.url.includes('res.cloudinary.com') ? 'subir' : 'enlace');
       this.alt.set(value.alt ?? '');
       this.label.set(value.etiqueta ?? '');
     } else {

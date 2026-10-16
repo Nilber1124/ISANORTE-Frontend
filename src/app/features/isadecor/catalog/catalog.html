@@ -84,7 +84,7 @@
           </div>
         </app-alert>
       </div>
-    } @else if (facade.products().length === 0) {
+    } @else if (facade.totalItems() === 0 && !facade.hasActiveFilters()) {
       <app-empty-state
         emptyStateId="catalog-empty"
         title="No hay productos disponibles en este momento"
@@ -160,7 +160,7 @@
                     class="ml-2 rounded-full px-2 py-0.5 text-caption font-semibold"
                     [class]="facade.selectedCategory() === null ? 'bg-accent text-accent-contrast' : 'bg-background-soft text-text-muted'"
                   >
-                    {{ facade.products().length }}
+                    {{ facade.totalItems() }}
                   </span>
                 </button>
 
@@ -306,8 +306,8 @@
           <div class="flex flex-wrap items-center justify-between gap-3 text-body-sm">
             <div class="flex flex-wrap items-center gap-2">
               <span class="text-text-secondary font-medium">
-                Mostrando <strong class="font-bold text-text-primary">{{ facade.filteredProducts().length }}</strong>
-                de {{ facade.products().length }} {{ facade.products().length === 1 ? 'producto' : 'productos' }}
+                Mostrando <strong class="font-bold text-text-primary">{{ facade.products().length }}</strong>
+                de {{ facade.totalItems() }} {{ facade.totalItems() === 1 ? 'producto' : 'productos' }}
               </span>
 
               @if (selectedCategory(); as cat) {
@@ -382,11 +382,20 @@
           </div>
 
           <!-- Cuadrícula de Productos -->
-          @if (facade.filteredProducts().length > 0) {
+          @if (facade.products().length > 0) {
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-              @for (product of facade.filteredProducts(); track product.slug) {
+              @for (product of facade.products(); track product.slug) {
                 <app-product-card [product]="product" />
               }
+            </div>
+
+            <div class="pt-2">
+              <app-pagination
+                [currentPage]="facade.currentPage()"
+                [totalPages]="facade.totalPages()"
+                [totalItems]="facade.totalItems()"
+                (pageChange)="facade.setPage($event)"
+              />
             </div>
           } @else {
             <div class="py-6">

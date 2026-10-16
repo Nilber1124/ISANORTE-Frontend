@@ -37,6 +37,7 @@ export interface HomeBusinessUnitActionView {
   label: string;
   url: string;
   order: number;
+  target?: '_self' | '_blank';
 }
 
 export interface HomeProjectsHeaderView {

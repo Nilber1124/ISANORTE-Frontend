@@ -22,4 +22,14 @@ export class ArchivoApiService {
       .post<UploadResponseDto>(`${this.resourceUrl}/subir-imagen`, formData)
       .pipe(timeout(UPLOAD_TIMEOUT_MS));
   }
+
+  uploadDocument(file: File, folder: string = 'isanorte/documentos'): Observable<UploadResponseDto> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', folder);
+
+    return this.http
+      .post<UploadResponseDto>(`${this.resourceUrl}/subir-documento`, formData)
+      .pipe(timeout(UPLOAD_TIMEOUT_MS));
+  }
 }

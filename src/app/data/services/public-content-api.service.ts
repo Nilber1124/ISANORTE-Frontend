@@ -17,7 +17,10 @@ import {
 } from '../models/product/product-review.model';
 import { PublicHomeResponse } from '../models/public-content/public-home.model';
 import { PublicPageResponse, PublicPageType, PublicProject } from '../models/public-content/public-page.model';
-import { PublicProductCatalogResponse } from '../models/public-content/public-product-catalog.model';
+import {
+  CatalogBackendOrder,
+  PublicProductCatalogResponse,
+} from '../models/public-content/public-product-catalog.model';
 import { PublicProductDetailResponse } from '../models/public-content/public-product-detail.model';
 import { PublicQuoteRequest, PublicQuoteResponse } from '../models/public-content/public-quote.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
@@ -46,9 +49,35 @@ export class PublicContentApiService {
       `${this.resourceUrl}/${encodeURIComponent(siteKey)}/proyectos/${encodeURIComponent(projectSlug)}`);
   }
 
-  getProductCatalog(siteKey: string, unitSlug: string): Observable<PublicProductCatalogResponse> {
+  getProductCatalog(
+    siteKey: string,
+    unitSlug: string,
+    query: {
+      page: number;
+      size: number;
+      categoria?: string | null;
+      q?: string | null;
+      soloDescuento?: boolean;
+      soloDisponible?: boolean;
+      soloDestacados?: boolean;
+      orden?: CatalogBackendOrder;
+    },
+  ): Observable<PublicProductCatalogResponse> {
+    const params: Record<string, string | number | boolean> = {
+      page: query.page,
+      size: query.size,
+    };
+    if (query.categoria) params['categoria'] = query.categoria;
+    if (query.q) params['q'] = query.q;
+    if (query.soloDescuento) params['soloDescuento'] = true;
+    if (query.soloDisponible) params['soloDisponible'] = true;
+    if (query.soloDestacados) params['soloDestacados'] = true;
+    if (query.orden) params['orden'] = query.orden;
+
     return this.http.get<PublicProductCatalogResponse>(
-      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/catalogo`);
+      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/catalogo`,
+      { params },
+    );
   }
 
   getProductDetail(siteKey: string, unitSlug: string, productSlug: string): Observable<PublicProductDetailResponse> {

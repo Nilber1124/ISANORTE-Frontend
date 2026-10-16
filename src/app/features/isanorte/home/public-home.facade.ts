@@ -36,6 +36,9 @@ import {
   HomeServicesHeaderView,
 } from './home-view.model';
 
+/** Placeholder histórico del botón "Descargar Catálogo (PDF)" mientras no existe un recurso CATALOGO real. */
+const CATALOG_ACTION_PLACEHOLDER_URL = '#catalogo';
+
 @Injectable()
 export class PublicHomeFacade {
   private readonly api = inject(PublicContentApiService);
@@ -160,13 +163,26 @@ export class PublicHomeFacade {
   /** La selección de la unidad es responsabilidad exclusiva del backend. */
   readonly featuredBusinessUnit = computed(() => this._home()?.unidadDestacada ?? null);
 
-  readonly businessUnitActions = computed<readonly HomeBusinessUnitActionView[]>(() =>
-    this.orderedActions(this.businessUnitSection()?.acciones ?? []).map((action) => ({
-      label: action.texto,
-      url: action.enlace,
-      order: action.orden,
-    })),
-  );
+  /**
+   * El enlace '#catalogo' es el placeholder histórico del botón de descarga.
+   * Si ya existe un recurso CATALOGO real, se reemplaza por su URL (PDF) y
+   * se abre en una pestaña nueva en lugar de navegar dentro del Home.
+   */
+  readonly businessUnitActions = computed<readonly HomeBusinessUnitActionView[]>(() => {
+    const catalogResource = this.businessUnitCatalogResource();
+    return this.orderedActions(this.businessUnitSection()?.acciones ?? []).map((action) => {
+      const isCatalogPlaceholder = action.enlace === CATALOG_ACTION_PLACEHOLDER_URL;
+      const resolvedUrl =
+        isCatalogPlaceholder && catalogResource ? catalogResource.url : action.enlace;
+
+      return {
+        label: action.texto,
+        url: resolvedUrl,
+        order: action.orden,
+        target: isCatalogPlaceholder && catalogResource ? '_blank' : undefined,
+      };
+    });
+  });
 
   /** Conserva el orden recibido entre recursos con el mismo `orden`. */
   private readonly orderedBusinessUnitResources = computed(() =>

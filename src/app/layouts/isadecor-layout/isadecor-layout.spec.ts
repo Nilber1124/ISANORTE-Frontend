@@ -46,24 +46,24 @@ describe('IsadecorLayout', () => {
     siteRequest.flush(mockSite);
 
     const categoriesRequest = http.expectOne(
-      '/api/publico/sitios/isanorte/unidades/isadecor/catalogo',
+      '/api/publico/sitios/isanorte/unidades/isadecor/catalogo?page=0&size=1',
     );
     expect(categoriesRequest.request.method).toBe('GET');
     categoriesRequest.flush({
       unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
       categorias: [],
-      productos: [],
+      productos: { contenido: [], pagina: 0, tamano: 1, totalElementos: 0, totalPaginas: 0 },
     });
 
-    const announcementsRequest = http.expectOne('/api/publico/anuncios/ISADECOR');
+    const announcementsRequest = http.expectOne('/api/publico/anuncios/ISADECOR?ubicacion=GENERAL');
     expect(announcementsRequest.request.method).toBe('GET');
     announcementsRequest.flush([]);
 
     fixture.detectChanges();
 
     http.expectNone('/api/publico/sitios/isanorte');
-    http.expectNone('/api/publico/sitios/isanorte/unidades/isadecor/catalogo');
-    http.expectNone('/api/publico/anuncios/ISADECOR');
+    http.expectNone('/api/publico/sitios/isanorte/unidades/isadecor/catalogo?page=0&size=1');
+    http.expectNone('/api/publico/anuncios/ISADECOR?ubicacion=GENERAL');
     http.verify();
 
     const compiled = fixture.nativeElement as HTMLElement;

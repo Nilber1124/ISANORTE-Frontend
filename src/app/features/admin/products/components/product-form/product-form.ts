@@ -12,6 +12,7 @@ import {
 
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UploadResponseDto } from '../../../../../data/models/archivo/upload-response.model';
 import { BusinessUnitResponse } from '../../../../../data/models/business-unit/business-unit-response.model';
 import { CategoryResponse } from '../../../../../data/models/category/category-response.model';
 import { ProductAvailability } from '../../../../../data/models/product/product-availability.enum';
@@ -30,6 +31,7 @@ import { Alert } from '../../../../../shared/components/alert/alert';
 import { Badge, BadgeVariant } from '../../../../../shared/components/badge/badge';
 import { Button } from '../../../../../shared/components/button/button';
 import { Drawer } from '../../../../../shared/components/drawer/drawer';
+import { DocumentUploaderComponent } from '../../../../../shared/components/document-uploader/document-uploader.component';
 import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { Modal } from '../../../../../shared/components/modal/modal';
@@ -105,6 +107,7 @@ interface ProductFormErrors {
     Badge,
     Button,
     DecimalPipe,
+    DocumentUploaderComponent,
     Drawer,
     FormsModule,
     ImageUploaderComponent,
@@ -338,6 +341,7 @@ export class ProductForm implements OnInit {
 
   readonly docTitulo = signal('');
   readonly docUrl = signal('');
+  readonly docUrlMode = signal<'subir' | 'enlace'>('subir');
   readonly docTipo = signal<ProductDocumentType>(ProductDocumentType.FICHA_TECNICA);
   readonly docFormato = signal('PDF');
   readonly docTamanoBytes = signal('');
@@ -978,6 +982,7 @@ export class ProductForm implements OnInit {
     this.editingDocumentId.set(null);
     this.docTitulo.set('');
     this.docUrl.set('');
+    this.docUrlMode.set('subir');
     this.docTipo.set(ProductDocumentType.FICHA_TECNICA);
     this.docFormato.set('PDF');
     this.docTamanoBytes.set('');
@@ -994,6 +999,7 @@ export class ProductForm implements OnInit {
     this.editingDocumentId.set(item.id ?? null);
     this.docTitulo.set(item.titulo);
     this.docUrl.set(item.url);
+    this.docUrlMode.set(item.url.includes('res.cloudinary.com') ? 'subir' : 'enlace');
     this.docTipo.set(item.tipo);
     this.docFormato.set(item.formato ?? '');
     this.docTamanoBytes.set(item.tamanoBytes != null ? String(item.tamanoBytes) : '');
@@ -1106,6 +1112,19 @@ export class ProductForm implements OnInit {
 
   protected updateDocTipo(value: string): void {
     this.docTipo.set(value as ProductDocumentType);
+  }
+
+  protected setDocUrlMode(mode: 'subir' | 'enlace'): void {
+    this.docUrlMode.set(mode);
+  }
+
+  protected updateDocUrl(value: string | null): void {
+    this.docUrl.set(value ?? '');
+  }
+
+  protected onDocumentUploaded(response: UploadResponseDto): void {
+    this.docFormato.set(response.format ? response.format.toUpperCase() : 'PDF');
+    this.docTamanoBytes.set(response.bytes != null ? String(response.bytes) : '');
   }
 
   protected formatDocumentSize(bytes: number | null | undefined): string {

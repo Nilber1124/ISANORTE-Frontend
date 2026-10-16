@@ -204,19 +204,53 @@ describe('PublicContentApiService', () => {
   it('uses the canonical public Unit Catalog path, encodes parameters and returns the typed payload', () => {
     const catalogResponse: PublicProductCatalogResponse = {
       unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
-      categorias: [{ nombre: 'Wall Panels', slug: 'wall-panels' }],
-      productos: [],
+      categorias: [{ nombre: 'Wall Panels', slug: 'wall-panels', cantidad: 4 }],
+      productos: { contenido: [], pagina: 0, tamano: 12, totalElementos: 0, totalPaginas: 0 },
     };
     let result: PublicProductCatalogResponse | undefined;
-    api.getProductCatalog('isanorte central', 'isadecor premium').subscribe((catalog) => (result = catalog));
+    api
+      .getProductCatalog('isanorte central', 'isadecor premium', { page: 0, size: 12 })
+      .subscribe((catalog) => (result = catalog));
 
     const request = http.expectOne(
-      'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/catalogo',
+      'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/catalogo?page=0&size=12',
     );
     expect(request.request.method).toBe('GET');
     request.flush(catalogResponse);
 
     expect(result).toEqual(catalogResponse);
+  });
+
+  it('includes optional catalog filters and sort order only when provided', () => {
+    api
+      .getProductCatalog('isanorte', 'isadecor', {
+        page: 2,
+        size: 24,
+        categoria: 'wall-panels',
+        q: 'mármol',
+        soloDescuento: true,
+        soloDisponible: true,
+        orden: 'PRECIO_ASC',
+      })
+      .subscribe();
+
+    const request = http.expectOne(
+      (req) =>
+        req.url === 'https://backend.example/api/publico/sitios/isanorte/unidades/isadecor/catalogo' &&
+        req.params.get('page') === '2' &&
+        req.params.get('size') === '24' &&
+        req.params.get('categoria') === 'wall-panels' &&
+        req.params.get('q') === 'mármol' &&
+        req.params.get('soloDescuento') === 'true' &&
+        req.params.get('soloDisponible') === 'true' &&
+        req.params.get('orden') === 'PRECIO_ASC',
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush({
+      unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
+      categorias: [],
+      productos: { contenido: [], pagina: 2, tamano: 24, totalElementos: 0, totalPaginas: 0 },
+    });
   });
 
   it('uses the canonical public Unit Product Detail path, encodes parameters and returns the typed payload', () => {

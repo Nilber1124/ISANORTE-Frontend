@@ -1648,6 +1648,32 @@ paths:
         - {name: slug, in: path, required: true, schema: {type: string}}
       responses: {'200': {description: Unidad activa, content: {application/json: {schema: {$ref: '#/components/schemas/PublicBusinessUnitResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
 
+  /api/publico/sitios/{clave}/unidades/{unidadSlug}/catalogo:
+    get:
+      tags: [Público]
+      operationId: obtenerCatalogoProductos
+      x-access-intent: PUBLICO
+      summary: Catálogo público de productos de una unidad, paginado y filtrado desde el backend
+      description: |
+        Devuelve solo la página de productos publicados que coincide con los filtros recibidos, ya
+        ordenada. El facet `categorias` siempre refleja el catálogo completo publicado de la unidad
+        (con el conteo de productos por categoría), independientemente de los filtros aplicados.
+      parameters:
+        - {name: clave, in: path, required: true, schema: {type: string}, example: isanorte}
+        - {name: unidadSlug, in: path, required: true, schema: {type: string}, example: isadecor}
+        - {name: page, in: query, required: false, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: size, in: query, required: false, schema: {type: integer, minimum: 1, maximum: 48, default: 12}}
+        - {name: categoria, in: query, required: false, description: Slug de categoría, schema: {type: string}}
+        - {name: q, in: query, required: false, description: Texto de búsqueda libre, schema: {type: string}}
+        - {name: soloDescuento, in: query, required: false, schema: {type: boolean, default: false}}
+        - {name: soloDisponible, in: query, required: false, schema: {type: boolean, default: false}}
+        - {name: soloDestacados, in: query, required: false, schema: {type: boolean, default: false}}
+        - {name: orden, in: query, required: false, schema: {$ref: '#/components/schemas/OrdenCatalogoProducto'}}
+      responses:
+        '200': {description: Catálogo paginado, content: {application/json: {schema: {$ref: '#/components/schemas/PublicProductCatalogResponse'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+
   /api/publico/sitios/{clave}/unidades/{unidadSlug}/productos/{productoSlug}/recomendados:
     get:
       tags: [Público]
@@ -2086,6 +2112,75 @@ components:
     OrdenResena:
       type: string
       enum: [RECIENTES, MAYOR_CALIFICACION, MENOR_CALIFICACION, MAS_UTILES]
+    OrdenCatalogoProducto:
+      type: string
+      enum: [DESTACADOS, PRECIO_ASC, PRECIO_DESC, NOMBRE_ASC]
+    PublicProductCategoryResponse:
+      type: object
+      required: [nombre, slug]
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+    PublicProductCatalogCategoryResponse:
+      type: object
+      description: Categoría del facet del catálogo, con el conteo de productos publicados que la usan (independiente de los filtros activos).
+      required: [nombre, slug, cantidad]
+      properties:
+        nombre: {type: string}
+        slug: {type: string}
+        cantidad: {type: integer, format: int64, minimum: 0}
+    PublicProductCardResponse:
+      type: object
+      required: [nombre, sku, slug, descripcion, destacado, ordenDestacado, categorias]
+      properties:
+        nombre: {type: string}
+        sku: {type: string}
+        slug: {type: string}
+        resumen: {type: string, nullable: true}
+        descripcion: {type: string}
+        precioBase: {type: number, format: decimal, nullable: true}
+        precioAnterior: {type: number, format: decimal, nullable: true}
+        descuentoPorcentaje: {type: number, format: decimal, nullable: true}
+        disponibilidad: {$ref: '#/components/schemas/EstadoDisponibilidad'}
+        destacado: {type: boolean}
+        ordenDestacado: {type: integer}
+        retiroEnTienda: {type: boolean, nullable: true}
+        imagen:
+          type: object
+          nullable: true
+          properties:
+            url: {type: string}
+            alt: {type: string, nullable: true}
+            esPrincipal: {type: boolean}
+            orden: {type: integer}
+        categorias:
+          type: array
+          items: {$ref: '#/components/schemas/PublicProductCategoryResponse'}
+    PublicProductCatalogResponse:
+      type: object
+      required: [unidad, categorias, productos]
+      properties:
+        unidad:
+          type: object
+          required: [nombre, slug]
+          properties:
+            nombre: {type: string}
+            slug: {type: string}
+        categorias:
+          type: array
+          items: {$ref: '#/components/schemas/PublicProductCatalogCategoryResponse'}
+        productos:
+          type: object
+          description: Página de productos ya filtrada y ordenada por el backend.
+          required: [contenido, pagina, tamano, totalElementos, totalPaginas]
+          properties:
+            contenido:
+              type: array
+              items: {$ref: '#/components/schemas/PublicProductCardResponse'}
+            pagina: {type: integer, minimum: 0}
+            tamano: {type: integer, minimum: 1}
+            totalElementos: {type: integer, format: int64, minimum: 0}
+            totalPaginas: {type: integer, minimum: 0}
     EstadoComparacionCompetidor:
       type: string
       enum: [FOUND, NO_SIMILAR_PRODUCT_FOUND, STORE_UNAVAILABLE]

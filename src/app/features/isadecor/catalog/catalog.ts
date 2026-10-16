@@ -15,13 +15,14 @@ import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { InputField } from '../../../shared/components/input-field/input-field';
 import { Loading } from '../../../shared/components/loading/loading';
+import { Pagination } from '../../../shared/components/pagination/pagination';
 import { SelectField, SelectOption } from '../../../shared/components/select-field/select-field';
 import { CatalogFacade, CatalogSortOption } from './catalog.facade';
 import { ProductCard } from './components/product-card/product-card';
 
 @Component({
   selector: 'app-isadecor-catalog',
-  imports: [Alert, Button, EmptyState, InputField, Loading, ProductCard, SelectField],
+  imports: [Alert, Button, EmptyState, InputField, Loading, Pagination, ProductCard, SelectField],
   providers: [CatalogFacade],
   templateUrl: './catalog.html',
   styleUrl: './catalog.css',

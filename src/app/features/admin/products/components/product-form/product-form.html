@@ -1441,15 +1441,59 @@
         required
       />
 
-      <app-input-field
-        inputId="doc-url"
-        label="URL o enlace del documento"
-        [(value)]="docUrl"
-        [error]="docSubmitted() && !docUrl().trim() ? 'Ingresa la URL del documento.' : undefined"
-        placeholder="https://ejemplo.com/docs/ficha-tecnica.pdf"
-        required
-        helperText="Enlace directo o en nube hacia el archivo (PDF, DWG, DOCX, etc.)."
-      />
+      <div class="space-y-2">
+        <label class="form-label">Archivo del documento</label>
+
+        <div class="inline-flex rounded-control border border-border bg-surface p-1" role="tablist" aria-label="Origen del documento">
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="docUrlMode() === 'subir'"
+            (click)="setDocUrlMode('subir')"
+            class="rounded-control px-3 py-1.5 text-caption font-medium transition-colors cursor-pointer"
+            [class.bg-action-primary]="docUrlMode() === 'subir'"
+            [class.text-action-primary-text]="docUrlMode() === 'subir'"
+            [class.text-text-secondary]="docUrlMode() !== 'subir'"
+          >
+            Subir PDF
+          </button>
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="docUrlMode() === 'enlace'"
+            (click)="setDocUrlMode('enlace')"
+            class="rounded-control px-3 py-1.5 text-caption font-medium transition-colors cursor-pointer"
+            [class.bg-action-primary]="docUrlMode() === 'enlace'"
+            [class.text-action-primary-text]="docUrlMode() === 'enlace'"
+            [class.text-text-secondary]="docUrlMode() !== 'enlace'"
+          >
+            Pegar enlace
+          </button>
+        </div>
+
+        @if (docUrlMode() === 'subir') {
+          <app-document-uploader
+            [ngModel]="docUrl()"
+            (ngModelChange)="updateDocUrl($event)"
+            (uploaded)="onDocumentUploaded($event)"
+            name="doc-file"
+            folder="isanorte/documentos"
+          />
+          @if (docSubmitted() && !docUrl().trim()) {
+            <p class="text-caption text-error">Sube el PDF o cambia a "Pegar enlace".</p>
+          }
+        } @else {
+          <app-input-field
+            inputId="doc-url"
+            label="URL o enlace del documento"
+            [(value)]="docUrl"
+            [error]="docSubmitted() && !docUrl().trim() ? 'Ingresa la URL del documento.' : undefined"
+            placeholder="https://ejemplo.com/docs/ficha-tecnica.pdf"
+            required
+            helperText="Enlace directo o en nube hacia el archivo (PDF, DWG, DOCX, etc.)."
+          />
+        }
+      </div>
 
       <div class="grid gap-4 sm:grid-cols-3">
         <app-select-field
@@ -1461,22 +1505,31 @@
           required
         />
 
-        <app-input-field
-          inputId="doc-formato"
-          label="Formato"
-          [(value)]="docFormato"
-          placeholder="ej. PDF, DWG"
-          helperText="Opcional (máx. 20 caracteres)."
-        />
+        @if (docUrlMode() === 'enlace') {
+          <app-input-field
+            inputId="doc-formato"
+            label="Formato"
+            [(value)]="docFormato"
+            placeholder="ej. PDF, DWG"
+            helperText="Opcional (máx. 20 caracteres)."
+          />
 
-        <app-input-field
-          inputId="doc-tamano"
-          label="Tamaño (bytes)"
-          [(value)]="docTamanoBytes"
-          type="number"
-          placeholder="ej. 1048576"
-          helperText="Opcional (1048576 = 1 MB)."
-        />
+          <app-input-field
+            inputId="doc-tamano"
+            label="Tamaño (bytes)"
+            [(value)]="docTamanoBytes"
+            type="number"
+            placeholder="ej. 1048576"
+            helperText="Opcional (1048576 = 1 MB)."
+          />
+        } @else if (docUrl().trim()) {
+          <div class="sm:col-span-2 flex flex-col justify-center gap-0.5 rounded-lg border border-border bg-surface-soft/40 px-3.5 py-2.5">
+            <span class="text-caption font-medium text-text-muted">Formato y tamaño detectados</span>
+            <span class="text-body-sm font-semibold text-text-primary">
+              {{ docFormato() || 'PDF' }} · {{ formatDocumentSize(docTamanoBytes() ? +docTamanoBytes() : null) }}
+            </span>
+          </div>
+        }
       </div>
     </div>
 

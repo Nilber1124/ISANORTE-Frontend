@@ -239,14 +239,22 @@
       }
       <div class="flex flex-wrap justify-center gap-4">
         @if (businessUnit.actions[0]; as primaryAction) {
-          <app-button variant="accent" [href]="primaryAction.url" size="large">{{
-            primaryAction.label
-          }}</app-button>
+          <app-button
+            variant="accent"
+            [href]="primaryAction.url"
+            [target]="primaryAction.target"
+            size="large"
+            >{{ primaryAction.label }}</app-button
+          >
         }
         @if (businessUnit.actions[1]; as secondaryAction) {
-          <app-button variant="ghost" [href]="secondaryAction.url" size="large">{{
-            secondaryAction.label
-          }}</app-button>
+          <app-button
+            variant="ghost"
+            [href]="secondaryAction.url"
+            [target]="secondaryAction.target"
+            size="large"
+            >{{ secondaryAction.label }}</app-button
+          >
         }
       </div>
     </div>

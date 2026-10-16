@@ -1,0 +1,46 @@
+@if (totalPages() > 1) {
+  <nav class="flex flex-wrap items-center justify-center gap-1.5" aria-label="Paginación del catálogo">
+    <button
+      type="button"
+      (click)="goToPrevious()"
+      [disabled]="!hasPrevious()"
+      class="flex h-9 min-w-9 items-center justify-center rounded-control border border-border bg-surface px-2 text-body-sm font-medium text-text-secondary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-surface"
+      aria-label="Página anterior"
+    >
+      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6" />
+      </svg>
+    </button>
+
+    @for (page of visiblePages(); track page) {
+      @if (page === null) {
+        <span class="px-1 text-body-sm text-text-muted" aria-hidden="true">…</span>
+      } @else {
+        <button
+          type="button"
+          (click)="goTo(page)"
+          [class]="page === currentPage()
+            ? 'bg-accent text-accent-contrast font-bold'
+            : 'bg-surface text-text-secondary hover:bg-surface-hover'"
+          class="flex h-9 min-w-9 items-center justify-center rounded-control border border-border px-2 text-body-sm transition-colors"
+          [attr.aria-current]="page === currentPage() ? 'page' : null"
+          [attr.aria-label]="'Página ' + (page + 1)"
+        >
+          {{ page + 1 }}
+        </button>
+      }
+    }
+
+    <button
+      type="button"
+      (click)="goToNext()"
+      [disabled]="!hasNext()"
+      class="flex h-9 min-w-9 items-center justify-center rounded-control border border-border bg-surface px-2 text-body-sm font-medium text-text-secondary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-surface"
+      aria-label="Página siguiente"
+    >
+      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6" />
+      </svg>
+    </button>
+  </nav>
+}

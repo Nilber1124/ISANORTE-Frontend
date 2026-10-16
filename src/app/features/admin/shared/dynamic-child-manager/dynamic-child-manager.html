@@ -390,14 +390,54 @@
               />
             </div>
           } @else {
-            <app-input-field
-              inputId="child-resource-url"
-              label="URL del recurso"
-              type="url"
-              [value]="url()"
-              (valueChange)="updateUrl($event)"
-              required
-            />
+            <div class="space-y-2">
+              <label class="form-label mb-0">Archivo del recurso</label>
+
+              <div class="inline-flex rounded-control border border-border bg-surface p-1" role="tablist" aria-label="Origen del recurso">
+                <button
+                  type="button"
+                  role="tab"
+                  [attr.aria-selected]="resourceUrlMode() === 'subir'"
+                  (click)="setResourceUrlMode('subir')"
+                  class="rounded-control px-3 py-1.5 text-caption font-medium transition-colors cursor-pointer"
+                  [class.bg-action-primary]="resourceUrlMode() === 'subir'"
+                  [class.text-action-primary-text]="resourceUrlMode() === 'subir'"
+                  [class.text-text-secondary]="resourceUrlMode() !== 'subir'"
+                >
+                  Subir PDF
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  [attr.aria-selected]="resourceUrlMode() === 'enlace'"
+                  (click)="setResourceUrlMode('enlace')"
+                  class="rounded-control px-3 py-1.5 text-caption font-medium transition-colors cursor-pointer"
+                  [class.bg-action-primary]="resourceUrlMode() === 'enlace'"
+                  [class.text-action-primary-text]="resourceUrlMode() === 'enlace'"
+                  [class.text-text-secondary]="resourceUrlMode() !== 'enlace'"
+                >
+                  Pegar enlace
+                </button>
+              </div>
+
+              @if (resourceUrlMode() === 'subir') {
+                <app-document-uploader
+                  [ngModel]="url()"
+                  (ngModelChange)="updateUrl($event)"
+                  name="resource-document"
+                  folder="isanorte/recursos"
+                />
+              } @else {
+                <app-input-field
+                  inputId="child-resource-url"
+                  label="URL del recurso"
+                  type="url"
+                  [value]="url()"
+                  (valueChange)="updateUrl($event)"
+                  required
+                />
+              }
+            </div>
           }
           <app-input-field
             inputId="child-alt"

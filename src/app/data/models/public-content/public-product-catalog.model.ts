@@ -34,8 +34,24 @@ export interface PublicProductCatalogUnitResponse {
   slug: string;
 }
 
+export interface PublicProductCatalogCategoryResponse {
+  nombre: string;
+  slug: string;
+  cantidad: number;
+}
+
+export interface PublicProductCatalogPageResponse {
+  contenido: PublicProductCardResponse[];
+  pagina: number;
+  tamano: number;
+  totalElementos: number;
+  totalPaginas: number;
+}
+
 export interface PublicProductCatalogResponse {
   unidad: PublicProductCatalogUnitResponse;
-  categorias: PublicProductCategoryResponse[];
-  productos: PublicProductCardResponse[];
+  categorias: PublicProductCatalogCategoryResponse[];
+  productos: PublicProductCatalogPageResponse;
 }
+
+export type CatalogBackendOrder = 'DESTACADOS' | 'PRECIO_ASC' | 'PRECIO_DESC' | 'NOMBRE_ASC';
