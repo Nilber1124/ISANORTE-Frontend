@@ -4,17 +4,17 @@ import { RouterLink } from '@angular/router';
 
 import { ProductAvailability } from '../../../../../data/models/product/product-availability.enum';
 import { PublicProductCardResponse } from '../../../../../data/models/public-content/public-product-catalog.model';
-import { Badge, BadgeVariant } from '../../../../../shared/components/badge/badge';
-import { Card } from '../../../../../shared/components/card/card';
+
+type AvailabilityTone = 'green' | 'red' | 'yellow' | 'blue';
 
 interface AvailabilityPresentation {
   label: string;
-  variant: BadgeVariant;
+  tone: AvailabilityTone;
 }
 
 @Component({
   selector: 'app-product-card',
-  imports: [Badge, Card, DecimalPipe, RouterLink],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './product-card.html',
   styleUrl: './product-card.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,14 +44,34 @@ export class ProductCard {
 
   protected readonly availability = computed<AvailabilityPresentation>(() => {
     const presentations: Record<ProductAvailability, AvailabilityPresentation> = {
-      [ProductAvailability.DISPONIBLE]: { label: 'Disponible', variant: 'success' },
-      [ProductAvailability.AGOTADO]: { label: 'Agotado', variant: 'error' },
-      [ProductAvailability.BAJO_PEDIDO]: { label: 'Bajo pedido', variant: 'warning' },
-      [ProductAvailability.CONSULTAR]: { label: 'Consultar', variant: 'info' },
+      [ProductAvailability.DISPONIBLE]: { label: 'Disponible', tone: 'green' },
+      [ProductAvailability.AGOTADO]: { label: 'Agotado', tone: 'red' },
+      [ProductAvailability.BAJO_PEDIDO]: { label: 'Bajo pedido', tone: 'yellow' },
+      [ProductAvailability.CONSULTAR]: { label: 'Consultar', tone: 'blue' },
     };
 
     return presentations[this.product().disponibilidad];
   });
+
+  protected toneClasses(tone: AvailabilityTone): string {
+    const tones: Record<AvailabilityTone, string> = {
+      green: 'bg-[#EDF3EC] text-[#346538]',
+      red: 'bg-[#FDEBEC] text-[#9F2F2D]',
+      yellow: 'bg-[#FBF3DB] text-[#956400]',
+      blue: 'bg-[#E1F3FE] text-[#1F6C9F]',
+    };
+    return tones[tone];
+  }
+
+  protected toneDotClasses(tone: AvailabilityTone): string {
+    const tones: Record<AvailabilityTone, string> = {
+      green: 'bg-[#346538]',
+      red: 'bg-[#9F2F2D]',
+      yellow: 'bg-[#956400]',
+      blue: 'bg-[#1F6C9F]',
+    };
+    return tones[tone];
+  }
 
   protected markImageAsFailed(): void {
     this.imageFailed.set(true);
