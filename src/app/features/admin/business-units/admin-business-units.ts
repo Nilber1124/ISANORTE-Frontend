@@ -13,6 +13,7 @@ import {
   BusinessUnitFormSubmission,
 } from './components/business-unit-form/business-unit-form';
 import { BusinessUnitResourceRequest } from '../../../data/models/business-unit/business-unit-resource.model';
+import { CatalogoRequest } from '../../../data/models/business-unit/catalogo.model';
 import {
   DynamicChildManager,
   DynamicChildSave,
@@ -65,5 +66,9 @@ export class AdminBusinessUnits {
   }
   protected saveResource(event: DynamicChildSave): void {
     this.facade.saveResource(event.request as BusinessUnitResourceRequest, event.id);
+  }
+
+  protected saveCatalogo(event: DynamicChildSave): void {
+    this.facade.saveCatalogo(event.request as CatalogoRequest, event.id);
   }
 }

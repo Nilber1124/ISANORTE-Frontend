@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 
 import { CategoryApiService } from '../../../data/services/category-api.service';
 import { IsadecorHeroQuickAccessService } from '../../../core/services/isadecor-hero-quick-access.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { AdminIsadecorLandingFacade } from './admin-isadecor-landing.facade';
 import { CategoryResponse } from '../../../data/models/category/category-response.model';
 
@@ -29,6 +30,7 @@ class CategoryApiStub {
 describe('AdminIsadecorLandingFacade', () => {
   let facade: AdminIsadecorLandingFacade;
   let quickAccessService: IsadecorHeroQuickAccessService;
+  let toastService: ToastService;
 
   beforeEach(() => {
     localStorage.clear();
@@ -42,6 +44,7 @@ describe('AdminIsadecorLandingFacade', () => {
     });
     facade = TestBed.inject(AdminIsadecorLandingFacade);
     quickAccessService = TestBed.inject(IsadecorHeroQuickAccessService);
+    toastService = TestBed.inject(ToastService);
   });
 
   afterEach(() => {
@@ -70,7 +73,7 @@ describe('AdminIsadecorLandingFacade', () => {
     facade.saveItem({ ...item, title: 'Nuevo Título' });
 
     expect(facade.items()[0].title).toBe('Nuevo Título');
-    expect(facade.success()).toContain('Nuevo Título');
+    expect(toastService.toasts().at(-1)?.message).toContain('Nuevo Título');
     expect(facade.modalOpen()).toBe(false);
   });
 
@@ -93,7 +96,7 @@ describe('AdminIsadecorLandingFacade', () => {
 
     facade.resetToDefaults();
     expect(facade.items()[0].title).toBe('Wall Panel WPC');
-    expect(facade.success()).toContain('valores por defecto');
+    expect(toastService.toasts().at(-1)?.message).toContain('valores por defecto');
   });
 
   it('manages collections edit and saving', () => {
@@ -114,11 +117,11 @@ describe('AdminIsadecorLandingFacade', () => {
     const item = facade.items()[0];
     facade.toggleItemVisibility(item);
     expect(facade.visibleItems().length).toBe(3);
-    expect(facade.success()).toContain('desactivada');
+    expect(toastService.toasts().at(-1)?.message).toContain('desactivada');
 
     facade.toggleItemVisibility(facade.items()[0]);
     expect(facade.visibleItems().length).toBe(4);
-    expect(facade.success()).toContain('activada');
+    expect(toastService.toasts().at(-1)?.message).toContain('activada');
 
     facade.openCreate();
     expect(facade.modalOpen()).toBe(true);
@@ -139,6 +142,6 @@ describe('AdminIsadecorLandingFacade', () => {
 
     facade.deleteItem(created!.id);
     expect(facade.items().length).toBe(4);
-    expect(facade.success()).toContain('Tarjeta eliminada');
+    expect(toastService.toasts().at(-1)?.message).toContain('Tarjeta eliminada');
   });
 });

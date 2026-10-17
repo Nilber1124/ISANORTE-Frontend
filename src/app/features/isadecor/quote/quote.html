@@ -2,7 +2,7 @@
   <div class="app-container py-8 sm:py-10 lg:py-12">
     <nav aria-label="Migas de pan" class="mb-8">
       <a
-        routerLink="/isadecor/catalogo"
+        routerLink="/isadecor/productos"
         class="text-body-sm text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
         >Catálogo</a
       >
@@ -14,14 +14,20 @@
       <p class="text-eyebrow uppercase text-text-muted">ISADECOR</p>
       <h1 class="mt-3 text-heading-1 text-text-primary">Solicita tu cotización</h1>
       <p class="mt-3 text-body-lg text-text-secondary">
-        Cuéntanos lo que necesitas. Confirmaremos la información y el precio registrado será
-        definido por nuestro equipo.
+        Revisa los productos de tu cotización y cuéntanos tus datos. Confirmaremos disponibilidad
+        y precio final por nuestros canales de contacto.
       </p>
     </header>
 
-    @if (facade.loadingProduct()) {
+    @if (facade.error() && !facade.quoteResult()) {
+      <app-alert class="mb-6" variant="error" title="Ocurrió un problema">{{
+        facade.error()
+      }}</app-alert>
+    }
+
+    @if (facade.mergingProduct()) {
       <div class="rounded-panel border border-border bg-surface py-16">
-        <app-loading label="Cargando producto para cotizar" size="large" />
+        <app-loading label="Agregando el producto a tu cotización..." size="large" />
       </div>
     } @else if (facade.quoteResult(); as quote) {
       <section class="mx-auto max-w-2xl" aria-labelledby="quote-success-title">
@@ -45,16 +51,12 @@
                 }}</app-badge>
               </dd>
             </div>
-            @if (facade.product(); as product) {
+            @for (detail of quote.detalles; track detail.sku) {
               <div class="flex justify-between gap-5 py-4">
-                <dt class="text-text-muted">Producto</dt>
-                <dd class="text-right font-semibold text-text-primary">{{ product.nombre }}</dd>
-              </div>
-            }
-            @if (quote.detalles?.[0]; as detail) {
-              <div class="flex justify-between gap-5 py-4">
-                <dt class="text-text-muted">Cantidad</dt>
-                <dd class="font-semibold text-text-primary">{{ detail.cantidad }}</dd>
+                <dt class="text-text-muted">{{ detail.nombreProducto }}</dt>
+                <dd class="text-right font-semibold text-text-primary">
+                  Cantidad: {{ detail.cantidad }}
+                </dd>
               </div>
             }
             <div class="flex justify-between gap-5 py-4">
@@ -68,57 +70,91 @@
               </dd>
             </div>
           </dl>
-          <app-button class="mt-7" variant="secondary" href="/isadecor/catalogo"
+          <app-button class="mt-7" variant="secondary" href="/isadecor/productos"
             >Volver al catálogo</app-button
           >
         </app-card>
       </section>
-    } @else if (facade.error() && facade.product() === null) {
+    } @else if (cart.items().length === 0) {
       <app-empty-state
-        emptyStateId="quote-product-error"
-        [title]="facade.notFound() ? 'Producto no encontrado' : 'Selecciona un producto'"
-        [description]="facade.error()!"
+        emptyStateId="quote-empty-cart"
+        title="Tu cotización está vacía"
+        description="Agrega productos desde el catálogo o el detalle de un producto con el botón 'Cotizar' para empezar tu solicitud."
       >
-        <app-button empty-state-actions variant="secondary" href="/isadecor/catalogo"
+        <app-button empty-state-actions variant="secondary" href="/isadecor/productos"
           >Ver catálogo</app-button
         >
       </app-empty-state>
-    } @else if (facade.product(); as product) {
+    } @else {
       <div
         class="grid items-start gap-8 lg:grid-cols-[minmax(18rem,0.72fr)_minmax(0,1.28fr)] lg:gap-12"
       >
-        <aside class="lg:sticky lg:top-8" aria-label="Producto seleccionado">
-          <app-card padding="none">
-            @if (mainImage(); as image) {
-              <img [src]="image" [alt]="product.nombre" class="h-56 w-full object-cover" />
-            } @else {
-              <div
-                class="flex h-56 items-center justify-center bg-background-soft text-body-sm text-text-muted"
+        <aside class="lg:sticky lg:top-8" aria-labelledby="quote-items-title">
+          <app-card padding="large">
+            <div class="flex items-center justify-between gap-3">
+              <h2 id="quote-items-title" class="text-heading-3 text-text-primary">
+                Productos ({{ cart.totalQuantity() }})
+              </h2>
+              <a
+                routerLink="/isadecor/carrito"
+                class="text-body-sm font-semibold text-text-secondary underline-offset-2 hover:text-text-primary hover:underline"
+                >Editar</a
               >
-                Imagen no disponible
-              </div>
-            }
-            <div class="p-6">
-              <p class="text-eyebrow uppercase text-text-muted">Producto seleccionado</p>
-              <div class="mt-3 flex flex-wrap items-start justify-between gap-3">
-                <h2 class="text-heading-3 text-text-primary">{{ product.nombre }}</h2>
-                <app-badge [variant]="availability(product).variant" dot>{{
-                  availability(product).label
-                }}</app-badge>
-              </div>
-              <p class="mt-2 text-body-sm text-text-muted">SKU {{ product.sku }}</p>
-              @if (product.precioBase !== null) {
-                <p class="mt-5 text-body-sm text-text-secondary">
-                  Precio referencial:
-                  <span class="font-semibold text-text-primary">{{
-                    product.precioBase | number: '1.2-2'
-                  }}</span>
-                </p>
-              }
-              <p class="mt-4 text-body-sm text-text-secondary">
-                El precio final será confirmado en la cotización registrada.
-              </p>
             </div>
+            <ul class="mt-5 space-y-4 divide-y divide-border">
+              @for (item of cart.items(); track item.key) {
+                <li class="flex gap-3 pt-4 first:pt-0">
+                  @if (item.imageUrl) {
+                    <img
+                      class="size-14 shrink-0 rounded-control bg-background-soft object-cover"
+                      [src]="item.imageUrl"
+                      [alt]="item.imageAlt"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div
+                      class="flex size-14 shrink-0 items-center justify-center rounded-control bg-background-soft text-caption text-text-muted"
+                    >
+                      N/D
+                    </div>
+                  }
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-body-sm font-semibold text-text-primary">
+                      {{ item.productName }}
+                    </p>
+                    @if (item.variant) {
+                      <p class="text-caption text-text-muted">{{ item.variant.name }}</p>
+                    }
+                    <p class="mt-1 text-caption text-text-muted">Cantidad: {{ item.quantity }}</p>
+                  </div>
+                  <p class="shrink-0 text-body-sm font-semibold text-text-primary">
+                    @if (cart.subtotal(item) !== null) {
+                      S/ {{ cart.subtotal(item)! | number: '1.2-2' }}
+                    } @else {
+                      Por confirmar
+                    }
+                  </p>
+                </li>
+              }
+            </ul>
+            <dl class="mt-5 divide-y divide-border border-y border-border text-body-sm">
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-text-secondary">
+                  {{ cart.hasCompletePricing() ? 'Total estimado' : 'Total estimado parcial' }}
+                </dt>
+                <dd class="font-semibold text-text-primary">
+                  @if (cart.pricedItemCount() > 0) {
+                    S/ {{ cart.estimatedTotal() | number: '1.2-2' }}
+                  } @else {
+                    Por confirmar
+                  }
+                </dd>
+              </div>
+            </dl>
+            <p class="mt-4 text-caption text-text-muted">
+              Los precios son referenciales. Nuestro equipo confirmará disponibilidad y monto
+              final al registrar tu cotización.
+            </p>
           </app-card>
         </aside>
 
@@ -128,11 +164,6 @@
             <p class="mt-2 text-body text-text-secondary">
               Los campos marcados con * son obligatorios.
             </p>
-            @if (facade.error()) {
-              <app-alert class="mt-6" variant="error" title="No pudimos enviar la solicitud">{{
-                facade.error()
-              }}</app-alert>
-            }
             <form class="mt-7 space-y-5" (submit)="submit()" novalidate>
               <app-input-field
                 inputId="quote-name"
@@ -179,30 +210,6 @@
                 label="Mensaje"
                 [(value)]="mensaje"
                 [rows]="4"
-              />
-              <app-input-field
-                inputId="quote-quantity"
-                label="Cantidad"
-                type="number"
-                [(value)]="cantidad"
-                inputMode="numeric"
-                [error]="fieldErrors().cantidad"
-                required
-              />
-              @if (variantOptions().length > 0) {
-                <app-select-field
-                  inputId="quote-variant"
-                  label="Variante (opcional)"
-                  [(value)]="varianteSku"
-                  [options]="variantOptions()"
-                  placeholder="Sin variante específica"
-                />
-              }
-              <app-textarea-field
-                inputId="quote-notes"
-                label="Notas del producto"
-                [(value)]="notas"
-                [rows]="3"
               />
               <app-button
                 type="submit"

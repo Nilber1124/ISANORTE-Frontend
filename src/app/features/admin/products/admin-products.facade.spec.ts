@@ -44,6 +44,7 @@ const unit: BusinessUnitResponse = {
   orden: 1,
   empresa: { id: 'company-1', nombreComercial: 'ISANORTE' },
   recursos: [],
+  catalogos: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };

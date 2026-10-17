@@ -10,6 +10,7 @@ import { VisibilityRequest } from '../../../data/models/landing-section/visibili
 import { SiteConfigResponse } from '../../../data/models/site-config/site-config-response.model';
 import { LandingSectionApiService } from '../../../data/services/landing-section-api.service';
 import { SiteConfigApiService } from '../../../data/services/site-config-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { AdminLandingFacade } from './admin-landing.facade';
 
 const mockSiteConfig: SiteConfigResponse = {
@@ -86,6 +87,7 @@ describe('AdminLandingFacade', () => {
   let facade: AdminLandingFacade;
   let landingApi: LandingApiStub;
   let configApi: SiteConfigApiStub;
+  let toastService: ToastService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -99,6 +101,7 @@ describe('AdminLandingFacade', () => {
     });
 
     facade = TestBed.inject(AdminLandingFacade);
+    toastService = TestBed.inject(ToastService);
     landingApi = TestBed.inject(LandingApiStub);
     configApi = TestBed.inject(SiteConfigApiStub);
   });
@@ -143,7 +146,7 @@ describe('AdminLandingFacade', () => {
       expect(landingApi.createRequests.length).toBe(1);
       expect(facade.formOpen()).toBe(false);
       expect(facade.submitting()).toBe(false);
-      expect(facade.success()).toBe('Sección creada exitosamente.');
+      expect(toastService.toasts().at(-1)?.message).toBe('Sección creada exitosamente.');
     });
 
     it('debe prevenir duplicados y resetear submitting', () => {

@@ -15,6 +15,7 @@ import {
   RecommendedProductResponse,
   ReviewSummaryResponse,
 } from '../models/product/product-review.model';
+import { PublicBusinessUnitResponse } from '../models/public-content/public-business-unit.model';
 import { PublicHomeResponse } from '../models/public-content/public-home.model';
 import { PublicPageResponse, PublicPageType, PublicProject } from '../models/public-content/public-page.model';
 import {
@@ -47,6 +48,11 @@ export class PublicContentApiService {
   getProject(siteKey: string, projectSlug: string): Observable<PublicProject> {
     return this.http.get<PublicProject>(
       `${this.resourceUrl}/${encodeURIComponent(siteKey)}/proyectos/${encodeURIComponent(projectSlug)}`);
+  }
+
+  getBusinessUnit(siteKey: string, unitSlug: string): Observable<PublicBusinessUnitResponse> {
+    return this.http.get<PublicBusinessUnitResponse>(
+      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}`);
   }
 
   getProductCatalog(

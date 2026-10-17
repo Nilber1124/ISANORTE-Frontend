@@ -39,6 +39,7 @@ const unit: BusinessUnitResponse = {
   orden: 1,
   empresa: { id: company.id, nombreComercial: company.nombreComercial },
   recursos: [],
+  catalogos: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -55,6 +56,7 @@ class FacadeStub {
   readonly formMode = signal<BusinessUnitFormMode>('create');
   readonly formOpen = signal(false);
   readonly managedBusinessUnit = signal<BusinessUnitResponse | null>(null);
+  readonly managedCatalogUnit = signal<BusinessUnitResponse | null>(null);
   readonly childSaving = signal(false);
   creates = 0;
   edits: BusinessUnitResponse[] = [];
@@ -77,6 +79,10 @@ class FacadeStub {
   closeResources() {}
   saveResource() {}
   deleteResource() {}
+  openCatalogos() {}
+  closeCatalogos() {}
+  saveCatalogo() {}
+  deleteCatalogo() {}
 }
 describe('AdminBusinessUnits', () => {
   let fixture: ComponentFixture<AdminBusinessUnits>;

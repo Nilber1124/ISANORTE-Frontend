@@ -8,6 +8,7 @@ import { QuoteResponse } from '../../../data/models/quote/quote-response.model';
 import { QuoteStatusRequest } from '../../../data/models/quote/quote-status-request.model';
 import { QuoteStatus } from '../../../data/models/quote/quote-status.enum';
 import { QuoteApiService } from '../../../data/services/quote-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { AdminQuotesFacade } from './admin-quotes.facade';
 
 const quote: QuoteResponse = {
@@ -81,6 +82,7 @@ class QuoteApiStub {
 describe('AdminQuotesFacade', () => {
   let facade: AdminQuotesFacade;
   let quoteApi: QuoteApiStub;
+  let toastService: ToastService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -93,6 +95,7 @@ describe('AdminQuotesFacade', () => {
     });
     facade = TestBed.inject(AdminQuotesFacade);
     quoteApi = TestBed.inject(QuoteApiStub);
+    toastService = TestBed.inject(ToastService);
   });
 
   it('loads all quotes', () => {
@@ -135,7 +138,7 @@ describe('AdminQuotesFacade', () => {
     expect(facade.selectedQuote()?.estado).toBe(QuoteStatus.EN_REVISION);
     expect(facade.quotes()[0].estado).toBe(QuoteStatus.EN_REVISION);
     expect(facade.selectedQuote()?.seguimientos).toHaveLength(1);
-    expect(facade.success()).toBe('Estado actualizado correctamente.');
+    expect(toastService.toasts().at(-1)?.message).toBe('Estado actualizado correctamente.');
   });
 
   it('maps 400, 404 and 409 status errors', () => {

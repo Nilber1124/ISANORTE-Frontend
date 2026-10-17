@@ -136,7 +136,7 @@ export class Home {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly catalogUrl = '/isadecor/catalogo';
+  readonly catalogUrl = '/isadecor/productos';
   readonly quoteUrl = '/isadecor/cotizacion';
 
   private readonly _isBrowser = signal(false);

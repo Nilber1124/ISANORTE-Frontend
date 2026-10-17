@@ -274,7 +274,7 @@ describe('ProductDetailFacade', () => {
     expect(titleService.getTitle()).toBe('Wall Panel Roble | ISADECOR');
 
     childInjector.destroy();
-    expect(titleService.getTitle()).toBe('ISANORTE');
+    expect(titleService.getTitle()).toBe('ISADECOR');
     expect(metaService.getTag('property="og:title"')).toBeNull();
     expect(metaService.getTag('property="og:description"')).toBeNull();
     expect(metaService.getTag('property="og:image"')).toBeNull();

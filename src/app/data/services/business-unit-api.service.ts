@@ -11,6 +11,7 @@ import {
   BusinessUnitResourceRequest,
   BusinessUnitResourceResponse,
 } from '../models/business-unit/business-unit-resource.model';
+import { CatalogoRequest, CatalogoResponse } from '../models/business-unit/catalogo.model';
 
 @Injectable({ providedIn: 'root' })
 export class BusinessUnitApiService {
@@ -83,6 +84,27 @@ export class BusinessUnitApiService {
   deleteResource(unitId: string, resourceId: string): Observable<void> {
     return this.http.delete<void>(
       `${this.unitUrl(unitId)}/recursos/${encodeURIComponent(resourceId)}`,
+    );
+  }
+
+  createCatalogo(unitId: string, request: CatalogoRequest): Observable<CatalogoResponse> {
+    return this.http.post<CatalogoResponse>(`${this.unitUrl(unitId)}/catalogos`, request);
+  }
+
+  updateCatalogo(
+    unitId: string,
+    catalogoId: string,
+    request: CatalogoRequest,
+  ): Observable<CatalogoResponse> {
+    return this.http.put<CatalogoResponse>(
+      `${this.unitUrl(unitId)}/catalogos/${encodeURIComponent(catalogoId)}`,
+      request,
+    );
+  }
+
+  deleteCatalogo(unitId: string, catalogoId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.unitUrl(unitId)}/catalogos/${encodeURIComponent(catalogoId)}`,
     );
   }
 

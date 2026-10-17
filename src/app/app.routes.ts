@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Cart } from './features/isadecor/cart/cart';
 import { Catalog } from './features/isadecor/catalog/catalog';
+import { Catalogos } from './features/isadecor/catalogos/catalogos';
 import { Home as IsadecorHome } from './features/isadecor/home/home';
 import { ProductDetail } from './features/isadecor/product-detail/product-detail';
 import { Quote } from './features/isadecor/quote/quote';
@@ -142,9 +143,10 @@ export const routes: Routes = [
     component: IsadecorLayout,
     children: [
       { path: '', component: IsadecorHome },
-      { path: 'catalogo', component: Catalog },
+      { path: 'productos', component: Catalog },
+      { path: 'catalogos', component: Catalogos },
       { path: 'carrito', component: Cart },
-      { path: 'cotizacion', component: Quote, canActivate: [clienteGuard] },
+      { path: 'cotizacion', component: Quote },
       { path: 'ingresar', component: IsadecorIngresar },
       { path: 'mi-cuenta', component: MiCuenta, canActivate: [clienteGuard] },
       { path: 'productos/:slug', component: ProductDetail },

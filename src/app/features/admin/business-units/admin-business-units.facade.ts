@@ -11,6 +11,7 @@ import {
   BusinessUnitResourceRequest,
   BusinessUnitResourceResponse,
 } from '../../../data/models/business-unit/business-unit-resource.model';
+import { CatalogoRequest, CatalogoResponse } from '../../../data/models/business-unit/catalogo.model';
 import { CompanyResponse } from '../../../data/models/company/company-response.model';
 import { BusinessUnitApiService } from '../../../data/services/business-unit-api.service';
 import { CompanyApiService } from '../../../data/services/company-api.service';
@@ -37,6 +38,7 @@ export class AdminBusinessUnitsFacade {
   private readonly _formMode = signal<BusinessUnitFormMode>('create');
   private readonly _formOpen = signal(false);
   private readonly _managedBusinessUnit = signal<BusinessUnitResponse | null>(null);
+  private readonly _managedCatalogUnit = signal<BusinessUnitResponse | null>(null);
   private readonly _childSaving = signal(false);
 
   readonly businessUnits = this._businessUnits.asReadonly();
@@ -50,6 +52,7 @@ export class AdminBusinessUnitsFacade {
   readonly formMode = this._formMode.asReadonly();
   readonly formOpen = this._formOpen.asReadonly();
   readonly managedBusinessUnit = this._managedBusinessUnit.asReadonly();
+  readonly managedCatalogUnit = this._managedCatalogUnit.asReadonly();
   readonly childSaving = this._childSaving.asReadonly();
 
   load(): void {
@@ -212,6 +215,68 @@ export class AdminBusinessUnitsFacade {
     this.upsertBusinessUnit(updated);
     this._managedBusinessUnit.set(updated);
     this.toastService.show('Recursos actualizados correctamente.', 'success');
+  }
+
+  openCatalogos(unit: BusinessUnitResponse): void {
+    this.clearFeedback();
+    this._managedCatalogUnit.set(unit);
+  }
+  closeCatalogos(): void {
+    if (!this._childSaving()) this._managedCatalogUnit.set(null);
+  }
+  saveCatalogo(request: CatalogoRequest, id: string | null): void {
+    const unit = this._managedCatalogUnit();
+    if (!unit || this._childSaving()) return;
+    this._childSaving.set(true);
+    this.clearFeedback();
+    const operation = id
+      ? this.businessUnitApi.updateCatalogo(unit.id, id, request)
+      : this.businessUnitApi.createCatalogo(unit.id, request);
+    operation
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._childSaving.set(false)),
+      )
+      .subscribe({
+        next: (catalogo) =>
+          this.updateCatalogos(unit, this.upsertCatalogo(unit.catalogos, catalogo)),
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+  deleteCatalogo(id: string): void {
+    const unit = this._managedCatalogUnit();
+    if (!unit || this._childSaving()) return;
+    this._childSaving.set(true);
+    this.businessUnitApi
+      .deleteCatalogo(unit.id, id)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._childSaving.set(false)),
+      )
+      .subscribe({
+        next: () =>
+          this.updateCatalogos(
+            unit,
+            unit.catalogos.filter((item) => item.id !== id),
+          ),
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+  private upsertCatalogo(
+    items: readonly CatalogoResponse[],
+    saved: CatalogoResponse,
+  ): CatalogoResponse[] {
+    return [
+      ...(items.some((item) => item.id === saved.id)
+        ? items.map((item) => (item.id === saved.id ? saved : item))
+        : [...items, saved]),
+    ].sort((a, b) => a.orden - b.orden);
+  }
+  private updateCatalogos(unit: BusinessUnitResponse, catalogos: CatalogoResponse[]): void {
+    const updated = { ...unit, catalogos };
+    this.upsertBusinessUnit(updated);
+    this._managedCatalogUnit.set(updated);
+    this.toastService.show('Catálogos actualizados correctamente.', 'success');
   }
 
   private loadBusinessUnits(): void {

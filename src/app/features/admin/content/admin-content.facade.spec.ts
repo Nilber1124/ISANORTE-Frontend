@@ -7,6 +7,7 @@ import { PageContentApiService } from '../../../data/services/page-content-api.s
 import { PageSeoApiService } from '../../../data/services/page-seo-api.service';
 import { SiteConfigApiService } from '../../../data/services/site-config-api.service';
 import { BusinessUnitApiService } from '../../../data/services/business-unit-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { AdminContentFacade } from './admin-content.facade';
 
 const content = {
@@ -37,6 +38,7 @@ class UnitApiStub {
 
 describe('AdminContentFacade', () => {
   let facade: AdminContentFacade;
+  let toastService: ToastService;
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
@@ -49,13 +51,14 @@ describe('AdminContentFacade', () => {
       ],
     });
     facade = TestBed.inject(AdminContentFacade);
+    toastService = TestBed.inject(ToastService);
   });
   it('loads editorial content and updates facade state after save', () => {
     facade.load();
     expect(facade.contents()).toEqual([content]);
     facade.saveContent({ activo: false, tags: [] }, content);
     expect(facade.contents()[0].activo).toBe(false);
-    expect(facade.success()).toContain('actualizado');
+    expect(toastService.toasts().at(-1)?.message).toContain('actualizado');
   });
   it('maps SEO duplicate conflicts without exposing backend details', () => {
     facade.saveSeo({

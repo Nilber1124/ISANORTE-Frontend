@@ -8,16 +8,16 @@ describe('server routes', () => {
       paths.map((path) => serverRoutes.find((route) => route.path === path)?.renderMode);
 
     expect(
-      modes(['', 'nosotros', 'servicios', 'proyectos', 'contacto', 'isadecor', 'isadecor/catalogo', 'isadecor/carrito']),
+      modes(['', 'nosotros', 'servicios', 'proyectos', 'contacto', 'isadecor', 'isadecor/productos', 'isadecor/carrito']),
     ).toEqual([
-      RenderMode.Prerender,
-      RenderMode.Prerender,
-      RenderMode.Prerender,
-      RenderMode.Prerender,
-      RenderMode.Prerender,
-      RenderMode.Prerender,
-      RenderMode.Prerender,
-      RenderMode.Prerender,
+      RenderMode.Server,
+      RenderMode.Server,
+      RenderMode.Server,
+      RenderMode.Server,
+      RenderMode.Server,
+      RenderMode.Server,
+      RenderMode.Server,
+      RenderMode.Server,
     ]);
 
     expect(
@@ -37,8 +37,8 @@ describe('server routes', () => {
     ]);
   });
 
-  it('keeps the admin area on the client and the unmatched fallback prerendered', () => {
+  it('keeps the admin area and the unmatched fallback on the client', () => {
     expect(serverRoutes.find((route) => route.path === 'admin/**')?.renderMode).toBe(RenderMode.Client);
-    expect(serverRoutes.at(-1)).toEqual({ path: '**', renderMode: RenderMode.Prerender });
+    expect(serverRoutes.at(-1)).toEqual({ path: '**', renderMode: RenderMode.Client });
   });
 });

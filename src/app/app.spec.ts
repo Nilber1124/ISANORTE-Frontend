@@ -46,7 +46,8 @@ describe('App', () => {
     expect(isadecorRoute?.loadComponent).toBeUndefined();
     expect(isadecorRoute?.children?.map((route) => route.path)).toEqual([
       '',
-      'catalogo',
+      'productos',
+      'catalogos',
       'carrito',
       'cotizacion',
       'ingresar',

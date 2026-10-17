@@ -447,6 +447,29 @@
           />
         }
 
+        <!-- Catálogos -->
+        @if (kind() === 'catalogo') {
+          <app-input-field inputId="child-catalogo-titulo" label="Título" [(value)]="label" required />
+          <div class="space-y-2">
+            <label class="form-label mb-0">Portada del catálogo</label>
+            <app-image-uploader
+              [ngModel]="coverImageUrl()"
+              (ngModelChange)="coverImageUrl.set($event)"
+              name="catalogo-cover"
+              folder="isanorte/catalogos"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="form-label mb-0">Archivo PDF</label>
+            <app-document-uploader
+              [ngModel]="url()"
+              (ngModelChange)="updateUrl($event)"
+              name="catalogo-document"
+              folder="isanorte/catalogos"
+            />
+          </div>
+        }
+
         <!-- Estadísticas -->
         @if (kind() === 'statistic') {
           <div class="grid grid-cols-2 gap-4">

@@ -38,6 +38,7 @@ const unit: BusinessUnitResponse = {
   orden: 0,
   empresa: { id: company.id, nombreComercial: company.nombreComercial },
   recursos: [],
+  catalogos: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };

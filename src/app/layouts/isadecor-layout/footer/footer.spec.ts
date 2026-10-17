@@ -53,7 +53,7 @@ describe('Isadecor Footer', () => {
     expect(footer.textContent).toContain('ISADECOR');
     expect(footer.textContent).toContain('Acabados y revestimientos para interiores');
     expect(footer.querySelector('a[href="/isadecor"]')).toBeTruthy();
-    expect(footer.querySelector('a[href="/isadecor/catalogo"]')).toBeTruthy();
+    expect(footer.querySelector('a[href="/isadecor/catalogos"]')).toBeTruthy();
     expect(footer.querySelector('a[href="/isadecor/cotizacion"]')).toBeTruthy();
     expect(footer.textContent).toContain('© 2025 ISADECOR. Todos los derechos reservados.');
   });

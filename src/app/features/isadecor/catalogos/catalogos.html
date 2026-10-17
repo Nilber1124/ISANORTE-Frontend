@@ -1,0 +1,72 @@
+<main class="min-h-[70vh] bg-background">
+  <!-- Encabezado editorial de catálogos -->
+  <section
+    class="catalogos-hero relative overflow-hidden border-b border-border bg-background-soft"
+    aria-label="Catálogos ISADECOR"
+  >
+    <div class="app-container relative py-14 sm:py-16 lg:py-20">
+      <p class="store-mono text-[12px] uppercase tracking-[0.2em] text-text-muted">
+        ISADECOR · CATÁLOGOS
+      </p>
+      <h1 class="store-serif mt-4 max-w-2xl text-[2.1rem] leading-[1.12] tracking-[-0.02em] text-text-primary sm:text-[2.75rem]">
+        Catálogos en PDF, por línea
+      </h1>
+      <p class="mt-4 max-w-xl text-[1rem] leading-relaxed text-text-secondary">
+        Descarga o visualiza el catálogo completo de cada línea de productos ISADECOR.
+      </p>
+    </div>
+  </section>
+
+  <section class="app-container py-10 sm:py-12 lg:py-16" aria-labelledby="catalogos-results-title">
+    <h2 id="catalogos-results-title" class="sr-only">Catálogos disponibles</h2>
+
+    @if (facade.loading()) {
+      <div class="rounded-[12px] border border-border bg-surface py-16 sm:py-20">
+        <app-loading label="Cargando catálogos de ISADECOR..." size="large" />
+      </div>
+    } @else if (facade.error()) {
+      <div class="mx-auto max-w-2xl">
+        <app-alert variant="error" title="No se pudieron cargar los catálogos">
+          <p>{{ facade.error() }}</p>
+          <div class="mt-4">
+            <app-button variant="secondary" size="small" (click)="facade.load()">
+              Reintentar carga
+            </app-button>
+          </div>
+        </app-alert>
+      </div>
+    } @else if (facade.catalogos().length === 0) {
+      <app-empty-state
+        emptyStateId="catalogos-empty"
+        title="Todavía no hay catálogos disponibles"
+        description="Estamos preparando los catálogos en PDF de nuestras líneas de productos. Vuelve pronto."
+      />
+    } @else {
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        @for (catalogo of facade.catalogos(); track catalogo.titulo) {
+          <article class="group flex flex-col overflow-hidden rounded-[12px] border border-border bg-surface shadow-xs transition-all hover:border-text-muted hover:shadow-card">
+            <div class="relative aspect-[3/4] w-full overflow-hidden bg-surface-soft">
+              <img
+                [src]="catalogo.imagenPortadaUrl"
+                [alt]="catalogo.titulo"
+                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+            <div class="flex flex-1 flex-col gap-4 p-5">
+              <h3 class="text-[1.05rem] font-semibold text-text-primary">{{ catalogo.titulo }}</h3>
+              <a
+                [href]="catalogo.archivoUrl"
+                target="_blank"
+                rel="noopener"
+                class="mt-auto inline-flex items-center justify-center gap-2 rounded-button bg-accent px-4 py-2.5 text-body-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover"
+              >
+                Ver catálogo PDF
+              </a>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</main>

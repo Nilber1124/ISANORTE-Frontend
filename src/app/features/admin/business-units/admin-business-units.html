@@ -98,6 +98,11 @@
                     >Recursos</app-button
                   ><app-button
                     size="small"
+                    variant="ghost"
+                    (click)="facade.openCatalogos(businessUnit)"
+                    >Catálogos</app-button
+                  ><app-button
+                    size="small"
                     variant="secondary"
                     [loading]="facade.changingActiveId() === businessUnit.id"
                     [disabled]="facade.submitting() || facade.changingActiveId() !== null"
@@ -135,6 +140,18 @@
     (closed)="facade.closeResources()"
     (saved)="saveResource($event)"
     (deleted)="facade.deleteResource($event)"
+  />
+}
+@if (facade.managedCatalogUnit(); as unit) {
+  <app-dynamic-child-manager
+    kind="catalogo"
+    [parentName]="unit.nombre"
+    [items]="unit.catalogos"
+    [saving]="facade.childSaving()"
+    [error]="facade.error()"
+    (closed)="facade.closeCatalogos()"
+    (saved)="saveCatalogo($event)"
+    (deleted)="facade.deleteCatalogo($event)"
   />
 }
 @if (businessUnitToDeactivate(); as businessUnit) {

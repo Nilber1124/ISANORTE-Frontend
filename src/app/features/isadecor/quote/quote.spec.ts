@@ -1,10 +1,11 @@
 import { PLATFORM_ID, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 
+import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
 import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
-import { PublicQuoteRequest } from '../../../data/models/public-content/public-quote.model';
+import { QuoteCustomerDetails } from './quote.facade';
 import { Quote } from './quote';
 import { QuoteFacade } from './quote.facade';
 
@@ -30,16 +31,17 @@ const product: PublicProductDetailResponse = {
 };
 
 class QuoteFacadeStub {
-  readonly product = signal<PublicProductDetailResponse | null>(product);
-  readonly loadingProduct = signal(false);
+  readonly mergingProduct = signal(false);
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
-  readonly notFound = signal(false);
   readonly quoteResult = signal(null);
-  readonly requests: PublicQuoteRequest[] = [];
-  loadProduct(): void {}
-  submit(request: PublicQuoteRequest): void {
-    this.requests.push(request);
+  readonly mergeCalls: Array<{ slug: string; quantity: number }> = [];
+  readonly submitCalls: QuoteCustomerDetails[] = [];
+  mergeProductIntoCart(slug: string, quantity: number): void {
+    this.mergeCalls.push({ slug, quantity });
+  }
+  submit(customer: QuoteCustomerDetails): void {
+    this.submitCalls.push(customer);
     this.submitting.set(true);
   }
 }
@@ -47,11 +49,13 @@ class QuoteFacadeStub {
 describe('Quote', () => {
   let fixture: ComponentFixture<Quote>;
   let facade: QuoteFacadeStub;
+  let cart: IsadecorQuoteCartService;
 
   async function create(params: Record<string, string>): Promise<void> {
     await TestBed.configureTestingModule({
       imports: [Quote],
       providers: [
+        provideRouter([]),
         { provide: PLATFORM_ID, useValue: 'browser' },
         {
           provide: ActivatedRoute,
@@ -65,47 +69,64 @@ describe('Quote', () => {
       .compileComponents();
     fixture = TestBed.createComponent(Quote);
     facade = fixture.debugElement.injector.get(QuoteFacade) as unknown as QuoteFacadeStub;
+    cart = TestBed.inject(IsadecorQuoteCartService);
     fixture.detectChanges();
+    await fixture.whenStable();
   }
 
-  it('uses a valid quantity from the query params and falls back to one when invalid', async () => {
-    await create({ producto: product.slug, cantidad: '21' });
-    expect(fixture.componentInstance.cantidad()).toBe('21');
+  beforeEach(() => localStorage.clear());
+  afterEach(() => localStorage.clear());
 
-    TestBed.resetTestingModule();
-    await create({ producto: product.slug, cantidad: '2.5' });
-    expect(fixture.componentInstance.cantidad()).toBe('1');
+  it('merges the product from the query params into the shared cart with a valid quantity', async () => {
+    await create({ producto: product.slug, cantidad: '21' });
+    expect(facade.mergeCalls).toEqual([{ slug: product.slug, quantity: 21 }]);
   });
 
-  it('requires name, email, telephone and a positive integer quantity', async () => {
-    await create({ producto: product.slug });
+  it('falls back to a quantity of one for an invalid quantity query param', async () => {
+    await create({ producto: product.slug, cantidad: '2.5' });
+    expect(facade.mergeCalls).toEqual([{ slug: product.slug, quantity: 1 }]);
+  });
+
+  it('does not merge anything when there is no producto query param', async () => {
+    await create({});
+    expect(facade.mergeCalls).toHaveLength(0);
+  });
+
+  it('requires name, email and telephone', async () => {
+    await create({});
     const component = fixture.componentInstance;
     component.submitted.set(true);
-    component.cantidad.set('1.5');
     expect(component.fieldErrors().nombreCliente).toBeTruthy();
     expect(component.fieldErrors().emailCliente).toBeTruthy();
     expect(component.fieldErrors().telefonoCliente).toBeTruthy();
-    expect(component.fieldErrors().cantidad).toBeTruthy();
 
     component.nombreCliente.set('Ana');
     component.emailCliente.set('correo-invalido');
     component.telefonoCliente.set('999');
-    component.cantidad.set('2');
     expect(component.fieldErrors().emailCliente).toContain('válido');
   });
 
-  it('builds one detail with the loaded product slug and blocks a duplicate submit', async () => {
-    await create({ producto: product.slug, cantidad: '21' });
+  it('submits the customer details built from the form and blocks an empty-cart submit', async () => {
+    await create({});
     const component = fixture.componentInstance as unknown as { submit(): void } & Quote;
     component.nombreCliente.set('Ana');
     component.emailCliente.set('ana@example.com');
     component.telefonoCliente.set('999 999 999');
     component.submit();
-    component.submit();
 
-    expect(facade.requests).toHaveLength(1);
-    expect(facade.requests[0].detalles?.[0].productoSlug).toBe(product.slug);
-    expect(facade.requests[0].detalles?.[0].cantidad).toBe(21);
-    expect(facade.requests[0].canal).toBe('FORMULARIO');
+    expect(facade.submitCalls).toHaveLength(0);
+
+    cart.addProduct(product, null, 1);
+    component.submit();
+    expect(facade.submitCalls).toEqual([
+      {
+        nombreCliente: 'Ana',
+        emailCliente: 'ana@example.com',
+        telefonoCliente: '999 999 999',
+        empresaCliente: null,
+        ciudad: null,
+        mensaje: null,
+      },
+    ]);
   });
 });

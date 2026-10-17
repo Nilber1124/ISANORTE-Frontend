@@ -24,14 +24,14 @@ export class Footer {
 
   readonly navigation: IsadecorFooterLink[] = [
     { label: 'Inicio', url: '/isadecor' },
-    { label: 'Catálogo', url: '/isadecor/catalogo' },
+    { label: 'Catálogo', url: '/isadecor/catalogos' },
     { label: 'Cotización', url: '/isadecor/cotizacion' },
   ];
 
   readonly collections: IsadecorFooterLink[] = [
-    { label: 'Paneles WPC', url: '/isadecor/catalogo' },
-    { label: 'Planchas SPC', url: '/isadecor/catalogo' },
-    { label: 'Cielos rasos PVC', url: '/isadecor/catalogo' },
+    { label: 'Paneles WPC', url: '/isadecor/productos' },
+    { label: 'Planchas SPC', url: '/isadecor/productos' },
+    { label: 'Cielos rasos PVC', url: '/isadecor/productos' },
   ];
 
   readonly copyright = '© 2025 ISADECOR. Todos los derechos reservados.';

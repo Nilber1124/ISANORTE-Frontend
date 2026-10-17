@@ -77,11 +77,10 @@ export class Navbar {
     { label: 'Inicio', url: '/isadecor', exact: true },
     {
       label: 'Productos',
-      url: '/isadecor/catalogo',
+      url: '/isadecor/productos',
       children: this.dynamicCategories(),
     },
-    { label: 'Catálogo', url: '/isadecor/catalogo' },
-    { label: 'Cotización', url: '/isadecor/cotizacion' },
+    { label: 'Catálogo', url: '/isadecor/catalogos' },
   ]);
 
   constructor() {

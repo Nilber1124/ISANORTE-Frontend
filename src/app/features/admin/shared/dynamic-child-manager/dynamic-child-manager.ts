@@ -5,6 +5,10 @@ import {
   BusinessUnitResourceType,
 } from '../../../../data/models/business-unit/business-unit-resource.model';
 import {
+  CatalogoRequest,
+  CatalogoResponse,
+} from '../../../../data/models/business-unit/catalogo.model';
+import {
   CompanyStatisticRequest,
   CompanyStatisticResponse,
 } from '../../../../data/models/company/company-statistic.model';
@@ -29,18 +33,20 @@ import { InputField } from '../../../../shared/components/input-field/input-fiel
 import { Drawer } from '../../../../shared/components/drawer/drawer';
 import { FormsModule } from '@angular/forms';
 
-export type DynamicChildKind = 'scene' | 'action' | 'benefit' | 'resource' | 'statistic';
+export type DynamicChildKind = 'scene' | 'action' | 'benefit' | 'resource' | 'catalogo' | 'statistic';
 export type DynamicChild =
   | HeroSceneResponse
   | LandingActionResponse
   | ServiceBenefitResponse
   | BusinessUnitResourceResponse
+  | CatalogoResponse
   | CompanyStatisticResponse;
 export type DynamicChildRequest =
   | HeroSceneRequest
   | LandingActionRequest
   | ServiceBenefitRequest
   | BusinessUnitResourceRequest
+  | CatalogoRequest
   | CompanyStatisticRequest;
 export interface DynamicChildSave {
   id: string | null;
@@ -86,6 +92,7 @@ export class DynamicChildManager {
   readonly resourceType = signal<BusinessUnitResourceType>(BusinessUnitResourceType.IMAGEN_FONDO);
   readonly resourceTypes = Object.values(BusinessUnitResourceType);
   readonly resourceUrlMode = signal<'subir' | 'enlace'>('subir');
+  readonly coverImageUrl = signal('');
 
   protected readonly quickLinks: readonly string[] = [
     '/servicios',
@@ -105,6 +112,7 @@ export class DynamicChildManager {
       action: 'Botones y Enlaces de la Sección',
       benefit: 'Beneficios del Servicio',
       resource: 'Recursos de la Unidad de Negocio',
+      catalogo: 'Catálogos',
       statistic: 'Estadísticas de la Empresa',
     }[this.kind()];
   }
@@ -115,6 +123,7 @@ export class DynamicChildManager {
       action: 'Esta sección todavía no tiene botones adicionales configurados.',
       benefit: 'Este servicio todavía no tiene beneficios registrados.',
       resource: 'Esta unidad todavía no tiene recursos registrados.',
+      catalogo: 'Esta unidad todavía no tiene catálogos registrados.',
       statistic: 'Esta empresa todavía no tiene estadísticas registradas.',
     }[this.kind()];
   }
@@ -153,6 +162,7 @@ export class DynamicChildManager {
     this.previewFailed.set(false);
     this.resourceType.set(BusinessUnitResourceType.IMAGEN_FONDO);
     this.resourceUrlMode.set('subir');
+    this.coverImageUrl.set('');
     this.formOpen.set(true);
   }
 
@@ -177,6 +187,11 @@ export class DynamicChildManager {
       this.resourceUrlMode.set(value.url.includes('res.cloudinary.com') ? 'subir' : 'enlace');
       this.alt.set(value.alt ?? '');
       this.label.set(value.etiqueta ?? '');
+    } else if (this.kind() === 'catalogo') {
+      const value = item as CatalogoResponse;
+      this.label.set(value.titulo);
+      this.url.set(value.archivoUrl);
+      this.coverImageUrl.set(value.imagenPortadaUrl);
     } else {
       const value = item as CompanyStatisticResponse;
       this.text.set(String(value.valor));
@@ -196,6 +211,7 @@ export class DynamicChildManager {
         (item as BusinessUnitResourceResponse).etiqueta ||
         (item as BusinessUnitResourceResponse).url
       );
+    if (this.kind() === 'catalogo') return (item as CatalogoResponse).titulo;
     return `${(item as CompanyStatisticResponse).prefijo ?? ''}${(item as CompanyStatisticResponse).valor}${(item as CompanyStatisticResponse).sufijo ?? ''} · ${(item as CompanyStatisticResponse).etiqueta}`;
   }
   protected toggleActive(event: Event): void {
@@ -226,6 +242,14 @@ export class DynamicChildManager {
         url: this.url().trim(),
         alt: this.alt().trim() || null,
         etiqueta: this.label().trim() || null,
+        orden,
+        activo: this.active(),
+      };
+    else if (this.kind() === 'catalogo')
+      request = {
+        titulo: this.label().trim(),
+        imagenPortadaUrl: this.coverImageUrl().trim(),
+        archivoUrl: this.url().trim(),
         orden,
         activo: this.active(),
       };
@@ -263,6 +287,8 @@ export class DynamicChildManager {
         !this.url().trim() ||
         (this.resourceType() === BusinessUnitResourceType.IMAGEN_EDITORIAL && !this.alt().trim())
       );
+    if (this.kind() === 'catalogo')
+      return !this.label().trim() || !this.coverImageUrl().trim() || !this.url().trim();
     return !this.label().trim() || !Number.isFinite(Number(this.text()));
   }
 }

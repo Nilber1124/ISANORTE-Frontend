@@ -10,6 +10,7 @@ import { CategoryUpdateRequest } from '../../../data/models/category/category-up
 import { ActiveRequest } from '../../../data/models/common/active-request.model';
 import { BusinessUnitApiService } from '../../../data/services/business-unit-api.service';
 import { CategoryApiService } from '../../../data/services/category-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { AdminCategoriesFacade } from './admin-categories.facade';
 
 const unit: BusinessUnitResponse = {
@@ -25,6 +26,7 @@ const unit: BusinessUnitResponse = {
   orden: 1,
   empresa: { id: 'company-1', nombreComercial: 'ISANORTE' },
   recursos: [],
+  catalogos: [],
   fechaCreacion: null,
   fechaActualizacion: null,
 };
@@ -98,6 +100,7 @@ describe('AdminCategoriesFacade', () => {
   let facade: AdminCategoriesFacade;
   let categoryApi: CategoryApiStub;
   let businessUnitApi: BusinessUnitApiStub;
+  let toastService: ToastService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -113,6 +116,7 @@ describe('AdminCategoriesFacade', () => {
     facade = TestBed.inject(AdminCategoriesFacade);
     categoryApi = TestBed.inject(CategoryApiStub);
     businessUnitApi = TestBed.inject(BusinessUnitApiStub);
+    toastService = TestBed.inject(ToastService);
   });
 
   it('loads all categories and business units', () => {
@@ -131,7 +135,7 @@ describe('AdminCategoriesFacade', () => {
     expect(categoryApi.createRequests).toEqual([createRequest]);
     expect(facade.categories().some((item) => item.slug === 'pisos')).toBe(true);
     expect(facade.formOpen()).toBe(false);
-    expect(facade.success()).toContain('creada');
+    expect(toastService.toasts().at(-1)?.message).toContain('creada');
   });
 
   it('updates only the selected category by its id', () => {
@@ -140,7 +144,7 @@ describe('AdminCategoriesFacade', () => {
     facade.update(updateRequest);
     expect(categoryApi.updateRequests).toEqual([{ id: category.id, request: updateRequest }]);
     expect(facade.categories()[0].nombre).toBe('Pisos SPC');
-    expect(facade.success()).toContain('actualizada');
+    expect(toastService.toasts().at(-1)?.message).toContain('actualizada');
   });
 
   it('changes active state using the ActiveRequest contract', () => {
