@@ -6,6 +6,7 @@ import { Navbar } from './navbar/navbar';
 import { WhatsappFloat } from '../../shared/components/whatsapp-float/whatsapp-float';
 import { PublicSiteFacade } from './public-site.facade';
 import { AnnouncementRibbon } from '../../features/announcements/announcement-ribbon';
+import { BrandService } from '../../core/services/brand.service';
 
 @Component({
   selector: 'app-public-layout',
@@ -17,9 +18,11 @@ import { AnnouncementRibbon } from '../../features/announcements/announcement-ri
 })
 export class PublicLayout {
   private readonly publicSite = inject(PublicSiteFacade);
+  private readonly brand = inject(BrandService);
   readonly whatsappHref = this.publicSite.whatsappHref;
 
   constructor() {
+    this.brand.setBrand('isanorte');
     this.publicSite.load();
   }
 }

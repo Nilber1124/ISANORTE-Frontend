@@ -63,6 +63,7 @@ export class ProductDetailFacade {
   private readonly seoDefaults: PublicPageSeoDefaults = {
     title: 'Producto | ISADECOR',
     description: 'Conoce los productos de ISADECOR para tus espacios.',
+    siteTitle: 'ISADECOR',
   };
 
   private readonly _product = signal<PublicProductDetailResponse | null>(null);
@@ -104,7 +105,7 @@ export class ProductDetailFacade {
   });
 
   constructor() {
-    this.destroyRef.onDestroy(() => clearPublicPageSeo(this.title, this.meta));
+    this.destroyRef.onDestroy(() => clearPublicPageSeo(this.title, this.meta, 'ISADECOR'));
   }
 
   readonly variants = computed<readonly PublicProductVariantResponse[]>(() =>

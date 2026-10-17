@@ -6,6 +6,7 @@ import { Navbar } from './navbar/navbar';
 import { PublicSiteFacade } from '../public-layout/public-site.facade';
 import { WhatsappFloat } from '../../shared/components/whatsapp-float/whatsapp-float';
 import { AnnouncementRibbon } from '../../features/announcements/announcement-ribbon';
+import { BrandService } from '../../core/services/brand.service';
 
 @Component({
   selector: 'app-isadecor-layout',
@@ -17,9 +18,11 @@ import { AnnouncementRibbon } from '../../features/announcements/announcement-ri
 })
 export class IsadecorLayout {
   private readonly publicSite = inject(PublicSiteFacade);
+  private readonly brand = inject(BrandService);
   readonly whatsappHref = this.publicSite.whatsappHref;
 
   constructor() {
+    this.brand.setBrand('isadecor');
     this.publicSite.load();
   }
 }

@@ -6,6 +6,8 @@ import { PublicPageResponse, PublicPageSeo } from '../../data/models/public-cont
 export interface PublicPageSeoDefaults {
   title: string;
   description: string;
+  /** Marca a usar como sufijo cuando el título proviene del contenido backend. Por defecto ISANORTE. */
+  siteTitle?: string;
 }
 
 export interface PublicPageSeoSource {
@@ -74,7 +76,8 @@ export function applyPublicPageSeo(
   // 1. Título: prioridad SEO backend -> contenido backend -> default de página
   const seoTitle = page?.seo?.title?.trim();
   const contentTitle = page?.contenido?.titulo?.trim();
-  const title = seoTitle || (contentTitle ? `${contentTitle} | ${BASE_SITE_TITLE}` : defaults.title);
+  const siteTitle = defaults.siteTitle || BASE_SITE_TITLE;
+  const title = seoTitle || (contentTitle ? `${contentTitle} | ${siteTitle}` : defaults.title);
 
   // 2. Descripción: prioridad SEO backend -> introducción/descripción contenido -> default de página
   const seoDesc = page?.seo?.description?.trim();
@@ -111,8 +114,12 @@ export function applyPublicPageSeo(
 /**
  * Limpia los metadatos específicos de la página para evitar que permanezcan al navegar a otra.
  */
-export function clearPublicPageSeo(titleService: Title, metaService: Meta): void {
-  titleService.setTitle(BASE_SITE_TITLE);
+export function clearPublicPageSeo(
+  titleService: Title,
+  metaService: Meta,
+  fallbackTitle: string = BASE_SITE_TITLE,
+): void {
+  titleService.setTitle(fallbackTitle);
   metaService.updateTag({ name: 'description', content: BASE_SITE_DESCRIPTION });
   metaService.removeTag('name="robots"');
   metaService.removeTag('property="og:title"');
