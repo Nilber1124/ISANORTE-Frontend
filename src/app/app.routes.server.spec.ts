@@ -23,12 +23,14 @@ describe('server routes', () => {
     expect(
       modes([
         'isadecor/cotizacion',
+        'isadecor/checkout',
         'isadecor/ingresar',
         'isadecor/mi-cuenta',
         'isadecor/productos/:slug',
         'proyectos/:slug',
       ]),
     ).toEqual([
+      RenderMode.Client,
       RenderMode.Client,
       RenderMode.Client,
       RenderMode.Client,

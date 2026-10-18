@@ -1,0 +1,32 @@
+:host {
+  display: contents;
+}
+
+.detail-label {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.detail-value {
+  margin-top: 0.25rem;
+  font-size: var(--text-body-sm);
+  color: var(--color-text-primary);
+}
+
+.detail-table-heading {
+  padding: 0.75rem 1rem;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.detail-cell {
+  padding: 0.875rem 1rem;
+  font-size: var(--text-body-sm);
+  color: var(--color-text-secondary);
+  vertical-align: top;
+}

@@ -76,7 +76,8 @@ export class Quote {
     }
   }
 
-  protected submit(): void {
+  protected submit(event: Event): void {
+    event.preventDefault();
     this.submitted.set(true);
     if (this.facade.submitting() || this.hasValidationErrors() || this.cart.items().length === 0) {
       return;

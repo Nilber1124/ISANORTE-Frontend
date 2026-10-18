@@ -41,6 +41,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    path: 'isadecor/checkout',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: 'proyectos/:slug',
     renderMode: RenderMode.Client,
   },

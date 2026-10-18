@@ -52,6 +52,7 @@ export class AdminSidebar {
         { label: 'Categorías', route: '/admin/categorias' },
         { label: 'Productos', route: '/admin/productos' },
         { label: 'Cotizaciones', route: '/admin/cotizaciones' },
+        { label: 'Pedidos', route: '/admin/pedidos' },
         { label: 'Contenido del Home', route: '/admin/anuncios', badge: 'Nuevo' },
       ],
     },

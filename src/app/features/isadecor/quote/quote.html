@@ -164,7 +164,7 @@
             <p class="mt-2 text-body text-text-secondary">
               Los campos marcados con * son obligatorios.
             </p>
-            <form class="mt-7 space-y-5" (submit)="submit()" novalidate>
+            <form class="mt-7 space-y-5" (submit)="submit($event)" novalidate>
               <app-input-field
                 inputId="quote-name"
                 label="Nombre"

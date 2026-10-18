@@ -157,6 +157,10 @@
               Agregar al carrito
             </app-button>
           </div>
+          <app-button variant="accent" size="large" class="w-full" [routerLink]="['/isadecor/checkout']"
+            [queryParams]="quoteQueryParams(product.slug)">
+            Comprar ahora
+          </app-button>
           <app-button variant="secondary" size="large" class="w-full" [routerLink]="['/isadecor/cotizacion']"
             [queryParams]="quoteQueryParams(product.slug)">
             Solicitar cotización

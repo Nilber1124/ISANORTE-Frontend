@@ -23,6 +23,7 @@ import {
   PublicProductCatalogResponse,
 } from '../models/public-content/public-product-catalog.model';
 import { PublicProductDetailResponse } from '../models/public-content/public-product-detail.model';
+import { PublicOrderRequest, PublicOrderResponse } from '../models/public-content/public-order.model';
 import { PublicQuoteRequest, PublicQuoteResponse } from '../models/public-content/public-quote.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
 
@@ -175,6 +176,18 @@ export class PublicContentApiService {
   ): Observable<PublicQuoteResponse> {
     return this.http.post<PublicQuoteResponse>(
       `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/cotizaciones`,
+      request,
+      { context: conSesionCliente() },
+    );
+  }
+
+  createOrder(
+    siteKey: string,
+    unitSlug: string,
+    request: PublicOrderRequest,
+  ): Observable<PublicOrderResponse> {
+    return this.http.post<PublicOrderResponse>(
+      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/pedidos`,
       request,
       { context: conSesionCliente() },
     );

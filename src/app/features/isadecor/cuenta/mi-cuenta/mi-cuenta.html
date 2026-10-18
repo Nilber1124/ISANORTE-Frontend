@@ -33,11 +33,11 @@
 
     <dl class="mt-8 grid gap-4 sm:grid-cols-3">
       <div class="rounded-panel border border-border bg-surface p-5">
-        <dt class="text-caption uppercase tracking-wider text-text-muted">Cotizaciones</dt>
-        <dd class="mt-2 text-heading-3 text-text-primary">{{ totalCotizaciones() }}</dd>
+        <dt class="text-caption uppercase tracking-wider text-text-muted">Pedidos en curso</dt>
+        <dd class="mt-2 text-heading-3 text-text-primary">{{ pedidosEnCurso() }}</dd>
       </div>
       <div class="rounded-panel border border-border bg-surface p-5">
-        <dt class="text-caption uppercase tracking-wider text-text-muted">En curso</dt>
+        <dt class="text-caption uppercase tracking-wider text-text-muted">Cotizaciones en curso</dt>
         <dd class="mt-2 text-heading-3 text-text-primary">{{ cotizacionesEnCurso() }}</dd>
       </div>
       <div class="rounded-panel border border-border bg-surface p-5">
@@ -52,20 +52,157 @@
       </div>
     </dl>
 
+    <section id="pedidos" class="mt-12 scroll-mt-28" aria-labelledby="mis-pedidos-titulo">
+      <div class="flex items-end justify-between gap-4">
+        <h2 id="mis-pedidos-titulo" class="text-heading-3 text-text-primary">Mis pedidos</h2>
+      </div>
+
+      @if (facade.loadingOrders()) {
+        <div class="py-16">
+          <app-loading label="Cargando tus pedidos" size="large" />
+        </div>
+      } @else if (facade.ordersError(); as message) {
+        <div class="mt-6">
+          <app-alert variant="error" title="No se pudo cargar">{{ message }}</app-alert>
+        </div>
+      } @else if (facade.orders().length === 0) {
+        <div class="mt-6 rounded-panel border border-dashed border-border-strong bg-surface-soft px-6 py-14 text-center">
+          <p class="text-body text-text-primary">Aún no has realizado pedidos.</p>
+          <p class="mt-2 text-body-sm text-text-secondary">Elige un producto del catálogo y compra en minutos.</p>
+          <a
+            routerLink="/isadecor/productos"
+            class="mt-6 inline-flex min-h-10 items-center rounded-button bg-accent px-5 py-2 text-body-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          >
+            Explorar el catálogo
+          </a>
+        </div>
+      } @else {
+        <ul class="mt-6 divide-y divide-border overflow-hidden rounded-panel border border-border bg-surface">
+          @for (pedido of facade.orders(); track pedido.codigo) {
+            <li class="p-5 sm:p-6">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div class="min-w-0">
+                  <p class="font-mono text-body-sm font-semibold text-text-primary">{{ pedido.codigo }}</p>
+                  <p class="mt-1 text-caption text-text-muted">
+                    {{ pedido.fechaCreacion | date: 'dd/MM/yyyy · HH:mm' }}
+                  </p>
+                  <p class="mt-1 text-caption text-text-muted">
+                    {{ pedido.direccionCalle }}, {{ pedido.direccionDistrito }}, {{ pedido.direccionCiudad }}
+                  </p>
+                </div>
+                <app-badge [variant]="orderEstadoVariant(pedido.estado)" size="medium">
+                  {{ orderEstadoLabel(pedido.estado) }}
+                </app-badge>
+              </div>
+
+              <ul class="mt-4 space-y-2 border-t border-border pt-4">
+                @for (detalle of pedido.detalles; track $index) {
+                  <li class="flex items-center justify-between gap-4 text-body-sm">
+                    <span class="text-text-primary">
+                      {{ detalle.nombreProducto }}
+                      <span class="text-text-muted">× {{ detalle.cantidad }}</span>
+                    </span>
+                    <span class="shrink-0 text-text-secondary">
+                      @if (detalle.subtotal !== null) {
+                        S/ {{ detalle.subtotal | number: '1.2-2' }}
+                      } @else {
+                        Por consultar
+                      }
+                    </span>
+                  </li>
+                }
+              </ul>
+
+              <div class="mt-4 flex items-center justify-end gap-2 text-body-sm">
+                <span class="text-text-secondary">Total</span>
+                <span class="font-semibold text-text-primary">
+                  @if (pedido.totalPedido !== null) {
+                    S/ {{ pedido.totalPedido | number: '1.2-2' }}
+                  } @else {
+                    Por confirmar
+                  }
+                </span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section id="direcciones" class="mt-12 scroll-mt-28" aria-labelledby="mis-direcciones-titulo">
+      <div class="flex items-end justify-between gap-4">
+        <h2 id="mis-direcciones-titulo" class="text-heading-3 text-text-primary">Mis direcciones</h2>
+        <app-button variant="secondary" (click)="facade.openAddressForm()">Agregar dirección</app-button>
+      </div>
+
+      @if (facade.loadingAddresses()) {
+        <div class="py-16">
+          <app-loading label="Cargando tus direcciones" size="large" />
+        </div>
+      } @else if (facade.addressesError(); as message) {
+        <div class="mt-6">
+          <app-alert variant="error" title="No se pudo cargar">{{ message }}</app-alert>
+        </div>
+      } @else if (facade.addresses().length === 0) {
+        <div class="mt-6 rounded-panel border border-dashed border-border-strong bg-surface-soft px-6 py-14 text-center">
+          <p class="text-body text-text-primary">Aún no has guardado direcciones.</p>
+          <p class="mt-2 text-body-sm text-text-secondary">
+            Guarda una dirección para completar tus compras más rápido.
+          </p>
+        </div>
+      } @else {
+        <ul class="mt-6 divide-y divide-border overflow-hidden rounded-panel border border-border bg-surface">
+          @for (direccion of facade.addresses(); track direccion.id) {
+            <li class="flex flex-col gap-3 p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <p class="font-semibold text-text-primary">{{ addressLabel(direccion) }}</p>
+                  @if (direccion.principal) {
+                    <app-badge variant="info" size="small">Principal</app-badge>
+                  }
+                </div>
+                <p class="mt-1 text-body-sm text-text-secondary">
+                  {{ direccion.calle }}, {{ direccion.distrito }}, {{ direccion.ciudad }}
+                </p>
+                @if (direccion.referencia) {
+                  <p class="text-caption text-text-muted">{{ direccion.referencia }}</p>
+                }
+                <p class="mt-1 text-caption text-text-muted">{{ direccion.telefonoContacto }}</p>
+              </div>
+              <div class="flex shrink-0 gap-2">
+                <app-button variant="secondary" size="small" (click)="facade.openAddressForm(direccion)">
+                  Editar
+                </app-button>
+                <app-button
+                  variant="secondary"
+                  size="small"
+                  [loading]="facade.deletingAddressId() === direccion.id"
+                  [disabled]="facade.deletingAddressId() !== null"
+                  (click)="facade.eliminarDireccion(direccion.id)"
+                >
+                  Eliminar
+                </app-button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
     <section id="cotizaciones" class="mt-12 scroll-mt-28" aria-labelledby="mis-cotizaciones-titulo">
       <div class="flex items-end justify-between gap-4">
         <h2 id="mis-cotizaciones-titulo" class="text-heading-3 text-text-primary">Mis cotizaciones</h2>
       </div>
 
-      @if (loading()) {
+      @if (facade.loadingQuotes()) {
         <div class="py-16">
           <app-loading label="Cargando tus cotizaciones" size="large" />
         </div>
-      } @else if (error(); as message) {
+      } @else if (facade.quotesError(); as message) {
         <div class="mt-6">
           <app-alert variant="error" title="No se pudo cargar">{{ message }}</app-alert>
         </div>
-      } @else if (cotizaciones().length === 0) {
+      } @else if (facade.quotes().length === 0) {
         <div class="mt-6 rounded-panel border border-dashed border-border-strong bg-surface-soft px-6 py-14 text-center">
           <p class="text-body text-text-primary">Aún no has solicitado cotizaciones.</p>
           <p class="mt-2 text-body-sm text-text-secondary">Elige un producto del catálogo y solicita tu cotización en minutos.</p>
@@ -78,7 +215,7 @@
         </div>
       } @else {
         <ul class="mt-6 divide-y divide-border overflow-hidden rounded-panel border border-border bg-surface">
-          @for (cotizacion of cotizaciones(); track cotizacion.codigo) {
+          @for (cotizacion of facade.quotes(); track cotizacion.codigo) {
             <li class="p-5 sm:p-6">
               <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div class="min-w-0">
@@ -87,8 +224,8 @@
                     {{ cotizacion.fechaCreacion | date: 'dd/MM/yyyy · HH:mm' }}
                   </p>
                 </div>
-                <app-badge [variant]="estadoVariant(cotizacion.estado)" size="medium">
-                  {{ estadoLabel(cotizacion.estado) }}
+                <app-badge [variant]="quoteEstadoVariant(cotizacion.estado)" size="medium">
+                  {{ quoteEstadoLabel(cotizacion.estado) }}
                 </app-badge>
               </div>
 
@@ -126,4 +263,23 @@
       }
     </section>
   </div>
+
+  @if (facade.addressFormOpen()) {
+    <app-modal
+      modalId="address-form-modal"
+      [title]="facade.editingAddress() ? 'Editar dirección' : 'Agregar dirección'"
+      size="medium"
+      [open]="true"
+      [showFooter]="false"
+      (closed)="facade.closeAddressForm()"
+    >
+      <app-address-form
+        [initialValue]="facade.editingAddress()"
+        [submitting]="facade.savingAddress()"
+        [serverError]="facade.addressFormError()"
+        (saved)="saveAddress($event)"
+        (canceled)="facade.closeAddressForm()"
+      />
+    </app-modal>
+  }
 </main>

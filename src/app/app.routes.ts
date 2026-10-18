@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Cart } from './features/isadecor/cart/cart';
 import { Catalog } from './features/isadecor/catalog/catalog';
 import { Catalogos } from './features/isadecor/catalogos/catalogos';
+import { Checkout } from './features/isadecor/checkout/checkout';
 import { Home as IsadecorHome } from './features/isadecor/home/home';
 import { ProductDetail } from './features/isadecor/product-detail/product-detail';
 import { Quote } from './features/isadecor/quote/quote';
@@ -57,6 +58,11 @@ export const routes: Routes = [
         path: 'cotizaciones',
         loadComponent: () =>
           import('./features/admin/quotes/admin-quotes').then(({ AdminQuotes }) => AdminQuotes),
+      },
+      {
+        path: 'pedidos',
+        loadComponent: () =>
+          import('./features/admin/orders/admin-orders').then(({ AdminOrders }) => AdminOrders),
       },
       {
         path: 'isadecor-landing',
@@ -147,6 +153,7 @@ export const routes: Routes = [
       { path: 'catalogos', component: Catalogos },
       { path: 'carrito', component: Cart },
       { path: 'cotizacion', component: Quote },
+      { path: 'checkout', component: Checkout, canActivate: [clienteGuard] },
       { path: 'ingresar', component: IsadecorIngresar },
       { path: 'mi-cuenta', component: MiCuenta, canActivate: [clienteGuard] },
       { path: 'productos/:slug', component: ProductDetail },
