@@ -8,7 +8,6 @@ import { PublicServicesFacade } from './public-services.facade';
   imports: [Alert, RevealStagger],
   selector: 'app-isanorte-services',
   providers: [PublicServicesFacade],
-  styleUrl: './services.css',
   templateUrl: './services.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

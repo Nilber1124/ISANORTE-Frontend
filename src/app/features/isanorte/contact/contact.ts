@@ -23,7 +23,6 @@ interface ContactChannel {
   imports: [NgTemplateOutlet, Alert, Button, Card, InputField, TextareaField],
   selector: 'app-isanorte-contact',
   providers: [PublicContactFacade],
-  styleUrl: './contact.css',
   templateUrl: './contact.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
