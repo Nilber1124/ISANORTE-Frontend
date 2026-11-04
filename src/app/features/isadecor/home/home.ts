@@ -22,8 +22,6 @@ import { AnnouncementResponse } from '../../../data/models/announcement/announce
 import { IsadecorHomeContentFacade } from './isadecor-home-content.facade';
 
 import {
-  DEFAULT_HERO_QUICK_ACCESS_ITEMS,
-  HomeQuickAccessItem,
   IsadecorHeroQuickAccessService,
 } from '../../../core/services/isadecor-hero-quick-access.service';
 
@@ -73,8 +71,6 @@ interface HomeStoreBenefit {
   description: string;
 }
 
-export type { HomeQuickAccessItem };
-export const HERO_QUICK_ACCESS_ITEMS = DEFAULT_HERO_QUICK_ACCESS_ITEMS;
 
 const DEFAULT_CATEGORY_HIGHLIGHTS: readonly HomeCategoryHighlight[] = [
   {
@@ -334,7 +330,6 @@ export class Home {
           autoBadge = 'PARED';
           autoEyebrow = 'Acabados de Pared';
           autoTagline = 'Textura madera · Fácil instalación click';
-          fallbackImage = '/images/isadecor-left-1.jpg';
         } else if (
           nameLower.includes('mármol') ||
           nameLower.includes('marmol') ||
@@ -357,7 +352,6 @@ export class Home {
           autoBadge = 'PISOS';
           autoEyebrow = 'Acabados de Piso';
           autoTagline = 'Alto tránsito · Resistencia al agua';
-          fallbackImage = '/images/isadecor-left-1.jpg';
         } else if (nameLower.includes('revestimiento')) {
           autoBadge = 'REVESTIMIENTOS';
           autoEyebrow = 'Línea Revestimientos';
@@ -402,7 +396,6 @@ export class Home {
         badge = 'PARED';
         eyebrow = 'Acabados de Pared';
         tagline = 'Textura madera · Fácil instalación click';
-        fallbackImage = '/images/isadecor-left-1.jpg';
       } else if (
         nameLower.includes('mármol') ||
         nameLower.includes('marmol') ||
@@ -425,7 +418,6 @@ export class Home {
         badge = 'PISOS';
         eyebrow = 'Acabados de Piso';
         tagline = 'Alto tránsito · Resistencia al agua';
-        fallbackImage = '/images/isadecor-left-1.jpg';
       } else if (nameLower.includes('revestimiento')) {
         badge = 'REVESTIMIENTOS';
         eyebrow = 'Línea Revestimientos';

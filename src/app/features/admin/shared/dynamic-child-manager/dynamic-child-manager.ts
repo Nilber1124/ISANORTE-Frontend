@@ -264,13 +264,14 @@ export class DynamicChildManager {
       };
     this.saved.emit({ id: this.editingId(), request });
   }
+  private activeLimit(): number | null {
+    if (this.kind() !== 'action') return null;
+    if (this.parentType() === 'HERO') return 2;
+    if (this.parentType() === 'CTA') return 1;
+    return null;
+  }
   protected activeLimitReached(): boolean {
-    const limit =
-      this.kind() === 'action' && this.parentType() === 'HERO'
-        ? 2
-        : this.kind() === 'action' && this.parentType() === 'CTA'
-          ? 1
-          : null;
+    const limit = this.activeLimit();
     if (limit === null || !this.active()) return false;
     return (
       this.items().filter((item) => item.activo && item.id !== this.editingId()).length >= limit

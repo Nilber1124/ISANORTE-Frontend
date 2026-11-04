@@ -215,7 +215,7 @@ export class ProductForm implements OnInit {
       return this.localImages();
     }
     const prod = this.facade.selectedProduct() ?? this.product();
-    if (!prod || !prod.imagenes) return [];
+    if (!prod?.imagenes) return [];
     return [...prod.imagenes]
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
       .map((img, idx) => ({
@@ -234,7 +234,7 @@ export class ProductForm implements OnInit {
       return principal ? principal.url : imgs[0].url;
     }
     const prod = this.product();
-    if (prod && prod.imagenes && prod.imagenes.length > 0) {
+    if (prod?.imagenes?.length) {
       return prod.imagenes[0].url;
     }
     return null;
@@ -246,7 +246,7 @@ export class ProductForm implements OnInit {
       return this.localVariants();
     }
     const prod = this.facade.selectedProduct() ?? this.product();
-    if (!prod || !prod.variantes) return [];
+    if (!prod?.variantes) return [];
     return [...prod.variantes]
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
       .map((v, idx) => ({
@@ -280,7 +280,7 @@ export class ProductForm implements OnInit {
       return this.localSpecifications();
     }
     const prod = this.facade.selectedProduct() ?? this.product();
-    if (!prod || !prod.especificaciones) return [];
+    if (!prod?.especificaciones) return [];
     return [...prod.especificaciones]
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
       .map((s, idx) => ({
@@ -1027,8 +1027,8 @@ export class ProductForm implements OnInit {
     const tamanoRaw = this.docTamanoBytes().trim();
     let tamanoBytes: number | null = null;
     if (tamanoRaw) {
-      const parsed = parseInt(tamanoRaw, 10);
-      if (isNaN(parsed) || parsed < 0) {
+      const parsed = Number.parseInt(tamanoRaw, 10);
+      if (Number.isNaN(parsed) || parsed < 0) {
         this.docClientError.set('El tamaño en bytes debe ser un número entero mayor o igual a 0.');
         return;
       }
@@ -1128,7 +1128,7 @@ export class ProductForm implements OnInit {
   }
 
   protected formatDocumentSize(bytes: number | null | undefined): string {
-    if (bytes == null || isNaN(bytes) || bytes <= 0) return '—';
+    if (bytes == null || Number.isNaN(bytes) || bytes <= 0) return '—';
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;

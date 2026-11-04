@@ -91,7 +91,7 @@ export class Drawer {
 
     const activeElement = panel.ownerDocument.activeElement;
     const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+    const last = focusable.at(-1) ?? first;
     if (event.shiftKey && (activeElement === first || !panel.contains(activeElement))) {
       event.preventDefault();
       last.focus();

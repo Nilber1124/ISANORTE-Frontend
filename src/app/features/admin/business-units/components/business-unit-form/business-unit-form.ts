@@ -145,13 +145,12 @@ export class BusinessUnitForm implements OnInit {
       slug: this.slug().trim() ? undefined : 'Ingresa el slug de la unidad.',
       empresaId:
         this.mode() === 'create' && !this.empresaId() ? 'Selecciona una empresa.' : undefined,
-      orden:
-        this.mode() === 'create' && this.orden().trim() === ''
-          ? undefined
-          : Number.isFinite(order) && Number.isInteger(order)
-            ? undefined
-            : 'Ingresa un número entero.',
+      orden: this.ordenError(order),
     };
+  }
+  private ordenError(order: number): string | undefined {
+    if (this.mode() === 'create' && this.orden().trim() === '') return undefined;
+    return Number.isFinite(order) && Number.isInteger(order) ? undefined : 'Ingresa un número entero.';
   }
   private hasErrors(): boolean {
     return (

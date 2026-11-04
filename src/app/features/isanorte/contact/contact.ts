@@ -64,11 +64,13 @@ export class Contact {
 
   private phoneHref(value: string): string | null {
     const digits = value.replace(/\D/g, '');
-    return digits ? `tel:${value.trim().startsWith('+') ? '+' : ''}${digits}` : null;
+    if (!digits) return null;
+    const prefix = value.trim().startsWith('+') ? '+' : '';
+    return `tel:${prefix}${digits}`;
   }
 
   private whatsappHref(value: string | null): string | null {
     const digits = value?.replace(/\D/g, '') ?? '';
-    return /^[0-9]{7,15}$/.test(digits) ? `https://wa.me/${digits}` : null;
+    return /^\d{7,15}$/.test(digits) ? `https://wa.me/${digits}` : null;
   }
 }

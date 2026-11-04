@@ -122,7 +122,7 @@ export class ImageUploaderComponent implements ControlValueAccessor {
   isUploading = false;
   errorMessage: string | null = null;
 
-  private archivoApiService = inject(ArchivoApiService);
+  private readonly archivoApiService = inject(ArchivoApiService);
 
   onChange = (value: string | null) => {};
   onTouched = () => {};

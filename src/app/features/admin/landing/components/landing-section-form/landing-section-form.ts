@@ -166,7 +166,7 @@ export class LandingSectionForm {
         imagenAlt: this.imagenAlt().trim() || null,
         textoBoton: this.textoBoton().trim() || null,
         enlaceBoton: this.enlaceBoton().trim() || null,
-        orden: this.orden() ? parseInt(this.orden(), 10) : 0,
+        orden: this.orden() ? Number.parseInt(this.orden(), 10) : 0,
         visible: this.visible(),
       };
       this.created.emit(createReq);
@@ -182,7 +182,7 @@ export class LandingSectionForm {
         imagenAlt: this.imagenAlt().trim() || null,
         textoBoton: this.textoBoton().trim() || null,
         enlaceBoton: this.enlaceBoton().trim() || null,
-        orden: this.orden() ? parseInt(this.orden(), 10) : 0,
+        orden: this.orden() ? Number.parseInt(this.orden(), 10) : 0,
         visible: this.visible(),
       };
       this.updated.emit(updateReq);

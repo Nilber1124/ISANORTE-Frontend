@@ -272,13 +272,24 @@ export class ProductDetailFacade {
         error: (error: unknown) => {
           const status = error instanceof HttpErrorResponse ? error.status : 0;
           if (status === 401 || status === 403) this._reviewAuthenticationRequired.set(true);
-          this._reviewSubmissionError.set(status === 401 || status === 403
-            ? 'Tu sesión venció. Inicia sesión nuevamente para conservar y publicar tu opinión.'
-            : status === 409 ? 'Ya publicaste una reseña para este producto.'
-              : status === 400 ? 'Revisa la calificación y el comentario.'
-                : 'No pudimos publicar tu reseña. Inténtalo nuevamente.');
+          this._reviewSubmissionError.set(this.reviewErrorMessage(status));
         },
       });
+  }
+
+  private reviewErrorMessage(status: number): string {
+    if (status === 401 || status === 403) {
+      return 'Tu sesión venció. Inicia sesión nuevamente para conservar y publicar tu opinión.';
+    }
+    if (status === 409) return 'Ya publicaste una reseña para este producto.';
+    if (status === 400) return 'Revisa la calificación y el comentario.';
+    return 'No pudimos publicar tu reseña. Inténtalo nuevamente.';
+  }
+
+  private comparisonErrorMessage(status: number): string {
+    if (status === 404) return 'El producto ya no está disponible públicamente para comparar.';
+    if (status === 400) return 'Ingresa una URL válida del producto.';
+    return 'No pudimos completar la comparación. Inténtalo nuevamente.';
   }
 
   clearReviewSubmissionState(): void {
@@ -318,13 +329,7 @@ export class ProductDetailFacade {
         next: (result) => this._comparisonResult.set(result),
         error: (error: unknown) => {
           const status = error instanceof HttpErrorResponse ? error.status : 0;
-          this._comparisonError.set(
-            status === 404
-              ? 'El producto ya no está disponible públicamente para comparar.'
-              : status === 400
-                ? 'Ingresa una URL válida del producto.'
-                : 'No pudimos completar la comparación. Inténtalo nuevamente.',
-          );
+          this._comparisonError.set(this.comparisonErrorMessage(status));
         },
       });
   }

@@ -165,7 +165,7 @@ export class IsadecorHeroQuickAccessService {
 
   toggleItemVisibility(id: string): void {
     const next = this._items().map((item) =>
-      item.id === id ? { ...item, visible: item.visible === false ? true : false } : item,
+      item.id === id ? { ...item, visible: item.visible === false } : item,
     );
     this.saveAll(next);
   }
@@ -220,7 +220,7 @@ export class IsadecorHeroQuickAccessService {
 
   toggleCollectionVisibility(id: string): void {
     const next = this._collections().map((col) =>
-      col.id === id ? { ...col, visible: col.visible === false ? true : false } : col,
+      col.id === id ? { ...col, visible: col.visible === false } : col,
     );
     this.saveAllCollections(next);
   }

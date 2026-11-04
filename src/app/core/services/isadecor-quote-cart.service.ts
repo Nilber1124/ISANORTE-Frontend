@@ -163,8 +163,8 @@ export class IsadecorQuoteCartService {
         }
         productLines.push(`Cantidad: ${item.quantity}`);
         if (item.unitPrice !== null) {
-          productLines.push(`Precio referencial unitario: ${this.formatPen(item.unitPrice)}`);
           productLines.push(
+            `Precio referencial unitario: ${this.formatPen(item.unitPrice)}`,
             `Subtotal referencial: ${this.formatPen(item.unitPrice * item.quantity)}`,
           );
         } else {

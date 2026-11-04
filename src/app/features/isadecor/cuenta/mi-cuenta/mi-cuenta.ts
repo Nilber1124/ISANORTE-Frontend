@@ -14,7 +14,7 @@ import { Modal } from '../../../../shared/components/modal/modal';
 import { AddressForm, AddressFormValue } from '../components/address-form/address-form';
 import { MiCuentaFacade } from './mi-cuenta.facade';
 
-const QUOTE_CERRADAS: readonly QuoteStatus[] = [QuoteStatus.CERRADA, QuoteStatus.CANCELADA];
+const QUOTE_CERRADAS: ReadonlySet<QuoteStatus> = new Set([QuoteStatus.CERRADA, QuoteStatus.CANCELADA]);
 
 const QUOTE_ESTADO_VARIANTS: Record<QuoteStatus, BadgeVariant> = {
   [QuoteStatus.NUEVA]: 'info',
@@ -34,7 +34,7 @@ const QUOTE_ESTADO_LABELS: Record<QuoteStatus, string> = {
   [QuoteStatus.CANCELADA]: 'Cancelada',
 };
 
-const ORDER_CERRADOS: readonly OrderStatus[] = [OrderStatus.ENTREGADO, OrderStatus.CANCELADO];
+const ORDER_CERRADOS: ReadonlySet<OrderStatus> = new Set([OrderStatus.ENTREGADO, OrderStatus.CANCELADO]);
 
 const ORDER_ESTADO_VARIANTS: Record<OrderStatus, BadgeVariant> = {
   [OrderStatus.PENDIENTE_PAGO]: 'warning',
@@ -93,10 +93,10 @@ export class MiCuenta {
   });
   readonly totalCotizaciones = computed(() => this.facade.quotes().length);
   readonly cotizacionesEnCurso = computed(
-    () => this.facade.quotes().filter((c) => !QUOTE_CERRADAS.includes(c.estado)).length,
+    () => this.facade.quotes().filter((c) => !QUOTE_CERRADAS.has(c.estado)).length,
   );
   readonly pedidosEnCurso = computed(
-    () => this.facade.orders().filter((o) => !ORDER_CERRADOS.includes(o.estado)).length,
+    () => this.facade.orders().filter((o) => !ORDER_CERRADOS.has(o.estado)).length,
   );
 
   constructor() {

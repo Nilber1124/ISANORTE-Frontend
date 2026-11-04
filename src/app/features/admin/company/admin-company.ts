@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, afterNextRender, inject, input, signal } from '@angular/core';
 
 import {
-  CompanyResponse,
   SocialNetworkResponse,
 } from '../../../data/models/company/company-response.model';
 import { Alert } from '../../../shared/components/alert/alert';
@@ -11,7 +10,7 @@ import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../shared/components/loading/loading';
 import { Modal } from '../../../shared/components/modal/modal';
 import { AdminCompanyFacade } from './admin-company.facade';
-import { CompanyForm, CompanyFormSubmission, CompanyTab } from './components/company-form/company-form';
+import { CompanyForm, CompanyFormSubmission, CompanySection } from './components/company-form/company-form';
 import {
   SocialNetworkForm,
   SocialNetworkFormSubmission,
@@ -45,13 +44,13 @@ export class AdminCompany {
   readonly showLegalData = input(true);
   readonly onlyAbout = input(false);
   readonly networkToDelete = signal<SocialNetworkResponse | null>(null);
-  readonly activeFormTab = signal<CompanyTab>('legal');
+  readonly activeFormTab = signal<CompanySection>('legal');
 
   constructor() {
     afterNextRender(() => this.facade.load());
   }
 
-  protected openEditSection(tab: CompanyTab): void {
+  protected openEditSection(tab: CompanySection): void {
     this.activeFormTab.set(tab);
     this.facade.openCompanyEdit();
   }
@@ -88,7 +87,7 @@ export class AdminCompany {
 
   protected get sortedNetworks(): SocialNetworkResponse[] {
     const company = this.facade.company();
-    if (!company || !company.redesSociales) return [];
+    if (!company?.redesSociales) return [];
     return [...company.redesSociales].sort(
       (a, b) =>
         (a.orden ?? Number.MAX_SAFE_INTEGER) - (b.orden ?? Number.MAX_SAFE_INTEGER) ||

@@ -19,7 +19,6 @@ import { AdminProjects } from '../projects/admin-projects';
 import { AdminContent } from '../content/admin-content';
 import { AdminContact } from '../contact/admin-contact';
 
-import { LandingSectionResponse } from '../../../data/models/landing-section/landing-section-response.model';
 import { LandingSectionType } from '../../../data/models/landing-section/landing-section-type.enum';
 
 export interface SectionMeta {
