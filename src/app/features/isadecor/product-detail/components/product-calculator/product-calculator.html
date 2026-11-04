@@ -22,6 +22,7 @@
   @if (calculationAvailable()) {
     <div class="mt-5 flex flex-wrap items-center gap-3">
       <div class="relative flex items-center min-w-[160px] max-w-[220px]">
+        <label for="product-calculator-measurement" class="sr-only">Medida del {{ inputLabel() }}</label>
         <input
           id="product-calculator-measurement"
           name="product-measurement"

@@ -244,7 +244,7 @@
         <!-- Campos específicos para Diapositiva (Hero) -->
         @if (kind() === 'scene') {
           <div class="space-y-2">
-            <label class="form-label mb-0">URL de la fotografía</label>
+            <p class="form-label mb-0">URL de la fotografía</p>
             <p class="text-caption text-text-muted mb-2">Ingresa el enlace público de la imagen (WebP, JPG, PNG).</p>
             <app-image-uploader
               [ngModel]="url()"
@@ -381,7 +381,7 @@
           />
           @if (resourceType() === 'IMAGEN_FONDO' || resourceType() === 'IMAGEN_EDITORIAL') {
             <div class="space-y-2">
-              <label class="form-label mb-0">Imagen del recurso</label>
+              <p class="form-label mb-0">Imagen del recurso</p>
               <app-image-uploader
                 [ngModel]="url()"
                 (ngModelChange)="updateUrl($event)"
@@ -391,7 +391,7 @@
             </div>
           } @else {
             <div class="space-y-2">
-              <label class="form-label mb-0">Archivo del recurso</label>
+              <p class="form-label mb-0">Archivo del recurso</p>
 
               <div class="inline-flex rounded-control border border-border bg-surface p-1" role="tablist" aria-label="Origen del recurso">
                 <button
@@ -451,7 +451,7 @@
         @if (kind() === 'catalogo') {
           <app-input-field inputId="child-catalogo-titulo" label="Título" [(value)]="label" required />
           <div class="space-y-2">
-            <label class="form-label mb-0">Portada del catálogo</label>
+            <p class="form-label mb-0">Portada del catálogo</p>
             <app-image-uploader
               [ngModel]="coverImageUrl()"
               (ngModelChange)="coverImageUrl.set($event)"
@@ -460,7 +460,7 @@
             />
           </div>
           <div class="space-y-2">
-            <label class="form-label mb-0">Archivo PDF</label>
+            <p class="form-label mb-0">Archivo PDF</p>
             <app-document-uploader
               [ngModel]="url()"
               (ngModelChange)="updateUrl($event)"

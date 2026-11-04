@@ -116,7 +116,7 @@
 
       <div class="space-y-2">
         <div class="flex items-center justify-between">
-          <label class="form-label mb-0">Categorías disponibles</label>
+          <p class="form-label mb-0">Categorías disponibles</p>
           @if (availableCategories().length > 0) {
             <span class="text-caption text-text-muted">
               {{ availableCategories().length }} en esta unidad
@@ -129,7 +129,7 @@
 
         @if (loadingFormData()) {
           <div class="flex items-center gap-2 py-4 text-body-sm text-text-muted" role="status">
-            <svg class="h-4 w-4 animate-spin text-accent" fill="none" viewBox="0 0 24 24">
+            <svg aria-hidden="true" class="h-4 w-4 animate-spin text-accent" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
             </svg>
@@ -137,7 +137,7 @@
           </div>
         } @else if (!unidadNegocioId()) {
           <div class="rounded-xl border border-dashed border-border bg-surface-soft p-4 text-center text-body-sm text-text-muted">
-            <svg class="size-5 mx-auto mb-1.5 text-accent/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" class="size-5 mx-auto mb-1.5 text-accent/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
             </svg>
             <p class="font-medium text-text-primary">Selecciona una unidad de negocio</p>
@@ -312,7 +312,7 @@
           <div class="flex items-center gap-2">
             @if (facade.imageOperating()) {
               <span class="inline-flex items-center gap-1.5 text-caption font-medium text-accent bg-accent/10 px-2.5 py-1 rounded-full animate-pulse">
-                <svg class="animate-spin size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <svg aria-hidden="true" class="animate-spin size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -320,7 +320,7 @@
               </span>
             } @else if (facade.imageSuccess(); as msg) {
               <span class="inline-flex items-center gap-1 text-caption font-medium text-success bg-success/10 px-2.5 py-1 rounded-full">
-                <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <svg aria-hidden="true" class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
                 </svg>
                 {{ msg }}
@@ -342,7 +342,7 @@
       }
 
       <div class="space-y-2">
-        <label class="form-label mb-0">Subir nueva fotografía a Cloudinary</label>
+        <p class="form-label mb-0">Subir nueva fotografía a Cloudinary</p>
         <p class="text-caption text-text-muted mb-2">
           Formatos compatibles: JPG, PNG o WebP (máx. 5MB). Al subirla, se integrará automáticamente a la galería.
         </p>
@@ -369,7 +369,7 @@
 
         @if (currentImages().length === 0) {
           <div class="flex flex-col items-center justify-center p-8 rounded-xl border border-dashed border-border bg-surface-soft text-center">
-            <svg class="size-10 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <svg aria-hidden="true" class="size-10 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
             </svg>
             <p class="text-body-sm font-semibold text-text-primary">Sin fotografías registradas</p>
@@ -399,7 +399,7 @@
                     title="Ver vista previa en tamaño completo"
                     aria-label="Ver vista previa en tamaño completo"
                   >
-                    <svg class="size-6 drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg aria-hidden="true" class="size-6 drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
                     </svg>
                   </button>
@@ -436,7 +436,7 @@
                         [disabled]="idx === 0 || facade.imageOperating()"
                         (click)="moveImage(idx, -1)"
                       >
-                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
                         </svg>
                       </button>
@@ -448,7 +448,7 @@
                         [disabled]="idx === total - 1 || facade.imageOperating()"
                         (click)="moveImage(idx, 1)"
                       >
-                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                         </svg>
                       </button>
@@ -460,7 +460,7 @@
                         [disabled]="facade.imageOperating()"
                         (click)="removeImage(idx)"
                       >
-                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                         </svg>
                       </button>
@@ -469,7 +469,9 @@
 
                   <!-- Input para ALT text -->
                   <div>
+                    <label [for]="'image-alt-' + idx" class="sr-only">Texto alternativo de la fotografía {{ idx + 1 }}</label>
                     <input
+                      [id]="'image-alt-' + idx"
                       type="text"
                       class="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-body-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                       [value]="img.altText"
@@ -519,7 +521,7 @@
             [disabled]="submitting() || facade.variantOperating()"
             (click)="openCreateVariant()"
           >
-            <svg class="size-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" class="size-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
             Agregar variante
@@ -545,7 +547,7 @@
       <div>
         @if (currentVariants().length === 0) {
           <div class="rounded-xl border border-dashed border-border bg-surface-soft p-6 text-center text-body-sm text-text-muted">
-            <svg class="size-8 mx-auto mb-2 text-text-muted/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg aria-hidden="true" class="size-8 mx-auto mb-2 text-text-muted/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0120.25 9v.878m0 0a2.246 2.246 0 00-.75-.128H4.5c-.263 0-.515.045-.75.128m16.5 0A2.25 2.25 0 0121.75 12v6.75a2.25 2.25 0 01-2.25 2.25H4.5a2.25 2.25 0 01-2.25-2.25V12a2.25 2.25 0 011.5-2.122" />
             </svg>
             <p class="font-medium text-text-primary">Este producto no tiene variantes registradas</p>
@@ -578,7 +580,7 @@
                           />
                         } @else {
                           <div class="size-10 rounded-lg bg-surface-soft border border-border flex items-center justify-center text-text-muted shrink-0">
-                            <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <svg aria-hidden="true" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                             </svg>
                           </div>
@@ -614,7 +616,7 @@
                           [disabled]="facade.variantOperating()"
                           (click)="openEditVariant(idx)"
                         >
-                          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                           </svg>
                         </button>
@@ -626,7 +628,7 @@
                           [disabled]="facade.variantOperating()"
                           (click)="removeVariant(idx)"
                         >
-                          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                           </svg>
                         </button>
@@ -659,7 +661,7 @@
           [disabled]="mode() === 'edit' && facade.specificationOperating()"
           (click)="openCreateSpecification()"
         >
-          <svg class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <svg aria-hidden="true" class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           Agregar especificación
@@ -682,7 +684,7 @@
 
         @if (groupedSpecifications().length === 0) {
           <div class="rounded-lg border border-dashed border-border p-6 text-center">
-            <svg class="mx-auto size-9 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <svg aria-hidden="true" class="mx-auto size-9 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
             <p class="text-body-sm font-medium text-text-primary">Sin especificaciones técnicas</p>
@@ -720,7 +722,7 @@
                     [disabled]="mode() === 'edit' && facade.specificationOperating()"
                     (click)="openCreateSpecification(group.name)"
                   >
-                    <svg class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <svg aria-hidden="true" class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                     Añadir a {{ group.name }}
@@ -759,7 +761,7 @@
                                 [disabled]="mode() === 'edit' && facade.specificationOperating()"
                                 (click)="openEditSpecification(item)"
                               >
-                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                   <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                 </svg>
                               </button>
@@ -770,7 +772,7 @@
                                 [disabled]="mode() === 'edit' && facade.specificationOperating()"
                                 (click)="removeSpecification(item)"
                               >
-                                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                   <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                 </svg>
                               </button>
@@ -806,7 +808,7 @@
           [disabled]="mode() === 'edit' && facade.documentOperating()"
           (click)="openCreateDocument()"
         >
-          <svg class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <svg aria-hidden="true" class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           Agregar documento
@@ -829,7 +831,7 @@
 
         @if (currentDocuments().length === 0) {
           <div class="rounded-lg border border-dashed border-border p-6 text-center">
-            <svg class="mx-auto size-9 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <svg aria-hidden="true" class="mx-auto size-9 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
             <p class="text-body-sm font-medium text-text-primary">Sin documentos técnicos</p>
@@ -865,7 +867,7 @@
                     <tr class="hover:bg-surface-soft/40 transition-colors">
                       <td class="py-3 px-4">
                         <div class="flex items-center gap-2">
-                          <svg class="size-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <svg aria-hidden="true" class="size-4 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                           </svg>
                           <div class="min-w-0">
@@ -902,7 +904,7 @@
                             class="p-1 text-text-muted hover:text-accent rounded transition-colors"
                             title="Abrir documento en nueva pestaña"
                           >
-                            <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                             </svg>
                           </a>
@@ -913,7 +915,7 @@
                             [disabled]="mode() === 'edit' && facade.documentOperating()"
                             (click)="openEditDocument(doc)"
                           >
-                            <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                             </svg>
                           </button>
@@ -924,7 +926,7 @@
                             [disabled]="mode() === 'edit' && facade.documentOperating()"
                             (click)="removeDocument(doc)"
                           >
-                            <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg aria-hidden="true" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                             </svg>
                           </button>
@@ -960,7 +962,7 @@
             [loading]="facade.calculationConfigOperating()"
             (click)="saveCalculationConfig()"
           >
-            <svg class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" class="size-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
             Guardar calculadora
@@ -1086,7 +1088,7 @@
         <div class="flex items-center justify-between mb-3">
           <div>
             <span class="text-caption font-bold uppercase tracking-wider text-text-primary flex items-center gap-1.5">
-              <svg class="size-4 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg aria-hidden="true" class="size-4 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
               </svg>
               Vista previa en el catálogo
@@ -1107,7 +1109,7 @@
               <img [src]="imgUrl" [alt]="nombre() || 'Vista previa'" class="h-full w-full object-cover" />
             } @else {
               <div class="flex flex-col items-center justify-center p-6 text-text-muted text-center">
-                <svg class="size-10 opacity-40 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <svg aria-hidden="true" class="size-10 opacity-40 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
                 </svg>
                 <span class="text-caption font-medium">Acabado arquitectónico</span>
@@ -1218,7 +1220,7 @@
     <div class="flex flex-col items-center justify-center p-2">
       <img
         [src]="previewUrl"
-        alt="Vista previa ampliada de la imagen"
+        alt="Vista previa ampliada"
         class="max-h-[70vh] w-auto max-w-full rounded-lg object-contain shadow-soft"
       />
     </div>
@@ -1275,7 +1277,7 @@
         />
 
         <div class="flex flex-col justify-center">
-          <label class="form-label mb-1">Disponibilidad de la variante</label>
+          <p class="form-label mb-1">Disponibilidad de la variante</p>
           <label class="flex items-center gap-2 text-body-sm text-text-primary cursor-pointer mt-1">
             <input
               type="checkbox"
@@ -1298,10 +1300,10 @@
 
       <!-- Imagen de la variante (opcional) -->
       <div class="space-y-2 pt-2 border-t border-border">
-        <label class="form-label mb-0">Fotografía específica de la variante (opcional)</label>
+        <p class="form-label mb-0">Fotografía específica de la variante (opcional)</p>
         @if (variantImagenUrl(); as vImgUrl) {
           <div class="flex items-center gap-3 p-3 rounded-lg border border-border bg-surface-soft">
-            <img [src]="vImgUrl" alt="Imagen variante" class="size-14 rounded-lg object-cover border border-border shrink-0" />
+            <img [src]="vImgUrl" alt="Vista previa de la variante" class="size-14 rounded-lg object-cover border border-border shrink-0" />
             <div class="flex-1 min-w-0">
               <p class="text-caption font-mono text-text-muted truncate">{{ vImgUrl }}</p>
             </div>
@@ -1442,7 +1444,7 @@
       />
 
       <div class="space-y-2">
-        <label class="form-label">Archivo del documento</label>
+        <p class="form-label">Archivo del documento</p>
 
         <div class="inline-flex rounded-control border border-border bg-surface p-1" role="tablist" aria-label="Origen del documento">
           <button

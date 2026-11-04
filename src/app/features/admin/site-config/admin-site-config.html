@@ -158,12 +158,12 @@
 
         <section class="config-card" aria-labelledby="colors-heading">
           <h2 id="colors-heading" class="config-card-title">Colores</h2>
-          <dl class="config-list">
+          <div class="config-list">
             <div class="color-row">
-              <div>
+              <dl>
                 <dt>Primario</dt>
                 <dd>{{ config.colorPrimario || 'No configurado' }}</dd>
-              </div>
+              </dl>
               @if (config.colorPrimario) {
                 <span
                   class="detail-swatch"
@@ -173,10 +173,10 @@
               }
             </div>
             <div class="color-row">
-              <div>
+              <dl>
                 <dt>Secundario</dt>
                 <dd>{{ config.colorSecundario || 'No configurado' }}</dd>
-              </div>
+              </dl>
               @if (config.colorSecundario) {
                 <span
                   class="detail-swatch"
@@ -185,7 +185,7 @@
                 ></span>
               }
             </div>
-          </dl>
+          </div>
         </section>
 
         <section class="config-card" aria-labelledby="footer-heading">

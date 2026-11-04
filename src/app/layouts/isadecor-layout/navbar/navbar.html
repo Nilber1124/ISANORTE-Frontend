@@ -83,7 +83,7 @@
                 </div>
                 <ul class="space-y-0.5" role="menu">
                   @for (child of link.children ?? []; track child.label) {
-                    <li role="none">
+                    <li role="presentation">
                       <a
                         role="menuitem"
                         [routerLink]="link.url"
@@ -185,7 +185,7 @@
                 <p class="mt-0.5 truncate text-caption text-white/55">{{ cliente.cliente()?.email }}</p>
               </div>
               <ul class="mt-1 space-y-0.5">
-                <li role="none">
+                <li role="presentation">
                   <a
                     role="menuitem"
                     routerLink="/isadecor/mi-cuenta"
@@ -195,7 +195,7 @@
                     Mi cuenta
                   </a>
                 </li>
-                <li role="none">
+                <li role="presentation">
                   <a
                     role="menuitem"
                     routerLink="/isadecor/mi-cuenta"
@@ -206,7 +206,7 @@
                     Mis cotizaciones
                   </a>
                 </li>
-                <li role="none" class="mt-1 border-t border-white/10 pt-1">
+                <li role="presentation" class="mt-1 border-t border-white/10 pt-1">
                   <button
                     role="menuitem"
                     type="button"

@@ -21,7 +21,7 @@
       class="mb-5 flex items-start gap-3 rounded-card border border-border bg-surface-soft p-4"
       role="alert"
     >
-      <svg
+      <svg aria-hidden="true"
         class="mt-0.5 size-5 shrink-0 text-text-muted"
         fill="none"
         viewBox="0 0 24 24"
@@ -129,7 +129,7 @@
                     <span class="text-caption text-text-muted">Verificando disponibilidad…</span>
                   }
                   @if (slugState() === 'available') {
-                    <svg
+                    <svg aria-hidden="true"
                       class="size-4 text-success"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -141,7 +141,7 @@
                     <span class="text-caption text-success">Ruta disponible</span>
                   }
                   @if (slugState() === 'taken') {
-                    <svg
+                    <svg aria-hidden="true"
                       class="size-4 text-error"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -267,7 +267,7 @@
 
       <div class="space-y-4">
         <div class="space-y-2">
-          <label class="form-label mb-0">Imagen del servicio</label>
+          <p class="form-label mb-0">Imagen del servicio</p>
           <p class="text-caption text-text-muted">
             JPG, WebP o PNG, horizontal (16:9), mínimo 1200 px de ancho. Máx. 5 MB.
           </p>

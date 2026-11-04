@@ -98,7 +98,7 @@
       <h2 id="config-branding-heading" class="mb-4 text-heading-4 text-text-primary">Branding</h2>
       <div class="grid gap-5 lg:grid-cols-3">
         <div class="space-y-2">
-          <label class="form-label mb-0">Logo</label>
+          <p class="form-label mb-0">Logo</p>
           <app-image-uploader
             [ngModel]="logoUrl()"
             (ngModelChange)="logoUrl.set($event)"
@@ -107,7 +107,7 @@
           />
         </div>
         <div class="space-y-2">
-          <label class="form-label mb-0">Logo blanco</label>
+          <p class="form-label mb-0">Logo blanco</p>
           <app-image-uploader
             [ngModel]="logoBlancoUrl()"
             (ngModelChange)="logoBlancoUrl.set($event)"
@@ -116,7 +116,7 @@
           />
         </div>
         <div class="space-y-2">
-          <label class="form-label mb-0">Favicon</label>
+          <p class="form-label mb-0">Favicon</p>
           <app-image-uploader
             [ngModel]="faviconUrl()"
             (ngModelChange)="faviconUrl.set($event)"

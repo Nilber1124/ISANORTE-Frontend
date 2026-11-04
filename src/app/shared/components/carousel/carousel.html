@@ -2,7 +2,6 @@
 <div class="carousel__wrapper relative w-full">
   <section
     class="carousel__coverflow relative h-[30rem] md:h-[33rem] lg:h-[36rem] overflow-x-clip [perspective:1400px] [touch-action:pan-y] select-none"
-    role="region"
     aria-roledescription="carrusel"
     [attr.aria-label]="ariaLabel()"
     (mouseenter)="onMouseEnter()"
@@ -68,7 +67,7 @@
             aria-label="Elemento anterior"
             class="size-10 rounded-full border border-border bg-surface text-text-primary flex items-center justify-center shadow-sm hover:border-accent hover:text-accent hover:scale-105 active:scale-95 transition-all duration-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
-            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -79,7 +78,7 @@
             aria-label="Siguiente elemento"
             class="size-10 rounded-full border border-border bg-surface text-text-primary flex items-center justify-center shadow-sm hover:border-accent hover:text-accent hover:scale-105 active:scale-95 transition-all duration-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
-            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
           </button>
@@ -89,7 +88,7 @@
   }
 </div>
 } @else {
-<section class="carousel__marquee overflow-x-clip" role="region" aria-roledescription="carrusel"
+<section class="carousel__marquee overflow-x-clip" aria-roledescription="carrusel"
   [attr.aria-label]="ariaLabel()" (mouseenter)="pauseMarquee()" (mouseleave)="resumeMarquee()">
   <div #track class="flex h-[450px] lg:h-[550px] w-max gap-5 md:gap-7">
     @for (copies of marqueeCopies; track copies) {
