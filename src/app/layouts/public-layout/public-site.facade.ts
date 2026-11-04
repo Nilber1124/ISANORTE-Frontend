@@ -178,11 +178,11 @@ export class PublicSiteFacade {
 
   private optionalText(value: string | null): string | null {
     const normalized = value?.trim();
-    return normalized ? normalized : null;
+    return normalized || null;
   }
 
   private isPresentableEmail(value: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    return /^[^\s@]+@(?=[^\s@]+\.[^\s@])[^\s@]+$/.test(value);
   }
 
   private isExternalHttpUrl(value: string): boolean {

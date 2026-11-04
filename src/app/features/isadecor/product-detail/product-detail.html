@@ -127,15 +127,15 @@
         <!-- Actions / Cart / Quote Request -->
         <div slot="actions" class="flex flex-col gap-3.5">
           @if (cartFeedback()) {
-          <div
+          <output
             class="rounded-control border border-success/30 bg-success/10 px-4 py-3 text-body-sm text-text-primary flex items-center justify-between gap-2"
-            role="status" aria-live="polite">
+            aria-live="polite">
             <span>{{ cartFeedback() }}</span>
             <a routerLink="/isadecor/carrito"
               class="shrink-0 font-semibold text-accent-strong underline underline-offset-4 hover:opacity-85">
               Ver carrito →
             </a>
-          </div>
+          </output>
           }
 
           @if (product.disponibilidad === 'AGOTADO') {
@@ -452,9 +452,9 @@
       </div>
 
       @if (facade.reviewSubmitted()) {
-        <p class="mt-4 rounded-card border border-success/30 bg-success/10 p-4 text-body-sm text-success" role="status">
+        <output class="block mt-4 rounded-card border border-success/30 bg-success/10 p-4 text-body-sm text-success">
           Tu reseña se publicó correctamente y ya aparece en los comentarios.
-        </p>
+        </output>
       }
 
       @if (reviewFormOpen() && auth.authenticated()) {
@@ -544,7 +544,7 @@
       }
 
       @if (facade.communityError()) {
-      <p class="mt-4 text-body-sm text-error" role="status">{{ facade.communityError() }}</p>
+      <output class="block mt-4 text-body-sm text-error">{{ facade.communityError() }}</output>
       }
     </section>
 

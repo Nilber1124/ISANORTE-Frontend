@@ -97,33 +97,33 @@
     <section aria-labelledby="config-branding-heading">
       <h2 id="config-branding-heading" class="mb-4 text-heading-4 text-text-primary">Branding</h2>
       <div class="grid gap-5 lg:grid-cols-3">
-        <div class="space-y-2">
-          <label class="form-label mb-0">Logo</label>
+        <fieldset class="min-w-0 space-y-2">
+          <legend class="form-label mb-0">Logo</legend>
           <app-image-uploader
             [ngModel]="logoUrl()"
             (ngModelChange)="logoUrl.set($event)"
             name="site-logo"
             folder="isanorte/branding"
           />
-        </div>
-        <div class="space-y-2">
-          <label class="form-label mb-0">Logo blanco</label>
+        </fieldset>
+        <fieldset class="min-w-0 space-y-2">
+          <legend class="form-label mb-0">Logo blanco</legend>
           <app-image-uploader
             [ngModel]="logoBlancoUrl()"
             (ngModelChange)="logoBlancoUrl.set($event)"
             name="site-logo-white"
             folder="isanorte/branding"
           />
-        </div>
-        <div class="space-y-2">
-          <label class="form-label mb-0">Favicon</label>
+        </fieldset>
+        <fieldset class="min-w-0 space-y-2">
+          <legend class="form-label mb-0">Favicon</legend>
           <app-image-uploader
             [ngModel]="faviconUrl()"
             (ngModelChange)="faviconUrl.set($event)"
             name="site-favicon"
             folder="isanorte/branding"
           />
-        </div>
+        </fieldset>
       </div>
     </section>
 

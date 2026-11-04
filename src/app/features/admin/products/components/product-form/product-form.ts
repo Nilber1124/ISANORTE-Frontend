@@ -215,7 +215,7 @@ export class ProductForm implements OnInit {
       return this.localImages();
     }
     const prod = this.facade.selectedProduct() ?? this.product();
-    if (!prod || !prod.imagenes) return [];
+    if (!prod?.imagenes) return [];
     return [...prod.imagenes]
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
       .map((img, idx) => ({
@@ -234,7 +234,7 @@ export class ProductForm implements OnInit {
       return principal ? principal.url : imgs[0].url;
     }
     const prod = this.product();
-    if (prod && prod.imagenes && prod.imagenes.length > 0) {
+    if (prod?.imagenes && prod.imagenes.length > 0) {
       return prod.imagenes[0].url;
     }
     return null;
@@ -246,7 +246,7 @@ export class ProductForm implements OnInit {
       return this.localVariants();
     }
     const prod = this.facade.selectedProduct() ?? this.product();
-    if (!prod || !prod.variantes) return [];
+    if (!prod?.variantes) return [];
     return [...prod.variantes]
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
       .map((v, idx) => ({
@@ -280,7 +280,7 @@ export class ProductForm implements OnInit {
       return this.localSpecifications();
     }
     const prod = this.facade.selectedProduct() ?? this.product();
-    if (!prod || !prod.especificaciones) return [];
+    if (!prod?.especificaciones) return [];
     return [...prod.especificaciones]
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
       .map((s, idx) => ({
@@ -535,43 +535,8 @@ export class ProductForm implements OnInit {
           tamanoBytes: d.tamanoBytes != null && d.tamanoBytes >= 0 ? d.tamanoBytes : null,
         }));
 
-      let configuracionCalculo: CalculationConfigCreateRequest | null = null;
-      const cobVal = this.calcCoberturaPorUnidad().trim();
-      const cobNum = Number(cobVal);
-      const isCobValid = Number.isFinite(cobNum) && cobNum > 0;
-
-      if (this.calcHabilitada()) {
-        if (!isCobValid) {
-          this.calcSubmitted.set(true);
-          this.calcClientError.set(
-            'La cobertura por unidad debe ser un número mayor que cero cuando la calculadora está habilitada.',
-          );
-          return;
-        }
-        configuracionCalculo = {
-          habilitada: true,
-          etiquetaEntrada: this.optionalValue(this.calcEtiquetaEntrada()),
-          unidadEntrada: this.optionalValue(this.calcUnidadEntrada()),
-          coberturaPorUnidad: cobNum,
-          unidadVenta: this.optionalValue(this.calcUnidadVenta()),
-          textoAyuda: this.optionalValue(this.calcTextoAyuda()),
-        };
-      } else if (
-        isCobValid ||
-        this.calcEtiquetaEntrada().trim() ||
-        this.calcUnidadEntrada().trim() ||
-        this.calcUnidadVenta().trim() ||
-        this.calcTextoAyuda().trim()
-      ) {
-        configuracionCalculo = {
-          habilitada: false,
-          etiquetaEntrada: this.optionalValue(this.calcEtiquetaEntrada()),
-          unidadEntrada: this.optionalValue(this.calcUnidadEntrada()),
-          coberturaPorUnidad: isCobValid ? cobNum : 1,
-          unidadVenta: this.optionalValue(this.calcUnidadVenta()),
-          textoAyuda: this.optionalValue(this.calcTextoAyuda()),
-        };
-      }
+      const configuracionCalculo = this.calculationForCreation();
+      if (configuracionCalculo === undefined) return;
 
       this.saved.emit({
         mode: 'create',
@@ -588,6 +553,37 @@ export class ProductForm implements OnInit {
     }
 
     this.saved.emit({ mode: 'edit', request: common });
+  }
+
+  private calculationForCreation(): CalculationConfigCreateRequest | null | undefined {
+    const habilitada = this.calcHabilitada();
+    const coverage = Number(this.calcCoberturaPorUnidad().trim());
+    const validCoverage = Number.isFinite(coverage) && coverage > 0;
+
+    if (habilitada && !validCoverage) {
+      this.calcSubmitted.set(true);
+      this.calcClientError.set(
+        'La cobertura por unidad debe ser un número mayor que cero cuando la calculadora está habilitada.',
+      );
+      return undefined;
+    }
+
+    const etiquetaEntrada = this.optionalValue(this.calcEtiquetaEntrada());
+    const unidadEntrada = this.optionalValue(this.calcUnidadEntrada());
+    const unidadVenta = this.optionalValue(this.calcUnidadVenta());
+    const textoAyuda = this.optionalValue(this.calcTextoAyuda());
+    if (!validCoverage && !etiquetaEntrada && !unidadEntrada && !unidadVenta && !textoAyuda) {
+      return null;
+    }
+
+    return {
+      habilitada,
+      etiquetaEntrada,
+      unidadEntrada,
+      coberturaPorUnidad: validCoverage ? coverage : 1,
+      unidadVenta,
+      textoAyuda,
+    };
   }
 
   protected onImageUploaded(url: string | null): void {
@@ -767,14 +763,10 @@ export class ProductForm implements OnInit {
     const nombre = this.variantNombre().trim();
     const descripcion = this.variantDescripcion().trim() || null;
     const precioStr = this.variantPrecio().trim();
-    let precio: number | null = null;
-    if (precioStr) {
-      const parsed = Number(precioStr);
-      if (!Number.isFinite(parsed) || parsed < 0) {
-        this.variantClientError.set('El precio debe ser un número mayor o igual a 0.');
-        return;
-      }
-      precio = parsed;
+    const precio = precioStr ? Number(precioStr) : null;
+    if (precio !== null && (!Number.isFinite(precio) || precio < 0)) {
+      this.variantClientError.set('El precio debe ser un número mayor o igual a 0.');
+      return;
     }
 
     if (!sku) {
@@ -1027,32 +1019,17 @@ export class ProductForm implements OnInit {
     const tamanoRaw = this.docTamanoBytes().trim();
     let tamanoBytes: number | null = null;
     if (tamanoRaw) {
-      const parsed = parseInt(tamanoRaw, 10);
-      if (isNaN(parsed) || parsed < 0) {
+      const parsed = Number.parseInt(tamanoRaw, 10);
+      if (Number.isNaN(parsed) || parsed < 0) {
         this.docClientError.set('El tamaño en bytes debe ser un número entero mayor o igual a 0.');
         return;
       }
       tamanoBytes = parsed;
     }
 
-    if (!titulo) {
-      this.docClientError.set('El título del documento es obligatorio.');
-      return;
-    }
-    if (titulo.length > 180) {
-      this.docClientError.set('El título no debe superar los 180 caracteres.');
-      return;
-    }
-    if (!url) {
-      this.docClientError.set('La URL del documento es obligatoria.');
-      return;
-    }
-    if (url.length > 500) {
-      this.docClientError.set('La URL no debe superar los 500 caracteres.');
-      return;
-    }
-    if (formato && formato.length > 20) {
-      this.docClientError.set('El formato no debe superar los 20 caracteres.');
+    const error = this.documentFieldError(titulo, url, formato);
+    if (error) {
+      this.docClientError.set(error);
       return;
     }
 
@@ -1097,6 +1074,25 @@ export class ProductForm implements OnInit {
     }
   }
 
+  private documentFieldError(titulo: string, url: string, formato: string | null): string | null {
+    if (!titulo) {
+      return 'El título del documento es obligatorio.';
+    }
+    if (titulo.length > 180) {
+      return 'El título no debe superar los 180 caracteres.';
+    }
+    if (!url) {
+      return 'La URL del documento es obligatoria.';
+    }
+    if (url.length > 500) {
+      return 'La URL no debe superar los 500 caracteres.';
+    }
+    if (formato && formato.length > 20) {
+      return 'El formato no debe superar los 20 caracteres.';
+    }
+    return null;
+  }
+
   protected removeDocument(item: ProductDocumentItem): void {
     if (this.mode() === 'create') {
       const list = this.currentDocuments();
@@ -1128,7 +1124,7 @@ export class ProductForm implements OnInit {
   }
 
   protected formatDocumentSize(bytes: number | null | undefined): string {
-    if (bytes == null || isNaN(bytes) || bytes <= 0) return '—';
+    if (bytes == null || Number.isNaN(bytes) || bytes <= 0) return '—';
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;

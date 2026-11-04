@@ -56,7 +56,7 @@
     <section class="section-space bg-background-soft" aria-label="Obras y proyectos" data-projects-list>
       <div class="app-container">
         @if (facade.showFilters()) {
-          <div class="flex flex-wrap gap-3" role="group" aria-label="Filtrar proyectos por servicio" data-project-filters>
+          <fieldset class="flex flex-wrap gap-3" aria-label="Filtrar proyectos por servicio" data-project-filters>
             @for (filter of facade.filters(); track filter.slug) {
               <button
                 type="button"
@@ -69,7 +69,7 @@
                 {{ filter.nombre }}
               </button>
             }
-          </div>
+          </fieldset>
         }
 
         <div class="mt-8 rounded-panel border border-dashed border-border-strong bg-surface p-4 shadow-card md:p-6">

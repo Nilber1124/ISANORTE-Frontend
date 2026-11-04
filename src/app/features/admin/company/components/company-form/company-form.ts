@@ -10,7 +10,6 @@ import { TextareaField } from '../../../../../shared/components/textarea-field/t
 import { CompanyFormMode } from '../../admin-company.facade';
 
 export type CompanySection = 'legal' | 'contacto' | 'nosotros';
-export type CompanyTab = CompanySection;
 
 export interface CompanyFormSubmission {
   mode: CompanyFormMode;

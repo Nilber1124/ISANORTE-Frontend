@@ -38,7 +38,7 @@ export class ClienteAuthForm {
       : this.auth.login({ email, password: this.password() });
   }
   private validar(): string | null {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email().trim())) return 'Ingresa un correo electrónico válido.';
+    if (!/^[^\s@]+@(?=[^\s@]+\.[^\s@])[^\s@]+$/.test(this.email().trim())) return 'Ingresa un correo electrónico válido.';
     if (this.modo() === 'ingresar') return this.password() ? null : 'Ingresa tu contraseña.';
     if (!this.nombre().trim()) return 'Ingresa tu nombre.';
     if (this.password().length < 8) return 'La contraseña debe tener al menos 8 caracteres.';

@@ -18,7 +18,7 @@ import {
   clearPublicPageSeo,
 } from '../../../shared/utils/public-page-seo.util';
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@(?=[^\s@]+\.[^\s@])[^\s@]+$/;
 
 @Injectable()
 export class PublicContactFacade {

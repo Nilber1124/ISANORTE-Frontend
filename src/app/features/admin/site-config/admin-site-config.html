@@ -99,7 +99,7 @@
               <p class="config-label">Logo</p>
               @if (config.logoUrl) {
                 @if (previewFailed(config, 'logo')) {
-                  <div class="preview-fallback" role="status">No se pudo mostrar el logo.</div>
+                  <output class="preview-fallback">No se pudo mostrar el logo.</output>
                 } @else {
                   <img
                     class="brand-preview"
@@ -117,9 +117,9 @@
               <p class="config-label">Logo blanco</p>
               @if (config.logoBlancoUrl) {
                 @if (previewFailed(config, 'white-logo')) {
-                  <div class="preview-fallback" role="status">
+                  <output class="preview-fallback">
                     No se pudo mostrar el logo blanco.
-                  </div>
+                  </output>
                 } @else {
                   <img
                     class="brand-preview brand-preview-dark"
@@ -137,9 +137,9 @@
               <p class="config-label">Favicon</p>
               @if (config.faviconUrl) {
                 @if (previewFailed(config, 'favicon')) {
-                  <div class="preview-fallback preview-fallback-small" role="status">
+                  <output class="preview-fallback preview-fallback-small">
                     No disponible
-                  </div>
+                  </output>
                 } @else {
                   <img
                     class="favicon-preview"
@@ -160,30 +160,30 @@
           <h2 id="colors-heading" class="config-card-title">Colores</h2>
           <dl class="config-list">
             <div class="color-row">
-              <div>
-                <dt>Primario</dt>
-                <dd>{{ config.colorPrimario || 'No configurado' }}</dd>
-              </div>
-              @if (config.colorPrimario) {
-                <span
-                  class="detail-swatch"
-                  [style.background-color]="config.colorPrimario"
-                  aria-hidden="true"
-                ></span>
-              }
+              <dt>Primario</dt>
+              <dd class="flex items-center gap-2">
+                {{ config.colorPrimario || 'No configurado' }}
+                @if (config.colorPrimario) {
+                  <span
+                    class="detail-swatch"
+                    [style.background-color]="config.colorPrimario"
+                    aria-hidden="true"
+                  ></span>
+                }
+              </dd>
             </div>
             <div class="color-row">
-              <div>
-                <dt>Secundario</dt>
-                <dd>{{ config.colorSecundario || 'No configurado' }}</dd>
-              </div>
-              @if (config.colorSecundario) {
-                <span
-                  class="detail-swatch"
-                  [style.background-color]="config.colorSecundario"
-                  aria-hidden="true"
-                ></span>
-              }
+              <dt>Secundario</dt>
+              <dd class="flex items-center gap-2">
+                {{ config.colorSecundario || 'No configurado' }}
+                @if (config.colorSecundario) {
+                  <span
+                    class="detail-swatch"
+                    [style.background-color]="config.colorSecundario"
+                    aria-hidden="true"
+                  ></span>
+                }
+              </dd>
             </div>
           </dl>
         </section>

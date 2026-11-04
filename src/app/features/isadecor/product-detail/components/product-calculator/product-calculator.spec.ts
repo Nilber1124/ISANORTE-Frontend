@@ -46,11 +46,13 @@ describe('ProductCalculator', () => {
     expect(element.textContent).toContain('Calcula cuánto necesitas');
   });
 
-  it('calculates 21 units for 4.5 with a coverage of 0.22', () => {
+  it.each([
+    ['4.5', '21'],
+    ['1', '5'],
+    ['0.22', '1'],
+  ])('calculates %s with coverage of 0.22', (measurement, units) => {
     render();
-    const element = enterMeasurement('4.5');
-
-    expect(resultText(element)).toContain('21');
+    expect(resultText(enterMeasurement(measurement))).toContain(units);
   });
 
   it('emits the calculated quantity for its parent feature', () => {
@@ -61,20 +63,6 @@ describe('ProductCalculator', () => {
     enterMeasurement('');
 
     expect(quantities).toEqual([21, null]);
-  });
-
-  it('calculates five units for a measurement of one', () => {
-    render();
-    const element = enterMeasurement('1');
-
-    expect(resultText(element)).toContain('5');
-  });
-
-  it('calculates one unit for the exact coverage value', () => {
-    render();
-    const element = enterMeasurement('0.22');
-
-    expect(resultText(element)).toContain('1');
   });
 
   it('always rounds quantities upward', () => {

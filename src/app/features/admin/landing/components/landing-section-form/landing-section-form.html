@@ -181,8 +181,8 @@
             <p class="text-caption text-text-muted">Imagen representativa para ambientar visualmente la sección.</p>
           </div>
 
-          <div class="space-y-2">
-            <label class="form-label mb-0">URL directa de la fotografía</label>
+          <fieldset class="min-w-0 space-y-2">
+            <legend class="form-label mb-0">URL directa de la fotografía</legend>
             <p class="text-caption text-text-muted mb-2">Ingresa el enlace a la imagen alojada (PNG, JPG, WebP).</p>
             <app-image-uploader
               [ngModel]="imagenUrl()"
@@ -190,7 +190,7 @@
               name="imagenUrl"
               folder="isanorte/landing"
             />
-          </div>
+          </fieldset>
 
           <app-input-field
             inputId="imagenAlt"

@@ -243,8 +243,8 @@
       <div class="rounded-card border border-border bg-surface p-4 space-y-4">
         <!-- Campos específicos para Diapositiva (Hero) -->
         @if (kind() === 'scene') {
-          <div class="space-y-2">
-            <label class="form-label mb-0">URL de la fotografía</label>
+          <fieldset class="min-w-0 space-y-2">
+            <legend class="form-label mb-0">URL de la fotografía</legend>
             <p class="text-caption text-text-muted mb-2">Ingresa el enlace público de la imagen (WebP, JPG, PNG).</p>
             <app-image-uploader
               [ngModel]="url()"
@@ -252,7 +252,7 @@
               name="child-url"
               folder="isanorte/hero"
             />
-          </div>
+          </fieldset>
 
           <app-input-field
             inputId="child-alt"
@@ -380,15 +380,15 @@
             "
           />
           @if (resourceType() === 'IMAGEN_FONDO' || resourceType() === 'IMAGEN_EDITORIAL') {
-            <div class="space-y-2">
-              <label class="form-label mb-0">Imagen del recurso</label>
+            <fieldset class="min-w-0 space-y-2">
+              <legend class="form-label mb-0">Imagen del recurso</legend>
               <app-image-uploader
                 [ngModel]="url()"
                 (ngModelChange)="updateUrl($event)"
                 name="resource-image"
                 folder="isanorte/recursos"
               />
-            </div>
+            </fieldset>
           } @else {
             <fieldset class="min-w-0 space-y-2">
               <legend class="form-label mb-0">Archivo del recurso</legend>

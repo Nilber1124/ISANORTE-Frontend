@@ -11,6 +11,6 @@ export class IsadecorIngresar {
   protected continuar(): void { void this.router.navigateByUrl(this.destino()); }
   private destino(): string {
     const requested = this.route.snapshot.queryParamMap.get('returnUrl');
-    return requested && requested.startsWith('/isadecor') && !requested.startsWith('//') ? requested : DESTINO_POR_DEFECTO;
+    return requested?.startsWith('/isadecor') && !requested.startsWith('//') ? requested : DESTINO_POR_DEFECTO;
   }
 }

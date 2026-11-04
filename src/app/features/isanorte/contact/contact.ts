@@ -23,7 +23,6 @@ interface ContactChannel {
   imports: [NgTemplateOutlet, Alert, Button, Card, InputField, TextareaField],
   selector: 'app-isanorte-contact',
   providers: [PublicContactFacade],
-  styleUrl: './contact.css',
   templateUrl: './contact.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -65,11 +64,12 @@ export class Contact {
 
   private phoneHref(value: string): string | null {
     const digits = value.replace(/\D/g, '');
-    return digits ? `tel:${value.trim().startsWith('+') ? '+' : ''}${digits}` : null;
+    const prefix = value.trim().startsWith('+') ? '+' : '';
+    return digits ? `tel:${prefix}${digits}` : null;
   }
 
   private whatsappHref(value: string | null): string | null {
     const digits = value?.replace(/\D/g, '') ?? '';
-    return /^[0-9]{7,15}$/.test(digits) ? `https://wa.me/${digits}` : null;
+    return /^\d{7,15}$/.test(digits) ? `https://wa.me/${digits}` : null;
   }
 }

@@ -1,4 +1,4 @@
-<div [class]="wrapperClasses()" role="status" aria-live="polite" aria-atomic="true">
+<output [class]="wrapperClasses()" aria-live="polite" aria-atomic="true">
   @if (variant() === 'spinner') {
     <span [class]="spinnerClasses()" aria-hidden="true"></span>
   } @else {
@@ -14,4 +14,4 @@
   } @else {
     <span class="sr-only">{{ label() }}</span>
   }
-</div>
+</output>

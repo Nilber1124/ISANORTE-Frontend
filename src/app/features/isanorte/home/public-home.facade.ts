@@ -27,7 +27,6 @@ import { HOME_STATISTICS_FALLBACK } from './home-statistics-fallback';
 import {
   HomeBusinessUnitActionView,
   HomeCtaActionView,
-  HomeCtaCopyView,
   HomeProjectCardView,
   HomeProjectsActionView,
   HomeProjectsHeaderView,

@@ -166,8 +166,8 @@
       </div>
 
       <div class="space-y-4">
-        <div class="space-y-1.5">
-          <label class="form-label mb-0">Imagen representativa</label>
+        <fieldset class="min-w-0 space-y-1.5">
+          <legend class="form-label mb-0">Imagen representativa</legend>
           <p class="text-caption text-text-muted">
             Formato horizontal recomendado (16:9), mínimo 1200 px de ancho.
           </p>
@@ -177,7 +177,7 @@
             (ngModelChange)="updateImageUrl($event)"
             name="projectImage"
           />
-        </div>
+        </fieldset>
 
         <app-input-field
           inputId="project-image-alt"
@@ -188,7 +188,7 @@
           [disabled]="submitting()"
         />
         @if (imagenAltWarning(); as warning) {
-          <p class="mt-1 text-caption text-warning" role="status">{{ warning }}</p>
+          <output class="block mt-1 text-caption text-warning">{{ warning }}</output>
         }
       </div>
     </fieldset>
@@ -236,17 +236,18 @@
       </div>
 
       <!-- Switch: Publicado en la web -->
-      <label
+      <label for="project-publicado"
         class="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
       >
-        <div>
+        <span class="block">
           <span class="font-medium text-body-sm text-text-primary">Publicado en la web</span>
-          <p class="text-caption text-text-muted">
+          <span class="block text-caption text-text-muted">
             Si se desactiva, no se mostrará en el portafolio público.
-          </p>
-        </div>
+          </span>
+        </span>
         <button
           type="button"
+          id="project-publicado"
           role="switch"
           [attr.aria-checked]="activo()"
           class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-50"
@@ -264,23 +265,24 @@
       </label>
 
       <!-- Switch: Destacar en la portada -->
-      <label
+      <label for="project-destacado"
         class="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors"
         [class.opacity-50]="!activo()"
         [class.pointer-events-none]="!activo() || submitting()"
         [class.hover:bg-surface-hover]="activo()"
       >
-        <div>
+        <span class="block">
           <span class="font-medium text-body-sm text-text-primary">Destacar en la portada</span>
-          <p class="text-caption text-text-muted">
+          <span class="block text-caption text-text-muted">
             Aparece en la galería principal del inicio.
             @if (!activo()) {
               <span class="text-warning"> Requiere que el proyecto esté publicado.</span>
             }
-          </p>
-        </div>
+          </span>
+        </span>
         <button
           type="button"
+          id="project-destacado"
           role="switch"
           [attr.aria-checked]="destacado()"
           class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-50"

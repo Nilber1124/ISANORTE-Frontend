@@ -146,11 +146,10 @@ export class BusinessUnitForm implements OnInit {
       empresaId:
         this.mode() === 'create' && !this.empresaId() ? 'Selecciona una empresa.' : undefined,
       orden:
-        this.mode() === 'create' && this.orden().trim() === ''
+        (this.mode() === 'create' && this.orden().trim() === '') ||
+        (Number.isFinite(order) && Number.isInteger(order))
           ? undefined
-          : Number.isFinite(order) && Number.isInteger(order)
-            ? undefined
-            : 'Ingresa un número entero.',
+          : 'Ingresa un número entero.',
     };
   }
   private hasErrors(): boolean {

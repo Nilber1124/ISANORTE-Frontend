@@ -96,7 +96,7 @@
                   class="rounded-[6px] p-1 text-text-muted hover:bg-surface-hover hover:text-text-primary lg:hidden"
                   aria-label="Cerrar filtros"
                 >
-                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg aria-hidden="true" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -255,7 +255,7 @@
                 <span class="store-pill">
                   <span>{{ cat.nombre }}</span>
                   <button type="button" (click)="facade.setSelectedCategory(null)" title="Quitar filtro de colección">
-                    <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                    <svg aria-hidden="true" class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
                   </button>
                 </span>
               }
@@ -264,7 +264,7 @@
                 <span class="store-pill">
                   <span>&ldquo;{{ facade.searchTerm() }}&rdquo;</span>
                   <button type="button" (click)="facade.setSearchTerm('')" title="Quitar término de búsqueda">
-                    <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                    <svg aria-hidden="true" class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
                   </button>
                 </span>
               }
@@ -273,7 +273,7 @@
                 <span class="store-pill">
                   <span>Solo ofertas</span>
                   <button type="button" (click)="facade.toggleOnlyDiscount()" title="Quitar filtro de ofertas">
-                    <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                    <svg aria-hidden="true" class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
                   </button>
                 </span>
               }
@@ -282,7 +282,7 @@
                 <span class="store-pill">
                   <span>Entrega inmediata</span>
                   <button type="button" (click)="facade.toggleOnlyInStock()" title="Quitar filtro de entrega inmediata">
-                    <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                    <svg aria-hidden="true" class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
                   </button>
                 </span>
               }
@@ -294,7 +294,7 @@
                 (click)="facade.clearFilters()"
                 class="inline-flex items-center gap-1.5 text-[0.8rem] font-medium text-text-secondary hover:text-text-primary"
               >
-                <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg aria-hidden="true" class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 Restablecer todos los filtros

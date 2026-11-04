@@ -104,8 +104,8 @@
       </div>
 
       <div class="space-y-4">
-        <div class="space-y-2">
-          <label class="form-label mb-0">Imagen principal</label>
+        <fieldset class="min-w-0 space-y-2">
+          <legend class="form-label mb-0">Imagen principal</legend>
           <p class="text-caption text-text-muted">
             JPG, WebP o PNG, horizontal (16:9), mínimo 1200 px. Máx. 5 MB.
           </p>
@@ -116,7 +116,7 @@
             folder="isanorte/content"
             [showHint]="false"
           />
-        </div>
+        </fieldset>
 
         <app-input-field
           inputId="content-image-alt"
@@ -127,8 +127,8 @@
           [disabled]="saving()"
         />
 
-        <div class="space-y-2">
-          <label class="form-label mb-0">Imagen de fondo</label>
+        <fieldset class="min-w-0 space-y-2">
+          <legend class="form-label mb-0">Imagen de fondo</legend>
           <p class="text-caption text-text-muted">
             Opcional. Se usa como fondo decorativo del encabezado. Mismas especificaciones.
           </p>
@@ -139,7 +139,7 @@
             folder="isanorte/content"
             [showHint]="false"
           />
-        </div>
+        </fieldset>
       </div>
     </fieldset>
 
@@ -171,11 +171,10 @@
       </div>
 
       @if (tags().length > 0) {
-        <div class="space-y-2" role="list" aria-label="Tags agregados">
+        <ul class="space-y-2" aria-label="Tags agregados">
           @for (tag of tags(); track $index) {
-            <div
+            <li
               class="flex items-center gap-2 rounded-card border border-border bg-surface-soft px-3.5 py-2.5 transition-colors"
-              role="listitem"
             >
               <span class="flex-1 text-body-sm text-text-primary">{{ tag }}</span>
               <app-button size="small" variant="ghost" type="button" (click)="editTag($index)">
@@ -204,9 +203,9 @@
               <app-button size="small" variant="ghost" type="button" (click)="removeTag($index)">
                 Quitar
               </app-button>
-            </div>
+            </li>
           }
-        </div>
+        </ul>
       } @else {
         <p class="text-caption text-text-muted">Sin tags aún.</p>
       }

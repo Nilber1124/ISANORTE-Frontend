@@ -212,37 +212,19 @@ describe('AdminLandingFacade', () => {
       facade.openEdit(mockSection);
     });
 
-    it('maneja 400', () => {
-      landingApi.updateResponse$ = throwError(() => new HttpErrorResponse({ status: 400 }));
+    it.each([
+      [400, 'Revisa los datos ingresados e inténtalo nuevamente.'],
+      [404, 'La sección o configuración solicitada ya no existe.'],
+      [409, 'No se pudo guardar porque existe un conflicto de integridad.'],
+    ])('maneja %i', (status, message) => {
+      landingApi.updateResponse$ = throwError(() => new HttpErrorResponse({ status }));
       facade.update({
         configuracionSitioId: 'site-1',
         tipo: LandingSectionType.HERO,
         orden: 1,
         visible: true,
       });
-      expect(facade.error()).toBe('Revisa los datos ingresados e inténtalo nuevamente.');
-    });
-
-    it('maneja 404', () => {
-      landingApi.updateResponse$ = throwError(() => new HttpErrorResponse({ status: 404 }));
-      facade.update({
-        configuracionSitioId: 'site-1',
-        tipo: LandingSectionType.HERO,
-        orden: 1,
-        visible: true,
-      });
-      expect(facade.error()).toBe('La sección o configuración solicitada ya no existe.');
-    });
-
-    it('maneja 409', () => {
-      landingApi.updateResponse$ = throwError(() => new HttpErrorResponse({ status: 409 }));
-      facade.update({
-        configuracionSitioId: 'site-1',
-        tipo: LandingSectionType.HERO,
-        orden: 1,
-        visible: true,
-      });
-      expect(facade.error()).toBe('No se pudo guardar porque existe un conflicto de integridad.');
+      expect(facade.error()).toBe(message);
     });
   });
 });

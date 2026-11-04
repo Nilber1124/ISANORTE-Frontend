@@ -10,7 +10,6 @@ import { PublicProjectsFacade } from './public-projects.facade';
   imports: [NgClass, NgTemplateOutlet, Alert, Card, RouterLink],
   selector: 'app-isanorte-projects',
   providers: [PublicProjectsFacade],
-  styleUrl: './projects.css',
   templateUrl: './projects.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

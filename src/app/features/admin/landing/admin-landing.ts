@@ -19,7 +19,6 @@ import { AdminProjects } from '../projects/admin-projects';
 import { AdminContent } from '../content/admin-content';
 import { AdminContact } from '../contact/admin-contact';
 
-import { LandingSectionResponse } from '../../../data/models/landing-section/landing-section-response.model';
 import { LandingSectionType } from '../../../data/models/landing-section/landing-section-type.enum';
 
 export interface SectionMeta {
@@ -178,13 +177,20 @@ export class AdminLanding {
     }
   }
 
-  protected sectionOrderLabel(order: number | null | undefined): string {
-    const val = order ?? 0;
-    if (val === 0) return '1ª en la web (Portada)';
-    if (val === 1) return '2ª posición';
-    if (val === 2) return '3ª posición';
-    if (val === 3) return '4ª posición';
-    return `${val + 1}ª posición`;
+  protected sectionOrderLabel(order: number | null = 0): string {
+    switch (order) {
+      case null:
+      case 0:
+        return '1ª en la web (Portada)';
+      case 1:
+        return '2ª posición';
+      case 2:
+        return '3ª posición';
+      case 3:
+        return '4ª posición';
+      default:
+        return `${order + 1}ª posición`;
+    }
   }
 
   private isValidTab(tab: string): tab is LandingTab {

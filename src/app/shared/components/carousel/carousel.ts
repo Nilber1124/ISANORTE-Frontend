@@ -213,6 +213,12 @@ export class Carousel {
     }
   }
 
+  protected onCardKeydown(index: number, event: Event): void {
+    if (event.target !== event.currentTarget || index === this.current()) return;
+    event.preventDefault();
+    this.goTo(index);
+  }
+
   protected onMouseEnter(): void {
     if (!this.canHover || !this.pauseOnHover()) return;
     this.hovered = true;

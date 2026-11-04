@@ -514,14 +514,14 @@
             aria-live="polite"
           >
             @if (instagramStatus() === 'loading') {
-              <div class="instagram-widget-state" role="status">
+              <output class="instagram-widget-state">
                 <span class="instagram-widget-spinner" aria-hidden="true"></span>
                 <span>Cargando publicaciones de Instagram…</span>
-              </div>
+              </output>
             } @else if (instagramStatus() === 'error') {
-              <div class="instagram-widget-state" role="status">
+              <output class="instagram-widget-state">
                 No fue posible cargar las publicaciones en este momento.
-              </div>
+              </output>
             }
             <div
               class="elfsight-app-7448127f-39bf-4bfd-8721-816096ec6293"

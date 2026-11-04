@@ -70,7 +70,7 @@ export class AuthService {
 
   private decode(value: string | undefined): string {
     if (!value) throw new Error('Token inválido');
-    const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+    const normalized = value.replaceAll('-', '+').replaceAll('_', '/');
     return decodeURIComponent(Array.from(atob(normalized), (char) =>
       `%${char.charCodeAt(0).toString(16).padStart(2, '0')}`).join(''));
   }

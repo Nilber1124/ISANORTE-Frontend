@@ -166,7 +166,7 @@ export class RevealStagger {
         });
 
         // Flotación suave y continua (yoyo) para elementos decorativos.
-        const floating = items.filter((item) => item.el.hasAttribute('data-reveal-float'));
+        const floating = items.filter((item) => item.el.dataset['revealFloat'] !== undefined);
         if (floating.length > 0) {
           tl.eventCallback('onComplete', () => {
             floating.forEach((item) => {

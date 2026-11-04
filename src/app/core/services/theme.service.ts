@@ -21,7 +21,7 @@ export class ThemeService {
 
   constructor() {
     if (!isPlatformBrowser(this.platformId)) return;
-    const initialTheme = this.document.documentElement.getAttribute('data-theme');
+    const initialTheme = this.document.documentElement.dataset['theme'];
     this.currentTheme.set(initialTheme === 'dark' ? 'dark' : 'light');
   }
 

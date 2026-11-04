@@ -265,13 +265,10 @@ export class DynamicChildManager {
     this.saved.emit({ id: this.editingId(), request });
   }
   protected activeLimitReached(): boolean {
-    const limit =
-      this.kind() === 'action' && this.parentType() === 'HERO'
-        ? 2
-        : this.kind() === 'action' && this.parentType() === 'CTA'
-          ? 1
-          : null;
-    if (limit === null || !this.active()) return false;
+    if (this.kind() !== 'action' || !this.active()) return false;
+    const parentType = this.parentType();
+    if (parentType !== 'HERO' && parentType !== 'CTA') return false;
+    const limit = parentType === 'HERO' ? 2 : 1;
     return (
       this.items().filter((item) => item.activo && item.id !== this.editingId()).length >= limit
     );

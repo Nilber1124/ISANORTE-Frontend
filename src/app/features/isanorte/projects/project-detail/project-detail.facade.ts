@@ -1,9 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DestroyRef } from '@angular/core';
 
 import { PUBLIC_SITE_KEY } from '../../../../core/config/public-site.config';
 import { PublicProject } from '../../../../data/models/public-content/public-page.model';

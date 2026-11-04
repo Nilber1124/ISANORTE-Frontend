@@ -13,7 +13,6 @@ import { BrandService } from '../../core/services/brand.service';
   imports: [RouterOutlet, Navbar, Footer, WhatsappFloat, AnnouncementRibbon],
   providers: [PublicSiteFacade],
   templateUrl: './public-layout.html',
-  styleUrl: './public-layout.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PublicLayout {
