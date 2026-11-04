@@ -174,7 +174,7 @@ export class AdminBusinessUnitsFacade {
       )
       .subscribe({
         next: (resource) =>
-          this.updateResources(unit, this.upsertResource(unit.recursos, resource)),
+          this.updateResources(unit, this.upsertByIdAndOrder(unit.recursos, resource)),
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
       });
   }
@@ -197,15 +197,14 @@ export class AdminBusinessUnitsFacade {
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
       });
   }
-  private upsertResource(
-    items: readonly BusinessUnitResourceResponse[],
-    saved: BusinessUnitResourceResponse,
-  ): BusinessUnitResourceResponse[] {
-    return [
-      ...(items.some((item) => item.id === saved.id)
-        ? items.map((item) => (item.id === saved.id ? saved : item))
-        : [...items, saved]),
-    ].sort((a, b) => a.orden - b.orden);
+  private upsertByIdAndOrder<T extends { id: string; orden: number }>(
+    items: readonly T[],
+    saved: T,
+  ): T[] {
+    const updated = items.some((item) => item.id === saved.id)
+      ? items.map((item) => (item.id === saved.id ? saved : item))
+      : [...items, saved];
+    return updated.sort((a, b) => a.orden - b.orden);
   }
   private updateResources(
     unit: BusinessUnitResponse,
@@ -239,7 +238,7 @@ export class AdminBusinessUnitsFacade {
       )
       .subscribe({
         next: (catalogo) =>
-          this.updateCatalogos(unit, this.upsertCatalogo(unit.catalogos, catalogo)),
+          this.updateCatalogos(unit, this.upsertByIdAndOrder(unit.catalogos, catalogo)),
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
       });
   }
@@ -261,16 +260,6 @@ export class AdminBusinessUnitsFacade {
           ),
         error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
       });
-  }
-  private upsertCatalogo(
-    items: readonly CatalogoResponse[],
-    saved: CatalogoResponse,
-  ): CatalogoResponse[] {
-    return [
-      ...(items.some((item) => item.id === saved.id)
-        ? items.map((item) => (item.id === saved.id ? saved : item))
-        : [...items, saved]),
-    ].sort((a, b) => a.orden - b.orden);
   }
   private updateCatalogos(unit: BusinessUnitResponse, catalogos: CatalogoResponse[]): void {
     const updated = { ...unit, catalogos };

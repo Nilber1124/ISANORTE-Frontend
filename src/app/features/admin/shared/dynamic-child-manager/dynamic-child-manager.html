@@ -390,8 +390,8 @@
               />
             </div>
           } @else {
-            <div class="space-y-2">
-              <label class="form-label mb-0">Archivo del recurso</label>
+            <fieldset class="min-w-0 space-y-2">
+              <legend class="form-label mb-0">Archivo del recurso</legend>
 
               <div class="inline-flex rounded-control border border-border bg-surface p-1" role="tablist" aria-label="Origen del recurso">
                 <button
@@ -437,7 +437,7 @@
                   required
                 />
               }
-            </div>
+            </fieldset>
           }
           <app-input-field
             inputId="child-alt"
@@ -450,24 +450,24 @@
         <!-- Catálogos -->
         @if (kind() === 'catalogo') {
           <app-input-field inputId="child-catalogo-titulo" label="Título" [(value)]="label" required />
-          <div class="space-y-2">
-            <label class="form-label mb-0">Portada del catálogo</label>
+          <fieldset class="min-w-0 space-y-2">
+            <legend class="form-label mb-0">Portada del catálogo</legend>
             <app-image-uploader
               [ngModel]="coverImageUrl()"
               (ngModelChange)="coverImageUrl.set($event)"
               name="catalogo-cover"
               folder="isanorte/catalogos"
             />
-          </div>
-          <div class="space-y-2">
-            <label class="form-label mb-0">Archivo PDF</label>
+          </fieldset>
+          <fieldset class="min-w-0 space-y-2">
+            <legend class="form-label mb-0">Archivo PDF</legend>
             <app-document-uploader
               [ngModel]="url()"
               (ngModelChange)="updateUrl($event)"
               name="catalogo-document"
               folder="isanorte/catalogos"
             />
-          </div>
+          </fieldset>
         }
 
         <!-- Estadísticas -->
