@@ -14,11 +14,12 @@ import {
 } from '../models/cliente/cliente.model';
 import { PublicOrderResponse } from '../models/public-content/public-order.model';
 import { PublicQuoteResponse } from '../models/public-content/public-quote.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class ClienteApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/publico/cuenta`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/publico/cuenta`;
 
   registrar(request: ClienteRegistroRequest): Observable<ClienteAuthResponse> {
     return this.http.post<ClienteAuthResponse>(`${this.resourceUrl}/registro`, request);

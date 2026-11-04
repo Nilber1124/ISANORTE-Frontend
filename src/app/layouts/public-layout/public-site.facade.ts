@@ -10,6 +10,7 @@ import {
 } from '../../data/models/public-content/public-site.model';
 import { PublicContentApiService } from '../../data/services/public-content-api.service';
 import { PUBLIC_SITE_ERROR_FALLBACK } from './public-site-fallback';
+import { isValidEmail } from '../../shared/utils/text';
 
 export interface PublicSiteConfigurationView {
   key: string;
@@ -178,11 +179,11 @@ export class PublicSiteFacade {
 
   private optionalText(value: string | null): string | null {
     const normalized = value?.trim();
-    return normalized ? normalized : null;
+    return normalized || null;
   }
 
   private isPresentableEmail(value: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    return isValidEmail(value);
   }
 
   private isExternalHttpUrl(value: string): boolean {

@@ -11,11 +11,12 @@ import {
   CompanyStatisticRequest,
   CompanyStatisticResponse,
 } from '../models/company/company-statistic.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class CompanyApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/empresa`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/empresa`;
 
   getAll(): Observable<CompanyResponse[]> {
     return this.http.get<CompanyResponse[]>(this.resourceUrl);

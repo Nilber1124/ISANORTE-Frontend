@@ -21,11 +21,12 @@ import {
 } from '../models/product/product-response.model';
 import { ProductStatusRequest } from '../models/product/product-status-request.model';
 import { ProductUpdateRequest } from '../models/product/product-update-request.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class ProductApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/productos`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/productos`;
 
   getAll(): Observable<ProductResponse[]> {
     return this.http.get<ProductResponse[]>(this.resourceUrl);

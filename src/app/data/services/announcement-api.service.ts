@@ -10,11 +10,12 @@ import {
   AnnouncementResponse,
 } from '../models/announcement/announcement.model';
 import { ActiveRequest } from '../models/common/active-request.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class AnnouncementApiService {
   private readonly http = inject(HttpClient);
-  private readonly apiOrigin = inject(API_BASE_URL).replace(/\/+$/, '');
+  private readonly apiOrigin = trimTrailingSlashes(inject(API_BASE_URL));
   private readonly adminUrl = `${this.apiOrigin}/api/anuncios`;
   private readonly publicUrl = `${this.apiOrigin}/api/publico/anuncios`;
 

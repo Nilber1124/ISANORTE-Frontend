@@ -6,11 +6,12 @@ import { API_BASE_URL } from '../../core/config/api.config';
 import { AdministratorResponse } from '../models/administrator/administrator-response.model';
 import { AdministratorUpdateRequest } from '../models/administrator/administrator-update-request.model';
 import { ActiveRequest } from '../models/common/active-request.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class AdministratorApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/administradores`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/administradores`;
 
   getAll(): Observable<AdministratorResponse[]> {
     return this.http.get<AdministratorResponse[]>(this.resourceUrl);

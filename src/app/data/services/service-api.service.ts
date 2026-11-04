@@ -11,11 +11,12 @@ import {
   ServiceBenefitRequest,
   ServiceBenefitResponse,
 } from '../models/service/service-benefit.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class ServiceApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/servicios`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/servicios`;
 
   getAll(): Observable<ServiceResponse[]> {
     return this.http.get<ServiceResponse[]>(this.resourceUrl);

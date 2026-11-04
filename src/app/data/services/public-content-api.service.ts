@@ -26,11 +26,12 @@ import { PublicProductDetailResponse } from '../models/public-content/public-pro
 import { PublicOrderRequest, PublicOrderResponse } from '../models/public-content/public-order.model';
 import { PublicQuoteRequest, PublicQuoteResponse } from '../models/public-content/public-quote.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class PublicContentApiService {
   private readonly http = inject(HttpClient);
-  private readonly apiBaseUrl = inject(API_BASE_URL).replace(/\/+$/, '');
+  private readonly apiBaseUrl = trimTrailingSlashes(inject(API_BASE_URL));
   private readonly resourceUrl = `${this.apiBaseUrl}/api/publico/sitios`;
 
   getHome(siteKey: string): Observable<PublicHomeResponse> {

@@ -17,8 +17,8 @@ import {
   applyPublicPageSeo,
   clearPublicPageSeo,
 } from '../../../shared/utils/public-page-seo.util';
+import { isValidEmail } from '../../../shared/utils/text';
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @Injectable()
 export class PublicContactFacade {
@@ -72,7 +72,7 @@ export class PublicContactFacade {
     if (!this.shouldShowError(this.emailTouched())) return undefined;
     const value = this.email().trim();
     if (!value) return 'Ingresa tu correo electrónico.';
-    if (!EMAIL_PATTERN.test(value)) return 'Ingresa un correo electrónico válido.';
+    if (!isValidEmail(value)) return 'Ingresa un correo electrónico válido.';
     return value.length > 180 ? 'El correo no puede superar 180 caracteres.' : undefined;
   });
   readonly telefonoError = computed(() => this.textError(this.telefono(), this.telefonoTouched(), 30, 'Ingresa tu teléfono de contacto.'));
@@ -191,7 +191,7 @@ export class PublicContactFacade {
 
   private emailErrorForValue(): boolean {
     const value = this.email().trim();
-    return !value || !EMAIL_PATTERN.test(value) || value.length > 180;
+    return !value || !isValidEmail(value) || value.length > 180;
   }
 
   private telefonoErrorForValue(): boolean {

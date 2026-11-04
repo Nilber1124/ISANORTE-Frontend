@@ -5,13 +5,14 @@ import { timeout } from 'rxjs/operators';
 
 import { API_BASE_URL } from '../../core/config/api.config';
 import { UploadResponseDto } from '../models/archivo/upload-response.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 const UPLOAD_TIMEOUT_MS = 40_000;
 
 @Injectable({ providedIn: 'root' })
 export class ArchivoApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/archivos`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/archivos`;
 
   uploadImage(file: File, folder: string = 'isanorte/uploads'): Observable<UploadResponseDto> {
     const formData = new FormData();

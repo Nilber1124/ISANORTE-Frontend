@@ -5,6 +5,7 @@ import { ClienteAuthService } from '../../../../../core/auth/cliente-auth.servic
 import { ClienteAuthResponse } from '../../../../../data/models/cliente/cliente.model';
 import { Alert } from '../../../../../shared/components/alert/alert';
 import { Button } from '../../../../../shared/components/button/button';
+import { isValidEmail } from '../../../../../shared/utils/text';
 
 type ModoAcceso = 'ingresar' | 'registrar';
 
@@ -38,7 +39,7 @@ export class ClienteAuthForm {
       : this.auth.login({ email, password: this.password() });
   }
   private validar(): string | null {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email().trim())) return 'Ingresa un correo electrónico válido.';
+    if (!isValidEmail(this.email().trim())) return 'Ingresa un correo electrónico válido.';
     if (this.modo() === 'ingresar') return this.password() ? null : 'Ingresa tu contraseña.';
     if (!this.nombre().trim()) return 'Ingresa tu nombre.';
     if (this.password().length < 8) return 'La contraseña debe tener al menos 8 caracteres.';

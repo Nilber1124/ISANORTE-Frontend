@@ -8,11 +8,12 @@ import {
   ContactRequestStatus,
   ContactRequestStatusRequest,
 } from '../models/contact/contact-request.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class ContactRequestApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/solicitudes-contacto`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/solicitudes-contacto`;
 
   getAll(status?: ContactRequestStatus | null): Observable<ContactRequestResponse[]> {
     const params = status ? new HttpParams().set('estado', status) : undefined;

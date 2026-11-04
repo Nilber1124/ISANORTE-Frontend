@@ -13,6 +13,7 @@ import { Loading } from '../../../shared/components/loading/loading';
 import { TextareaField } from '../../../shared/components/textarea-field/textarea-field';
 import { ClienteAuthService } from '../../../core/auth/cliente-auth.service';
 import { QuoteFacade } from './quote.facade';
+import { isValidEmail } from '../../../shared/utils/text';
 
 interface QuoteFieldErrors {
   nombreCliente?: string;
@@ -97,11 +98,7 @@ export class Quote {
     if (!this.submitted()) return {};
     return {
       nombreCliente: this.nombreCliente().trim() ? undefined : 'Ingresa tu nombre.',
-      emailCliente: this.emailCliente().trim()
-        ? this.isValidEmail(this.emailCliente())
-          ? undefined
-          : 'Ingresa un correo válido.'
-        : 'Ingresa tu correo.',
+      emailCliente: this.emailError(),
       telefonoCliente: this.telefonoCliente().trim() ? undefined : 'Ingresa tu teléfono.',
     };
   }
@@ -116,8 +113,10 @@ export class Quote {
     return Number.isFinite(quantity) && Number.isInteger(quantity) && quantity > 0 ? quantity : 1;
   }
 
-  private isValidEmail(value: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  private emailError(): string | undefined {
+    const email = this.emailCliente().trim();
+    if (!email) return 'Ingresa tu correo.';
+    return isValidEmail(email) ? undefined : 'Ingresa un correo válido.';
   }
 
   private optionalValue(value: string): string | null {

@@ -7,11 +7,12 @@ import { ActiveRequest } from '../models/common/active-request.model';
 import { ProjectCreateRequest } from '../models/project/project-create-request.model';
 import { ProjectResponse } from '../models/project/project-response.model';
 import { ProjectUpdateRequest } from '../models/project/project-update-request.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/proyectos`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/proyectos`;
 
   getAll(): Observable<ProjectResponse[]> {
     return this.http.get<ProjectResponse[]>(this.resourceUrl);

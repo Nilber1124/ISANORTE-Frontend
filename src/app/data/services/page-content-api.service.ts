@@ -8,11 +8,12 @@ import {
   PageContentResponse,
   PageContentUpdateRequest,
 } from '../models/content/page-content.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class PageContentApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/contenidos-pagina`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/contenidos-pagina`;
 
   getAll(): Observable<PageContentResponse[]> {
     return this.http.get<PageContentResponse[]>(this.resourceUrl);

@@ -6,11 +6,12 @@ import { API_BASE_URL } from '../../core/config/api.config';
 import { OrderResponse } from '../models/order/order-response.model';
 import { OrderStatusRequest } from '../models/order/order-status-request.model';
 import { OrderStatus } from '../models/order/order-status.enum';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class OrderApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/pedidos`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/pedidos`;
 
   getAll(): Observable<OrderResponse[]> {
     return this.http.get<OrderResponse[]>(this.resourceUrl);

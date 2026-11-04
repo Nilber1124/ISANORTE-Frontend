@@ -7,11 +7,12 @@ import { QuoteCreateRequest } from '../models/quote/quote-create-request.model';
 import { QuoteResponse } from '../models/quote/quote-response.model';
 import { QuoteStatusRequest } from '../models/quote/quote-status-request.model';
 import { QuoteStatus } from '../models/quote/quote-status.enum';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class QuoteApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/cotizaciones`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/cotizaciones`;
 
   getAll(): Observable<QuoteResponse[]> {
     return this.http.get<QuoteResponse[]>(this.resourceUrl);

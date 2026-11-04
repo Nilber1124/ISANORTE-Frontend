@@ -12,11 +12,12 @@ import {
   LandingActionRequest,
   LandingActionResponse,
 } from '../models/landing-section/landing-action.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class LandingSectionApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/secciones-landing`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/secciones-landing`;
 
   getAll(): Observable<LandingSectionResponse[]> {
     return this.http.get<LandingSectionResponse[]>(this.resourceUrl);

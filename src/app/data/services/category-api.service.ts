@@ -7,11 +7,12 @@ import { CategoryCreateRequest } from '../models/category/category-create-reques
 import { CategoryResponse } from '../models/category/category-response.model';
 import { CategoryUpdateRequest } from '../models/category/category-update-request.model';
 import { ActiveRequest } from '../models/common/active-request.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/categorias`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/categorias`;
 
   getAll(): Observable<CategoryResponse[]> {
     return this.http.get<CategoryResponse[]>(this.resourceUrl);

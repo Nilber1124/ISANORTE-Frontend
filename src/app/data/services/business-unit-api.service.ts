@@ -12,11 +12,12 @@ import {
   BusinessUnitResourceResponse,
 } from '../models/business-unit/business-unit-resource.model';
 import { CatalogoRequest, CatalogoResponse } from '../models/business-unit/catalogo.model';
+import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
 export class BusinessUnitApiService {
   private readonly http = inject(HttpClient);
-  private readonly resourceUrl = `${inject(API_BASE_URL).replace(/\/+$/, '')}/api/unidades-negocio`;
+  private readonly resourceUrl = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/unidades-negocio`;
 
   getAll(): Observable<BusinessUnitResponse[]> {
     return this.http.get<BusinessUnitResponse[]>(this.resourceUrl);
