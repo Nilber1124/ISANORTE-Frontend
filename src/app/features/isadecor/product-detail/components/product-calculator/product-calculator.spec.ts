@@ -36,7 +36,7 @@ describe('ProductCalculator', () => {
   }
 
   function resultText(element: HTMLElement): string | null {
-    return element.querySelector('output')?.textContent?.trim() ?? null;
+    return element.querySelector('output[for="product-calculator-measurement"]')?.textContent?.trim() ?? null;
   }
 
   it('enables the calculator when the configuration is enabled and valid', () => {
