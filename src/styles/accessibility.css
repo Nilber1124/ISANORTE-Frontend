@@ -257,6 +257,9 @@ html[data-motion='reduce'] [data-reveal] {
 /* Carrusel tipo marquee: modo estático desplazable, igual que con prefers-reduced-motion. */
 html[data-motion='reduce'] .carousel__marquee {
   overflow-x: auto;
+  /* Sin desplazamiento, el degradado de los bordes dejaría la primera card difuminada. */
+  mask-image: none;
+  -webkit-mask-image: none;
 }
 
 html[data-motion='reduce'] .carousel__copy ~ .carousel__copy {

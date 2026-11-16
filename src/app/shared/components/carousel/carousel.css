@@ -20,6 +20,8 @@
 @media (prefers-reduced-motion: reduce) {
   .carousel__marquee {
     overflow-x: auto;
+    mask-image: none;
+    -webkit-mask-image: none;
   }
 
   .carousel__copy ~ .carousel__copy {
