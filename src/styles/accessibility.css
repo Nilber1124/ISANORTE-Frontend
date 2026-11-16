@@ -260,6 +260,9 @@ html[data-motion='reduce'] .carousel__marquee {
   /* Sin desplazamiento, el degradado de los bordes dejaría la primera card difuminada. */
   mask-image: none;
   -webkit-mask-image: none;
+  /* Centradas si caben; si no caben, se desplazan desde el inicio. */
+  display: flex;
+  justify-content: safe center;
 }
 
 html[data-motion='reduce'] .carousel__copy ~ .carousel__copy {
