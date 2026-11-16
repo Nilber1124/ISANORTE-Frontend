@@ -4,15 +4,15 @@
   class="isadecor-shell sticky top-0 z-50 border-b border-border bg-background-deep"
 >
   <div class="app-container flex items-center justify-between gap-6 py-4">
-    <a routerLink="/isadecor" class="flex shrink-0 items-center" (click)="closeMenu()">
+    <a routerLink="/isadecor" class="flex min-w-0 shrink items-center" (click)="closeMenu()">
       <img
-        class="h-10 w-auto max-w-64 object-contain"
+        class="h-10 w-auto min-w-0 max-w-64 object-contain"
         src="/images/isadecor-logo-horizontal-white.svg"
         alt="ISADECOR"
       />
     </a>
 
-    <div class="hidden flex-1 items-center justify-center gap-8 lg:flex">
+    <div class="hidden flex-1 items-center justify-center gap-8 nav-lg:flex">
       @for (link of links(); track link.url + link.label) {
         @if (link.label === 'Productos') {
           <div
@@ -141,9 +141,9 @@
     <div class="flex items-center gap-2">
       <!-- Cuenta: la sesión solo existe en el navegador; antes de hidratar se reserva el mismo espacio. -->
       @if (!hidratado()) {
-        <span class="hidden h-10 w-32 lg:block" aria-hidden="true"></span>
+        <span class="hidden h-10 w-32 nav-lg:block" aria-hidden="true"></span>
       } @else if (cliente.authenticated()) {
-        <div #cuentaContenedor class="relative hidden lg:block" (keydown.escape)="cerrarCuentaMenu()">
+        <div #cuentaContenedor class="relative hidden nav-lg:block" (keydown.escape)="cerrarCuentaMenu()">
           <button
             type="button"
             class="inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-control border border-border-strong py-1 pl-1 pr-3 text-white/85 transition-colors duration-normal hover:bg-surface-soft hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
@@ -223,7 +223,7 @@
       } @else {
         <a
           routerLink="/isadecor/ingresar"
-          class="hidden h-10 items-center gap-2 rounded-control border border-border-strong px-3.5 text-body-sm font-medium text-white/85 transition-colors duration-normal hover:bg-surface-soft hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus lg:inline-flex"
+          class="hidden h-10 items-center gap-2 rounded-control border border-border-strong px-3.5 text-body-sm font-medium text-white/85 transition-colors duration-normal hover:bg-surface-soft hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus nav-lg:inline-flex"
         >
           <svg class="size-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8" />
@@ -265,7 +265,7 @@
         }
       </a>
 
-      <div class="hidden lg:block">
+      <div class="hidden nav-lg:block">
         <a
           routerLink="/isadecor/cotizacion"
           class="inline-flex min-h-10 items-center justify-center gap-2 rounded-button bg-accent px-4 py-2 text-body-sm font-semibold text-accent-contrast transition-colors duration-normal hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -276,7 +276,7 @@
 
       <button
         type="button"
-        class="inline-flex size-10 items-center justify-center rounded-control border border-border-strong text-white transition-colors duration-normal hover:bg-surface-soft lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus cursor-pointer"
+        class="inline-flex size-10 items-center justify-center rounded-control border border-border-strong text-white transition-colors duration-normal hover:bg-surface-soft nav-lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus cursor-pointer"
         [attr.aria-expanded]="menuOpen()"
         aria-controls="isadecor-menu"
         [attr.aria-label]="menuOpen() ? 'Cerrar menú' : 'Abrir menú'"
@@ -310,7 +310,7 @@
   @if (menuOpen()) {
     <div
       id="isadecor-menu"
-      class="border-t border-border bg-background-deep px-6 pb-6 pt-3 lg:hidden"
+      class="border-t border-border bg-background-deep px-6 pb-6 pt-3 nav-lg:hidden"
     >
       <ul class="space-y-1">
         @for (link of links(); track link.url + link.label) {

@@ -5,14 +5,19 @@ import {
   Component,
   contentChild,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
   input,
   signal,
   TemplateRef,
+  untracked,
   viewChild,
   viewChildren,
 } from '@angular/core';
+
+import { AccessibilityService } from '../../../core/services/accessibility.service';
+
 
 type GsapType = typeof import('gsap')['default'];
 type GsapTween = ReturnType<GsapType['to']>;
@@ -76,8 +81,14 @@ export class Carousel {
   private gsap?: GsapType;
   private marqueeTween?: GsapTween;
   private timer?: ReturnType<typeof setInterval>;
-  private reducedMotion = false;
-  private canHover = true;
+  private systemReducedMotion = false;
+  private readonly a11y = inject(AccessibilityService);
+
+  /** Preferencia del sistema o ajuste manual del panel de accesibilidad. */
+  private get reducedMotion(): boolean {
+    return this.systemReducedMotion || this.a11y.reduceMotion();
+  }
+private canHover = true;
   private hovered = false;
   private dragging = false;
   private hasDragged = false;
@@ -91,6 +102,10 @@ export class Carousel {
       this.stopAutoPlay();
       this.marqueeTween?.kill();
     });
+    effect(() => {
+      const reduce = this.a11y.reduceMotion();
+      untracked(() => this.applyMotionPreference(reduce));
+    });
     afterNextRender(() => {
       void this.init();
     });
@@ -99,7 +114,7 @@ export class Carousel {
   private async init(): Promise<void> {
     const { default: gsap } = await import('gsap');
     this.gsap = gsap;
-    this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.systemReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.canHover = window.matchMedia('(hover: hover)').matches;
 
     if (this.variant() === 'coverflow') {
@@ -176,12 +191,28 @@ export class Carousel {
         zIndex: 100 - Math.abs(offset),
       };
 
-      if (animated) {
+      if (animated && !this.reducedMotion) {
         gsap.to(element, { ...target, duration: 0.75, ease: 'power2.out' });
       } else {
         gsap.set(element, target);
       }
     });
+  }
+
+  /** Reacciona al ajuste «Reducir animaciones»: detiene el avance automático o lo reanuda. */
+  private applyMotionPreference(reduce: boolean): void {
+    // Antes de init() no hay nada en marcha: init() ya lee la preferencia.
+    if (!this.gsap) return;
+    if (reduce) {
+      this.stopAutoPlay();
+      this.marqueeTween?.kill();
+      this.marqueeTween = undefined;
+      const track = this.track()?.nativeElement;
+      if (track) this.gsap.set(track, { clearProps: 'transform' });
+      return;
+    }
+    if (this.variant() === 'coverflow') this.startAutoPlay();
+    else if (!this.marqueeTween) this.initMarquee();
   }
 
   /* ------------------------------------------------------------------ *

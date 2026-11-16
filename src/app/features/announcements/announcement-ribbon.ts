@@ -4,11 +4,15 @@ import {
   DestroyRef,
   afterNextRender,
   computed,
+  effect,
   inject,
   input,
   signal,
+  untracked,
 } from '@angular/core';
 import { Router } from '@angular/router';
+
+import { AccessibilityService } from '../../core/services/accessibility.service';
 
 import {
   AnnouncementDestination,
@@ -39,15 +43,25 @@ export class AnnouncementRibbon {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private timer?: ReturnType<typeof setTimeout>;
-  private reducedMotion = false;
+  private systemReducedMotion = false;
+  private readonly a11y = inject(AccessibilityService);
+
+  /** Preferencia del sistema o ajuste manual del panel de accesibilidad. */
+  private get reducedMotion(): boolean {
+    return this.systemReducedMotion || this.a11y.reduceMotion();
+  }
   private interacting = false;
   private touchStartX: number | null = null;
   private previousBodyOverflow = '';
   private pageScrollLocked = false;
 
   constructor() {
+    // Al activar «Reducir animaciones» se detiene el avance automático de inmediato.
+    effect(() => {
+      if (this.a11y.reduceMotion()) untracked(() => this.stopAutoplay());
+    });
     afterNextRender(() => {
-      this.reducedMotion =
+      this.systemReducedMotion =
         typeof window.matchMedia === 'function' &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       this.facade.load(this.destination());

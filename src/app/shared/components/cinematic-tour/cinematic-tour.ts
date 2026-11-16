@@ -4,10 +4,17 @@ import {
   DestroyRef,
   ElementRef,
   afterNextRender,
+  effect,
   inject,
   input,
+  untracked,
   viewChildren,
 } from '@angular/core';
+
+import { AccessibilityService } from '../../../core/services/accessibility.service';
+
+type GsapModule = typeof import('gsap')['default'];
+type GsapContext = ReturnType<GsapModule['context']>;
 
 /** Escena de un recorrido: una imagen que representa un ambiente de la vivienda. */
 export interface CinematicScene {
@@ -31,7 +38,9 @@ export interface CinematicScene {
  * - Escritorio: movimiento de cámara completo y parallax sutil con el ratón
  *   (solo `hover` + `pointer: fine`). Móvil/tablet: sin parallax y con
  *   intensidad reducida.
- * - `prefers-reduced-motion`: se muestra una escena estática, Hero funcional.
+ * - `prefers-reduced-motion` o «Reducir animaciones» (AccessibilityService): se muestra una
+ *   escena estática, Hero funcional. Si se activa en caliente se detiene y se limpia todo; si se
+ *   desactiva, el recorrido se reanuda.
  * - Todas las animaciones se crean dentro de `gsap.context()` y se revierten
  *   con `ctx.revert()`, eliminando listeners al destruir el componente.
  *
@@ -57,12 +66,26 @@ export class CinematicTour {
 
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly a11y = inject(AccessibilityService);
   private readonly layerRefs = viewChildren<ElementRef<HTMLElement>>('layer');
+  private gsap?: GsapModule;
+  private ctx?: GsapContext;
+  /** Limpiezas de listeners creados al iniciar el recorrido (se ejecutan al detenerlo). */
+  private cleanups: Array<() => void> = [];
+  private started = false;
   private destroyed = false;
 
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.destroyed = true;
+      this.stopMotion();
+    });
+    effect(() => {
+      const reduce = this.a11y.reduceMotion();
+      untracked(() => {
+        if (reduce) this.stopMotion();
+        else if (this.started && !this.ctx && !this.destroyed) void this.init();
+      });
     });
     afterNextRender(() => {
       void this.init();
@@ -70,13 +93,15 @@ export class CinematicTour {
   }
 
   private async init(): Promise<void> {
+    this.started = true;
     const { default: gsap } = await import('gsap');
+    this.gsap = gsap;
     const hostEl = this.host.nativeElement;
     const layers = this.layerRefs().map((layer) => layer.nativeElement);
     if (this.destroyed || layers.length === 0) return;
 
     // Accesibilidad: sin movimientos 3D, imagen estática (la primera escena).
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || this.a11y.reduceMotion()) return;
 
     const ctx = gsap.context(() => {
       const count = layers.length;
@@ -166,15 +191,19 @@ export class CinematicTour {
       stage.addEventListener('pointermove', onPointerMove, { passive: true });
       stage.addEventListener('pointerleave', onPointerLeave);
 
-      this.destroyRef.onDestroy(() => {
+      this.cleanups.push(() => {
         stage.removeEventListener('pointermove', onPointerMove);
         stage.removeEventListener('pointerleave', onPointerLeave);
       });
     }, hostEl);
+    this.ctx = ctx;
+  }
 
-    this.destroyRef.onDestroy(() => {
-      ctx.revert();
-      gsap.killTweensOf(layers);
-    });
+  /** Detiene el recorrido: quita listeners, revierte los tweens y deja la primera escena estática. */
+  private stopMotion(): void {
+    this.cleanups.splice(0).forEach((cleanup) => cleanup());
+    this.ctx?.revert();
+    this.ctx = undefined;
+    this.gsap?.killTweensOf(this.layerRefs().map((layer) => layer.nativeElement));
   }
 }

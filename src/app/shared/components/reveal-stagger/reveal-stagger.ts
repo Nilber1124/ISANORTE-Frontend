@@ -3,10 +3,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
   input,
 } from '@angular/core';
+
+import { AccessibilityService } from '../../../core/services/accessibility.service';
+
+type GsapModule = typeof import('gsap')['default'];
+type GsapContext = ReturnType<GsapModule['context']>;
 
 /** Cuándo disparar la secuencia de aparición. */
 export type RevealStaggerTrigger = 'load' | 'view';
@@ -49,9 +55,11 @@ export type RevealStaggerVariant =
  *
  * - GSAP se carga diferido y se ejecuta solo en el navegador
  *   (`afterNextRender`), seguro con SSR/prerender e hidratación.
- * - `prefers-reduced-motion`: los elementos permanecen en su estado final y no
- *   se ejecuta ninguna animación (la regla `[data-reveal] { opacity: 0 }` solo
- *   aplica bajo `no-preference`).
+ * - `prefers-reduced-motion` o «Reducir animaciones» (AccessibilityService): los
+ *   elementos permanecen en su estado final y no se ejecuta ninguna animación (la
+ *   regla `[data-reveal] { opacity: 0 }` solo aplica bajo `no-preference`; con el
+ *   ajuste manual la neutraliza `html[data-motion='reduce']` en accessibility.css).
+ *   Si se activa mientras anima, se detiene y se muestra el contenido final.
  * - Las animaciones se crean dentro de `gsap.context()` y se revierten con
  *   `ctx.revert()` al destruir el componente.
  *
@@ -81,11 +89,17 @@ export class RevealStagger {
 
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly a11y = inject(AccessibilityService);
+  private gsap?: GsapModule;
+  private ctx?: GsapContext;
   private destroyed = false;
 
   constructor() {
     this.destroyRef.onDestroy(() => {
       this.destroyed = true;
+    });
+    effect(() => {
+      if (this.a11y.reduceMotion()) this.stopMotion();
     });
     afterNextRender(() => {
       void this.init();
@@ -94,6 +108,7 @@ export class RevealStagger {
 
   private async init(): Promise<void> {
     const { default: gsap } = await import('gsap');
+    this.gsap = gsap;
     const hostEl = this.host.nativeElement;
 
     // El componente pudo destruirse mientras se descargaba GSAP.
@@ -101,9 +116,10 @@ export class RevealStagger {
 
     // Accesibilidad: sin animaciones, los [data-reveal] permanecen visibles
     // en su estado final (la regla de ocultado solo aplica con no-preference).
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || this.a11y.reduceMotion()) return;
 
     const ctx = gsap.context(() => {}, hostEl);
+    this.ctx = ctx;
 
     // Revierte los tweens de la secuencia al destruir el componente, tanto en
     // la ruta `load` como en la `view` (antes de que esta haga `return`).
@@ -197,6 +213,13 @@ export class RevealStagger {
     }
 
     start();
+  }
+
+  /** Detiene y revierte toda animación en curso (incluida la flotación), dejando el contenido final visible. */
+  private stopMotion(): void {
+    this.ctx?.revert();
+    this.ctx = undefined;
+    this.gsap?.killTweensOf(this.host.nativeElement.querySelectorAll('[data-reveal]'));
   }
 
   /** Lee `data-reveal-order`/`data-reveal-duration`; cae al fallback si no es un número finito. */

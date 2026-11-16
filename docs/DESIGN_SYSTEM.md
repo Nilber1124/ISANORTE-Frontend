@@ -25,7 +25,7 @@ src/styles/
 - `theme.css` registra el contrato semántico de Tailwind y contiene las reglas no cromáticas.
 - `light.css` define los valores claros y funciona también como fallback de `:root`.
 - `dark.css` redefine el mismo conjunto bajo `[data-theme='dark']`.
-- `ThemeService` expone `theme`, `setTheme()`, `useLightTheme()`, `useDarkTheme()` y `toggleTheme()`. No persiste la preferencia todavía.
+- `ThemeService` expone `theme`, `setTheme()`, `useLightTheme()`, `useDarkTheme()` y `toggleTheme()`. La preferencia se persiste desde `AccessibilityService` (ver §25).
 
 El atributo se aplica sobre `<html>`:
 
@@ -203,7 +203,7 @@ Se priorizan imágenes grandes y nítidas de arquitectura, construcción, materi
 
 Los tiempos de referencia son 150 ms para respuesta rápida, 250 ms para transición normal y 500 ms para entrada. Se animan principalmente opacity, color y transformaciones cortas. Una elevación de card no supera 4 px y una escala debe ser apenas perceptible.
 
-No se usan saltos, rotaciones decorativas, zoom fuerte, glow pulsante ni parallax excesivo. La hoja global respeta `prefers-reduced-motion` reduciendo animaciones y transiciones.
+No se usan saltos, rotaciones decorativas, zoom fuerte, glow pulsante ni parallax excesivo. La hoja global respeta `prefers-reduced-motion` reduciendo animaciones y transiciones. Además, el atributo `data-motion="reduce"` (activable desde el panel de accesibilidad, §25) aplica la misma reducción y fuerza los elementos `[data-reveal]` a su estado final. Los componentes con GSAP (`reveal-stagger`, `cinematic-tour`, `carousel`, `announcement-ribbon`) consultan `AccessibilityService.reduceMotion()` y no animan ni hacen autoplay cuando está activo.
 
 ## 19. Responsive
 
@@ -220,6 +220,7 @@ El desarrollo es mobile-first. Los layouts comienzan en una columna, incorporan 
 - Mantener objetivos táctiles cercanos o superiores a 44 px en acciones habituales.
 - No comunicar un estado únicamente mediante color.
 - Respetar `prefers-reduced-motion`.
+- Ofrecer el panel de accesibilidad de usuario (modo oscuro, alto contraste, tamaño de texto, reducir animaciones, resaltar enlaces); ver §25.
 
 ## 21. Buenas prácticas
 
@@ -595,3 +596,61 @@ Antes de crear una nueva utilidad semántica deben cumplirse estas condiciones:
 - Reduce repetición sin ocultar el layout particular del template.
 
 La documentación está excluida del escaneo de clases mediante `@source not '../docs'`, por lo que los ejemplos de esta guía no generan CSS que la aplicación no utilice.
+
+## 25. Accesibilidad de la persona usuaria
+
+Un botón flotante abajo a la izquierda (el de WhatsApp está abajo a la derecha) abre un panel no modal con cinco opciones y "Restablecer todo". En el panel de administración se integra en la barra superior con `placement="inline"`.
+
+### 25.1 Piezas
+
+| Pieza | Ubicación | Responsabilidad |
+| --- | --- | --- |
+| `AccessibilityService` | `core/services/accessibility.service.ts` | Estado con signals, persistencia versionada (`isanorte:a11y:v1`) y atributos `data-*` en `<html>`. El modo oscuro delega en `ThemeService`. |
+| `AccessibilityWidget` | `shared/components/accessibility-widget` | Botón y panel. Montar una sola vez por layout (público, ISADECOR y topbar del admin). |
+| `accessibility.css` | `src/styles/accessibility.css` | Estilos de cada opción; sobrescribe tokens `--theme-*` existentes, sin tokens nuevos. |
+| Script de `index.html` | `src/index.html` | Aplica los atributos antes del primer pintado. Debe mantenerse alineado con el servicio. |
+
+### 25.2 Atributos sobre `<html>`
+
+| Atributo | Valores | Efecto |
+| --- | --- | --- |
+| `data-theme` | `light`, `dark` | Tema (ThemeService). |
+| `data-contrast` | `high` | Alto contraste, combinable con claro y oscuro. |
+| `data-text-size` | `0`, `1`, `2`, `3` | Texto al 100, 115, 130 y 150 % mediante el `font-size` raíz. |
+| `data-motion` | `reduce` | Sin animaciones ni transiciones. |
+| `data-links` | `highlight` | Enlaces de contenido subrayados, en negrita y con fondo. |
+
+Valores iniciales: lo guardado y, si no hay nada, `prefers-color-scheme`, `prefers-contrast: more` y `prefers-reduced-motion: reduce`. Solo se guarda cuando la persona cambia algo; "Restablecer todo" borra lo guardado y vuelve a los valores del sistema.
+
+### 25.3 Alto contraste
+
+Reasigna los `--theme-*` bajo `html[data-contrast='high'][data-theme='light'|'dark']` (y las secciones internas `[data-theme='dark']`). Peores casos medidos del texto sobre cualquier superficie: 7,08:1 en claro y 7,43:1 en oscuro; bordes de controles y foco por encima de 3:1. El foco pasa a 3 px, se eliminan sombras de texto y desenfoques de fondo. Los componentes deben consumir tokens semánticos (`text-text-primary`, `border-border`…) para adaptarse solos.
+
+### 25.4 Texto grande
+
+Los tokens tipográficos y las utilidades de Tailwind están en rem, así que basta con cambiar el `font-size` raíz. Dos salvedades:
+
+- Las media queries en rem no siguen al `font-size` raíz. Las barras de navegación usan las variantes `nav-md:` (público) y `nav-lg:` (ISADECOR), definidas en `accessibility.css`, que retrasan el paso a escritorio según el nivel de texto (hasta 96 rem con 130 % y 150 %); antes se muestra el menú móvil.
+- Con texto grande se aplica `overflow-wrap: anywhere` y los `app-button` pueden partir su etiqueta, para evitar scroll horizontal a 320 px.
+
+Al crear logos o elementos con ancho en rem dentro de filas flex, permitir que encojan (`min-w-0 shrink`).
+
+### 25.5 Enlaces resaltados
+
+Aplica a `a[href]`, excepto los que son botones (`rounded-button`), los circulares (`rounded-full`), `[role='button']` y los marcados con `data-a11y-skip`. Los enlaces que envuelven una imagen se resaltan con contorno. Para excluir un enlace concreto, añadir `data-a11y-skip`.
+
+### 25.6 Cómo probar
+
+1. Abrir el botón, activar cada opción y recargar: todas persisten (`localStorage['isanorte:a11y:v1']`).
+2. Alto contraste: revisar en claro y oscuro; los controles deben tener borde visible y el foco ser grueso.
+3. Texto: pasar a 150 % y revisar a 320 px que no hay scroll horizontal (`document.documentElement.scrollWidth <= clientWidth`).
+4. Animaciones: activar y comprobar que todo el contenido de `reveal-stagger`, `cinematic-tour` y carruseles queda visible y estático.
+5. Teclado: Escape cierra el panel y devuelve el foco al botón.
+6. Pruebas: `npx ng test --watch=false --include='src/app/core/services/accessibility.service.spec.ts' --include='src/app/shared/components/accessibility-widget/accessibility-widget.spec.ts'`.
+
+### 25.7 Limitaciones conocidas
+
+- Colores fijos fuera de los tokens (p. ej. el verde del botón de WhatsApp) no cambian con alto contraste.
+- Los textos sobre imágenes dependen de sus overlays; en alto contraste se recomienda mantener overlays oscuros opacos.
+- "Reducir animaciones" no pausa vídeos incrustados.
+

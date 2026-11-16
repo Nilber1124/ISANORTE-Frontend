@@ -5,6 +5,7 @@ import { filter, map, startWith } from 'rxjs';
 
 import { ThemeService } from '../../../../core/services/theme.service';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { AccessibilityWidget } from '../../../../shared/components/accessibility-widget/accessibility-widget';
 
 const SECTION_LABELS: Record<string, string> = {
   '': 'Dashboard',
@@ -24,6 +25,7 @@ const SECTION_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-admin-topbar',
+  imports: [AccessibilityWidget],
   templateUrl: './admin-topbar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

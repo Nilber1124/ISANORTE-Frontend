@@ -4,13 +4,14 @@ import { RouterOutlet } from '@angular/router';
 import { Footer } from './footer/footer';
 import { Navbar } from './navbar/navbar';
 import { WhatsappFloat } from '../../shared/components/whatsapp-float/whatsapp-float';
+import { AccessibilityWidget } from '../../shared/components/accessibility-widget/accessibility-widget';
 import { PublicSiteFacade } from './public-site.facade';
 import { AnnouncementRibbon } from '../../features/announcements/announcement-ribbon';
 import { BrandService } from '../../core/services/brand.service';
 
 @Component({
   selector: 'app-public-layout',
-  imports: [RouterOutlet, Navbar, Footer, WhatsappFloat, AnnouncementRibbon],
+  imports: [RouterOutlet, Navbar, Footer, WhatsappFloat, AccessibilityWidget, AnnouncementRibbon],
   providers: [PublicSiteFacade],
   templateUrl: './public-layout.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

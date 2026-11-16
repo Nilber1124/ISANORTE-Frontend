@@ -9,6 +9,52 @@
     <meta name="description" content="Sistema de diseño base de ISANORTE" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="alternate icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+      /* Aplica las preferencias de accesibilidad antes del primer pintado para evitar
+         parpadeos de tema, tamaño de texto o movimiento. Debe mantenerse alineado con
+         src/app/core/services/accessibility.service.ts (misma clave y mismos campos). */
+      (function () {
+        try {
+          var root = document.documentElement;
+          var saved = null;
+          try {
+            saved = JSON.parse(window.localStorage.getItem('isanorte:a11y:v1') || 'null');
+          } catch (e) {
+            saved = null;
+          }
+          if (!saved || typeof saved !== 'object') saved = {};
+          var media = function (query) {
+            return typeof window.matchMedia === 'function' && window.matchMedia(query).matches;
+          };
+          var theme =
+            saved.theme === 'dark' || saved.theme === 'light'
+              ? saved.theme
+              : media('(prefers-color-scheme: dark)')
+                ? 'dark'
+                : 'light';
+          var contrast =
+            typeof saved.highContrast === 'boolean' ? saved.highContrast : media('(prefers-contrast: more)');
+          var motion =
+            typeof saved.reduceMotion === 'boolean'
+              ? saved.reduceMotion
+              : media('(prefers-reduced-motion: reduce)');
+          var level =
+            typeof saved.textLevel === 'number' &&
+            saved.textLevel >= 0 &&
+            saved.textLevel <= 3 &&
+            Math.floor(saved.textLevel) === saved.textLevel
+              ? saved.textLevel
+              : 0;
+          root.setAttribute('data-theme', theme);
+          root.setAttribute('data-text-size', String(level));
+          if (contrast) root.setAttribute('data-contrast', 'high');
+          if (motion) root.setAttribute('data-motion', 'reduce');
+          if (saved.highlightLinks === true) root.setAttribute('data-links', 'highlight');
+        } catch (e) {
+          /* Sin preferencias: se aplican los valores por defecto. */
+        }
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>

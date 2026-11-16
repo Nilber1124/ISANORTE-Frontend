@@ -1,0 +1,264 @@
+/* ==========================================================================
+   Accesibilidad de la persona usuaria
+   --------------------------------------------------------------------------
+   Los atributos los gestiona AccessibilityService (core/services) sobre <html>:
+
+     data-theme="light|dark"      lo aplica ThemeService (themes/light.css y dark.css)
+     data-contrast="high"         alto contraste (tokens de este archivo)
+     data-text-size="0|1|2|3"     texto al 100 %, 115 %, 130 % y 150 %
+     data-motion="reduce"         sin animaciones ni transiciones
+     data-links="highlight"       enlaces del contenido resaltados
+
+   Este archivo no define tokens nuevos: sobrescribe los `--theme-*` existentes, así
+   cualquier componente que consuma `--color-*` se adapta sin cambios. Mantener
+   alineado con el script de index.html, que aplica los atributos antes del primer pintado.
+   ========================================================================== */
+
+/* ── Tamaño de texto ─────────────────────────────────────────────────────
+   Los tokens tipográficos y los utilitarios de Tailwind están en rem, así que cambiar el
+   font-size raíz escala todo el sitio. El ancho mínimo se fija en px para que, con texto
+   grande, no aparezca scroll horizontal a 320 px. */
+html[data-text-size='1'] {
+  font-size: 115%;
+}
+
+html[data-text-size='2'] {
+  font-size: 130%;
+}
+
+html[data-text-size='3'] {
+  font-size: 150%;
+}
+
+html[data-text-size='1'],
+html[data-text-size='2'],
+html[data-text-size='3'] {
+  min-width: 320px;
+}
+
+/* Con texto grande, las palabras largas de los títulos pueden superar el ancho de 320 px:
+   se permite partirlas antes que provocar scroll horizontal (`anywhere` también reduce el ancho
+   mínimo de las columnas de cuadrículas). */
+html[data-text-size='1'] body,
+html[data-text-size='2'] body,
+html[data-text-size='3'] body {
+  overflow-wrap: anywhere;
+}
+
+/* Las media queries en rem no siguen al font-size raíz (usan el tamaño por defecto del navegador),
+   así que con texto grande las barras de navegación de escritorio no cabrían en su breakpoint
+   normal. Estas variantes (`nav-md:` y `nav-lg:`) equivalen a `md:` y `lg:`, pero retrasan el
+   paso a la versión de escritorio según el tamaño de texto elegido; antes se muestra el menú móvil. */
+@custom-variant nav-md {
+  @media (width >= 48rem) {
+    html[data-text-size='0'] &,
+    html:not([data-text-size]) & {
+      @slot;
+    }
+  }
+  @media (width >= 72rem) {
+    html[data-text-size='1'] & {
+      @slot;
+    }
+  }
+  @media (width >= 96rem) {
+    html[data-text-size='2'] &,
+    html[data-text-size='3'] & {
+      @slot;
+    }
+  }
+}
+
+@custom-variant nav-lg {
+  @media (width >= 64rem) {
+    html[data-text-size='0'] &,
+    html:not([data-text-size]) & {
+      @slot;
+    }
+  }
+  @media (width >= 80rem) {
+    html[data-text-size='1'] & {
+      @slot;
+    }
+  }
+  @media (width >= 96rem) {
+    html[data-text-size='2'] &,
+    html[data-text-size='3'] & {
+      @slot;
+    }
+  }
+}
+
+/* Los botones compartidos no parten líneas (whitespace-nowrap): con texto grande, una etiqueta
+   larga superaría el ancho de 320 px. Se permite el salto de línea y que el botón no exceda su contenedor. */
+html[data-text-size='2'] app-button,
+html[data-text-size='3'] app-button {
+  max-width: 100%;
+}
+
+html[data-text-size='2'] app-button > :is(a, button),
+html[data-text-size='3'] app-button > :is(a, button) {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+
+/* ── Alto contraste · tema claro ─────────────────────────────────────────
+   Texto ≥ 7:1 sobre todas las superficies; bordes ≥ 7:1; foco ≥ 17:1. */
+html[data-contrast='high'][data-theme='light'] {
+  color-scheme: light;
+
+  --theme-brand: #000000;
+  --theme-background: #ffffff;
+  --theme-background-soft: #ffffff;
+  --theme-background-muted: #f2f2f2;
+  --theme-background-deep: #f2f2f2;
+  --theme-surface: #ffffff;
+  --theme-surface-soft: #ffffff;
+  --theme-surface-hover: #e8e8e8;
+  --theme-surface-elevated: #ffffff;
+  --theme-surface-card: #ffffff;
+  --theme-border: #4a4a4a;
+  --theme-border-strong: #000000;
+  --theme-text-primary: #000000;
+  --theme-text-secondary: #1f1f1f;
+  --theme-text-muted: #3d3d3d;
+  --theme-text-disabled: #474747;
+  --theme-accent: #7c2d12;
+  --theme-accent-hover: #5f230e;
+  --theme-accent-strong: #5f230e;
+  --theme-accent-contrast: #ffffff;
+  --theme-success: #14532d;
+  --theme-warning: #713f12;
+  --theme-error: #7f1d1d;
+  --theme-info: #1e3a8a;
+  --theme-focus: #000000;
+  --theme-overlay: rgb(0 0 0 / 0.85);
+  --theme-action-primary: #000000;
+  --theme-action-primary-hover: #1f1f1f;
+  --theme-action-primary-text: #ffffff;
+}
+
+/* ── Alto contraste · tema oscuro ────────────────────────────────────────
+   También se aplica a las secciones internas marcadas con data-theme="dark" (p. ej. footers). */
+html[data-contrast='high'][data-theme='dark'],
+html[data-contrast='high'] [data-theme='dark'] {
+  color-scheme: dark;
+
+  --theme-brand: #000000;
+  --theme-background: #000000;
+  --theme-background-soft: #000000;
+  --theme-background-muted: #121212;
+  --theme-background-deep: #000000;
+  --theme-surface: #0a0a0a;
+  --theme-surface-soft: #0a0a0a;
+  --theme-surface-hover: #262626;
+  --theme-surface-elevated: #141414;
+  --theme-surface-card: #0a0a0a;
+  --theme-border: #b3b3b3;
+  --theme-border-strong: #ffffff;
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: #f0f0f0;
+  --theme-text-muted: #d4d4d4;
+  --theme-text-disabled: #bdbdbd;
+  --theme-accent: #ff9f4a;
+  --theme-accent-hover: #ffb676;
+  --theme-accent-strong: #ffc999;
+  --theme-accent-contrast: #000000;
+  --theme-success: #86efac;
+  --theme-warning: #fde047;
+  --theme-error: #ffa8a8;
+  --theme-info: #9ec5fe;
+  --theme-focus: #ffff00;
+  --theme-overlay: rgb(0 0 0 / 0.92);
+  --theme-action-primary: #ffffff;
+  --theme-action-primary-hover: #e6e6e6;
+  --theme-action-primary-text: #000000;
+}
+
+/* Sin sombras de texto ni desenfoques de fondo: el texto siempre sobre un fondo nítido. */
+html[data-contrast='high'] *,
+html[data-contrast='high'] *::before,
+html[data-contrast='high'] *::after {
+  text-shadow: none !important;
+}
+
+html[data-contrast='high'] [class*='backdrop-blur'],
+html[data-contrast='high'] [class*='backdrop-filter'] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Foco grueso y visible sobre cualquier fondo, incluso donde un componente use su propio anillo. */
+html[data-contrast='high'] :focus-visible {
+  outline: 3px solid var(--color-focus) !important;
+  outline-offset: 3px !important;
+}
+
+/* Controles con borde siempre perceptible (solo cambia el color; el grosor lo define cada componente). */
+html[data-contrast='high'] :where(button, input, select, textarea) {
+  border-color: var(--color-border-strong);
+}
+
+html[data-contrast='high'] ::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+/* ── Resaltar enlaces ────────────────────────────────────────────────────
+   Afecta a los enlaces de contenido y navegación. Quedan fuera los que son botones
+   (clase rounded-button), los redondos con icono (rounded-full) y los que lleven
+   data-a11y-skip. Los enlaces que envuelven una imagen se resaltan con contorno. */
+html[data-links='highlight'] a[href]:not([class*='rounded-button'], [class*='rounded-full'], [role='button'], [data-a11y-skip]) {
+  text-decoration: underline;
+  text-decoration-thickness: 0.14em;
+  text-underline-offset: 0.22em;
+  text-decoration-skip-ink: none;
+  font-weight: 700;
+  border-radius: 0.2em;
+  background-color: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  box-shadow: 0 0 0 0.12em color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+html[data-links='highlight'] a[href]:has(img, picture):not([data-a11y-skip]) {
+  text-decoration: none;
+  background: none;
+  box-shadow: none;
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* ── Reducir animaciones ─────────────────────────────────────────────────
+   Equivale a `prefers-reduced-motion: reduce` (ver theme.css), pero activable desde el panel.
+   El contenido nunca queda oculto: los elementos [data-reveal] se muestran en su estado final. */
+html[data-motion='reduce'],
+html[data-motion='reduce'] body {
+  scroll-behavior: auto !important;
+}
+
+html[data-motion='reduce'] *,
+html[data-motion='reduce'] *::before,
+html[data-motion='reduce'] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+}
+
+html[data-motion='reduce'] [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  translate: none !important;
+  scale: none !important;
+}
+
+/* Carrusel tipo marquee: modo estático desplazable, igual que con prefers-reduced-motion. */
+html[data-motion='reduce'] .carousel__marquee {
+  overflow-x: auto;
+}
+
+html[data-motion='reduce'] .carousel__copy ~ .carousel__copy {
+  display: none;
+}
