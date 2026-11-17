@@ -27,8 +27,16 @@ Marca **[completar]** lo que solo ustedes saben; no se inventan datos.
 
 Para el Home (hero), por la misma razón, convendría diferenciarlo de Nosotros, por ejemplo: título `Arquitectura, ingeniería y construcción para tu proyecto`, subtítulo `Planos, permisos y obra con un solo equipo.`
 
-## Pregunta abierta: ¿en qué país trabaja ISANORTE?
+## País confirmado: Perú
 
-- El brief que escribí asume **Perú**, a partir de las coordenadas del mapa (Cajamarca) y del banner de Facebook. No lo confirmé contigo.
-- Los datos actuales de la BD dicen **Ecuador**: la visión habla de Ecuador, los teléfonos son +593, y los proyectos de demostración están en Quito.
-- Hay que confirmarlo y dejar contenido, teléfonos y proyectos coherentes con el país real.
+ISANORTE trabaja en **Perú** (confirmado por el usuario). Lo que hay que corregir en la BD y el contenido, desde el panel admin:
+
+- **Misión y visión:** cambiar «Ecuador» por Perú (o por la región donde operan).
+- **Teléfonos y WhatsApp:** hoy son +593 (Ecuador); deben ser +51 con los números reales.
+- **Dirección y ciudad de la empresa:** hoy dicen Quito; poner la real (el mapa ya apunta a Cajamarca).
+- **Proyectos de demostración:** «Residencia Aura» y «Edificio Tech-Corporate» están ubicados en Quito. Reemplazarlos por proyectos reales de ISANORTE.
+- **Correos:** hoy terminan en `.ec`; usar el dominio real.
+
+En el código:
+- El ejemplo del campo de teléfono del formulario ya usa formato peruano (`Ej. 987 654 321`).
+- El Home tiene proyectos de respaldo con ubicación en Quito (`home-projects-fallback.ts`) que solo se muestran si la API falla o no trae proyectos. Conviene sustituirlos por proyectos reales o quitarlos cuando la BD tenga los suyos.
