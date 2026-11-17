@@ -19,9 +19,8 @@ vuelve a cargar. No toca administradores, productos ISADECOR, cotizaciones ni pe
 ## Imágenes
 
 - El video del proceso y su póster están en Cloudinary (`isanorte-cajamarca/video`).
-- Varias imágenes (hero, 4 servicios, 4 proyectos, ISADECOR, cierre) son **respaldo**: generadas antes con FLUX y
-  de temática genérica. Quedan sin imagen: 4 servicios (topografía, saneamiento, habilitaciones, estructuras
-  metálicas), 2 proyectos (galpón y la página Nosotros), la galería antes/durante/después.
+- Varias imágenes (hero, 4 proyectos, ISADECOR, cierre) son **respaldo**: generadas antes con FLUX y
+  de temática genérica. Los 8 servicios tienen imagen propia (generadas con el generador de imágenes de Figma y subidas a `isanorte-cajamarca/servicios`). Quedan sin imagen: 2 proyectos (galpón y la página Nosotros), la galería antes/durante/después.
 - Las 4 fotos del equipo son **siluetas temporales** dibujadas localmente (subidas a `isanorte-cajamarca/equipo`). Para reemplazarlas por retratos generados, borra esas claves de `manifiesto.json` y los archivos de `temporales/`, y ejecuta `imagenes.py`.
 - `herramientas/imagenes.py` genera con FLUX las imágenes específicas de Cajamarca y las sube a Cloudinary
   (reanudable); `herramientas/build_sql.py` regenera este SQL usando `manifiesto.json`. La generación se detuvo
