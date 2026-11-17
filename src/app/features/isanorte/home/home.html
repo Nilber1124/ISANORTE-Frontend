@@ -177,38 +177,60 @@
           }
         </div>
 
-        <ul
-          class="grid list-none grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-3 p-0 md:gap-4"
-        >
-          @for (service of services.services; track service.id) {
+        <ul class="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+          @for (service of services.services; track service.id; let i = $index) {
             <li class="h-full" data-rise>
               <a
                 [href]="service.linkUrl"
-                class="group flex h-full items-start gap-4 rounded-card border border-border bg-surface p-4 text-text-primary transition-[border-color,background-color,transform] duration-normal ease-[var(--ease-standard)] hover:-translate-y-0.5 hover:border-border-strong hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background md:p-5"
+                class="group relative flex h-full min-h-60 flex-col gap-5 rounded-card border border-border bg-surface p-6 text-text-primary transition-[border-color,background-color,transform] duration-normal ease-[var(--ease-standard)] hover:-translate-y-1 hover:border-accent hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:p-7"
               >
+                <span class="flex items-start justify-between">
+                  <span
+                    class="inline-flex size-12 shrink-0 items-center justify-center rounded-control border border-border bg-surface-soft text-accent transition-colors duration-normal group-hover:border-accent"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      class="size-6"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      viewBox="0 0 24 24"
+                    >
+                      <path [attr.d]="serviceIconPath(service.name)" />
+                    </svg>
+                  </span>
+                  <span
+                    class="text-caption font-semibold tabular-nums tracking-wider text-text-muted"
+                    aria-hidden="true"
+                    >{{ i + 1 < 10 ? '0' + (i + 1) : i + 1 }}</span
+                  >
+                </span>
+                <span class="flex min-w-0 flex-1 flex-col gap-2">
+                  <h3 class="text-heading-4 leading-snug">{{ service.name }}</h3>
+                  @if (service.summary) {
+                    <p class="line-clamp-3 text-body-sm text-text-secondary">
+                      {{ service.summary }}
+                    </p>
+                  }
+                </span>
                 <span
-                  class="inline-flex size-11 shrink-0 items-center justify-center rounded-control border border-border bg-surface-soft"
+                  class="inline-flex items-center gap-1.5 text-body-sm font-semibold text-accent"
                   aria-hidden="true"
                 >
+                  Ver servicio
                   <svg
-                    class="size-5"
+                    class="size-4 transition-transform duration-normal group-hover:translate-x-1"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="1.6"
+                    stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     viewBox="0 0 24 24"
                   >
-                    <path [attr.d]="serviceIconPath(service.name)" />
+                    <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
-                </span>
-                <span class="min-w-0">
-                  <h3 class="text-heading-4">{{ service.name }}</h3>
-                  @if (service.summary) {
-                    <p class="mt-1 line-clamp-2 text-body-sm text-text-secondary">
-                      {{ service.summary }}
-                    </p>
-                  }
                 </span>
               </a>
             </li>
@@ -227,11 +249,13 @@
         <div role="status" aria-live="polite" class="animate-pulse">
           <span class="sr-only">Cargando servicios</span>
           <div class="mb-10 h-10 w-2/3 max-w-xl rounded bg-background-muted md:mb-14 md:h-12"></div>
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] gap-3 md:gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
             @for (item of [1, 2, 3, 4, 5, 6, 7, 8]; track item) {
-              <div class="flex gap-4 rounded-card border border-border bg-surface p-4 md:p-5">
-                <div class="size-11 shrink-0 rounded-control bg-background-muted"></div>
-                <div class="flex-1 space-y-2.5 pt-1">
+              <div
+                class="flex min-h-60 flex-col gap-5 rounded-card border border-border bg-surface p-6 lg:p-7"
+              >
+                <div class="size-12 shrink-0 rounded-control bg-background-muted"></div>
+                <div class="flex-1 space-y-2.5">
                   <div class="h-4 w-3/4 rounded bg-background-muted"></div>
                   <div class="h-3 w-full rounded bg-background-muted"></div>
                   <div class="h-3 w-2/3 rounded bg-background-muted"></div>
