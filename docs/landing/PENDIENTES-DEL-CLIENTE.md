@@ -23,7 +23,7 @@ Lista de lo que no se puede resolver con código: contenido real, datos y decisi
 
 - [ ] Cargar los **8 servicios reales**: planos, ejecución y supervisión, topografía, saneamiento físico legal, habilitaciones urbanas, remodelaciones, diseño de interiores, estructuras metálicas. Con resumen, descripción, qué incluye e imagen real de cada uno.
 - [ ] Cambiar todo lo que dice **Ecuador**: misión, visión, teléfonos (+593 → +51), dirección y ciudad (hoy Quito), correos `.ec`.
-- [ ] Reemplazar los **proyectos de demostración** (Quito) por proyectos reales.
+- [ ] Reemplazar los **proyectos de demostración** por proyectos reales (los actuales están ubicados en Quito, Bogotá y otras ciudades que no corresponden).
 - [ ] **Nosotros**: cargar el texto propuesto en `CONTENIDO-NOSOTROS.md` (título, introducción, etiquetas) y la historia real de la empresa.
 - [ ] **Hero del Home**: cambiar el título genérico por una propuesta concreta y cambiar el botón secundario «Habla con un asesor» por «Ver proyectos».
 - [ ] **Teléfono, WhatsApp, correo, dirección y horario** reales de la empresa.

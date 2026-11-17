@@ -49,20 +49,6 @@
         </nav>
         <p class="text-eyebrow uppercase text-white/60">Proyecto</p>
         <h1 class="mt-3 max-w-4xl text-display text-white">{{ project.nombre }}</h1>
-        <dl class="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-body-sm text-white/80">
-          @if (project.ubicacion) {
-            <div>
-              <dt class="sr-only">Ubicación</dt>
-              <dd>{{ project.ubicacion }}</dd>
-            </div>
-          }
-          @if (project.fechaProyecto) {
-            <div>
-              <dt class="sr-only">Fecha</dt>
-              <dd>{{ project.fechaProyecto }}</dd>
-            </div>
-          }
-        </dl>
       </div>
     </section>
 
@@ -73,27 +59,17 @@
         @if (project.descripcion) {
           <p class="text-body-lg text-text-secondary">{{ project.descripcion }}</p>
         }
-        <dl class="mt-10 grid gap-4 sm:grid-cols-2">
-          @if (project.ubicacion) {
-            <div class="rounded-panel border border-border bg-surface p-5">
-              <dt class="text-caption uppercase tracking-wider text-text-muted">Ubicación</dt>
-              <dd class="mt-2 text-heading-4 text-text-primary">{{ project.ubicacion }}</dd>
-            </div>
-          }
-          @if (project.fechaProyecto) {
-            <div class="rounded-panel border border-border bg-surface p-5">
-              <dt class="text-caption uppercase tracking-wider text-text-muted">Fecha</dt>
-              <dd class="mt-2 text-heading-4 text-text-primary">{{ project.fechaProyecto }}</dd>
-            </div>
-          }
-        </dl>
-        @if (project.imagenes.length > 1) {
-          <div class="mt-12 grid gap-4 sm:grid-cols-2">
-            @for (image of project.imagenes; track image.url) {
+        @if (gallery().length > 0) {
+          <h2 class="mt-12 text-heading-3 text-text-primary">Galería</h2>
+          <div class="mt-6 grid gap-4 sm:grid-cols-2">
+            @for (image of gallery(); track image.url) {
               <img
                 [src]="image.url"
                 [alt]="image.alt ?? project.nombre"
                 loading="lazy"
+                decoding="async"
+                width="960"
+                height="720"
                 class="aspect-[4/3] w-full rounded-panel object-cover"
               />
             }
@@ -102,32 +78,96 @@
       </div>
 
       <aside
-        class="space-y-8 rounded-panel border border-border bg-surface p-6 shadow-card lg:self-start"
+        class="space-y-6 rounded-panel border border-border bg-surface p-6 shadow-card lg:sticky lg:top-24 lg:self-start"
       >
-        @if (project.servicios.length > 0) {
-          <div>
-            <h2 class="text-eyebrow uppercase text-text-muted">Servicios</h2>
-            <ul class="mt-3 flex flex-wrap gap-2">
-              @for (service of project.servicios; track service.slug) {
-                <li
-                  class="rounded-full border border-border px-3 py-1 text-caption text-text-secondary"
-                >
-                  {{ service.nombre }}
-                </li>
-              }
-            </ul>
-          </div>
-        }
         <div>
-          <p class="text-body-sm text-text-secondary">¿Quieres un proyecto similar?</p>
-          <a
-            routerLink="/contacto"
-            class="mt-4 inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-button bg-accent px-5 text-body-sm font-semibold text-accent-contrast transition-colors duration-normal hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          <h2 class="text-eyebrow uppercase text-text-muted">Ficha del proyecto</h2>
+          <dl class="mt-4 space-y-4 text-body-sm">
+            @if (project.ubicacion) {
+              <div>
+                <dt class="text-caption uppercase tracking-wider text-text-muted">Ubicación</dt>
+                <dd class="mt-1 text-body text-text-primary">{{ project.ubicacion }}</dd>
+              </div>
+            }
+            @if (project.fechaProyecto) {
+              <div>
+                <dt class="text-caption uppercase tracking-wider text-text-muted">Fecha</dt>
+                <dd class="mt-1 text-body text-text-primary">{{ project.fechaProyecto }}</dd>
+              </div>
+            }
+            @if (project.servicios.length > 0) {
+              <div>
+                <dt class="text-caption uppercase tracking-wider text-text-muted">Servicios</dt>
+                <dd class="mt-2">
+                  <ul class="m-0 flex list-none flex-wrap gap-2 p-0">
+                    @for (service of project.servicios; track service.slug) {
+                      <li
+                        class="rounded-full border border-border px-3 py-1 text-caption text-text-secondary"
+                      >
+                        {{ service.nombre }}
+                      </li>
+                    }
+                  </ul>
+                </dd>
+              </div>
+            }
+          </dl>
+        </div>
+        <div class="space-y-3 border-t border-border pt-6">
+          <p class="text-body-sm text-text-secondary">¿Quieres algo similar?</p>
+          <app-button
+            variant="accent"
+            size="large"
+            [href]="quoteHref()"
+            [target]="quoteTarget()"
+            class="[&>a]:w-full"
+            >Cotizar un proyecto similar</app-button
           >
-            Solicitar asesoría
-          </a>
+          <a
+            routerLink="/proyectos"
+            class="block text-center text-body-sm font-semibold text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            >Ver más proyectos</a
+          >
         </div>
       </aside>
     </section>
+
+    @if (facade.related().length > 0) {
+      <section class="section-space border-t border-border bg-background-soft" data-project-related>
+        <div class="app-container">
+          <h2 class="mb-8 text-heading-2 text-text-primary">Otros proyectos</h2>
+          <ul class="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
+            @for (other of facade.related(); track other.slug) {
+              <li>
+                <a
+                  [routerLink]="['/proyectos', other.slug]"
+                  class="group block overflow-hidden rounded-card border border-border bg-surface shadow-card transition-[transform,border-color] duration-normal hover:-translate-y-1 hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                >
+                  <div class="aspect-[4/3] overflow-hidden bg-background-muted">
+                    @if (coverOf(other); as image) {
+                      <img
+                        [src]="image.url"
+                        [alt]="image.alt ?? other.nombre"
+                        loading="lazy"
+                        decoding="async"
+                        width="640"
+                        height="480"
+                        class="size-full object-cover transition-transform duration-entry group-hover:scale-[1.03]"
+                      />
+                    }
+                  </div>
+                  <div class="p-5">
+                    <h3 class="text-heading-4 text-text-primary">{{ other.nombre }}</h3>
+                    @if (other.ubicacion) {
+                      <p class="mt-1 text-body-sm text-text-secondary">{{ other.ubicacion }}</p>
+                    }
+                  </div>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      </section>
+    }
   }
 </main>

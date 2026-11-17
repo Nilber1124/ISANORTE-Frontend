@@ -5,8 +5,12 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { PUBLIC_SITE_KEY } from '../../../../core/config/public-site.config';
-import { PublicProject } from '../../../../data/models/public-content/public-page.model';
+import {
+  PublicPageType,
+  PublicProject,
+} from '../../../../data/models/public-content/public-page.model';
 import { PublicContentApiService } from '../../../../data/services/public-content-api.service';
+import { pickRelatedProjects } from './related-projects';
 
 @Injectable()
 export class ProjectDetailFacade {
@@ -18,16 +22,20 @@ export class ProjectDetailFacade {
   private readonly _loading = signal(true);
   private readonly _notFound = signal(false);
   private readonly _error = signal<string | null>(null);
+  private readonly _related = signal<readonly PublicProject[]>([]);
 
   readonly project = this._project.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly notFound = this._notFound.asReadonly();
   readonly error = this._error.asReadonly();
+  /** Otros proyectos sugeridos; vacío si no hay o si falla su carga (es un complemento). */
+  readonly related = this._related.asReadonly();
 
   load(slug: string): void {
     this._project.set(null);
     this._notFound.set(false);
     this._error.set(null);
+    this._related.set([]);
     if (!isPlatformBrowser(this.platformId)) return;
 
     this._loading.set(true);
@@ -38,7 +46,10 @@ export class ProjectDetailFacade {
         finalize(() => this._loading.set(false)),
       )
       .subscribe({
-        next: (project) => this._project.set(project),
+        next: (project) => {
+          this._project.set(project);
+          this.loadRelated(project);
+        },
         error: (error: unknown) => {
           if (error instanceof HttpErrorResponse && error.status === 404) {
             this._notFound.set(true);
@@ -46,6 +57,16 @@ export class ProjectDetailFacade {
           }
           this._error.set('No pudimos cargar el proyecto. Inténtalo nuevamente.');
         },
+      });
+  }
+
+  private loadRelated(project: PublicProject): void {
+    this.api
+      .getPage(PUBLIC_SITE_KEY, PublicPageType.PROYECTOS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (page) => this._related.set(pickRelatedProjects(project, page.proyectos ?? [])),
+        error: () => this._related.set([]),
       });
   }
 }
