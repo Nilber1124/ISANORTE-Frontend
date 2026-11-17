@@ -273,8 +273,8 @@ def seccion(tipo, orden, etiqueta, titulo, subtitulo, contenido, imagen, accione
 heroes = [(img("hero-casa", "hero-exterior"), "Casa campestre con techo de teja"), (img("hero-sala", "hero-sala"), "Sala con vigas de madera"),
           (img("hero-obra", "hero-cocina"), "Cocina moderna"), (img("hero-planos", "hero-dormitorio"), "Dormitorio con muro de listones")]
 heroes = [(u, a) for u, a in heroes if u]
-seccion("HERO", 0, "Constructora en Cajamarca", "Construimos tu casa en Cajamarca,\ndel terreno a la llave en mano",
-        "Planos, permisos, obra y acabados con un solo equipo y presupuesto por escrito.", None, None,
+seccion("HERO", 0, "Constructora en Cajamarca", "Construimos tu casa\nen Cajamarca",
+        "Del terreno a la llave en mano: planos, permisos, obra y acabados con un solo equipo y presupuesto por escrito.", None, None,
         [("Solicitar cotización", "#cotizar"), ("Ver proyectos", "/proyectos")], heroes)
 seccion("SERVICIOS", 1, "Nuestros servicios", "Todo lo que necesitas para construir,\nen un solo lugar", None, None, None, [("Ver todos los servicios", "/servicios")])
 seccion("PROYECTOS", 2, "Obras recientes", "Obras entregadas en toda\nla región Cajamarca", None, None, None, [("Ver todos los proyectos", "/proyectos")])
