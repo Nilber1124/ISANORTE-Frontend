@@ -176,4 +176,32 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
       },
     ],
   },
+  {
+    key: 'politicas',
+    title: 'Políticas',
+    description:
+      'Política de privacidad y otros textos legales. Se publican en /politicas/<slug>; la de privacidad usa el slug «privacidad».',
+    endpoint: 'politicas',
+    folder: 'isanorte/politicas',
+    titleKey: 'titulo',
+    subtitleKey: 'slug',
+    fields: [
+      { key: 'titulo', label: 'Título', type: 'text', required: true, maxLength: 150 },
+      {
+        key: 'slug',
+        label: 'Slug (dirección)',
+        type: 'text',
+        required: true,
+        maxLength: 80,
+        help: 'Solo minúsculas, números y guiones. Ej.: privacidad',
+      },
+      {
+        key: 'contenido',
+        label: 'Contenido',
+        type: 'textarea',
+        required: true,
+        help: 'Deja una línea en blanco entre párrafos.',
+      },
+    ],
+  },
 ];

@@ -15,7 +15,10 @@ import { PublicSiteResponse } from '../models/public-content/public-site.model';
 import { PublicPageResponse, PublicPageType } from '../models/public-content/public-page.model';
 import { PublicProductCatalogResponse } from '../models/public-content/public-product-catalog.model';
 import { PublicProductDetailResponse } from '../models/public-content/public-product-detail.model';
-import { PublicQuoteRequest, PublicQuoteResponse } from '../models/public-content/public-quote.model';
+import {
+  PublicQuoteRequest,
+  PublicQuoteResponse,
+} from '../models/public-content/public-quote.model';
 import { QuoteChannel } from '../models/quote/quote-channel.enum';
 import { QuoteStatus } from '../models/quote/quote-status.enum';
 import { PublicContentApiService } from './public-content-api.service';
@@ -237,7 +240,8 @@ describe('PublicContentApiService', () => {
 
     const request = http.expectOne(
       (req) =>
-        req.url === 'https://backend.example/api/publico/sitios/isanorte/unidades/isadecor/catalogo' &&
+        req.url ===
+          'https://backend.example/api/publico/sitios/isanorte/unidades/isadecor/catalogo' &&
         req.params.get('page') === '2' &&
         req.params.get('size') === '24' &&
         req.params.get('categoria') === 'wall-panels' &&
@@ -276,7 +280,9 @@ describe('PublicContentApiService', () => {
       configuracionCalculo: null,
     };
     let result: PublicProductDetailResponse | undefined;
-    api.getProductDetail('isanorte central', 'isadecor premium', 'wall panel roble').subscribe((detail) => (result = detail));
+    api
+      .getProductDetail('isanorte central', 'isadecor premium', 'wall panel roble')
+      .subscribe((detail) => (result = detail));
 
     const request = http.expectOne(
       'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/productos/wall%20panel%20roble',
@@ -306,7 +312,9 @@ describe('PublicContentApiService', () => {
     };
     const body = { urlExterna: 'https://tienda.example/productos/wall-panel-roble' };
 
-    api.compareProductPrice('isanorte central', 'isadecor premium', 'wall panel roble', body).subscribe();
+    api
+      .compareProductPrice('isanorte central', 'isadecor premium', 'wall panel roble', body)
+      .subscribe();
 
     const request = http.expectOne(
       'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/productos/wall%20panel%20roble/comparar-precio',
@@ -332,7 +340,9 @@ describe('PublicContentApiService', () => {
       fechaConsulta: '2026-10-06T12:00:00Z',
     };
 
-    api.compareProductCompetitors('isanorte central', 'isadecor premium', 'wall panel roble').subscribe();
+    api
+      .compareProductCompetitors('isanorte central', 'isadecor premium', 'wall panel roble')
+      .subscribe();
 
     const request = http.expectOne(
       'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/productos/wall%20panel%20roble/comparacion-competidores',
@@ -398,7 +408,9 @@ describe('PublicContentApiService', () => {
     };
 
     let result: PublicQuoteResponse | undefined;
-    api.createQuote('isanorte central', 'isadecor premium', quoteRequest).subscribe((res) => (result = res));
+    api
+      .createQuote('isanorte central', 'isadecor premium', quoteRequest)
+      .subscribe((res) => (result = res));
 
     const request = http.expectOne(
       'https://backend.example/api/publico/sitios/isanorte%20central/unidades/isadecor%20premium/cotizaciones',
@@ -410,4 +422,3 @@ describe('PublicContentApiService', () => {
     expect(result).toEqual(quoteResponse);
   });
 });
-

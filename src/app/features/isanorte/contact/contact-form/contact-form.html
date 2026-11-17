@@ -115,6 +115,15 @@
         />
         <span>
           Autorizo que ISANORTE use mis datos para responder esta solicitud
+          @if (trust.policy('privacidad'); as privacy) {
+            (<a
+              href="/politicas/privacidad"
+              target="_blank"
+              rel="noopener"
+              class="font-semibold text-accent underline underline-offset-2"
+              >{{ privacy.titulo }}</a
+            >)
+          }
           <span class="text-error" aria-hidden="true">*</span>
         </span>
       </label>

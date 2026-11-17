@@ -30,9 +30,9 @@ describe('AdminSiteContent', () => {
 
   it('lists the records of the entity chosen by the route', () => {
     const fixture = create('faqs');
-    http.expectOne('/api/faqs').flush([
-      { id: '1', pregunta: '¿Cuánto demora?', ambito: 'HOME', activo: true, orden: 0 },
-    ]);
+    http
+      .expectOne('/api/faqs')
+      .flush([{ id: '1', pregunta: '¿Cuánto demora?', ambito: 'HOME', activo: true, orden: 0 }]);
     fixture.detectChanges();
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('¿Cuánto demora?');

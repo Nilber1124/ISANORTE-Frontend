@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { PUBLIC_NAVIGATION_LINKS } from '../public-navigation';
+import { PublicTrustStore } from '../../../data/services/public-trust.store';
 import { PublicSiteFacade } from '../public-site.facade';
 
 @Component({
@@ -13,8 +14,13 @@ import { PublicSiteFacade } from '../public-site.facade';
 })
 export class Footer {
   readonly facade = inject(PublicSiteFacade);
+  readonly trust = inject(PublicTrustStore);
   readonly navigationLinks = PUBLIC_NAVIGATION_LINKS;
   readonly currentYear = new Date().getFullYear();
+
+  constructor() {
+    this.trust.load();
+  }
 
   /** Red social reconocida por el nombre o el icono que trae la BD; `other` usa las iniciales. */
   socialKind(

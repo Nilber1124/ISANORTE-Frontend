@@ -50,6 +50,7 @@ export class AdminSidebar {
         { label: 'Testimonios', route: '/admin/sitio/testimonios' },
         { label: 'Garantías', route: '/admin/sitio/garantias' },
         { label: 'Pasos del proceso', route: '/admin/sitio/pasos-proceso' },
+        { label: 'Políticas', route: '/admin/sitio/politicas' },
         { label: 'Galería de proyectos', route: '/admin/sitio/proyecto-galeria' },
       ],
     },

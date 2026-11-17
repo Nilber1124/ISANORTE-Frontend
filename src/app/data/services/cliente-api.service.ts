@@ -36,7 +36,9 @@ export class ClienteApiService {
   }
 
   obtenerCarrito(): Observable<CarritoClienteResponse> {
-    return this.http.get<CarritoClienteResponse>(`${this.resourceUrl}/carrito`, { context: conSesionCliente() });
+    return this.http.get<CarritoClienteResponse>(`${this.resourceUrl}/carrito`, {
+      context: conSesionCliente(),
+    });
   }
 
   guardarCarrito(request: CarritoClienteRequest): Observable<CarritoClienteResponse> {

@@ -14,6 +14,7 @@ DELETE FROM miembros_equipo;
 DELETE FROM credenciales;
 DELETE FROM garantias;
 DELETE FROM pasos_proceso;
+DELETE FROM politicas;
 DELETE FROM acciones_landing;
 DELETE FROM hero_scenes;
 DELETE FROM secciones_landing;
@@ -163,6 +164,28 @@ INSERT INTO pasos_proceso (id,titulo,texto,orden,activo,fecha_creacion,fecha_act
 INSERT INTO pasos_proceso (id,titulo,texto,orden,activo,fecha_creacion,fecha_actualizacion) VALUES (gen_random_uuid(),'Diseño y planos','Elaboramos los planos de arquitectura y especialidades, y gestionamos los permisos y las habilitaciones necesarias.',1,TRUE,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO pasos_proceso (id,titulo,texto,orden,activo,fecha_creacion,fecha_actualizacion) VALUES (gen_random_uuid(),'Ejecución y supervisión','Construimos con supervisión técnica en cada etapa, para cuidar plazos, calidad y presupuesto.',2,TRUE,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO pasos_proceso (id,titulo,texto,orden,activo,fecha_creacion,fecha_actualizacion) VALUES (gen_random_uuid(),'Entrega','Revisamos acabados y detalles contigo y te entregamos la obra lista para habitarla.',3,TRUE,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+INSERT INTO politicas (id,slug,titulo,contenido,orden,activo,fecha_creacion,fecha_actualizacion) VALUES (gen_random_uuid(),'privacidad','Política de privacidad','VERSIÓN PROVISIONAL, pendiente de revisión legal. Reemplaza este texto desde el panel de administración (Contenido → Políticas) antes de publicar el sitio.
+
+1. Quién es el responsable
+ISANORTE Ingeniería y Construcción S.A.C., con domicilio en Jr. Amazonas 450, Cajamarca, Perú, es responsable del tratamiento de los datos personales que nos entregas a través de este sitio web.
+
+2. Qué datos recogemos
+Cuando completas el formulario de contacto recogemos tu nombre, correo electrónico, teléfono, empresa (opcional), la ubicación de tu terreno u obra (opcional), el servicio de interés (opcional) y el mensaje que nos escribes. También guardamos la fecha en que aceptaste esta política.
+
+3. Para qué los usamos
+Usamos tus datos únicamente para responder tu solicitud, enviarte una cotización o contactarte sobre el servicio que consultaste. No los usamos para fines distintos sin pedirte antes tu autorización.
+
+4. Con quién los compartimos
+No vendemos ni cedemos tus datos a terceros. Solo pueden acceder a ellos las personas del equipo de ISANORTE que atienden tu consulta y los proveedores técnicos que alojan este sitio, bajo deber de confidencialidad.
+
+5. Cuánto tiempo los conservamos
+Conservamos tus datos mientras sea necesario para atender tu solicitud y, después, por el plazo que exija la normativa aplicable. Pasado ese tiempo los eliminamos o los anonimizamos.
+
+6. Tus derechos
+Conforme a la Ley N.° 29733, Ley de Protección de Datos Personales, y su reglamento, puedes solicitar el acceso, la rectificación, la cancelación y la oposición al tratamiento de tus datos, así como revocar tu consentimiento, escribiéndonos a contacto@isanorte.pe.
+
+7. Cambios en esta política
+Podemos actualizar esta política. La versión vigente estará siempre disponible en esta página.',0,TRUE,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO faqs (id,pregunta,respuesta,ambito,orden,activo,fecha_creacion,fecha_actualizacion) VALUES (gen_random_uuid(),'¿Cuánto cuesta construir una casa en Cajamarca?','Depende del tamaño, los acabados y el terreno. Tras una visita sin costo te entregamos un presupuesto por escrito, partida por partida.','HOME',0,TRUE,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO faqs (id,pregunta,respuesta,ambito,orden,activo,fecha_creacion,fecha_actualizacion) VALUES (gen_random_uuid(),'¿Cuánto demora una obra?','Una vivienda de 150 a 250 m² suele tomar entre 7 y 10 meses desde el inicio de obra. Los plazos de licencia dependen de la municipalidad.','HOME',1,TRUE,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 INSERT INTO faqs (id,pregunta,respuesta,ambito,orden,activo,fecha_creacion,fecha_actualizacion) VALUES (gen_random_uuid(),'¿Se encargan de la licencia y los permisos?','Sí. Elaboramos los planos y gestionamos la licencia de edificación y, si hace falta, el saneamiento físico legal del terreno.','HOME',2,TRUE,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);

@@ -1,0 +1,33 @@
+<main class="bg-background">
+  <div class="app-container max-w-3xl py-16 lg:py-24" data-policy>
+    @if (trust.loading()) {
+      <div class="animate-pulse space-y-4" role="status" aria-label="Cargando política">
+        <div class="h-10 w-2/3 rounded bg-surface-hover"></div>
+        <div class="h-4 w-full rounded bg-surface-hover"></div>
+        <div class="h-4 w-11/12 rounded bg-surface-hover"></div>
+        <div class="h-4 w-4/5 rounded bg-surface-hover"></div>
+      </div>
+    } @else if (policy(); as item) {
+      <nav aria-label="Migas de pan" class="mb-6 text-body-sm text-text-muted">
+        <a routerLink="/" class="hover:text-text-primary">Inicio</a>
+        <span aria-hidden="true"> / </span>
+        <span>{{ item.titulo }}</span>
+      </nav>
+      <h1 class="mb-8 text-heading-1 text-text-primary">{{ item.titulo }}</h1>
+      <div class="space-y-5 text-body-lg text-text-secondary">
+        @for (block of blocks(); track $index) {
+          <section>
+            @if (block.heading) {
+              <h2 class="mb-2 text-heading-4 text-text-primary">{{ block.heading }}</h2>
+            }
+            <p class="whitespace-pre-line text-body">{{ block.text }}</p>
+          </section>
+        }
+      </div>
+    } @else {
+      <h1 class="mb-4 text-heading-1 text-text-primary">Texto no disponible</h1>
+      <p class="mb-6 text-body-lg text-text-secondary">Este documento todavía no está publicado.</p>
+      <a routerLink="/" class="font-semibold text-accent hover:underline">Volver al inicio</a>
+    }
+  </div>
+</main>

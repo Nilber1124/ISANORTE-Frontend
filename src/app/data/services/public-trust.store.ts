@@ -28,10 +28,15 @@ export class PublicTrustStore {
   readonly guarantees = computed(() => this._data()?.garantias ?? []);
   readonly heroGuarantees = computed(() => this.guarantees().filter((item) => item.enHero));
   readonly steps = computed(() => this._data()?.pasos ?? []);
+  readonly policies = computed(() => this._data()?.politicas ?? []);
   readonly gallery = computed(() => this._data()?.galeria ?? []);
 
   faqsFor(scope: 'HOME' | 'SERVICIOS' | 'CONTACTO') {
     return this.faqs().filter((item) => item.ambito === scope || item.ambito === 'GENERAL');
+  }
+
+  policy(slug: string) {
+    return this.policies().find((item) => item.slug === slug) ?? null;
   }
 
   galleryFor(projectSlug: string) {

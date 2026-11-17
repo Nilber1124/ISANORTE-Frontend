@@ -179,6 +179,14 @@ export const routes: Routes = [
         data: { entity: 'pasos-proceso', title: 'Pasos del proceso' },
       },
       {
+        path: 'sitio/politicas',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'politicas', title: 'Políticas' },
+      },
+      {
         path: 'sitio/proyecto-galeria',
         loadComponent: () =>
           import('./features/admin/site-content/admin-site-content').then(
@@ -198,6 +206,11 @@ export const routes: Routes = [
       { path: 'proyectos', component: Projects },
       { path: 'proyectos/:slug', component: ProjectDetail },
       { path: 'contacto', component: Contact },
+      {
+        path: 'politicas/:slug',
+        loadComponent: () =>
+          import('./features/isanorte/policy/policy').then(({ Policy }) => Policy),
+      },
     ],
   },
   {

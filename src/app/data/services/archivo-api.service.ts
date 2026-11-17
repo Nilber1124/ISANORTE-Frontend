@@ -24,7 +24,10 @@ export class ArchivoApiService {
       .pipe(timeout(UPLOAD_TIMEOUT_MS));
   }
 
-  uploadDocument(file: File, folder: string = 'isanorte/documentos'): Observable<UploadResponseDto> {
+  uploadDocument(
+    file: File,
+    folder: string = 'isanorte/documentos',
+  ): Observable<UploadResponseDto> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', folder);

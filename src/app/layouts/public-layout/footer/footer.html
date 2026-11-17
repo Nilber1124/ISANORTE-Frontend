@@ -227,6 +227,14 @@
         @if (facade.footerText(); as footerText) {
           {{ footerText }}
         }
+        @if (trust.policy('privacidad'); as privacy) {
+          <span aria-hidden="true"> · </span>
+          <a
+            routerLink="/politicas/privacidad"
+            class="underline underline-offset-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            >{{ privacy.titulo }}</a
+          >
+        }
       </p>
     </div>
   </div>

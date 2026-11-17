@@ -8,12 +8,12 @@ Resuelto en el backend nuevo (esquema reiniciado, sin seeders ni migraciones ant
 - Proyectos con ficha técnica (`areaM2`, `plazoMeses`, `alcance`, `tipoObra`).
 - Empresa con `anioFundacion`, `zonaCobertura`, `tiempoRespuesta` y la ubicación de la oficina (`latitud`, `longitud`);
   ISADECOR con `ofertas`.
+- Políticas administrables (`/api/politicas`, pública en `/confianza`): la de privacidad se publica en `/politicas/privacidad` y se enlaza desde el formulario y el pie de página.
 - Formulario de contacto con `ubicacion`, `servicioInteres` y `consentimiento` (con fecha) como campos reales.
 
 Pendiente:
 
 - El correo y el mensaje del contacto siguen siendo obligatorios en el backend (el formulario envía un mensaje por defecto).
-- Política de privacidad: falta el texto y el enlace desde el formulario.
 - Los iconos de los servicios se eligen en el frontend por palabras del nombre; no hay campo `icono` en `servicios`.
 - Vincular testimonios y galería a proyectos es por `slug` (texto), no por clave foránea.
 

@@ -28,3 +28,4 @@ vuelve a cargar. No toca administradores, productos ISADECOR, cotizaciones ni pe
   Ambos scripts esperan la carpeta `demo-cajamarca/` junto a los repositorios.
 
 - La galería antes/durante/después (casa campestre, casona y galpón) son imágenes generadas con IA.
+- La política de privacidad es un texto **provisional** (no es asesoría legal); se edita en `/admin/sitio/politicas`.

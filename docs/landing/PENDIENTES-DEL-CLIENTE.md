@@ -34,7 +34,7 @@ Lista de lo que no se puede resolver con código: contenido real, datos y decisi
 
 - [ ] **Preguntas frecuentes**: 5 a 8 preguntas con respuestas reales (cuánto cuesta, cuánto demora, qué permisos hacen falta, qué garantía dan, formas de pago).
 - [ ] **Garantías concretas** (supervisión técnica, plazos, presupuesto transparente): cuáles ofrecen de verdad.
-- [ ] **Política de privacidad**: redactarla con un abogado (ley de datos personales de Perú). Se enlaza desde el formulario.
+- [ ] **Política de privacidad**: hay un texto PROVISIONAL cargado (`datos/cajamarca-demo.sql`). Hay que revisarlo con un abogado (Ley N.° 29733) y reemplazarlo desde el admin: Contenido → Políticas. Ya se enlaza desde el formulario y el pie de página.
 - [ ] **Equipo en la web**: quién aparece y con qué descripción.
 - [ ] ¿Quieren que ISADECOR siga abriéndose en otra pestaña? (hoy sí).
 

@@ -1,9 +1,7 @@
 export type ProductCompetitorCompany = 'PISOPAK' | 'DECORPLAS';
 
 export type ProductCompetitorComparisonStatus =
-  | 'FOUND'
-  | 'NO_SIMILAR_PRODUCT_FOUND'
-  | 'STORE_UNAVAILABLE';
+  'FOUND' | 'NO_SIMILAR_PRODUCT_FOUND' | 'STORE_UNAVAILABLE';
 
 export interface ProductComparableFeature {
   nombre: string;

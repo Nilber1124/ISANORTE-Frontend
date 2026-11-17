@@ -51,6 +51,12 @@ export interface PublicProjectGalleryImage {
   etiqueta: 'ANTES' | 'PROCESO' | 'FINAL' | 'DETALLE';
 }
 
+export interface PublicPolicy {
+  slug: string;
+  titulo: string;
+  contenido: string;
+}
+
 export interface PublicTrustResponse {
   faqs: PublicFaq[];
   equipo: PublicTeamMember[];
@@ -59,4 +65,5 @@ export interface PublicTrustResponse {
   garantias: PublicGuarantee[];
   pasos: PublicProcessStep[];
   galeria: PublicProjectGalleryImage[];
+  politicas: PublicPolicy[];
 }

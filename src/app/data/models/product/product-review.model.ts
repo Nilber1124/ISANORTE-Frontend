@@ -43,7 +43,4 @@ export interface CreateProductReviewRequest {
 }
 
 export type ProductReviewOrder =
-  | 'RECIENTES'
-  | 'MAYOR_CALIFICACION'
-  | 'MENOR_CALIFICACION'
-  | 'MAS_UTILES';
+  'RECIENTES' | 'MAYOR_CALIFICACION' | 'MENOR_CALIFICACION' | 'MAS_UTILES';
