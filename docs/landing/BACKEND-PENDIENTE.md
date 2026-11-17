@@ -17,3 +17,6 @@ se reemplaza por contenido administrable.
 | Cifras (años, proyectos, m²) | Ocultas: eran valores fijos sin confirmar | `empresa.estadisticas[]` con valores reales |
 | Teléfono y WhatsApp | Vienen de `PublicSiteFacade`; vacíos si no están cargados | Cargarlos en la empresa |
 | Testimonios y certificaciones | No hay | Entidad `testimonio` y `certificacion` (opcional) |
+| Servicio de interés en la solicitud de contacto | Se antepone al mensaje («Servicio de interés: X») | Campo `servicio` en la solicitud de contacto |
+| Opciones del selector «Servicio de interés» (8 servicios reales) | Lista local en `home-landing.data.ts` (`HOME_SERVICE_OPTIONS`) | Salir de la API cuando la BD tenga los 8 servicios reales |
+| Imagen y botón de la sección CTA | El cierre del Home ya no los usa (ahora es el formulario) | Opcional: quitar `imagenUrl` y acciones de la sección CTA, o reutilizarlos |

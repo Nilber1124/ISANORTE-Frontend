@@ -53,7 +53,20 @@ Reutilizar, no duplicar:
 
 Orden sugerido: A, B, C, D, E, F. Cada fase se puede revisar por separado.
 
-## 5. Decisiones que necesito de ti
+## 5. Decisiones tomadas (usuario)
+
+1. Navbar: reemplazar «Unidades de negocio» por un enlace directo a «ISADECOR» y quitar «Tienda».
+2. El mapa solo en la página Contacto (se quita del footer).
+3. Las cifras viven solo en Nosotros.
+4. Formulario del Home con «Servicio de interés»; las opciones deben coincidir con los 8 servicios reales (imagen de Facebook). Sin tocar el backend por ahora.
+5. Se puede escribir el tiempo de respuesta (se usó «menos de 24 horas»; ajustable).
+6. Se hacen las fases A y B primero, con commits cortos por avance.
+
+### Avance
+- A: hecha (formulario compartido). B: hecha (formulario al final del Home).
+- Pendiente: C (servicios y proyectos compactos en el Home), D (navbar y footer según las decisiones 1 y 2), E, F.
+
+## 6. Decisiones originales (histórico)
 
 1. **Navbar:** ¿quitamos "Tienda" y dejamos solo el menú "Unidades de negocio", o al revés?
 2. **Footer:** ¿mantenemos el mapa en el footer o solo en la página Contacto?
