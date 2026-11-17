@@ -126,6 +126,14 @@ describe('PublicContactFacade', () => {
     expect(facade.mensaje()).toBe('');
   });
 
+  it('prepends the optional service of interest to the message', () => {
+    fillValidForm();
+    facade.servicio.set(' Remodelaciones ');
+    facade.submit();
+
+    expect(api.requests[0].mensaje).toBe('Servicio de interés: Remodelaciones\n\nMensaje API');
+  });
+
   it('does not send an invalid request and exposes contract-aligned validation', () => {
     facade.submit();
 
@@ -178,10 +186,14 @@ describe('PublicContactFacade', () => {
     });
 
     expect(titleService.getTitle()).toBe('Contacto Directo | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toBe('Escríbenos para tu cotización.');
+    expect(metaService.getTag('name="description"')?.content).toBe(
+      'Escríbenos para tu cotización.',
+    );
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
     expect(metaService.getTag('property="og:title"')?.content).toBe('Contacto Directo | ISANORTE');
-    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isanorte.com/contacto.jpg');
+    expect(metaService.getTag('property="og:image"')?.content).toBe(
+      'https://cdn.isanorte.com/contacto.jpg',
+    );
   });
 
   it('applies default SEO for Contacto on error', () => {
@@ -189,7 +201,9 @@ describe('PublicContactFacade', () => {
     facade.load();
 
     expect(titleService.getTitle()).toBe('Contacto | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toContain('Ponte en contacto con ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toContain(
+      'Ponte en contacto con ISANORTE',
+    );
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
   });
 
@@ -221,4 +235,3 @@ describe('PublicContactFacade', () => {
     expect(metaService.getTag('name="robots"')).toBeNull();
   });
 });
-

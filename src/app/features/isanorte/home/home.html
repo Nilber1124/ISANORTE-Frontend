@@ -717,48 +717,110 @@
     </section>
   }
 
-  <!-- 6. Cierre: una pregunta y tres vías de contacto. -->
+  <!-- 6. Cierre: pregunta, canales y formulario. -->
   @if (preFooterData(); as cta) {
-    <section id="cotizar" class="section-space bg-background" data-home-cta>
-      <div class="app-container">
-        <div
-          data-theme="dark"
-          class="relative isolate overflow-hidden rounded-panel border border-border bg-background-deep px-6 py-14 text-text-primary shadow-card md:px-14 md:py-20"
-        >
-          @if (facade.cta().bgImageUrl; as ctaImage) {
-            <img
-              [src]="ctaImage"
-              alt=""
-              loading="lazy"
-              decoding="async"
-              width="1600"
-              height="900"
-              class="absolute inset-0 -z-10 size-full object-cover opacity-45"
-            />
-          }
-          <div
-            class="absolute inset-0 -z-10 bg-gradient-to-r from-background-deep via-background-deep/80 to-transparent"
-          ></div>
+    <section
+      id="cotizar"
+      class="section-space border-t border-border bg-background-soft"
+      data-home-cta
+    >
+      <div class="app-container grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-14">
+        <div class="lg:col-span-5" data-rise>
+          <h2 class="mb-4 text-heading-1 text-text-primary">{{ cta.title }}</h2>
+          <p class="mb-3 text-body-lg text-text-secondary">{{ cta.subtitle }}</p>
+          <p class="mb-8 text-body-sm font-semibold text-text-primary">{{ responsePromise }}</p>
 
-          <div class="max-w-2xl" data-rise>
-            <h2 class="mb-4 text-display text-text-primary">{{ cta.title }}</h2>
-            <p class="mb-8 text-body-lg text-text-secondary">{{ cta.subtitle }}</p>
-            <div class="flex flex-wrap gap-3">
-              <app-button variant="accent" [href]="cta.cta.url" size="large">{{
-                cta.cta.label
-              }}</app-button>
-              @if (whatsappHref(); as wa) {
-                <app-button variant="whatsapp" [href]="wa" target="_blank" size="large"
-                  >Escribir por WhatsApp</app-button
+          <ul class="m-0 flex list-none flex-col gap-3 p-0" aria-label="Otras formas de contacto">
+            @if (whatsappHref(); as wa) {
+              <li>
+                <a
+                  [href]="wa"
+                  target="_blank"
+                  rel="noopener"
+                  class="group flex items-center gap-3 rounded-card border border-border bg-surface px-4 py-3 text-text-primary transition-colors duration-normal hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                 >
-              }
-              @if (phoneHref(); as tel) {
-                <app-button variant="secondary" [href]="tel" size="large"
-                  >Llamar al {{ phone() }}</app-button
+                  <span
+                    class="inline-flex size-10 shrink-0 items-center justify-center rounded-control bg-surface-soft"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      class="size-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z"
+                      ></path>
+                    </svg>
+                  </span>
+                  <span class="text-body-sm font-semibold">Escribir por WhatsApp</span>
+                </a>
+              </li>
+            }
+            @if (phoneHref(); as tel) {
+              <li>
+                <a
+                  [href]="tel"
+                  class="group flex items-center gap-3 rounded-card border border-border bg-surface px-4 py-3 text-text-primary transition-colors duration-normal hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                 >
-              }
-            </div>
-          </div>
+                  <span
+                    class="inline-flex size-10 shrink-0 items-center justify-center rounded-control bg-surface-soft"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      class="size-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M6.5 3.5h3l1.5 4.25-2 1.35a12 12 0 0 0 5.85 5.85l1.35-2 4.25 1.5v3A2.5 2.5 0 0 1 18 20C10.27 20 4 13.73 4 6a2.5 2.5 0 0 1 2.5-2.5Z"
+                      ></path>
+                    </svg>
+                  </span>
+                  <span class="text-body-sm font-semibold">Llamar al {{ phone() }}</span>
+                </a>
+              </li>
+            }
+            @if (email(); as mail) {
+              <li>
+                <a
+                  [href]="'mailto:' + mail"
+                  class="group flex items-center gap-3 rounded-card border border-border bg-surface px-4 py-3 text-text-primary transition-colors duration-normal hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                >
+                  <span
+                    class="inline-flex size-10 shrink-0 items-center justify-center rounded-control bg-surface-soft"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      class="size-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                      <path d="m4 7 8 6 8-6"></path>
+                    </svg>
+                  </span>
+                  <span class="min-w-0 truncate text-body-sm font-semibold">{{ mail }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="lg:col-span-7" data-rise>
+          <app-contact-form [facade]="contactFacade" [services]="serviceOptions" />
         </div>
       </div>
     </section>

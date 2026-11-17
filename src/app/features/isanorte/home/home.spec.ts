@@ -333,4 +333,24 @@ describe('ISANORTE Home', () => {
     expect(text).toContain('¿Tienes un proyecto en mente?');
     expect(text).not.toContain('CTA final desde PostgreSQL');
   });
+
+  it('ends with the contact form, the real services as options and the response promise', () => {
+    const fixture = TestBed.createComponent(Home);
+    http.expectOne('/api/publico/sitios/isanorte/home').flush(backendHome);
+    fixture.detectChanges();
+
+    const section = (fixture.nativeElement as HTMLElement).querySelector(
+      '#cotizar[data-home-cta]',
+    ) as HTMLElement;
+    expect(section.querySelector('app-contact-form form')).toBeTruthy();
+    expect(section.textContent).toContain('Te respondemos en menos de 24 horas.');
+    const options = Array.from(section.querySelectorAll('select option')).map((option) =>
+      option.textContent?.trim(),
+    );
+    expect(options).toContain('Saneamiento físico legal');
+    expect(options).toContain('Estructuras metálicas');
+    // El enlace «#cotizar» del hero apunta al formulario del propio Home.
+    const hero = (fixture.nativeElement as HTMLElement).querySelector('[data-home-hero]');
+    expect(hero?.querySelector('app-button a')?.getAttribute('href')).toBe('#cotizar');
+  });
 });

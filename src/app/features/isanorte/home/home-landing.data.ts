@@ -54,6 +54,24 @@ export const HOME_ISADECOR_OFFER: readonly string[] = [
   'Acabados y revestimientos',
 ];
 
+/**
+ * Servicios reales de ISANORTE para el selector «Servicio de interés» del formulario.
+ * TRANSITORIO: cuando la BD tenga los 8 servicios reales, las opciones saldrán de la API.
+ */
+export const HOME_SERVICE_OPTIONS: readonly { readonly value: string; readonly label: string }[] = [
+  'Diseño y elaboración de planos',
+  'Ejecución y supervisión de proyectos',
+  'Levantamiento topográfico',
+  'Saneamiento físico legal',
+  'Habilitaciones urbanas',
+  'Remodelaciones',
+  'Diseño de interiores',
+  'Estructuras metálicas',
+].map((name) => ({ value: name, label: name }));
+
+/** Promesa de respuesta que se muestra junto al formulario. */
+export const HOME_RESPONSE_PROMISE = 'Te respondemos en menos de 24 horas.';
+
 /** Etapas del riel lateral; coinciden con los `id` de las secciones del Home. */
 export const HOME_RAIL: readonly { readonly id: string; readonly label: string }[] = [
   { id: 'servicios', label: 'Servicios' },
@@ -86,7 +104,8 @@ export function serviceIconPath(name: string): string {
 
 /** Enlaces estructurales de acciones que la API aún entrega como anclas sueltas (`#`, `#cotizar`). */
 export function resolveHomeUrl(url: string, fallback: string): string {
-  if (url === '#cotizar' || url === '#contacto') return '/contacto';
+  // `#cotizar` es el formulario del propio Home; `#contacto` abre la página de contacto.
+  if (url === '#contacto') return '/contacto';
   if (url === '#' || url === '') return fallback;
   if (url === '#isadecor') return '/isadecor';
   return url;

@@ -19,7 +19,6 @@ import {
 } from '../../../shared/utils/public-page-seo.util';
 import { isValidEmail } from '../../../shared/utils/text';
 
-
 @Injectable()
 export class PublicContactFacade {
   private readonly api = inject(PublicContentApiService);
@@ -52,6 +51,8 @@ export class PublicContactFacade {
   readonly telefono = signal('');
   readonly empresa = signal('');
   readonly mensaje = signal('');
+  /** Servicio de interés (opcional). El contrato no tiene este campo: se antepone al mensaje. */
+  readonly servicio = signal('');
   readonly submitted = signal(false);
   readonly nombreTouched = signal(false);
   readonly emailTouched = signal(false);
@@ -67,7 +68,9 @@ export class PublicContactFacade {
   readonly error = this._error.asReadonly();
   readonly content = computed(() => this.page()?.contenido ?? null);
   readonly seo = computed(() => this.page()?.seo ?? null);
-  readonly nombreError = computed(() => this.textError(this.nombre(), this.nombreTouched(), 150, 'Ingresa tu nombre completo.'));
+  readonly nombreError = computed(() =>
+    this.textError(this.nombre(), this.nombreTouched(), 150, 'Ingresa tu nombre completo.'),
+  );
   readonly emailError = computed(() => {
     if (!this.shouldShowError(this.emailTouched())) return undefined;
     const value = this.email().trim();
@@ -75,9 +78,20 @@ export class PublicContactFacade {
     if (!isValidEmail(value)) return 'Ingresa un correo electrónico válido.';
     return value.length > 180 ? 'El correo no puede superar 180 caracteres.' : undefined;
   });
-  readonly telefonoError = computed(() => this.textError(this.telefono(), this.telefonoTouched(), 30, 'Ingresa tu teléfono de contacto.'));
-  readonly empresaError = computed(() => this.optionalTextError(this.empresa(), this.empresaTouched(), 180));
-  readonly mensajeError = computed(() => this.textError(this.mensaje(), this.mensajeTouched(), 5000, 'Cuéntanos brevemente sobre tu proyecto.'));
+  readonly telefonoError = computed(() =>
+    this.textError(this.telefono(), this.telefonoTouched(), 30, 'Ingresa tu teléfono de contacto.'),
+  );
+  readonly empresaError = computed(() =>
+    this.optionalTextError(this.empresa(), this.empresaTouched(), 180),
+  );
+  readonly mensajeError = computed(() =>
+    this.textError(
+      this.mensaje(),
+      this.mensajeTouched(),
+      5000,
+      'Cuéntanos brevemente sobre tu proyecto.',
+    ),
+  );
   readonly isValid = computed(
     () =>
       !this.nombreErrorForValue() &&
@@ -150,8 +164,14 @@ export class PublicContactFacade {
       email: this.email().trim(),
       telefono: this.telefono().trim(),
       empresa: empresa || null,
-      mensaje: this.mensaje().trim(),
+      mensaje: this.messageWithService(),
     };
+  }
+
+  private messageWithService(): string {
+    const servicio = this.servicio().trim();
+    const mensaje = this.mensaje().trim();
+    return servicio ? `Servicio de interés: ${servicio}\n\n${mensaje}` : mensaje;
   }
 
   private resetForm(): void {
@@ -160,6 +180,7 @@ export class PublicContactFacade {
     this.telefono.set('');
     this.empresa.set('');
     this.mensaje.set('');
+    this.servicio.set('');
     this.submitted.set(false);
     this.nombreTouched.set(false);
     this.emailTouched.set(false);
@@ -172,16 +193,29 @@ export class PublicContactFacade {
     return this.submitted() || touched;
   }
 
-  private textError(value: string, touched: boolean, maxLength: number, requiredMessage: string): string | undefined {
+  private textError(
+    value: string,
+    touched: boolean,
+    maxLength: number,
+    requiredMessage: string,
+  ): string | undefined {
     if (!this.shouldShowError(touched)) return undefined;
     const normalized = value.trim();
     if (!normalized) return requiredMessage;
-    return normalized.length > maxLength ? `Este campo no puede superar ${maxLength} caracteres.` : undefined;
+    return normalized.length > maxLength
+      ? `Este campo no puede superar ${maxLength} caracteres.`
+      : undefined;
   }
 
-  private optionalTextError(value: string, touched: boolean, maxLength: number): string | undefined {
+  private optionalTextError(
+    value: string,
+    touched: boolean,
+    maxLength: number,
+  ): string | undefined {
     if (!this.shouldShowError(touched)) return undefined;
-    return value.trim().length > maxLength ? `Este campo no puede superar ${maxLength} caracteres.` : undefined;
+    return value.trim().length > maxLength
+      ? `Este campo no puede superar ${maxLength} caracteres.`
+      : undefined;
   }
 
   private nombreErrorForValue(): boolean {

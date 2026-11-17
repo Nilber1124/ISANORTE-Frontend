@@ -76,6 +76,16 @@
       [error]="f.empresaError()"
       (blurred)="f.empresaTouched.set(true)"
     />
+    @if (services().length > 0) {
+      <app-select-field
+        inputId="contact-service"
+        label="Servicio de interés (opcional)"
+        placeholder="Selecciona un servicio"
+        [options]="services()"
+        [(value)]="f.servicio"
+        [disabled]="f.submitting()"
+      />
+    }
     <app-textarea-field
       inputId="contact-message"
       label="Cuéntanos sobre tu proyecto"

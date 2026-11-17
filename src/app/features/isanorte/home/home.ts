@@ -5,12 +5,16 @@ import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Card } from '../../../shared/components/card/card';
 import { CinematicTour } from '../../../shared/components/cinematic-tour/cinematic-tour';
+import { ContactForm } from '../contact/contact-form/contact-form';
+import { PublicContactFacade } from '../contact/public-contact.facade';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { PublicBusinessUnitResource } from '../../../data/models/public-content/public-home.model';
 import { HOME_BUSINESS_UNIT_FALLBACK } from './home-business-unit-fallback';
 import { HomeMotion } from './home-motion.directive';
 import {
   HOME_ISADECOR_OFFER,
+  HOME_RESPONSE_PROMISE,
+  HOME_SERVICE_OPTIONS,
   HOME_PROCESS,
   HOME_RAIL,
   HOME_TRUST_POINTS,
@@ -73,9 +77,9 @@ const BENTO_LAYOUTS: Record<number, readonly string[]> = {
 };
 
 @Component({
-  imports: [CommonModule, Button, Card, Badge, CinematicTour, HomeMotion],
+  imports: [CommonModule, Button, Card, Badge, CinematicTour, ContactForm, HomeMotion],
   selector: 'app-isanorte-home',
-  providers: [PublicHomeFacade],
+  providers: [PublicHomeFacade, PublicContactFacade],
   styleUrl: './home.css',
   templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,6 +87,8 @@ const BENTO_LAYOUTS: Record<number, readonly string[]> = {
 export class Home {
   readonly facade = inject(PublicHomeFacade);
   private readonly site = inject(PublicSiteFacade, { optional: true });
+  /** Formulario del cierre: solo envía; el contenido de la página Contacto no se carga aquí. */
+  readonly contactFacade = inject(PublicContactFacade);
 
   /** TRANSITORIO: sólo se presenta tras un error real del GET de Home. */
   readonly servicesFallback = HOME_SERVICES_FALLBACK;
@@ -94,9 +100,12 @@ export class Home {
   readonly trustPoints = HOME_TRUST_POINTS;
   readonly isadecorOffer = HOME_ISADECOR_OFFER;
   readonly rail = HOME_RAIL;
+  readonly serviceOptions = HOME_SERVICE_OPTIONS;
+  readonly responsePromise = HOME_RESPONSE_PROMISE;
   readonly serviceIconPath = serviceIconPath;
 
   readonly whatsappHref = computed(() => this.site?.whatsappHref() ?? null);
+  readonly email = computed(() => this.site?.contactEmails()[0] ?? null);
   readonly phone = computed(() => this.site?.contactPhones()[0] ?? null);
   readonly phoneHref = computed(() => {
     const phone = this.phone();

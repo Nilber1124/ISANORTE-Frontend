@@ -43,7 +43,9 @@
   <section class="section-space bg-background-soft">
     <div class="app-container">
       @if (facade.error(); as error) {
-        <app-alert class="mb-10" variant="error" title="Contacto" data-contact-page-error>{{ error }}</app-alert>
+        <app-alert class="mb-10" variant="error" title="Contacto" data-contact-page-error>{{
+          error
+        }}</app-alert>
       }
       @if (facade.content(); as content) {
         @if (content.eyebrow) {
@@ -58,10 +60,14 @@
               <h1 class="text-display text-text-primary">{{ content.titulo }}</h1>
             }
             @if (content.introduccion) {
-              <p class="mt-6 max-w-[52ch] text-body-lg text-text-secondary">{{ content.introduccion }}</p>
+              <p class="mt-6 max-w-[52ch] text-body-lg text-text-secondary">
+                {{ content.introduccion }}
+              </p>
             }
             @if (content.descripcion) {
-              <p class="mt-6 max-w-[52ch] text-body text-text-secondary">{{ content.descripcion }}</p>
+              <p class="mt-6 max-w-[52ch] text-body text-text-secondary">
+                {{ content.descripcion }}
+              </p>
             }
             <ng-container [ngTemplateOutlet]="contactChannels" />
           </div>
@@ -83,26 +89,79 @@
       @for (channel of channels(); track channel.id) {
         <app-card class="block">
           <div class="flex items-start gap-4">
-            <span class="flex size-11 flex-none items-center justify-center rounded-control bg-accent/10 text-accent-strong" aria-hidden="true">
+            <span
+              class="flex size-11 flex-none items-center justify-center rounded-control bg-accent/10 text-accent-strong"
+              aria-hidden="true"
+            >
               @switch (channel.icon) {
                 @case ('chat') {
-                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z"></path></svg>
+                  <svg
+                    class="size-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z"
+                    ></path>
+                  </svg>
                 }
                 @case ('mail') {
-                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path></svg>
+                  <svg
+                    class="size-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                    <path d="m4 7 8 6 8-6"></path>
+                  </svg>
                 }
                 @case ('phone') {
-                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h3l1.5 4.25-2 1.35a12 12 0 0 0 5.85 5.85l1.35-2 4.25 1.5v3A2.5 2.5 0 0 1 18 20C10.27 20 4 13.73 4 6a2.5 2.5 0 0 1 2.5-2.5Z"></path></svg>
+                  <svg
+                    class="size-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M6.5 3.5h3l1.5 4.25-2 1.35a12 12 0 0 0 5.85 5.85l1.35-2 4.25 1.5v3A2.5 2.5 0 0 1 18 20C10.27 20 4 13.73 4 6a2.5 2.5 0 0 1 2.5-2.5Z"
+                    ></path>
+                  </svg>
                 }
                 @default {
-                  <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+                  <svg
+                    class="size-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 21s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11Z"></path>
+                    <circle cx="12" cy="10" r="2.5"></circle>
+                  </svg>
                 }
               }
             </span>
             <div class="min-w-0">
               <p class="text-eyebrow uppercase text-text-muted">{{ channel.label }}</p>
               @if (channel.href) {
-                <a [href]="channel.href" class="mt-1 block text-heading-4 text-text-primary hover:text-accent transition-colors">{{ channel.value }}</a>
+                <a
+                  [href]="channel.href"
+                  class="mt-1 block text-heading-4 text-text-primary hover:text-accent transition-colors"
+                  >{{ channel.value }}</a
+                >
               } @else {
                 <p class="mt-1 text-heading-4 text-text-primary">{{ channel.value }}</p>
               }

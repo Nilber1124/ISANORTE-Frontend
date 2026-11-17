@@ -3,7 +3,10 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { PublicSiteCompany } from '../../../data/models/public-content/public-site.model';
-import { PublicPageContent, PublicPageType } from '../../../data/models/public-content/public-page.model';
+import {
+  PublicPageContent,
+  PublicPageType,
+} from '../../../data/models/public-content/public-page.model';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { Alert } from '../../../shared/components/alert/alert';
 import { Card } from '../../../shared/components/card/card';
