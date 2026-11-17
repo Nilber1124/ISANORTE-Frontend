@@ -10,9 +10,6 @@ export const PUBLIC_SITE_ERROR_FALLBACK: PublicSiteResponse = {
   logoBlancoUrl: '/images/isanorte-isotipo-white.svg',
   faviconUrl: '/favicon.svg',
   textoPiePagina: null,
-  videoProcesoUrl: null,
-  videoProcesoMovilUrl: null,
-  videoProcesoPosterUrl: null,
   empresa: {
     nombreComercial: 'ISANORTE',
     direccion: null,

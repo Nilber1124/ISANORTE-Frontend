@@ -128,10 +128,6 @@ def main():
     if "--solo-generar" in sys.argv: return
     man = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
     jobs = [(OUT / f"{k}.jpg", f, k, "image") for k, f, _, _ in SPEC if (OUT / f"{k}.jpg").exists() and k not in man]
-    for extra, folder, key, res in [(BASE / "video/proceso-obra.mp4", f"{ROOT}/video", "proceso-obra", "video"),
-                                    (BASE / "video/proceso-obra-sm.mp4", f"{ROOT}/video", "proceso-obra-sm", "video"),
-                                    (BASE / "video/proceso-obra-poster.png", f"{ROOT}/video", "proceso-obra-poster", "image")]:
-        if extra.exists() and key not in man: jobs.append((extra, folder, key, res))
     def up(j):
         p, f, k, r = j
         man[k] = subir(p, f, k, r); print("subida", k, flush=True)

@@ -41,9 +41,6 @@ export interface PublicSiteResponse {
   logoBlancoUrl: string | null;
   faviconUrl: string | null;
   textoPiePagina: string | null;
-  videoProcesoUrl?: string | null;
-  videoProcesoMovilUrl?: string | null;
-  videoProcesoPosterUrl?: string | null;
   empresa: PublicSiteCompany;
   redes: PublicSiteSocialNetwork[];
   unidades: PublicSiteBusinessUnit[];

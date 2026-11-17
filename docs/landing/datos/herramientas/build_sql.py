@@ -85,9 +85,6 @@ sql(f"""UPDATE configuraciones_sitio SET
   titulo_sitio = 'ISANORTE | Constructora en Cajamarca',
   descripcion_sitio = 'Constructora en Cajamarca: planos, permisos, ejecución y supervisión de obras con un solo equipo.',
   texto_pie_pagina = '© ISANORTE Ingeniería y Construcción S.A.C. · Cajamarca, Perú',
-  video_proceso_url = {q(NEW.get('proceso-obra'))},
-  video_proceso_movil_url = {q(NEW.get('proceso-obra-sm'))},
-  video_proceso_poster_url = {q(NEW.get('proceso-obra-poster'))},
   fecha_actualizacion = {NOW}
 WHERE clave = 'isanorte';
 """)
@@ -209,7 +206,11 @@ for i, (a, c, t, p) in enumerate(TS):
     sql(f"INSERT INTO testimonios (id,autor,cargo,texto,proyecto_slug,orden,activo,fecha_creacion,fecha_actualizacion) "
         f"VALUES (gen_random_uuid(),{q(a)},{q(c)},{q(t)},{q(p)},{i},TRUE,{NOW},{NOW});")
 
-# ---- Clientes y marcas: sin datos de demostración (la sección se oculta hasta que se carguen reales desde el admin).
+# ---- Clientes y marcas (logos de demostración generados)
+for i, (n, k) in enumerate([("Agroindustria Namora S.A.C.", "cliente-agroindustria"), ("Inmobiliaria Cumbe", "cliente-inmobiliaria"),
+                            ("Colegio Particular San Ignacio", "cliente-colegio"), ("Hotel Casa Andina del Norte", "cliente-hotel"),
+                            ("Cooperativa Agraria La Encañada", "cliente-cooperativa")]):
+    sql(f"INSERT INTO clientes_marca (id,nombre,logo_url,orden,activo,fecha_creacion,fecha_actualizacion) VALUES (gen_random_uuid(),{q(n)},{q(NEW.get(k))},{i},TRUE,{NOW},{NOW});")
 
 # ---- Garantías
 GA = [("Un solo equipo, de principio a fin", "Planos, permisos, obra y acabados con el mismo equipo responsable.", True),

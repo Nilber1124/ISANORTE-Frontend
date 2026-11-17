@@ -101,11 +101,6 @@ export class Home {
     const time = this.site?.company()?.tiempoRespuesta?.trim();
     return time ? `Te respondemos ${time}.` : null;
   });
-  readonly processVideo = computed(() => ({
-    large: this.site?.site()?.videoProcesoUrl ?? null,
-    small: this.site?.site()?.videoProcesoMovilUrl ?? this.site?.site()?.videoProcesoUrl ?? null,
-    poster: this.site?.site()?.videoProcesoPosterUrl ?? null,
-  }));
   /** Cambia cuando llega contenido: el movimiento se reinicia para leer el DOM nuevo. */
   readonly motionKey = computed(
     () =>

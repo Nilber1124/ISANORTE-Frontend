@@ -18,11 +18,13 @@ vuelve a cargar. No toca administradores, productos ISADECOR, cotizaciones ni pe
 
 ## Imágenes
 
-- El video del proceso y su póster están en Cloudinary (`isanorte-cajamarca/video`).
+- El video 3D del proceso y su póster son archivos propios de la página (`public/media/home/`), no contenido de la base de datos.
 - Varias imágenes (hero, 4 proyectos, ISADECOR, cierre) son **respaldo**: generadas antes con FLUX y
-  de temática genérica. Los 8 servicios tienen imagen propia (generadas con el generador de imágenes de Figma y subidas a `isanorte-cajamarca/servicios`). Quedan sin imagen: 1 proyecto (habilitación urbana usa una imagen de respaldo), la galería antes/durante/después.
+  de temática genérica. Los 8 servicios tienen imagen propia (generadas con el generador de imágenes de Figma y subidas a `isanorte-cajamarca/servicios`). Quedan sin imagen: 1 proyecto (habilitación urbana usa una imagen de respaldo), 
 - Las 4 fotos del equipo son retratos de demostración generados con IA (en `isanorte-cajamarca/equipo`); son personas ficticias. Para reemplazarlas por retratos generados, borra esas claves de `manifiesto.json` y los archivos de `temporales/`, y ejecuta `imagenes.py`.
 - `herramientas/imagenes.py` genera con FLUX las imágenes específicas de Cajamarca y las sube a Cloudinary
   (reanudable); `herramientas/build_sql.py` regenera este SQL usando `manifiesto.json`. La generación se detuvo
   porque se agotó la cuota diaria gratuita de Cloudflare Workers AI (se renueva a las 00:00 UTC).
   Ambos scripts esperan la carpeta `demo-cajamarca/` junto a los repositorios.
+
+- La galería antes/durante/después (3 proyectos) y los logos de los 5 clientes de demostración son imágenes generadas con IA; los clientes son empresas ficticias.

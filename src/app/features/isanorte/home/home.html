@@ -615,13 +615,12 @@
                   />
                 </svg>
                 <!-- Escenario principal: video 3D sobre fondo verde, recortado en el navegador (canvas WebGL)
-             y controlado por el scroll. Las URL vienen de la configuración del sitio (Cloudinary). -->
+             y controlado por el scroll. Son archivos propios de la página (parte del diseño), no contenido administrable. -->
                 <video
                   class="pointer-events-none absolute left-0 top-0 size-px opacity-0"
                   data-process-video
-                  crossorigin="anonymous"
-                  [attr.data-src-lg]="processVideo().large"
-                  [attr.data-src-sm]="processVideo().small"
+                  data-src-lg="/media/home/proceso-obra.mp4"
+                  data-src-sm="/media/home/proceso-obra-sm.mp4"
                   muted
                   playsinline
                   preload="none"
@@ -635,17 +634,15 @@
                   height="720"
                   aria-hidden="true"
                 ></canvas>
-                @if (processVideo().poster; as posterUrl) {
-                  <img
-                    class="plan-poster absolute inset-0 size-full object-contain"
-                    [src]="posterUrl"
-                    alt=""
-                    width="1280"
-                    height="720"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                }
+                <img
+                  class="plan-poster absolute inset-0 size-full object-contain"
+                  src="/media/home/proceso-obra-poster.png"
+                  alt=""
+                  width="1280"
+                  height="720"
+                  loading="lazy"
+                  decoding="async"
+                />
               </figure>
             </div>
 
@@ -823,23 +820,29 @@
         >
           Empresas e instituciones que confían en nosotros
         </p>
-        <ul class="m-0 flex list-none flex-wrap items-center justify-center gap-x-10 gap-y-6 p-0">
+        <ul class="m-0 flex list-none flex-wrap items-stretch justify-center gap-4 p-0">
           @for (client of trust.clients(); track client.nombre) {
-            <li>
+            <li
+              class="flex w-40 flex-col items-center gap-3 rounded-card border border-border bg-surface p-4 text-center"
+            >
               @if (client.logoUrl) {
-                <img
-                  [src]="client.logoUrl"
-                  [alt]="client.nombre"
-                  height="40"
-                  loading="lazy"
-                  decoding="async"
-                  class="h-10 w-auto max-w-40 object-contain opacity-80"
-                />
-              } @else {
-                <span class="text-body-sm font-semibold text-text-secondary">{{
-                  client.nombre
-                }}</span>
+                <span
+                  class="inline-flex size-20 items-center justify-center rounded-control bg-white p-2"
+                >
+                  <img
+                    [src]="client.logoUrl"
+                    [alt]="''"
+                    width="72"
+                    height="72"
+                    loading="lazy"
+                    decoding="async"
+                    class="size-full object-contain"
+                  />
+                </span>
               }
+              <span class="text-caption font-semibold leading-snug text-text-secondary">{{
+                client.nombre
+              }}</span>
             </li>
           }
         </ul>

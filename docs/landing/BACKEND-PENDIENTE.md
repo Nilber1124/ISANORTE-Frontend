@@ -6,7 +6,7 @@ Resuelto en el backend nuevo (esquema reiniciado, sin seeders ni migraciones ant
   garantías, pasos del proceso y galería de proyectos (`/api/faqs`, `/api/equipo`, … `/api/proyecto-galeria`).
 - Lectura pública de todo ello en `GET /api/publico/sitios/{clave}/confianza`.
 - Proyectos con ficha técnica (`areaM2`, `plazoMeses`, `alcance`, `tipoObra`).
-- Empresa con `anioFundacion`, `zonaCobertura` y `tiempoRespuesta`; sitio con URL del video del proceso y su póster;
+- Empresa con `anioFundacion`, `zonaCobertura` y `tiempoRespuesta`;
   ISADECOR con `ofertas`.
 - Formulario de contacto con `ubicacion`, `servicioInteres` y `consentimiento` (con fecha) como campos reales.
 
