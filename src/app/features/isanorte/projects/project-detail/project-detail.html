@@ -83,24 +83,35 @@
           </p>
         }
         @if (stagedGallery().length > 0) {
-          <h2 class="mt-12 text-heading-3 text-text-primary">Antes, durante y después</h2>
-          <div class="mt-6 grid gap-4 sm:grid-cols-2" data-project-gallery>
-            @for (image of stagedGallery(); track image.url) {
-              <figure class="m-0">
-                <img
-                  [src]="image.url"
-                  [alt]="image.alt ?? project.nombre"
-                  loading="lazy"
-                  decoding="async"
-                  width="960"
-                  height="720"
-                  class="aspect-[4/3] w-full rounded-panel object-cover"
-                />
-                <figcaption class="mt-2 text-caption uppercase tracking-wider text-text-muted">
-                  {{ stageLabels[image.etiqueta] }}
-                </figcaption>
-              </figure>
-            }
+          <div class="mt-12" data-project-gallery>
+            <div class="mb-5 flex items-end justify-between gap-4">
+              <h2 class="text-heading-3 text-text-primary">Antes, durante y después</h2>
+              <p class="hidden text-caption text-text-muted sm:block">
+                El avance de la obra, foto a foto
+              </p>
+            </div>
+            <ul class="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-3">
+              @for (image of stagedGallery(); track image.url) {
+                <li
+                  class="group relative overflow-hidden rounded-card border border-border bg-surface-soft"
+                >
+                  <img
+                    [src]="image.url"
+                    [alt]="image.alt ?? project.nombre"
+                    loading="lazy"
+                    decoding="async"
+                    width="640"
+                    height="480"
+                    class="aspect-[4/3] w-full object-cover transition-transform duration-entry ease-[var(--ease-standard)] group-hover:scale-105 sm:aspect-[3/4]"
+                  />
+                  <span
+                    class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-10 text-caption font-semibold uppercase tracking-wider text-white"
+                  >
+                    {{ stageLabels[image.etiqueta] }}
+                  </span>
+                </li>
+              }
+            </ul>
           </div>
         }
         @if (testimonials().length > 0) {
