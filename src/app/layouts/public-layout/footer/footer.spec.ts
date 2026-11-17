@@ -95,12 +95,12 @@ describe('Footer', () => {
     expect(footer.querySelector('[aria-label="Redes sociales"] svg')).toBeTruthy();
   });
 
-  it('offers a quote link even when no contact details are loaded', () => {
+  it('does not repeat the quote button in the footer when no contact details are loaded', () => {
     facade.contactEmails.set([]);
     facade.contactPhones.set([]);
     fixture.detectChanges();
     const footer = fixture.nativeElement as HTMLElement;
-    expect(footer.textContent).toContain('Solicitar cotización');
+    expect(footer.textContent).not.toContain('Solicitar cotización');
   });
 
   it('does not invent optional backend data after a successful empty response', () => {
