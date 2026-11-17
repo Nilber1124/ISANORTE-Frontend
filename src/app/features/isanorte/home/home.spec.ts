@@ -221,10 +221,8 @@ describe('ISANORTE Home', () => {
     expect(serviceSection.textContent).not.toContain(
       'Descripción completa que no debe renderizarse',
     );
-    const designImage = serviceSection.querySelector(
-      'img[src="/service-design.jpg"]',
-    ) as HTMLImageElement;
-    expect(designImage.getAttribute('alt')).toBe('Interior diseñado por ISADECOR');
+    // El Home resume: cada servicio es un enlace compacto sin imagen (el detalle vive en Servicios).
+    expect(serviceSection.querySelectorAll('img')).toHaveLength(0);
     // Todos los servicios quedan visibles en una rejilla, sin carrusel.
     expect(serviceSection.querySelectorAll('li')).toHaveLength(3);
     expect(fixture.debugElement.queryAll(By.directive(CarouselStub))).toHaveLength(0);

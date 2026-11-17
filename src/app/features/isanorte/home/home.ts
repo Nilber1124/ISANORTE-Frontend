@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
-import { Card } from '../../../shared/components/card/card';
 import { CinematicTour } from '../../../shared/components/cinematic-tour/cinematic-tour';
 import { ContactForm } from '../contact/contact-form/contact-form';
 import { PublicContactFacade } from '../contact/public-contact.facade';
@@ -61,23 +60,16 @@ interface ServicesDisplay {
   action: HomeServiceActionView | null;
 }
 
-/** Tamaños de la rejilla bento según cuántos proyectos hay (máximo 5). */
+/** Tamaños de la rejilla bento según cuántos proyectos hay (máximo 4: el resto está en Proyectos). */
 const BENTO_LAYOUTS: Record<number, readonly string[]> = {
   1: ['md:col-span-4 md:row-span-2'],
   2: ['md:col-span-2 md:row-span-2', 'md:col-span-2 md:row-span-2'],
   3: ['md:col-span-2 md:row-span-2', 'md:col-span-2', 'md:col-span-2'],
   4: ['md:col-span-2 md:row-span-2', 'md:col-span-2', 'md:col-span-1', 'md:col-span-1'],
-  5: [
-    'md:col-span-2 md:row-span-2',
-    'md:col-span-1',
-    'md:col-span-1',
-    'md:col-span-1',
-    'md:col-span-1',
-  ],
 };
 
 @Component({
-  imports: [CommonModule, Button, Card, Badge, CinematicTour, ContactForm, HomeMotion],
+  imports: [CommonModule, Button, Badge, CinematicTour, ContactForm, HomeMotion],
   selector: 'app-isanorte-home',
   providers: [PublicHomeFacade, PublicContactFacade],
   styleUrl: './home.css',
@@ -196,7 +188,7 @@ export class Home {
   });
 
   readonly projectTiles = computed<ProjectTile[]>(() => {
-    const projects = this.facade.projects().slice(0, 5);
+    const projects = this.facade.projects().slice(0, 4);
     const layout = BENTO_LAYOUTS[projects.length] ?? [];
     return projects.map((item, index) => ({
       id: item.id,

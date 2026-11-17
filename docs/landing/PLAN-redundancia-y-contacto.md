@@ -64,7 +64,8 @@ Orden sugerido: A, B, C, D, E, F. Cada fase se puede revisar por separado.
 
 ### Avance
 - A: hecha (formulario compartido). B: hecha (formulario al final del Home).
-- Pendiente: C (servicios y proyectos compactos en el Home), D (navbar y footer según las decisiones 1 y 2), E, F.
+- C: hecha (servicios compactos sin imagen y máximo 4 proyectos en el Home).
+- Pendiente: D (navbar y footer según las decisiones 1 y 2), E, F.
 
 ## 6. Decisiones originales (histórico)
 
