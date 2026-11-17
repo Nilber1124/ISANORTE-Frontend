@@ -252,6 +252,32 @@
     </section>
   }
 
+  @if (trust.loading()) {
+    <section
+      class="bg-background-soft py-16 lg:py-24"
+      role="status"
+      aria-live="polite"
+      aria-label="Cargando equipo y credenciales"
+      data-about-trust-loading
+    >
+      <div class="app-container animate-pulse">
+        <div class="mb-10 h-10 w-2/3 max-w-xl rounded bg-surface-hover"></div>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <div class="overflow-hidden rounded-card border border-border bg-surface">
+              <div class="aspect-square bg-surface-hover"></div>
+              <div class="space-y-2.5 p-5">
+                <div class="h-5 w-3/4 rounded bg-surface-hover"></div>
+                <div class="h-4 w-1/2 rounded bg-surface-hover"></div>
+                <div class="h-4 w-full rounded bg-surface-hover"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
   @if (trust.team().length > 0) {
     <section
       class="bg-background-soft py-16 lg:py-24"

@@ -142,6 +142,26 @@
     </section>
   }
 
+  @if (trust.loading()) {
+    <section
+      class="app-container grid gap-10 py-16 lg:grid-cols-12 lg:gap-14 lg:py-24"
+      role="status"
+      aria-live="polite"
+      aria-label="Cargando preguntas frecuentes"
+      data-services-faq-loading
+    >
+      <div class="animate-pulse space-y-4 lg:col-span-4">
+        <div class="h-3.5 w-28 rounded bg-surface-hover"></div>
+        <div class="h-10 w-3/4 rounded bg-surface-hover"></div>
+      </div>
+      <div class="animate-pulse space-y-3 lg:col-span-8">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="h-16 rounded-card border border-border bg-surface"></div>
+        }
+      </div>
+    </section>
+  }
+
   @if (trust.faqsFor('SERVICIOS').length > 0) {
     <section
       class="app-container grid gap-10 py-16 lg:grid-cols-12 lg:gap-14 lg:py-24"

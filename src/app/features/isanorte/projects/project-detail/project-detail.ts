@@ -6,14 +6,13 @@ import { PublicTrustStore } from '../../../../data/services/public-trust.store';
 import { PROJECT_TYPE_LABELS } from '../../../../data/models/public-content/public-page.model';
 import { PublicSiteFacade } from '../../../../layouts/public-layout/public-site.facade';
 import { Button } from '../../../../shared/components/button/button';
-import { Loading } from '../../../../shared/components/loading/loading';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
 import { ProjectDetailFacade } from './project-detail.facade';
 import { coverImage } from './related-projects';
 
 @Component({
   selector: 'app-project-detail',
-  imports: [Button, EmptyState, Loading, RouterLink],
+  imports: [Button, EmptyState, RouterLink],
   providers: [ProjectDetailFacade],
   templateUrl: './project-detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
