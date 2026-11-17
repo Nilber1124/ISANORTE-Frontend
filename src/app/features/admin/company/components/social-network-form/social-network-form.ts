@@ -20,7 +20,7 @@ export class SocialNetworkForm {
   readonly mode = input.required<'create' | 'edit'>();
   readonly initialData = input<SocialNetworkResponse | null>(null);
   readonly submitting = input<boolean>(false);
-  
+
   readonly saved = output<SocialNetworkFormSubmission>();
   readonly canceled = output<void>();
 
@@ -40,7 +40,9 @@ export class SocialNetworkForm {
         this.nombre.set(data.nombre);
         this.url.set(data.url);
         this.icono.set(data.icono ?? '');
-        this.orden.set(data.orden !== null && data.orden !== undefined ? data.orden.toString() : '');
+        this.orden.set(
+          data.orden !== null && data.orden !== undefined ? data.orden.toString() : '',
+        );
         this.activo.set(data.activo ?? false);
       } else {
         this.reset();
@@ -58,7 +60,7 @@ export class SocialNetworkForm {
   protected submit(): void {
     if (this.submitting()) return;
     this.clearErrors();
-    
+
     let hasError = false;
     if (!this.nombre().trim()) {
       this.nombreError.set('El nombre es obligatorio.');
@@ -68,7 +70,7 @@ export class SocialNetworkForm {
       this.urlError.set('La URL es obligatoria.');
       hasError = true;
     }
-    
+
     if (hasError) return;
 
     const request: SocialNetworkRequest = {
