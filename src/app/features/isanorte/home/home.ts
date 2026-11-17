@@ -34,7 +34,7 @@ export interface ProjectTile {
   slug: string;
   title: string;
   location: string;
-  imageUrl: string;
+  imageUrl: string | null;
   imageAlt: string;
   /** Clases de rejilla (bento) según la cantidad de proyectos. */
   gridClass: string;
@@ -195,7 +195,7 @@ export class Home {
       slug: item.slug,
       title: item.name,
       location: item.metadata,
-      imageUrl: item.imageUrl ?? '/images/residencia-aura.jpg',
+      imageUrl: item.imageUrl,
       imageAlt: item.imageAlt ?? item.name,
       gridClass: layout[index] ?? 'md:col-span-1',
       featured: index === 0,

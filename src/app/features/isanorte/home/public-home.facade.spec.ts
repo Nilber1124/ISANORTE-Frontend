@@ -287,7 +287,7 @@ describe('PublicHomeFacade', () => {
     expect(facade.showBusinessUnit()).toBe(false);
   });
 
-  it('derives dynamic projects from Home response and falls back when empty', () => {
+  it('derives dynamic projects from Home response and never invents fallback projects', () => {
     const source = new Subject<PublicHomeResponse>();
     api.response$ = source;
     facade.load();
@@ -312,6 +312,17 @@ describe('PublicHomeFacade', () => {
     expect(facade.projects()[0].metadata).toBe('Quito Norte - 2025');
     expect(facade.projects()[0].imageUrl).toBe('/alpha.jpg');
     expect(facade.showProjects()).toBe(true);
+  });
+
+  it('exposes no projects when the response has none', () => {
+    const source = new Subject<PublicHomeResponse>();
+    api.response$ = source;
+    facade.load();
+    source.next({ ...response, proyectos: [] });
+    source.complete();
+
+    expect(facade.projects()).toEqual([]);
+    expect(facade.showProjects()).toBe(false);
   });
 
   it('derives CTA section and statistics correctly', () => {
@@ -362,12 +373,18 @@ describe('PublicHomeFacade', () => {
       robots: SeoRobots.INDEX_FOLLOW,
     });
     expect(titleService.getTitle()).toBe('Home Especial | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toBe('Construcción y diseño en ISANORTE.');
+    expect(metaService.getTag('name="description"')?.content).toBe(
+      'Construcción y diseño en ISANORTE.',
+    );
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
     expect(metaService.getTag('property="og:title"')?.content).toBe('Home Especial | ISANORTE');
-    expect(metaService.getTag('property="og:description"')?.content).toBe('Construcción y diseño en ISANORTE.');
+    expect(metaService.getTag('property="og:description"')?.content).toBe(
+      'Construcción y diseño en ISANORTE.',
+    );
     expect(metaService.getTag('property="og:type"')?.content).toBe('website');
-    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isanorte.com/home.jpg');
+    expect(metaService.getTag('property="og:image"')?.content).toBe(
+      'https://cdn.isanorte.com/home.jpg',
+    );
   });
 
   it('applies default SEO on API error', () => {
@@ -375,7 +392,9 @@ describe('PublicHomeFacade', () => {
     facade.load();
 
     expect(titleService.getTitle()).toBe('ISANORTE | Construcción e Ingeniería');
-    expect(metaService.getTag('name="description"')?.content).toContain('Empresa líder en construcción');
+    expect(metaService.getTag('name="description"')?.content).toContain(
+      'Empresa líder en construcción',
+    );
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
     expect(metaService.getTag('property="og:image"')).toBeNull();
   });

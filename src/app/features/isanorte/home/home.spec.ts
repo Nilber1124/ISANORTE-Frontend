@@ -326,8 +326,9 @@ describe('ISANORTE Home', () => {
     expect(text).not.toContain('RESPALDADO POR PRIMERAS MARCAS');
     expect(text).toContain('Espacios dinámicos API');
     expect(text).toContain('Soluciones dinámicas');
-    expect(text).toContain('Residencia Aura');
-    expect(text).toContain('Edificio Tech-Corporate');
+    // Sin proyectos en la API no se inventan obras de respaldo.
+    expect(text).not.toContain('Residencia Aura');
+    expect(text).not.toContain('Edificio Tech-Corporate');
     expect(text).toContain('¿Tienes un proyecto en mente?');
     expect(text).not.toContain('CTA final desde PostgreSQL');
   });
@@ -350,5 +351,27 @@ describe('ISANORTE Home', () => {
     // El enlace «#cotizar» del hero apunta al formulario del propio Home.
     const hero = (fixture.nativeElement as HTMLElement).querySelector('[data-home-hero]');
     expect(hero?.querySelector('app-button a')?.getAttribute('href')).toBe('#cotizar');
+  });
+
+  it('shows skeletons while Home loads and removes them with the response', () => {
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelectorAll('[data-home-skeleton]').length).toBeGreaterThanOrEqual(3);
+    expect(element.querySelector('[data-home-services]')).toBeNull();
+
+    http.expectOne('/api/publico/sitios/isanorte/home').flush(backendHome);
+    fixture.detectChanges();
+    expect(element.querySelectorAll('[data-home-skeleton]')).toHaveLength(0);
+    expect(element.querySelector('[data-home-services]')).toBeTruthy();
+  });
+
+  it('does not render the projects section when the API has no projects', () => {
+    const fixture = TestBed.createComponent(Home);
+    http.expectOne('/api/publico/sitios/isanorte/home').flush(backendHome);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-home-projects]')).toBeNull();
   });
 });

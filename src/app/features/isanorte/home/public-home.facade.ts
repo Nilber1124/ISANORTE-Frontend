@@ -237,10 +237,7 @@ export class PublicHomeFacade {
   });
 
   readonly projects = computed<readonly HomeProjectCardView[]>(() => {
-    const rawProjects = this._home()?.proyectos;
-    if (!rawProjects || rawProjects.length === 0) {
-      return HOME_PROJECTS_FALLBACK.projects;
-    }
+    const rawProjects = this._home()?.proyectos ?? [];
     return [...rawProjects]
       .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre))
       .map((project) => {

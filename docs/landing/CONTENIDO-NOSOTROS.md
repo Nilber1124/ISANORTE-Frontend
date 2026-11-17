@@ -39,4 +39,4 @@ ISANORTE trabaja en **Perú** (confirmado por el usuario). Lo que hay que correg
 
 En el código:
 - El ejemplo del campo de teléfono del formulario ya usa formato peruano (`Ej. 987 654 321`).
-- El Home tiene proyectos de respaldo con ubicación en Quito (`home-projects-fallback.ts`) que solo se muestran si la API falla o no trae proyectos. Conviene sustituirlos por proyectos reales o quitarlos cuando la BD tenga los suyos.
+- Los proyectos de respaldo del Home (con ubicación en Quito) se eliminaron: si la API no trae proyectos, la sección no se muestra.
