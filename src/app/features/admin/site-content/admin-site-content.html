@@ -1,0 +1,217 @@
+@if (entity(); as config) {
+  <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="max-w-3xl">
+      <p class="text-eyebrow uppercase text-text-muted">Contenido del sitio</p>
+      <h1 class="mt-3 text-heading-1 text-text-primary">{{ config.title }}</h1>
+      <p class="mt-3 text-body text-text-secondary">{{ config.description }}</p>
+    </div>
+    @if (!editing()) {
+      <button
+        type="button"
+        class="min-h-11 rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        (click)="openNew()"
+      >
+        Agregar
+      </button>
+    }
+  </header>
+
+  @if (error(); as message) {
+    <p
+      class="mt-6 rounded-card border border-border bg-surface p-4 text-body-sm text-text-primary"
+      role="alert"
+    >
+      {{ message }}
+    </p>
+  }
+
+  @if (editing()) {
+    <form
+      class="mt-8 flex max-w-3xl flex-col gap-5 rounded-card border border-border bg-surface p-6"
+      (submit)="$event.preventDefault(); save()"
+      novalidate
+    >
+      @for (field of config.fields; track field.key) {
+        <div class="flex flex-col gap-1.5">
+          <label class="text-body-sm font-semibold text-text-primary" [for]="'f-' + field.key">
+            {{ field.label }}
+            @if (field.required) {
+              <span aria-hidden="true"> *</span>
+            }
+          </label>
+          @switch (field.type) {
+            @case ('textarea') {
+              <textarea
+                [id]="'f-' + field.key"
+                rows="4"
+                class="rounded-control border border-border bg-background p-3 text-body"
+                [value]="form()[field.key] ?? ''"
+                (input)="set(field.key, $any($event.target).value)"
+              ></textarea>
+            }
+            @case ('select') {
+              <select
+                [id]="'f-' + field.key"
+                class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+                [value]="form()[field.key] ?? ''"
+                (change)="set(field.key, $any($event.target).value)"
+              >
+                <option value="">Selecciona…</option>
+                @for (option of field.options; track option.value) {
+                  <option [value]="option.value" [selected]="form()[field.key] === option.value">
+                    {{ option.label }}
+                  </option>
+                }
+              </select>
+            }
+            @case ('number') {
+              <input
+                [id]="'f-' + field.key"
+                type="number"
+                class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+                [value]="form()[field.key] ?? ''"
+                (input)="setNumber(field.key, $any($event.target).value)"
+              />
+            }
+            @case ('checkbox') {
+              <input
+                [id]="'f-' + field.key"
+                type="checkbox"
+                class="size-5"
+                [checked]="form()[field.key] === true"
+                (change)="set(field.key, $any($event.target).checked)"
+              />
+            }
+            @case ('image') {
+              @if (form()[field.key]; as current) {
+                <img
+                  [src]="current"
+                  alt=""
+                  class="h-28 w-auto max-w-full rounded-control object-contain"
+                />
+              }
+              <input
+                [id]="'f-' + field.key"
+                type="file"
+                accept="image/*"
+                class="text-body-sm"
+                (change)="upload(field, $event)"
+              />
+              @if (uploading() === field.key) {
+                <span class="text-caption text-text-muted" role="status">Subiendo imagen…</span>
+              }
+            }
+            @default {
+              <input
+                [id]="'f-' + field.key"
+                type="text"
+                class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+                [attr.maxlength]="field.maxLength"
+                [value]="form()[field.key] ?? ''"
+                (input)="set(field.key, $any($event.target).value)"
+              />
+            }
+          }
+          @if (field.help) {
+            <span class="text-caption text-text-muted">{{ field.help }}</span>
+          }
+        </div>
+      }
+
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-body-sm font-semibold text-text-primary" for="f-orden">Orden</label>
+          <input
+            id="f-orden"
+            type="number"
+            min="0"
+            class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+            [value]="form()['orden'] ?? 0"
+            (input)="setNumber('orden', $any($event.target).value)"
+          />
+        </div>
+        <label
+          class="flex items-center gap-3 self-end pb-2 text-body-sm font-semibold text-text-primary"
+        >
+          <input
+            type="checkbox"
+            class="size-5"
+            [checked]="form()['activo'] === true"
+            (change)="set('activo', $any($event.target).checked)"
+          />
+          Visible en el sitio
+        </label>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          type="submit"
+          class="min-h-11 rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast disabled:opacity-50"
+          [disabled]="saving() || !valid()"
+        >
+          {{ saving() ? 'Guardando…' : 'Guardar' }}
+        </button>
+        <button
+          type="button"
+          class="min-h-11 rounded-button border border-border-strong px-5 py-2.5 text-body-sm font-semibold text-text-primary"
+          (click)="cancel()"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  } @else if (loading()) {
+    <p class="mt-8 text-body text-text-secondary" role="status">Cargando…</p>
+  } @else if (rows().length === 0) {
+    <p
+      class="mt-8 rounded-card border border-border bg-surface p-8 text-center text-body text-text-secondary"
+    >
+      Aún no hay registros. Usa «Agregar» para crear el primero.
+    </p>
+  } @else {
+    <ul class="mt-8 m-0 flex list-none flex-col gap-3 p-0">
+      @for (row of rows(); track row.id) {
+        <li
+          class="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-surface p-4"
+        >
+          <div class="min-w-0">
+            <p class="truncate text-body font-semibold text-text-primary">
+              {{ text(row, config.titleKey) }}
+            </p>
+            @if (config.subtitleKey) {
+              <p class="text-body-sm text-text-secondary">{{ text(row, config.subtitleKey) }}</p>
+            }
+            <p class="text-caption text-text-muted">
+              Orden {{ row.orden }} · {{ row.activo ? 'Visible' : 'Oculto' }}
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="min-h-10 rounded-button border border-border-strong px-4 text-body-sm font-semibold"
+              (click)="openEdit(row)"
+            >
+              Editar
+            </button>
+            <button
+              type="button"
+              class="min-h-10 rounded-button border border-border-strong px-4 text-body-sm font-semibold"
+              (click)="toggle(row)"
+            >
+              {{ row.activo ? 'Ocultar' : 'Mostrar' }}
+            </button>
+            <button
+              type="button"
+              class="min-h-10 rounded-button border border-border-strong px-4 text-body-sm font-semibold"
+              (click)="remove(row)"
+            >
+              Eliminar
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+} @else {
+  <p class="text-body text-text-secondary">Sección no encontrada.</p>
+}

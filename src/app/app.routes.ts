@@ -130,6 +130,70 @@ export const routes: Routes = [
           ),
         data: { title: 'Anuncios' },
       },
+      {
+        path: 'sitio/faqs',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'faqs', title: 'Preguntas frecuentes' },
+      },
+      {
+        path: 'sitio/equipo',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'equipo', title: 'Equipo' },
+      },
+      {
+        path: 'sitio/credenciales',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'credenciales', title: 'Credenciales' },
+      },
+      {
+        path: 'sitio/testimonios',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'testimonios', title: 'Testimonios' },
+      },
+      {
+        path: 'sitio/clientes-marca',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'clientes-marca', title: 'Clientes y marcas' },
+      },
+      {
+        path: 'sitio/garantias',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'garantias', title: 'Garantías' },
+      },
+      {
+        path: 'sitio/pasos-proceso',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'pasos-proceso', title: 'Pasos del proceso' },
+      },
+      {
+        path: 'sitio/proyecto-galeria',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'proyecto-galeria', title: 'Galería de proyectos' },
+      },
     ],
   },
   {
