@@ -34,4 +34,6 @@ Commit de correcciones retenidas: `2b2718b` (`perf(home): reduce mobile loading 
 
 ## Publicación y limitaciones
 
-No se hizo merge, push de esta rama ni despliegue. Se mantiene el respaldo de `main` creado al inicio. No se modificó backend ni base de datos. No se realizaron pruebas exhaustivas ni una evaluación nueva de PSI. La puntuación final en producción debe medirla el usuario con los informes manuales solicitados.
+El commit de código `2b2718b` y el commit de documentación `ced8103` se integraron en `main` mediante fast-forward y se publicaron en GitHub. `main` y `fix/pagespeed-mobile-regression` apuntaron a `ced8103`; el respaldo remoto `backup/main-before-pagespeed-mobile-regression-20261117` conserva el estado anterior `16dbbf0`. Vercel registró `Deployment has completed` para el entorno Production del commit `ced8103`.
+
+La URL pública respondió HTTP 200 después del despliegue. La portada actualizó su `Last-Modified` y tamaño HTML; el recurso `/images/recorrido-exterior-mobile.webp` respondió HTTP 200 con `Content-Length: 98492`, ETag nuevo y `X-Vercel-Cache: MISS`, confirmando la imagen publicada. No se midió PageSpeed en producción. No se modificó backend ni base de datos, y no se hicieron pruebas exhaustivas. Las puntuaciones manuales de PSI quedan pendientes del usuario; el 90 móvil no está confirmado.
