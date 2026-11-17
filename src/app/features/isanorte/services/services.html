@@ -149,7 +149,7 @@
       </h2>
       <div class="flex max-w-4xl flex-col gap-3">
         @for (faq of trust.faqsFor('SERVICIOS'); track faq.pregunta) {
-          <details class="group rounded-card border border-border bg-surface p-5">
+          <details appSmoothDetails class="group rounded-card border border-border bg-surface p-5">
             <summary
               class="flex cursor-pointer list-none items-center justify-between gap-4 text-heading-4 text-text-primary [&::-webkit-details-marker]:hidden"
             >

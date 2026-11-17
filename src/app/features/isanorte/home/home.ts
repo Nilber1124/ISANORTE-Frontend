@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { SmoothDetails } from '../../../shared/directives/smooth-details.directive';
 import { CommonModule } from '@angular/common';
 
 import { Badge } from '../../../shared/components/badge/badge';
@@ -59,7 +60,7 @@ const BENTO_LAYOUTS: Record<number, readonly string[]> = {
 };
 
 @Component({
-  imports: [CommonModule, Button, Badge, CinematicTour, ContactForm, HomeMotion],
+  imports: [SmoothDetails, CommonModule, Button, Badge, CinematicTour, ContactForm, HomeMotion],
   selector: 'app-isanorte-home',
   providers: [PublicHomeFacade, PublicContactFacade],
   styleUrl: './home.css',

@@ -1,4 +1,5 @@
 import { DOCUMENT } from '@angular/common';
+import { SmoothDetails } from '../../../shared/directives/smooth-details.directive';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 
 import { AccessibilityService } from '../../../core/services/accessibility.service';
@@ -12,7 +13,7 @@ import { RevealStagger } from '../../../shared/components/reveal-stagger/reveal-
 import { PublicServicesFacade } from './public-services.facade';
 
 @Component({
-  imports: [Alert, Button, CtaBand, PageHeader, RevealStagger],
+  imports: [SmoothDetails, Alert, Button, CtaBand, PageHeader, RevealStagger],
   selector: 'app-isanorte-services',
   providers: [PublicServicesFacade],
   templateUrl: './services.html',
