@@ -27,5 +27,5 @@ vuelve a cargar. No toca administradores, productos ISADECOR, cotizaciones ni pe
   porque se agotó la cuota diaria gratuita de Cloudflare Workers AI (se renueva a las 00:00 UTC).
   Ambos scripts esperan la carpeta `demo-cajamarca/` junto a los repositorios.
 
-- La galería antes/durante/después (casa campestre, casona y galpón) son imágenes generadas con IA.
+- La galería antes/durante/después de los 6 proyectos son imágenes generadas con IA (la casa campestre y la casona con el generador de Figma; el resto con el entorno local ComfyUI/DreamShaper). Son ilustrativas, no fotos de obras reales.
 - La política de privacidad es un texto **provisional** (no es asesoría legal); se edita en `/admin/sitio/politicas`.

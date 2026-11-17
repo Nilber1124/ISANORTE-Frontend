@@ -169,10 +169,21 @@ for i, (slug, nombre, ubic, fecha, tipo, area, plazo, desc, alcance, dest, nk, o
 GAL = [("casa-campestre-banos-del-inca", "galeria-casa-campestre-antes", "ANTES", "Terreno antes de construir"),
        ("casa-campestre-banos-del-inca", "galeria-casa-campestre-proceso", "PROCESO", "Obra en construcción"),
        ("casa-campestre-banos-del-inca", "galeria-casa-campestre-final", "FINAL", "Interior terminado"),
+       ("edificio-multifamiliar-amazonas", "galeria-edificio-antes", "ANTES", "Calle y terreno antes de la obra"),
+       ("edificio-multifamiliar-amazonas", "galeria-edificio-proceso", "PROCESO", "Estructura de concreto en construcción"),
+       ("edificio-multifamiliar-amazonas", "galeria-edificio-final", "FINAL", "Edificio terminado"),
        ("remodelacion-casona-plaza-de-armas", "galeria-casona-antes", "ANTES", "Casona antes de la remodelación"),
        ("remodelacion-casona-plaza-de-armas", "galeria-casona-proceso", "PROCESO", "Remodelación en curso"),
        ("remodelacion-casona-plaza-de-armas", "galeria-casona-final", "FINAL", "Patio restaurado"),
-       ("galpon-agroindustrial-namora", "galeria-galpon-proceso", "PROCESO", "Montaje de la estructura")]
+       ("local-comercial-av-atahualpa", "galeria-local-antes", "ANTES", "Esquina antes de la obra"),
+       ("local-comercial-av-atahualpa", "galeria-local-proceso", "PROCESO", "Instalación de la fachada de vidrio"),
+       ("local-comercial-av-atahualpa", "galeria-local-final", "FINAL", "Local terminado"),
+       ("galpon-agroindustrial-namora", "galeria-galpon-antes", "ANTES", "Terreno antes del montaje"),
+       ("galpon-agroindustrial-namora", "galeria-galpon-proceso", "PROCESO", "Montaje de la estructura"),
+       ("galpon-agroindustrial-namora", "galeria-galpon-final", "FINAL", "Interior del galpón terminado"),
+       ("habilitacion-urbana-mirador-del-cumbe", "galeria-habilitacion-antes", "ANTES", "Ladera antes de la habilitación"),
+       ("habilitacion-urbana-mirador-del-cumbe", "galeria-habilitacion-proceso", "PROCESO", "Pistas y obras en ejecución"),
+       ("habilitacion-urbana-mirador-del-cumbe", "galeria-habilitacion-final", "FINAL", "Habilitación terminada")]
 for i, (slug, key, et, alt) in enumerate(GAL):
     if NEW.get(key):
         sql(f"INSERT INTO proyecto_galeria (id,proyecto_slug,url,alt,etiqueta,orden,activo,fecha_creacion,fecha_actualizacion) "
