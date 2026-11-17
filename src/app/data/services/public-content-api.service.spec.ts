@@ -103,6 +103,7 @@ const publicContactRequest: PublicContactRequest = {
   telefono: '+51 999 111 222',
   empresa: null,
   mensaje: 'Mensaje de prueba',
+  consentimiento: true,
 };
 
 const publicContactResponse: PublicContactResponse = {

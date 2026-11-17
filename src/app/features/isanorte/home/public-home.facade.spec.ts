@@ -12,7 +12,6 @@ import {
   PublicHomeSectionType,
 } from '../../../data/models/public-content/public-home.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
-import { HOME_HERO_FALLBACK } from './home-hero-fallback';
 import { PublicHomeFacade } from './public-home.facade';
 
 const section = (
@@ -273,14 +272,14 @@ describe('PublicHomeFacade', () => {
     expect(facade.businessUnitCatalogResource()).toBeNull();
   });
 
-  it('keeps the controlled Hero fallback and exposes an error when Home fails', () => {
+  it('shows no local content and exposes an error when Home fails', () => {
     api.response$ = throwError(() => new Error('offline'));
     facade.load();
 
     expect(facade.loading()).toBe(false);
-    expect(facade.error()).toContain('versión local');
-    expect(facade.hero()).toEqual(HOME_HERO_FALLBACK.content);
-    expect(facade.heroScenes()).toHaveLength(5);
+    expect(facade.error()).toBeTruthy();
+    expect(facade.hero()).toBeNull();
+    expect(facade.heroScenes()).toEqual([]);
     expect(facade.services()).toEqual([]);
     expect(facade.showServices()).toBe(false);
     expect(facade.featuredBusinessUnit()).toBeNull();
@@ -325,7 +324,7 @@ describe('PublicHomeFacade', () => {
     expect(facade.showProjects()).toBe(false);
   });
 
-  it('derives CTA section and statistics correctly', () => {
+  it('derives the CTA section and keeps statistics out of Home', () => {
     const source = new Subject<PublicHomeResponse>();
     api.response$ = source;
     facade.load();
@@ -345,10 +344,10 @@ describe('PublicHomeFacade', () => {
 
     expect(facade.cta().copy.title).toBe('¿Listo para transformar tu espacio?');
     expect(facade.cta().copy.description).toBe('Agenda una llamada con nuestro equipo técnico.');
-    expect(facade.cta().action.label).toBe('CONTACTAR AHORA');
+    expect(facade.cta().action?.label).toBe('CONTACTAR AHORA');
     expect(facade.cta().bgImageUrl).toBe('/cta-bg.jpg');
-    expect(facade.statistics().length).toBeGreaterThan(0);
-    expect(facade.showStatistics()).toBe(true);
+    expect(facade.statistics()).toEqual([]);
+    expect(facade.showStatistics()).toBe(false);
   });
 
   it('applies dynamic SEO to document Title and Meta on successful load', () => {

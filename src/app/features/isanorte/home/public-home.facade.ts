@@ -20,11 +20,9 @@ import {
   applyPublicPageSeo,
   clearPublicPageSeo,
 } from '../../../shared/utils/public-page-seo.util';
-import { HOME_HERO_FALLBACK, HeroActionViewData, HeroViewData } from './home-hero-fallback';
-import { HOME_PROJECTS_FALLBACK } from './home-projects-fallback';
-import { HOME_CTA_FALLBACK } from './home-cta-fallback';
-import { HOME_STATISTICS_FALLBACK } from './home-statistics-fallback';
 import {
+  HeroActionViewData,
+  HeroViewData,
   HomeBusinessUnitActionView,
   HomeCtaActionView,
   HomeProjectCardView,
@@ -73,8 +71,6 @@ export class PublicHomeFacade {
   readonly heroSection = computed(() => this.sectionByType(PublicHomeSectionType.HERO));
 
   readonly hero = computed<HeroViewData | null>(() => {
-    if (this._home() === null) return HOME_HERO_FALLBACK.content;
-
     const section = this.heroSection();
     return section
       ? {
@@ -86,8 +82,6 @@ export class PublicHomeFacade {
   });
 
   readonly heroScenes = computed<readonly CinematicScene[]>(() => {
-    if (this._home() === null) return HOME_HERO_FALLBACK.scenes;
-
     const section = this.heroSection();
     if (section === null) return [];
 
@@ -102,8 +96,6 @@ export class PublicHomeFacade {
   });
 
   readonly heroActions = computed<readonly HeroActionViewData[]>(() => {
-    if (this._home() === null) return HOME_HERO_FALLBACK.actions;
-
     return this.orderedActions(this.heroSection()?.acciones ?? [])
       .slice(0, 2)
       .map((action) => ({ label: action.texto, url: action.enlace, order: action.orden }));
@@ -223,17 +215,12 @@ export class PublicHomeFacade {
 
   readonly projectsHeader = computed<HomeProjectsHeaderView>(() => {
     const section = this.projectsSection();
-    return {
-      eyebrow: section?.etiqueta ?? HOME_PROJECTS_FALLBACK.header.eyebrow,
-      title: section?.titulo ?? HOME_PROJECTS_FALLBACK.header.title,
-    };
+    return { eyebrow: section?.etiqueta ?? '', title: section?.titulo ?? '' };
   });
 
-  readonly projectsAction = computed<HomeProjectsActionView>(() => {
+  readonly projectsAction = computed<HomeProjectsActionView | null>(() => {
     const action = this.orderedActions(this.projectsSection()?.acciones ?? [])[0];
-    return action
-      ? { label: action.texto, url: action.enlace, order: action.orden }
-      : HOME_PROJECTS_FALLBACK.action;
+    return action ? { label: action.texto, url: action.enlace, order: action.orden } : null;
   });
 
   readonly projects = computed<readonly HomeProjectCardView[]>(() => {
@@ -261,7 +248,7 @@ export class PublicHomeFacade {
 
   readonly ctaSection = computed(() => this.sectionByType(PublicHomeSectionType.CTA));
 
-  readonly ctaAction = computed<HomeCtaActionView>(() => {
+  readonly ctaAction = computed<HomeCtaActionView | null>(() => {
     const action = this.orderedActions(this.ctaSection()?.acciones ?? [])[0];
     return action
       ? {
@@ -270,28 +257,26 @@ export class PublicHomeFacade {
           persistedUrl: action.enlace,
           order: action.orden,
         }
-      : HOME_CTA_FALLBACK.action;
+      : null;
   });
 
+  /** Texto del cierre de Home: sale de la sección CTA; sin ella el formulario se muestra sin titular. */
   readonly cta = computed(() => {
     const section = this.ctaSection();
-    if (!section && this._home() === null) {
-      return HOME_CTA_FALLBACK;
-    }
     return {
       copy: {
-        title: section?.titulo || HOME_CTA_FALLBACK.copy.title,
-        description: section?.subtitulo || section?.contenido || HOME_CTA_FALLBACK.copy.description,
+        title: section?.titulo ?? '',
+        description: section?.subtitulo || section?.contenido || '',
       },
       action: this.ctaAction(),
-      bgImageUrl: section?.imagenUrl || HOME_CTA_FALLBACK.bgImageUrl,
+      bgImageUrl: section?.imagenUrl ?? null,
     };
   });
 
   readonly companySection = computed(() => this.sectionByType(PublicHomeSectionType.EMPRESA));
 
   readonly statistics = computed<readonly PublicCompanyStatistic[]>(() => {
-    return HOME_STATISTICS_FALLBACK;
+    return [];
   });
 
   readonly showStatistics = computed(() => this.statistics().length > 0);
@@ -321,9 +306,7 @@ export class PublicHomeFacade {
         error: () => {
           if (this.destroyed) return;
           this._home.set(null);
-          this._error.set(
-            'No pudimos cargar el contenido actualizado. Mostramos temporalmente la versión local.',
-          );
+          this._error.set('No pudimos cargar el contenido. Inténtalo de nuevo en unos minutos.');
           applyPublicPageSeo(this.title, this.meta, null, this.seoDefaults, this.document);
         },
       });

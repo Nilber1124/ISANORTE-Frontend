@@ -6,6 +6,7 @@ import {
   afterNextRender,
   effect,
   inject,
+  input,
   untracked,
 } from '@angular/core';
 
@@ -36,6 +37,12 @@ export class HomeMotion {
   private readonly a11y = inject(AccessibilityService);
   private readonly isBrowser = inject(PLATFORM_ID) === 'browser';
 
+  /**
+   * Cambia cuando llega contenido que el movimiento debe conocer (pasos del proceso, tarjetas):
+   * el movimiento se reinicia para volver a leer el DOM.
+   */
+  readonly motionKey = input('', { alias: 'homeMotionKey' });
+
   private ctx?: GsapContext;
   private observer?: IntersectionObserver;
   private started = false;
@@ -61,10 +68,15 @@ export class HomeMotion {
 
     effect(() => {
       const reduce = this.a11y.reduceMotion();
+      this.motionKey();
       untracked(() => {
         if (!this.started || this.destroyed) return;
-        if (reduce) this.stopMotion();
-        else void this.startMotion();
+        if (reduce) {
+          this.stopMotion();
+          return;
+        }
+        this.stopMotion();
+        void this.startMotion();
       });
     });
 
@@ -133,6 +145,8 @@ export class HomeMotion {
       const renderer = ChromaKeyRenderer.create(canvas);
       // Sin WebGL se mantiene el dibujo técnico de respaldo.
       if (!renderer) return;
+      const sources = { lg: video.dataset['srcLg'], sm: video.dataset['srcSm'] };
+      if (!sources.lg && !sources.sm) return;
       this.video = video;
       const small = window.matchMedia('(max-width: 767px)').matches;
       video.src = (small ? video.dataset['srcSm'] : video.dataset['srcLg']) ?? '';

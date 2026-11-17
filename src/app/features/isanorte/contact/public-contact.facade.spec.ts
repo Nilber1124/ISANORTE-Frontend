@@ -127,20 +127,23 @@ describe('PublicContactFacade', () => {
     expect(facade.mensaje()).toBe('');
   });
 
-  it('prepends the optional service of interest to the message', () => {
+  it('sends the service of interest and consent as real fields', () => {
     fillValidForm();
     facade.servicio.set(' Remodelaciones ');
     facade.submit();
 
-    expect(api.requests[0].mensaje).toBe('Servicio de interés: Remodelaciones\n\nMensaje API');
+    expect(api.requests[0].servicioInteres).toBe('Remodelaciones');
+    expect(api.requests[0].consentimiento).toBe(true);
+    expect(api.requests[0].mensaje).toBe('Mensaje API');
   });
 
-  it('adds the location and sends a default message when the visitor writes none', () => {
+  it('sends the trimmed location as its own field and a default message when none is written', () => {
     fillValidForm();
     facade.mensaje.set('');
     facade.ubicacion.set(' Cajamarca ');
     facade.submit();
-    expect(api.requests[0].mensaje).toBe('Ubicación: Cajamarca');
+    expect(api.requests[0].ubicacion).toBe('Cajamarca');
+    expect(api.requests[0].mensaje).toBe('Solicitud de cotización desde el sitio web.');
   });
 
   it('sends a default message when only the required fields are filled', () => {

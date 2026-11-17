@@ -8,19 +8,9 @@ import { ContactForm } from '../contact/contact-form/contact-form';
 import { PublicContactFacade } from '../contact/public-contact.facade';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { PublicBusinessUnitResource } from '../../../data/models/public-content/public-home.model';
-import { HOME_BUSINESS_UNIT_FALLBACK } from './home-business-unit-fallback';
+import { PublicTrustStore } from '../../../data/services/public-trust.store';
 import { HomeMotion } from './home-motion.directive';
-import {
-  HOME_ISADECOR_OFFER,
-  HOME_RESPONSE_PROMISE,
-  HOME_SERVICE_OPTIONS,
-  HOME_PROCESS,
-  HOME_RAIL,
-  HOME_TRUST_POINTS,
-  resolveHomeUrl,
-  serviceIconPath,
-} from './home-landing.data';
-import { HOME_SERVICES_FALLBACK } from './home-services-fallback';
+import { HOME_RAIL, resolveHomeUrl, serviceIconPath } from './home-landing.data';
 import { PublicHomeFacade } from './public-home.facade';
 import {
   HomeBusinessUnitActionView,
@@ -43,7 +33,7 @@ export interface ProjectTile {
 export interface PreFooterData {
   title: string;
   subtitle: string;
-  cta: { label: string; url: string };
+  cta: { label: string; url: string } | null;
 }
 
 interface BusinessUnitDisplay {
@@ -82,19 +72,35 @@ export class Home {
   /** Formulario del cierre: solo envía; el contenido de la página Contacto no se carga aquí. */
   readonly contactFacade = inject(PublicContactFacade);
 
-  /** TRANSITORIO: sólo se presenta tras un error real del GET de Home. */
-  readonly servicesFallback = HOME_SERVICES_FALLBACK;
-  /** TRANSITORIO: sólo se presenta tras un error real del GET de Home. */
-  readonly businessUnitFallback = HOME_BUSINESS_UNIT_FALLBACK;
+  readonly trust = inject(PublicTrustStore);
 
-  /** Contenido local transitorio del diseño (ver docs/landing/BACKEND-PENDIENTE.md). */
-  readonly process = HOME_PROCESS;
-  readonly trustPoints = HOME_TRUST_POINTS;
-  readonly isadecorOffer = HOME_ISADECOR_OFFER;
   readonly rail = HOME_RAIL;
-  readonly serviceOptions = HOME_SERVICE_OPTIONS;
-  readonly responsePromise = HOME_RESPONSE_PROMISE;
   readonly serviceIconPath = serviceIconPath;
+
+  /** Pasos del proceso, garantías y ofertas de ISADECOR vienen de la base de datos. */
+  readonly steps = computed(() =>
+    this.trust.steps().map((step, index) => ({ id: `paso-${index}`, ...step })),
+  );
+  readonly trustPoints = computed(() => this.trust.heroGuarantees().map((item) => item.titulo));
+  readonly isadecorOffer = computed(() => this.facade.featuredBusinessUnit()?.ofertas ?? []);
+  readonly serviceOptions = computed(() =>
+    this.facade.services().map((service) => ({ value: service.name, label: service.name })),
+  );
+  readonly responsePromise = computed(() => {
+    const time = this.site?.company()?.tiempoRespuesta?.trim();
+    return time ? `Te respondemos ${time}.` : null;
+  });
+  readonly processVideo = computed(() => ({
+    large: this.site?.site()?.videoProcesoUrl ?? null,
+    small: this.site?.site()?.videoProcesoMovilUrl ?? this.site?.site()?.videoProcesoUrl ?? null,
+    poster: this.site?.site()?.videoProcesoPosterUrl ?? null,
+  }));
+  /** Cambia cuando llega contenido: el movimiento se reinicia para leer el DOM nuevo. */
+  readonly motionKey = computed(
+    () =>
+      `${this.steps().length}-${this.facade.services().length}-${this.facade.projects().length}-` +
+      `${this.trust.guarantees().length}-${this.trust.testimonials().length}-${this.trust.faqs().length}`,
+  );
 
   readonly whatsappHref = computed(() => this.site?.whatsappHref() ?? null);
   readonly email = computed(() => this.site?.contactEmails()[0] ?? null);
@@ -114,36 +120,21 @@ export class Home {
   });
 
   readonly servicesDisplay = computed<ServicesDisplay | null>(() => {
-    if (this.facade.showServices()) {
-      const action = this.facade.servicesAction();
-      return {
-        services: this.facade.services().map((service) => ({
-          ...service,
-          linkUrl: resolveHomeUrl(service.linkUrl, '/servicios'),
-        })),
-        header: this.facade.servicesHeader() ?? this.servicesFallback.header,
-        action: action ? { ...action, url: resolveHomeUrl(action.url, '/servicios') } : null,
-      };
-    }
-    if (this.facade.error()) {
-      return {
-        services: this.servicesFallback.services.map((service) => ({
-          ...service,
-          linkUrl: resolveHomeUrl(service.linkUrl, '/servicios'),
-        })),
-        header: this.servicesFallback.header,
-        action: {
-          ...this.servicesFallback.action,
-          url: resolveHomeUrl(this.servicesFallback.action.url, '/servicios'),
-        },
-      };
-    }
-    return null;
+    if (!this.facade.showServices()) return null;
+    const action = this.facade.servicesAction();
+    return {
+      services: this.facade.services().map((service) => ({
+        ...service,
+        linkUrl: resolveHomeUrl(service.linkUrl, '/servicios'),
+      })),
+      header: this.facade.servicesHeader() ?? { eyebrow: '', title: '' },
+      action: action ? { ...action, url: resolveHomeUrl(action.url, '/servicios') } : null,
+    };
   });
 
   readonly projectsAction = computed(() => {
     const action = this.facade.projectsAction();
-    return { ...action, url: resolveHomeUrl(action.url, '/proyectos') };
+    return action ? { ...action, url: resolveHomeUrl(action.url, '/proyectos') } : null;
   });
 
   /**
@@ -162,16 +153,6 @@ export class Home {
         background: this.facade.businessUnitBackgroundResource(),
         editorials: this.facade.businessUnitEditorialResources(),
         actions: this.normalizedUnitActions(this.facade.businessUnitActions()),
-      };
-    }
-
-    if (this.facade.error()) {
-      return {
-        header: this.businessUnitFallback.header,
-        unit: this.businessUnitFallback.unit,
-        background: this.businessUnitFallback.background,
-        editorials: this.businessUnitFallback.editorials,
-        actions: this.normalizedUnitActions(this.businessUnitFallback.actions),
       };
     }
 
@@ -207,15 +188,15 @@ export class Home {
     return {
       title: cta.copy.title,
       subtitle: cta.copy.description,
-      cta: {
-        label: cta.action.label,
-        url: resolveHomeUrl(cta.action.url, '/contacto'),
-      },
+      cta: cta.action
+        ? { label: cta.action.label, url: resolveHomeUrl(cta.action.url, '/contacto') }
+        : null,
     };
   });
 
   constructor() {
     this.facade.load();
+    this.trust.load();
   }
 
   /** Reconoce el PDF de catálogo aún no cargado (ancla `#catalogo`) y lo oculta. */

@@ -5,6 +5,9 @@ export interface PublicContactRequest {
   telefono: string;
   empresa: string | null;
   mensaje: string;
+  ubicacion?: string | null;
+  servicioInteres?: string | null;
+  consentimiento: boolean;
 }
 
 /** Estado que devuelve la confirmación pública, sin exponer la solicitud administrativa. */

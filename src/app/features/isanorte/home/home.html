@@ -1,4 +1,4 @@
-<div appHomeMotion>
+<div appHomeMotion [homeMotionKey]="motionKey()">
   <!-- Riel de etapas: orienta al visitante a lo largo del recorrido (solo pantallas muy amplias, 2xl). -->
   <nav
     aria-label="Etapas de la página"
@@ -93,46 +93,74 @@
         </div>
 
         <!-- Primer plano: ficha con el eje del recorrido. -->
-        <aside
-          data-hero-layer="0.7"
-          class="mt-12 hidden w-72 self-end rounded-card border border-white/20 bg-black/45 p-5 text-white backdrop-blur-md md:absolute md:bottom-10 md:right-8 md:mt-0 md:block lg:right-14"
-          aria-label="Etapas de un proyecto con ISANORTE"
-        >
-          <p class="mb-3 text-caption font-semibold uppercase tracking-wider text-white/70">
-            De principio a fin
-          </p>
-          <ol class="space-y-2.5 text-body-sm">
-            @for (step of process.steps; track step.id) {
-              <li class="flex items-center gap-3">
-                <span class="size-1.5 shrink-0 rounded-full bg-accent"></span>{{ step.title }}
-              </li>
-            }
-          </ol>
-        </aside>
+        @if (steps().length > 0) {
+          <aside
+            data-hero-layer="0.7"
+            class="mt-12 hidden w-72 self-end rounded-card border border-white/20 bg-black/45 p-5 text-white backdrop-blur-md md:absolute md:bottom-10 md:right-8 md:mt-0 md:block lg:right-14"
+            aria-label="Etapas de un proyecto con ISANORTE"
+          >
+            <p class="mb-3 text-caption font-semibold uppercase tracking-wider text-white/70">
+              De principio a fin
+            </p>
+            <ol class="space-y-2.5 text-body-sm">
+              @for (step of steps(); track step.id) {
+                <li class="flex items-center gap-3">
+                  <span class="size-1.5 shrink-0 rounded-full bg-accent"></span>{{ step.titulo }}
+                </li>
+              }
+            </ol>
+          </aside>
+        }
       </div>
 
       <!-- Puntos de confianza. -->
-      <div class="relative z-10 border-t border-white/15 bg-black/35 backdrop-blur-sm">
-        <ul
-          class="app-container grid gap-x-8 gap-y-2 py-4 text-body-sm text-white/90 max-md:pb-20 md:grid-cols-3"
-        >
-          @for (point of trustPoints; track point) {
-            <li class="flex items-start gap-2.5">
-              <svg
-                aria-hidden="true"
-                class="mt-0.5 size-4 shrink-0 text-accent"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.4"
-                viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{{ point }}</span>
-            </li>
-          }
-        </ul>
+      @if (trustPoints().length > 0) {
+        <div class="relative z-10 border-t border-white/15 bg-black/35 backdrop-blur-sm">
+          <ul
+            class="app-container grid gap-x-8 gap-y-2 py-4 text-body-sm text-white/90 max-md:pb-20 md:grid-cols-3"
+          >
+            @for (point of trustPoints(); track point) {
+              <li class="flex items-start gap-2.5">
+                <svg
+                  aria-hidden="true"
+                  class="mt-0.5 size-4 shrink-0 text-accent"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>{{ point }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </section>
+  } @else if (facade.loading()) {
+    <section
+      id="inicio"
+      data-theme="dark"
+      data-home-skeleton
+      aria-busy="true"
+      class="relative isolate flex min-h-[calc(100svh-4rem)] flex-col justify-center bg-background"
+    >
+      <div role="status" aria-live="polite" class="app-container animate-pulse">
+        <span class="sr-only">Cargando contenido</span>
+        <div class="mb-6 h-7 w-56 rounded-full bg-background-muted"></div>
+        <div class="mb-3 h-14 w-full max-w-2xl rounded bg-background-muted md:h-20"></div>
+        <div class="mb-8 h-14 w-2/3 max-w-xl rounded bg-background-muted md:h-20"></div>
+        <div class="mb-10 h-5 w-full max-w-xl rounded bg-background-muted"></div>
+        <div class="flex gap-3">
+          <div class="h-12 w-48 rounded-control bg-background-muted"></div>
+          <div class="h-12 w-40 rounded-control bg-background-muted"></div>
+        </div>
       </div>
+    </section>
+  } @else if (facade.error(); as errorMessage) {
+    <section id="inicio" class="section-space bg-background">
+      <p class="app-container text-body text-text-secondary" role="alert">{{ errorMessage }}</p>
     </section>
   }
 
@@ -189,7 +217,12 @@
       </div>
     </section>
   } @else if (facade.loading()) {
-    <section id="servicios" class="section-space bg-background-soft" data-home-skeleton aria-busy="true">
+    <section
+      id="servicios"
+      class="section-space bg-background-soft"
+      data-home-skeleton
+      aria-busy="true"
+    >
       <div class="app-container">
         <div role="status" aria-live="polite" class="animate-pulse">
           <span class="sr-only">Cargando servicios</span>
@@ -219,9 +252,9 @@
           <h2 class="max-w-3xl whitespace-pre-line text-heading-1 text-text-primary" data-rise>
             {{ facade.projectsHeader().title }}
           </h2>
-          <app-button variant="secondary" [href]="projectsAction().url">{{
-            projectsAction().label
-          }}</app-button>
+          @if (projectsAction(); as action) {
+            <app-button variant="secondary" [href]="action.url">{{ action.label }}</app-button>
+          }
         </div>
 
         <ul
@@ -309,320 +342,421 @@
   }
 
   <!-- 4. Proceso: el plano se construye con el scroll (movimiento propio de la página). -->
-  <section
-    id="proceso"
-    data-process
-    class="overflow-x-clip border-y border-border bg-background-soft"
-    aria-labelledby="proceso-title"
-  >
-    <!-- El bloque queda fijo en pantalla mientras se recorre el alto del contenedor: ese recorrido
+  @if (steps().length > 0) {
+    <section
+      id="proceso"
+      data-process
+      class="overflow-x-clip border-y border-border bg-background-soft"
+      aria-labelledby="proceso-title"
+    >
+      <!-- El bloque queda fijo en pantalla mientras se recorre el alto del contenedor: ese recorrido
          mueve el video y marca el paso activo. -->
-    <div data-process-track class="relative h-[200svh] lg:h-[230svh]">
-      <div
-        class="app-container sticky top-16 flex h-[calc(100svh-4rem)] flex-col justify-center gap-4 lg:gap-8"
-      >
-        <h2
-          id="proceso-title"
-          class="max-w-3xl text-heading-2 text-text-primary lg:text-heading-1"
-          data-rise
-        >
-          {{ process.title }}
-        </h2>
+      <div data-process-track class="relative h-[200svh] lg:h-[230svh]">
         <div
-          class="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-10"
+          class="app-container sticky top-16 flex h-[calc(100svh-4rem)] flex-col justify-center gap-4 lg:gap-8"
         >
-          <div class="lg:order-2">
-            <figure
-              class="plan-stage relative aspect-video w-full rounded-panel border border-border bg-surface text-text-primary"
-              role="img"
-              aria-label="Una vivienda moderna se construye por etapas: terreno, cimientos, estructura, muros y acabados."
-            >
-              <!-- Respaldo: dibujo técnico (se muestra si el video no está disponible). -->
-              <svg
-                viewBox="0 0 600 430"
-                class="plan-fallback block size-full"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
+          <h2
+            id="proceso-title"
+            class="max-w-3xl text-heading-2 text-text-primary lg:text-heading-1"
+            data-rise
+          >
+            Del terreno a la llave en mano, con un solo equipo
+          </h2>
+          <div
+            class="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-10"
+          >
+            <div class="lg:order-2">
+              <figure
+                class="plan-stage relative aspect-video w-full rounded-panel border border-border bg-surface text-text-primary"
+                role="img"
+                aria-label="Una vivienda moderna se construye por etapas: terreno, cimientos, estructura, muros y acabados."
               >
-                <!-- Etapa 1: terreno y cotas -->
-                <path class="plan-stroke" data-draw data-seg="0" pathLength="1" d="M20 360H580" />
-                <path
-                  class="plan-stroke text-text-muted"
-                  data-draw
-                  data-seg="0"
-                  data-at="0.2"
-                  pathLength="1"
-                  stroke-width="1.5"
-                  d="M20 380C120 370 220 388 320 378S500 372 580 382"
-                />
-                <path
-                  data-fade
-                  data-seg="0"
-                  data-at="0.1"
-                  class="text-text-muted"
-                  stroke-width="1.5"
-                  stroke-dasharray="5 6"
-                  d="M70 300V360M530 300V360"
-                />
-                <path
-                  class="plan-stroke text-text-muted"
-                  data-draw
-                  data-seg="0"
-                  data-at="0.3"
-                  pathLength="1"
-                  stroke-width="1.5"
-                  d="M100 405H500M100 397v16M500 397v16"
-                />
+                <!-- Respaldo: dibujo técnico (se muestra si el video no está disponible). -->
+                <svg
+                  viewBox="0 0 600 430"
+                  class="plan-fallback block size-full"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <!-- Etapa 1: terreno y cotas -->
+                  <path class="plan-stroke" data-draw data-seg="0" pathLength="1" d="M20 360H580" />
+                  <path
+                    class="plan-stroke text-text-muted"
+                    data-draw
+                    data-seg="0"
+                    data-at="0.2"
+                    pathLength="1"
+                    stroke-width="1.5"
+                    d="M20 380C120 370 220 388 320 378S500 372 580 382"
+                  />
+                  <path
+                    data-fade
+                    data-seg="0"
+                    data-at="0.1"
+                    class="text-text-muted"
+                    stroke-width="1.5"
+                    stroke-dasharray="5 6"
+                    d="M70 300V360M530 300V360"
+                  />
+                  <path
+                    class="plan-stroke text-text-muted"
+                    data-draw
+                    data-seg="0"
+                    data-at="0.3"
+                    pathLength="1"
+                    stroke-width="1.5"
+                    d="M100 405H500M100 397v16M500 397v16"
+                  />
 
-                <!-- Etapa 2: volúmenes y planos -->
-                <path
-                  class="plan-stroke"
-                  data-draw
-                  data-seg="1"
-                  pathLength="1"
-                  d="M120 360V250H400V360"
-                />
-                <path
-                  class="plan-stroke"
-                  data-draw
-                  data-seg="1"
-                  data-at="0.2"
-                  pathLength="1"
-                  d="M110 250H470"
-                />
-                <path
-                  class="plan-stroke"
-                  data-draw
-                  data-seg="1"
-                  data-at="0.3"
-                  pathLength="1"
-                  d="M200 250V140H460V250"
-                />
-                <path
-                  class="plan-stroke"
-                  data-draw
-                  data-seg="1"
-                  data-at="0.5"
-                  pathLength="1"
-                  d="M190 140H470"
-                />
-                <path
-                  class="plan-stroke text-text-muted"
-                  data-draw
-                  data-seg="1"
-                  data-at="0.5"
-                  pathLength="1"
-                  stroke-width="1.5"
-                  d="M490 140v110M484 140h12M484 250h12"
-                />
+                  <!-- Etapa 2: volúmenes y planos -->
+                  <path
+                    class="plan-stroke"
+                    data-draw
+                    data-seg="1"
+                    pathLength="1"
+                    d="M120 360V250H400V360"
+                  />
+                  <path
+                    class="plan-stroke"
+                    data-draw
+                    data-seg="1"
+                    data-at="0.2"
+                    pathLength="1"
+                    d="M110 250H470"
+                  />
+                  <path
+                    class="plan-stroke"
+                    data-draw
+                    data-seg="1"
+                    data-at="0.3"
+                    pathLength="1"
+                    d="M200 250V140H460V250"
+                  />
+                  <path
+                    class="plan-stroke"
+                    data-draw
+                    data-seg="1"
+                    data-at="0.5"
+                    pathLength="1"
+                    d="M190 140H470"
+                  />
+                  <path
+                    class="plan-stroke text-text-muted"
+                    data-draw
+                    data-seg="1"
+                    data-at="0.5"
+                    pathLength="1"
+                    stroke-width="1.5"
+                    d="M490 140v110M484 140h12M484 250h12"
+                  />
 
-                <!-- Etapa 3: estructura (los niveles se levantan) -->
-                <rect
-                  class="plan-grow"
-                  data-grow
-                  data-seg="2"
-                  x="120"
-                  y="250"
-                  width="280"
-                  height="110"
-                  fill="currentColor"
-                  fill-opacity="0.1"
-                  stroke="none"
-                />
-                <rect
-                  class="plan-grow"
-                  data-grow
-                  data-seg="2"
-                  data-at="0.35"
-                  x="200"
-                  y="140"
-                  width="260"
-                  height="110"
-                  fill="currentColor"
-                  fill-opacity="0.1"
-                  stroke="none"
-                />
+                  <!-- Etapa 3: estructura (los niveles se levantan) -->
+                  <rect
+                    class="plan-grow"
+                    data-grow
+                    data-seg="2"
+                    x="120"
+                    y="250"
+                    width="280"
+                    height="110"
+                    fill="currentColor"
+                    fill-opacity="0.1"
+                    stroke="none"
+                  />
+                  <rect
+                    class="plan-grow"
+                    data-grow
+                    data-seg="2"
+                    data-at="0.35"
+                    x="200"
+                    y="140"
+                    width="260"
+                    height="110"
+                    fill="currentColor"
+                    fill-opacity="0.1"
+                    stroke="none"
+                  />
 
-                <!-- Etapa 4: acabados -->
-                <rect
-                  data-fade
-                  data-seg="3"
-                  x="405"
-                  y="140"
-                  width="55"
-                  height="110"
-                  fill="currentColor"
-                  fill-opacity="0.28"
-                  stroke="none"
-                />
-                <path
-                  data-fade
-                  data-seg="3"
-                  class="text-text-muted"
-                  stroke-width="1.5"
-                  d="M419 140v110M433 140v110M447 140v110"
-                />
-                <rect
-                  class="plan-stroke"
-                  data-draw
-                  data-seg="3"
-                  pathLength="1"
-                  x="140"
-                  y="275"
-                  width="100"
-                  height="60"
-                />
-                <rect
-                  class="plan-stroke"
-                  data-draw
-                  data-seg="3"
-                  data-at="0.1"
-                  pathLength="1"
-                  x="225"
-                  y="165"
-                  width="110"
-                  height="60"
-                />
-                <rect
-                  class="plan-stroke"
-                  data-draw
-                  data-seg="3"
-                  data-at="0.2"
-                  pathLength="1"
-                  x="352"
-                  y="165"
-                  width="42"
-                  height="60"
-                />
-                <rect
-                  data-fade
-                  data-seg="3"
-                  data-at="0.2"
-                  x="140"
-                  y="275"
-                  width="100"
-                  height="60"
-                  fill="currentColor"
-                  fill-opacity="0.12"
-                  stroke="none"
-                />
-                <rect
-                  data-fade
-                  data-seg="3"
-                  data-at="0.3"
-                  x="225"
-                  y="165"
-                  width="110"
-                  height="60"
-                  fill="currentColor"
-                  fill-opacity="0.12"
-                  stroke="none"
-                />
-                <rect
-                  data-fade
-                  data-seg="3"
-                  data-at="0.5"
-                  class="text-accent"
-                  x="300"
-                  y="285"
-                  width="48"
-                  height="75"
-                  fill="currentColor"
-                  stroke="none"
-                />
-                <path data-fade data-seg="3" data-at="0.4" d="M70 360V335M520 360V325" />
-                <circle
-                  data-fade
-                  data-seg="3"
-                  data-at="0.4"
-                  cx="70"
-                  cy="318"
-                  r="22"
-                  fill="currentColor"
-                  fill-opacity="0.12"
-                />
-                <circle
-                  data-fade
-                  data-seg="3"
-                  data-at="0.45"
-                  cx="520"
-                  cy="304"
-                  r="28"
-                  fill="currentColor"
-                  fill-opacity="0.12"
-                />
-              </svg>
-              <!-- Escenario principal: video 3D sobre fondo verde, recortado en el navegador (canvas WebGL)
-             y controlado por el scroll. TRANSITORIO: archivos locales; a futuro vendrán de la
-             BD / Cloudinary. -->
-              <video
-                class="pointer-events-none absolute left-0 top-0 size-px opacity-0"
-                data-process-video
-                data-src-lg="/media/home/proceso-obra.mp4"
-                data-src-sm="/media/home/proceso-obra-sm.mp4"
-                muted
-                playsinline
-                preload="none"
-                disablepictureinpicture
-                aria-hidden="true"
-              ></video>
-              <canvas
-                class="plan-video absolute inset-0 size-full"
-                data-process-canvas
-                width="1280"
-                height="720"
-                aria-hidden="true"
-              ></canvas>
-              <img
-                class="plan-poster absolute inset-0 size-full object-contain"
-                src="/media/home/proceso-obra-poster.png"
-                alt=""
-                width="1280"
-                height="720"
-                loading="lazy"
-                decoding="async"
-              />
-            </figure>
-          </div>
+                  <!-- Etapa 4: acabados -->
+                  <rect
+                    data-fade
+                    data-seg="3"
+                    x="405"
+                    y="140"
+                    width="55"
+                    height="110"
+                    fill="currentColor"
+                    fill-opacity="0.28"
+                    stroke="none"
+                  />
+                  <path
+                    data-fade
+                    data-seg="3"
+                    class="text-text-muted"
+                    stroke-width="1.5"
+                    d="M419 140v110M433 140v110M447 140v110"
+                  />
+                  <rect
+                    class="plan-stroke"
+                    data-draw
+                    data-seg="3"
+                    pathLength="1"
+                    x="140"
+                    y="275"
+                    width="100"
+                    height="60"
+                  />
+                  <rect
+                    class="plan-stroke"
+                    data-draw
+                    data-seg="3"
+                    data-at="0.1"
+                    pathLength="1"
+                    x="225"
+                    y="165"
+                    width="110"
+                    height="60"
+                  />
+                  <rect
+                    class="plan-stroke"
+                    data-draw
+                    data-seg="3"
+                    data-at="0.2"
+                    pathLength="1"
+                    x="352"
+                    y="165"
+                    width="42"
+                    height="60"
+                  />
+                  <rect
+                    data-fade
+                    data-seg="3"
+                    data-at="0.2"
+                    x="140"
+                    y="275"
+                    width="100"
+                    height="60"
+                    fill="currentColor"
+                    fill-opacity="0.12"
+                    stroke="none"
+                  />
+                  <rect
+                    data-fade
+                    data-seg="3"
+                    data-at="0.3"
+                    x="225"
+                    y="165"
+                    width="110"
+                    height="60"
+                    fill="currentColor"
+                    fill-opacity="0.12"
+                    stroke="none"
+                  />
+                  <rect
+                    data-fade
+                    data-seg="3"
+                    data-at="0.5"
+                    class="text-accent"
+                    x="300"
+                    y="285"
+                    width="48"
+                    height="75"
+                    fill="currentColor"
+                    stroke="none"
+                  />
+                  <path data-fade data-seg="3" data-at="0.4" d="M70 360V335M520 360V325" />
+                  <circle
+                    data-fade
+                    data-seg="3"
+                    data-at="0.4"
+                    cx="70"
+                    cy="318"
+                    r="22"
+                    fill="currentColor"
+                    fill-opacity="0.12"
+                  />
+                  <circle
+                    data-fade
+                    data-seg="3"
+                    data-at="0.45"
+                    cx="520"
+                    cy="304"
+                    r="28"
+                    fill="currentColor"
+                    fill-opacity="0.12"
+                  />
+                </svg>
+                <!-- Escenario principal: video 3D sobre fondo verde, recortado en el navegador (canvas WebGL)
+             y controlado por el scroll. Las URL vienen de la configuración del sitio (Cloudinary). -->
+                <video
+                  class="pointer-events-none absolute left-0 top-0 size-px opacity-0"
+                  data-process-video
+                  [attr.data-src-lg]="processVideo().large"
+                  [attr.data-src-sm]="processVideo().small"
+                  muted
+                  playsinline
+                  preload="none"
+                  disablepictureinpicture
+                  aria-hidden="true"
+                ></video>
+                <canvas
+                  class="plan-video absolute inset-0 size-full"
+                  data-process-canvas
+                  width="1280"
+                  height="720"
+                  aria-hidden="true"
+                ></canvas>
+                @if (processVideo().poster; as posterUrl) {
+                  <img
+                    class="plan-poster absolute inset-0 size-full object-contain"
+                    [src]="posterUrl"
+                    alt=""
+                    width="1280"
+                    height="720"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                }
+              </figure>
+            </div>
 
-          <ol class="m-0 flex list-none flex-col gap-2 p-0 lg:order-1 lg:gap-3">
-            @for (step of process.steps; track step.id; let i = $index) {
-              <li
-                data-step-item
-                class="process-step rounded-card border border-transparent px-3 py-2.5 transition-[background-color,border-color,box-shadow] duration-normal lg:px-5 lg:py-4"
-              >
-                <div class="flex items-start gap-3 lg:gap-4">
-                  <span
-                    class="process-step__num mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-border-strong bg-surface text-body-sm font-semibold text-text-primary transition-colors duration-normal lg:size-10"
-                    aria-hidden="true"
-                    >{{ i + 1 }}</span
-                  >
-                  <div class="min-w-0">
-                    <h3
-                      class="process-step__title text-heading-4 text-text-primary transition-colors duration-normal lg:text-heading-3"
+            <ol class="m-0 flex list-none flex-col gap-2 p-0 lg:order-1 lg:gap-3">
+              @for (step of steps(); track step.id; let i = $index) {
+                <li
+                  data-step-item
+                  class="process-step rounded-card border border-transparent px-3 py-2.5 transition-[background-color,border-color,box-shadow] duration-normal lg:px-5 lg:py-4"
+                >
+                  <div class="flex items-start gap-3 lg:gap-4">
+                    <span
+                      class="process-step__num mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-border-strong bg-surface text-body-sm font-semibold text-text-primary transition-colors duration-normal lg:size-10"
+                      aria-hidden="true"
+                      >{{ i + 1 }}</span
                     >
-                      {{ step.title }}
-                    </h3>
-                    <div class="process-step__text grid">
-                      <p
-                        class="min-h-0 overflow-hidden pt-1.5 text-body-sm text-text-secondary lg:text-body"
+                    <div class="min-w-0">
+                      <h3
+                        class="process-step__title text-heading-4 text-text-primary transition-colors duration-normal lg:text-heading-3"
                       >
-                        {{ step.text }}
-                      </p>
+                        {{ step.titulo }}
+                      </h3>
+                      <div class="process-step__text grid">
+                        <p
+                          class="min-h-0 overflow-hidden pt-1.5 text-body-sm text-text-secondary lg:text-body"
+                        >
+                          {{ step.texto }}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </li>
-            }
-          </ol>
+                </li>
+              }
+            </ol>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  }
+
+  <!-- Garantías: por qué ISANORTE. -->
+  @if (trust.guarantees().length > 0) {
+    <section id="garantias" class="section-space bg-background" data-home-guarantees>
+      <div class="app-container">
+        <h2 class="mb-10 max-w-3xl text-heading-1 text-text-primary md:mb-14" data-rise>
+          Por qué elegir a ISANORTE
+        </h2>
+        <ul class="grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
+          @for (item of trust.guarantees(); track item.titulo) {
+            <li class="rounded-card border border-border bg-surface p-6" data-rise>
+              <h3 class="mb-2 text-heading-4 text-text-primary">{{ item.titulo }}</h3>
+              <p class="text-body-sm text-text-secondary">{{ item.texto }}</p>
+            </li>
+          }
+        </ul>
+      </div>
+    </section>
+  }
+
+  <!-- Testimonios. -->
+  @if (trust.testimonials().length > 0) {
+    <section id="testimonios" class="section-space bg-background-soft" data-home-testimonials>
+      <div class="app-container">
+        <h2 class="mb-10 max-w-3xl text-heading-1 text-text-primary md:mb-14" data-rise>
+          Lo que dicen nuestros clientes
+        </h2>
+        <ul class="grid list-none gap-4 p-0 md:grid-cols-2 lg:grid-cols-3">
+          @for (item of trust.testimonials(); track item.autor + item.texto) {
+            <li
+              class="flex flex-col justify-between rounded-card border border-border bg-surface p-6"
+              data-rise
+            >
+              <blockquote class="mb-6 text-body text-text-primary">“{{ item.texto }}”</blockquote>
+              <figcaption class="flex items-center gap-3">
+                @if (item.fotoUrl) {
+                  <img
+                    [src]="item.fotoUrl"
+                    [alt]="item.fotoAlt ?? item.autor"
+                    width="48"
+                    height="48"
+                    loading="lazy"
+                    decoding="async"
+                    class="size-12 rounded-full object-cover"
+                  />
+                }
+                <span class="min-w-0">
+                  <span class="block text-body-sm font-semibold text-text-primary">{{
+                    item.autor
+                  }}</span>
+                  @if (item.cargo) {
+                    <span class="block text-caption text-text-secondary">{{ item.cargo }}</span>
+                  }
+                </span>
+              </figcaption>
+            </li>
+          }
+        </ul>
+      </div>
+    </section>
+  }
+
+  <!-- Clientes y marcas. -->
+  @if (trust.clients().length > 0) {
+    <section
+      id="clientes"
+      class="border-y border-border bg-background py-10 md:py-14"
+      data-home-clients
+    >
+      <div class="app-container">
+        <p
+          class="mb-6 text-center text-caption font-semibold uppercase tracking-wider text-text-muted"
+        >
+          Empresas e instituciones que confían en nosotros
+        </p>
+        <ul class="m-0 flex list-none flex-wrap items-center justify-center gap-x-10 gap-y-6 p-0">
+          @for (client of trust.clients(); track client.nombre) {
+            <li>
+              @if (client.logoUrl) {
+                <img
+                  [src]="client.logoUrl"
+                  [alt]="client.nombre"
+                  height="40"
+                  loading="lazy"
+                  decoding="async"
+                  class="h-10 w-auto max-w-40 object-contain opacity-80"
+                />
+              } @else {
+                <span class="text-body-sm font-semibold text-text-secondary">{{
+                  client.nombre
+                }}</span>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    </section>
+  }
 
   <!-- 5. ISADECOR: otra línea de la casa, otro ambiente. -->
   @if (businessUnitDisplay(); as businessUnit) {
@@ -654,7 +788,7 @@
             <p class="mb-8 text-body-lg text-text-secondary">{{ businessUnit.unit.descripcion }}</p>
           }
           <ul class="mb-10 grid list-none gap-x-6 gap-y-3 p-0 sm:grid-cols-2">
-            @for (item of isadecorOffer; track item) {
+            @for (item of isadecorOffer(); track item) {
               <li class="flex items-center gap-2.5 text-body-sm text-text-primary">
                 <svg
                   aria-hidden="true"
@@ -754,6 +888,27 @@
   }
 
   <!-- 6. Cierre: pregunta, canales y formulario. -->
+  <!-- Preguntas frecuentes. -->
+  @if (trust.faqsFor('HOME').length > 0) {
+    <section id="preguntas" class="section-space bg-background" data-home-faq>
+      <div class="app-container grid gap-10 lg:grid-cols-12 lg:gap-14">
+        <h2 class="text-heading-1 text-text-primary lg:col-span-4" data-rise>
+          Preguntas frecuentes
+        </h2>
+        <div class="flex flex-col gap-3 lg:col-span-8">
+          @for (faq of trust.faqsFor('HOME'); track faq.pregunta) {
+            <details class="group rounded-card border border-border bg-surface p-5" data-rise>
+              <summary class="cursor-pointer list-none text-heading-4 text-text-primary">
+                {{ faq.pregunta }}
+              </summary>
+              <p class="mt-3 text-body text-text-secondary">{{ faq.respuesta }}</p>
+            </details>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
   @if (preFooterData(); as cta) {
     <section
       id="cotizar"
@@ -762,9 +917,15 @@
     >
       <div class="app-container grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-14">
         <div class="lg:col-span-5" data-rise>
-          <h2 class="mb-4 text-heading-1 text-text-primary">{{ cta.title }}</h2>
-          <p class="mb-3 text-body-lg text-text-secondary">{{ cta.subtitle }}</p>
-          <p class="mb-8 text-body-sm font-semibold text-text-primary">{{ responsePromise }}</p>
+          @if (cta.title) {
+            <h2 class="mb-4 text-heading-1 text-text-primary">{{ cta.title }}</h2>
+          }
+          @if (cta.subtitle) {
+            <p class="mb-3 text-body-lg text-text-secondary">{{ cta.subtitle }}</p>
+          }
+          @if (responsePromise(); as promise) {
+            <p class="mb-8 text-body-sm font-semibold text-text-primary">{{ promise }}</p>
+          }
 
           <ul class="m-0 flex list-none flex-col gap-3 p-0" aria-label="Otras formas de contacto">
             @if (whatsappHref(); as wa) {
@@ -856,7 +1017,7 @@
         </div>
 
         <div class="lg:col-span-7" data-rise>
-          <app-contact-form [facade]="contactFacade" [services]="serviceOptions" />
+          <app-contact-form [facade]="contactFacade" [services]="serviceOptions()" />
         </div>
       </div>
     </section>

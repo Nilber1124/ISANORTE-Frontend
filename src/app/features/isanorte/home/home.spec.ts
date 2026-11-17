@@ -194,7 +194,11 @@ describe('ISANORTE Home', () => {
     http = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    // El contenido de confianza se pide aparte; estas pruebas no lo evalúan.
+    http.match((request) => request.url.endsWith('/confianza'));
+    http.verify();
+  });
 
   it('renders dynamic Hero and Services with the existing coverflow presentation', () => {
     const fixture = TestBed.createComponent(Home);
@@ -238,16 +242,16 @@ describe('ISANORTE Home', () => {
     expect(text).not.toContain('Construcción Obra Civil');
   });
 
-  it('uses the isolated transitional Services fallback only after a failed request', () => {
+  it('shows no local services after a failed request', () => {
     const fixture = TestBed.createComponent(Home);
     http
       .expectOne('/api/publico/sitios/isanorte/home')
       .flush({ message: 'offline' }, { status: 503, statusText: 'Unavailable' });
     fixture.detectChanges();
 
-    const section = (fixture.nativeElement as HTMLElement).querySelector('[data-home-services]');
-    expect(section?.textContent).toContain('Construcción Obra Civil');
-    expect(section?.textContent).toContain('VER TODOS LOS SERVICIOS');
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('[data-home-services]')).toBeNull();
+    expect(el.querySelector('[role="alert"]')).not.toBeNull();
   });
 
   it('renders the featured business unit from Home data in the existing editorial composition', () => {
@@ -303,18 +307,16 @@ describe('ISANORTE Home', () => {
     expect(section.querySelectorAll('[role="img"]')).toHaveLength(0);
   });
 
-  it('uses the isolated business-unit fallback only after the Home request fails', () => {
+  it('shows no ISADECOR block after the Home request fails', () => {
     const fixture = TestBed.createComponent(Home);
     http
       .expectOne('/api/publico/sitios/isanorte/home')
       .flush({ message: 'offline' }, { status: 503, statusText: 'Unavailable' });
     fixture.detectChanges();
 
-    const section = (fixture.nativeElement as HTMLElement).querySelector(
-      '[data-home-business-unit]',
-    );
-    expect(section?.textContent).toContain('ISADECOR: Espacios que');
-    expect(section?.textContent).toContain('CONOCE ISADECOR');
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('[data-home-business-unit]'),
+    ).toBeNull();
   });
 
   it('keeps Trust Strip absent, Hero and Services dynamic, and remaining Home baseline static', () => {
@@ -329,11 +331,12 @@ describe('ISANORTE Home', () => {
     // Sin proyectos en la API no se inventan obras de respaldo.
     expect(text).not.toContain('Residencia Aura');
     expect(text).not.toContain('Edificio Tech-Corporate');
-    expect(text).toContain('¿Tienes un proyecto en mente?');
+    // El titular del cierre sale de la sección CTA de la BD; sin ella no se inventa uno.
+    expect(text).not.toContain('¿Tienes un proyecto en mente?');
     expect(text).not.toContain('CTA final desde PostgreSQL');
   });
 
-  it('ends with the contact form, the real services as options and the response promise', () => {
+  it('ends with the contact form and the API services as options', () => {
     const fixture = TestBed.createComponent(Home);
     http.expectOne('/api/publico/sitios/isanorte/home').flush(backendHome);
     fixture.detectChanges();
@@ -342,12 +345,11 @@ describe('ISANORTE Home', () => {
       '#cotizar[data-home-cta]',
     ) as HTMLElement;
     expect(section.querySelector('app-contact-form form')).toBeTruthy();
-    expect(section.textContent).toContain('Te respondemos en menos de 24 horas.');
     const options = Array.from(section.querySelectorAll('select option')).map((option) =>
       option.textContent?.trim(),
     );
-    expect(options).toContain('Saneamiento físico legal');
-    expect(options).toContain('Estructuras metálicas');
+    expect(options).toContain('Diseño API');
+    expect(options).toContain('Acabados API');
     // El enlace «#cotizar» del hero apunta al formulario del propio Home.
     const hero = (fixture.nativeElement as HTMLElement).querySelector('[data-home-hero]');
     expect(hero?.querySelector('app-button a')?.getAttribute('href')).toBe('#cotizar');

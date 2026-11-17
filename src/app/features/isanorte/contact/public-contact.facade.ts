@@ -51,9 +51,9 @@ export class PublicContactFacade {
   readonly telefono = signal('');
   readonly empresa = signal('');
   readonly mensaje = signal('');
-  /** Servicio de interés (opcional). El contrato no tiene este campo: se antepone al mensaje. */
+  /** Servicio de interés (opcional). */
   readonly servicio = signal('');
-  /** Ubicación del terreno u obra (opcional). Tampoco está en el contrato: va dentro del mensaje. */
+  /** Ubicación del terreno u obra (opcional). */
   readonly ubicacion = signal('');
   /** Autorización para usar los datos y responder la solicitud; es obligatoria para enviar. */
   readonly consentimiento = signal(false);
@@ -176,24 +176,11 @@ export class PublicContactFacade {
       email: this.email().trim(),
       telefono: this.telefono().trim(),
       empresa: empresa || null,
-      mensaje: this.composedMessage(),
+      ubicacion: this.ubicacion().trim() || null,
+      servicioInteres: this.servicio().trim() || null,
+      mensaje: this.mensaje().trim() || 'Solicitud de cotización desde el sitio web.',
+      consentimiento: this.consentimiento(),
     };
-  }
-
-  /**
-   * El contrato exige un mensaje no vacío y no tiene campos para servicio ni ubicación: esos datos
-   * se anteponen al texto. Si el visitante no escribe nada, se envía una frase por defecto.
-   */
-  private composedMessage(): string {
-    const header = [
-      this.servicio().trim() && `Servicio de interés: ${this.servicio().trim()}`,
-      this.ubicacion().trim() && `Ubicación: ${this.ubicacion().trim()}`,
-    ]
-      .filter(Boolean)
-      .join('\n');
-    const mensaje = this.mensaje().trim();
-    if (header && mensaje) return `${header}\n\n${mensaje}`;
-    return header || mensaje || 'Solicitud de cotización desde el sitio web.';
   }
 
   private resetForm(): void {

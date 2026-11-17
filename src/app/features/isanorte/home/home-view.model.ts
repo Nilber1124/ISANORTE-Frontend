@@ -78,3 +78,15 @@ export interface HomeCtaActionView {
 /** Rutas de navegación estructurales; no son contenido comercial administrable. */
 export const PUBLIC_SERVICES_PATH = '/servicios';
 export const PUBLIC_PROJECTS_PATH = '/proyectos';
+
+export interface HeroViewData {
+  tag: string;
+  title: string;
+  subtitle: string;
+}
+
+export interface HeroActionViewData {
+  label: string;
+  url: string;
+  order: number;
+}

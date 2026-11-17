@@ -88,10 +88,10 @@ export interface PublicHomeBusinessUnit {
   icono: string | null;
   imagenUrl: string | null;
   imagenAlt: string | null;
+  ofertas?: string[];
   orden: number;
   recursos: PublicBusinessUnitResource[];
 }
-
 
 export interface PublicHomeResponse {
   secciones: PublicHomeSection[];

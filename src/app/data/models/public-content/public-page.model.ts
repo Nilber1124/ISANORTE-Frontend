@@ -84,6 +84,10 @@ export interface PublicProject {
   descripcion: string | null;
   ubicacion: string | null;
   fechaProyecto: string | null;
+  areaM2?: number | null;
+  plazoMeses?: number | null;
+  alcance?: string | null;
+  tipoObra?: PublicProjectType | null;
   orden: number;
   imagenes: PublicProjectImage[];
   servicios: PublicProjectService[];
@@ -96,3 +100,15 @@ export interface PublicPageResponse {
   servicios: PublicService[] | null;
   proyectos: PublicProject[] | null;
 }
+
+export type PublicProjectType =
+  'VIVIENDA' | 'COMERCIAL' | 'INDUSTRIAL' | 'INSTITUCIONAL' | 'REMODELACION' | 'HABILITACION';
+
+export const PROJECT_TYPE_LABELS: Record<PublicProjectType, string> = {
+  VIVIENDA: 'Vivienda',
+  COMERCIAL: 'Comercial',
+  INDUSTRIAL: 'Industrial',
+  INSTITUCIONAL: 'Institucional',
+  REMODELACION: 'Remodelación',
+  HABILITACION: 'Habilitación urbana',
+};

@@ -25,6 +25,7 @@ import {
 import { PublicProductDetailResponse } from '../models/public-content/public-product-detail.model';
 import { PublicOrderRequest, PublicOrderResponse } from '../models/public-content/public-order.model';
 import { PublicQuoteRequest, PublicQuoteResponse } from '../models/public-content/public-quote.model';
+import { PublicTrustResponse } from '../models/public-content/public-trust.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
 import { trimTrailingSlashes } from '../../shared/utils/text';
 
@@ -36,6 +37,10 @@ export class PublicContentApiService {
 
   getHome(siteKey: string): Observable<PublicHomeResponse> {
     return this.http.get<PublicHomeResponse>(`${this.resourceUrl}/${encodeURIComponent(siteKey)}/home`);
+  }
+
+  getTrust(siteKey: string): Observable<PublicTrustResponse> {
+    return this.http.get<PublicTrustResponse>(`${this.resourceUrl}/${encodeURIComponent(siteKey)}/confianza`);
   }
 
   getSite(siteKey: string): Observable<PublicSiteResponse> {
