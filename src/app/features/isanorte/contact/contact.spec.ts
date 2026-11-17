@@ -6,11 +6,9 @@ import { PublicSiteCompany } from '../../../data/models/public-content/public-si
 import { PublicPageContent, PublicPageType } from '../../../data/models/public-content/public-page.model';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { Alert } from '../../../shared/components/alert/alert';
-import { Button } from '../../../shared/components/button/button';
 import { Card } from '../../../shared/components/card/card';
-import { InputField } from '../../../shared/components/input-field/input-field';
-import { TextareaField } from '../../../shared/components/textarea-field/textarea-field';
 import { Contact } from './contact';
+import { ContactForm } from './contact-form/contact-form';
 import { PublicContactFacade } from './public-contact.facade';
 
 class PublicContactFacadeStub {
@@ -85,7 +83,7 @@ describe('Contact', () => {
     await TestBed.configureTestingModule({ imports: [Contact] })
       .overrideComponent(Contact, {
         set: {
-          imports: [NgTemplateOutlet, Alert, Button, Card, InputField, TextareaField],
+          imports: [NgTemplateOutlet, Alert, Card, ContactForm],
           providers: [
             { provide: PublicContactFacade, useValue: facade },
             { provide: PublicSiteFacade, useValue: site },

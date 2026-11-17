@@ -1,0 +1,104 @@
+@let f = facade();
+<app-card class="mt-10 block lg:mt-0" padding="large" data-contact-form>
+  <h2 class="text-heading-3 text-text-primary">Enviar mensaje</h2>
+  <p class="mt-2 text-body text-text-secondary">Completa el formulario para contactar al equipo.</p>
+
+  @if (f.submitSuccess()) {
+    <app-alert
+      class="mt-6 block"
+      variant="success"
+      title="Mensaje enviado"
+      dismissible
+      (dismissed)="f.dismissSubmitSuccess()"
+    >
+      Tu mensaje fue enviado correctamente.
+    </app-alert>
+  }
+  @if (f.submitError(); as error) {
+    <app-alert class="mt-6 block" variant="error" title="No fue posible enviar el mensaje">{{
+      error
+    }}</app-alert>
+  }
+
+  <form class="mt-6 flex flex-col gap-5" (submit)="submit($event)" novalidate>
+    <app-input-field
+      inputId="contact-name"
+      label="Nombre completo"
+      placeholder="Ej. Carlos Mendoza"
+      name="nombre"
+      autocomplete="name"
+      [(value)]="f.nombre"
+      [required]="true"
+      [maxLength]="150"
+      [disabled]="f.submitting()"
+      [error]="f.nombreError()"
+      (blurred)="f.nombreTouched.set(true)"
+    />
+    <app-input-field
+      inputId="contact-email"
+      type="email"
+      label="Correo electrónico"
+      placeholder="carlos@ejemplo.com"
+      name="email"
+      autocomplete="email"
+      inputMode="email"
+      [(value)]="f.email"
+      [required]="true"
+      [maxLength]="180"
+      [disabled]="f.submitting()"
+      [error]="f.emailError()"
+      (blurred)="f.emailTouched.set(true)"
+    />
+    <app-input-field
+      inputId="contact-phone"
+      type="tel"
+      label="Teléfono de contacto"
+      placeholder="Ej. 312 456 7890"
+      name="telefono"
+      autocomplete="tel"
+      inputMode="tel"
+      [(value)]="f.telefono"
+      [required]="true"
+      [maxLength]="30"
+      [disabled]="f.submitting()"
+      [error]="f.telefonoError()"
+      (blurred)="f.telefonoTouched.set(true)"
+    />
+    <app-input-field
+      inputId="contact-company"
+      label="Empresa / Constructora (opcional)"
+      placeholder="Nombre de la empresa"
+      name="empresa"
+      autocomplete="organization"
+      [(value)]="f.empresa"
+      [maxLength]="180"
+      [disabled]="f.submitting()"
+      [error]="f.empresaError()"
+      (blurred)="f.empresaTouched.set(true)"
+    />
+    <app-textarea-field
+      inputId="contact-message"
+      label="Cuéntanos sobre tu proyecto"
+      placeholder="Describe tu proyecto, ubicación, alcance o servicios requeridos"
+      name="mensaje"
+      [(value)]="f.mensaje"
+      [rows]="5"
+      [required]="true"
+      [maxLength]="5000"
+      [disabled]="f.submitting()"
+      [error]="f.mensajeError()"
+      (blurred)="f.mensajeTouched.set(true)"
+    />
+    <div class="mt-2 [&>app-button]:w-full [&_button]:w-full">
+      <app-button
+        variant="accent"
+        size="large"
+        type="submit"
+        [loading]="f.submitting()"
+        [disabled]="f.submitting()"
+      >
+        ENVIAR SOLICITUD &rarr;
+      </app-button>
+    </div>
+  </form>
+</app-card>
