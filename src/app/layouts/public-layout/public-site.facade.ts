@@ -11,6 +11,7 @@ import {
 import { PublicContentApiService } from '../../data/services/public-content-api.service';
 import { PUBLIC_SITE_ERROR_FALLBACK } from './public-site-fallback';
 import { isValidEmail } from '../../shared/utils/text';
+import { whatsappMessageFor } from './public-whatsapp-message';
 
 export interface PublicSiteConfigurationView {
   key: string;
@@ -122,6 +123,13 @@ export class PublicSiteFacade {
       .filter((value): value is string => value !== null)
       .filter((value, index, values) => values.indexOf(value) === index);
   });
+  private readonly _currentUrl = signal<string | null>(null);
+
+  /** Página que mira el visitante; define el mensaje inicial de WhatsApp. */
+  setCurrentUrl(url: string | null): void {
+    this._currentUrl.set(url);
+  }
+
   /** Enlace de WhatsApp con el número de la empresa; null si no hay un número válido. */
   readonly whatsappHref = computed(() => {
     const company = this.company();
@@ -129,7 +137,11 @@ export class PublicSiteFacade {
       .map((value) => (value ?? '').replace(/\D/g, ''))
       .find((value) => value.length >= 8);
     if (!numero) return null;
-    const mensaje = `Hola, quisiera más información de ${this.siteName() || 'su empresa'}.`;
+    const url = this._currentUrl();
+    const mensaje =
+      url === null
+        ? `Hola, quisiera más información de ${this.siteName() || 'su empresa'}.`
+        : whatsappMessageFor(url, this.siteName());
     return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
   });
   readonly address = computed(() => this.optionalText(this.company()?.direccion ?? null));

@@ -160,6 +160,25 @@ describe('PublicSiteFacade', () => {
     expect(facade.hasContactDetails()).toBe(true);
   });
 
+  it('builds the WhatsApp link with a message that follows the current page', () => {
+    const response = new Subject<PublicSiteResponse>();
+    api.response$ = response;
+    facade.load();
+    response.next(siteResponse);
+    response.complete();
+
+    const defaultText = decodeURIComponent(facade.whatsappHref()?.split('?text=')[1] ?? '');
+    expect(defaultText).toContain('quisiera más información');
+
+    facade.setCurrentUrl('/servicios');
+    const servicesText = decodeURIComponent(facade.whatsappHref()?.split('?text=')[1] ?? '');
+    expect(servicesText).toContain('cotizar un servicio');
+
+    facade.setCurrentUrl('/proyectos/villa-lomas-alta');
+    const projectText = decodeURIComponent(facade.whatsappHref()?.split('?text=')[1] ?? '');
+    expect(projectText).toContain('villa lomas alta');
+  });
+
   it('respects successful empty arrays and absent optional data without demo fallbacks', () => {
     const response = new Subject<PublicSiteResponse>();
     api.response$ = response;
