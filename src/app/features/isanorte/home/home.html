@@ -280,7 +280,12 @@
       </div>
       <app-carousel [items]="projects()" variant="marquee" ariaLabel="Carrusel de proyectos">
         <ng-template #cardTemplate let-project>
-          <app-card [href]="'/proyectos/' + project.slug" padding="none" class="group h-full">
+          <app-card
+            [href]="'/proyectos/' + project.slug"
+            [ariaLabel]="'Abrir proyecto: ' + project.title"
+            padding="none"
+            class="group h-full"
+          >
             <div
               class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
               [style.backgroundImage]="'url(' + project.bgImageUrl + ')'"
