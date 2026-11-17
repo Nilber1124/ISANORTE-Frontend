@@ -61,13 +61,14 @@
         }
       </div>
 
-      <app-carousel
-        [items]="services"
-        variant="coverflow"
-        [autoPlayInterval]="4500"
-        ariaLabel="Carrusel de servicios"
-      >
-        <ng-template #cardTemplate let-service let-index="index" let-total="total" let-isActive="isActive">
+      @defer (on viewport) {
+        <app-carousel
+          [items]="services"
+          variant="coverflow"
+          [autoPlayInterval]="4500"
+          ariaLabel="Carrusel de servicios"
+        >
+          <ng-template #cardTemplate let-service let-index="index" let-total="total" let-isActive="isActive">
           <app-card
             [href]="service.linkUrl"
             [ariaLabel]="service.name"
@@ -110,7 +111,7 @@
                 {{ service.name }}
               </h3>
               <p
-                class="text-body-sm md:text-body text-white/80 line-clamp-2 leading-relaxed transition-all duration-300"
+                class="text-body-sm md:text-body text-white/80 line-clamp-2 leading-relaxed transition-opacity duration-300"
                 [class.opacity-0]="isActive === false"
                 [class.max-h-0]="isActive === false"
                 [class.overflow-hidden]="isActive === false"
@@ -119,7 +120,7 @@
               </p>
               @if (service.benefits && service.benefits.length > 0) {
                 <ul
-                  class="mt-4 space-y-2 border-t border-white/15 pt-4 transition-all duration-500"
+                  class="mt-4 space-y-2 border-t border-white/15 pt-4 transition-opacity duration-500"
                   [class.opacity-0]="isActive === false"
                   [class.max-h-0]="isActive === false"
                   [class.overflow-hidden]="isActive === false"
@@ -140,8 +141,18 @@
               }
             </div>
           </app-card>
-        </ng-template>
-      </app-carousel>
+          </ng-template>
+        </app-carousel>
+      } @placeholder {
+        <div
+          class="flex h-[34.5rem] items-center justify-center md:h-[37.5rem] lg:h-[40.5rem]"
+          aria-hidden="true"
+        >
+          <div
+            class="h-[30rem] w-[80%] rounded-card border border-border bg-surface-soft shadow-card sm:w-[65%] md:h-[33rem] md:w-[45%] lg:h-[36rem] lg:w-[36%]"
+          ></div>
+        </div>
+      }
     </div>
   </section>
 </ng-template>
@@ -280,8 +291,9 @@
           <app-button variant="secondary" [href]="action.url">{{ action.label }}</app-button>
         }
       </div>
-      <app-carousel [items]="projects()" variant="marquee" ariaLabel="Carrusel de proyectos">
-        <ng-template #cardTemplate let-project>
+      @defer (on viewport) {
+        <app-carousel [items]="projects()" variant="marquee" ariaLabel="Carrusel de proyectos">
+          <ng-template #cardTemplate let-project>
           <app-card
             [href]="'/proyectos/' + project.slug"
             [ariaLabel]="'Abrir proyecto: ' + project.title"
@@ -304,7 +316,7 @@
               </p>
             </div>
             <div
-              class="absolute bottom-8 right-8 size-12 bg-accent rounded-full flex items-center justify-center text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-normal shadow-card"
+              class="absolute bottom-8 right-8 size-12 bg-accent rounded-full flex items-center justify-center text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-[opacity,transform] duration-normal shadow-card"
             >
               <svg aria-hidden="true" class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -316,8 +328,14 @@
               </svg>
             </div>
           </app-card>
-        </ng-template>
-      </app-carousel>
+          </ng-template>
+        </app-carousel>
+      } @placeholder {
+        <div class="flex h-[450px] items-stretch gap-5 overflow-hidden lg:h-[550px]" aria-hidden="true">
+          <div class="h-full w-[min(85vw,26rem)] flex-shrink-0 rounded-card border border-border bg-surface-soft shadow-card"></div>
+          <div class="hidden h-full w-[350px] flex-shrink-0 rounded-card border border-border bg-surface-soft shadow-card md:block"></div>
+        </div>
+      }
     </div>
   </section>
 }

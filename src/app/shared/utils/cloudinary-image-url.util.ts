@@ -15,3 +15,16 @@ export function cloudinaryImageUrl(value: string, width: number): string {
     return value;
   }
 }
+
+export function cloudinaryImageSrcSet(value: string, widths: readonly number[]): string | null {
+  try {
+    const url = new URL(value);
+    if (url.hostname !== 'res.cloudinary.com' || !url.pathname.includes('/image/upload/')) {
+      return null;
+    }
+
+    return widths.map((width) => `${cloudinaryImageUrl(value, width)} ${width}w`).join(', ');
+  } catch {
+    return null;
+  }
+}

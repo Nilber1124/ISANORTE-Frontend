@@ -26,7 +26,7 @@ export class Button {
 
   protected readonly classes = computed(() => {
     const base =
-      'relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button border font-semibold shadow-sm transition-[color,background-color,border-color,box-shadow,transform] duration-normal ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-px active:translate-y-[2px] active:shadow-none';
+      'relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button border font-semibold shadow-sm transition-transform duration-normal ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-px active:translate-y-[2px] active:shadow-none';
     const variants: Record<ButtonVariant, string> = {
       primary:
         'border-transparent bg-action-primary text-action-primary-text hover:bg-action-primary-hover active:bg-action-primary-hover btn-sweep btn-sweep-primary',

@@ -20,6 +20,8 @@ type GsapContext = ReturnType<GsapModule['context']>;
 export interface CinematicScene {
   id: string;
   imageUrl: string;
+  srcSet?: string;
+  sizes?: string;
 }
 
 /**
@@ -111,8 +113,9 @@ export class CinematicTour {
     const ctx = gsap.context(() => {
       const count = layers.length;
       const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-      // Móvil/tablet: intensidad reducida.
-      const k = isDesktop ? this.intensity() : this.intensity() * 0.6;
+      // En móvil se conservan los fundidos de escena, pero se evita mover/zoomear
+      // la imagen LCP durante la carga inicial. Escritorio mantiene la cámara completa.
+      const k = isDesktop ? this.intensity() : 0;
 
       const sceneDur = this.sceneDuration() / 1000;
       const fade = this.crossFade() / 1000;

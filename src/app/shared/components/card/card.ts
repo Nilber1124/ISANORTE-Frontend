@@ -17,7 +17,7 @@ export class Card {
 
   protected readonly classes = computed(() => {
     const base =
-      'relative block h-full overflow-hidden rounded-card border border-border bg-surface shadow-card transition-[border-color,background-color,transform,box-shadow] duration-normal ease-[var(--ease-standard)]';
+      'relative block h-full overflow-hidden rounded-card border border-border bg-surface shadow-card transition-transform duration-normal ease-[var(--ease-standard)]';
     const padding: Record<CardPadding, string> = {
       small: 'p-4',
       medium: 'p-6',

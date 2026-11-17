@@ -11,6 +11,8 @@
         <img
           class="absolute inset-0 size-full object-cover object-center"
           [src]="scene.imageUrl"
+          [attr.srcset]="scene.srcSet ?? null"
+          [attr.sizes]="scene.sizes ?? null"
           alt=""
           width="1280"
           height="853"

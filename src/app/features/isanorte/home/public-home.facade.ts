@@ -20,7 +20,10 @@ import {
   applyPublicPageSeo,
   clearPublicPageSeo,
 } from '../../../shared/utils/public-page-seo.util';
-import { cloudinaryImageUrl } from '../../../shared/utils/cloudinary-image-url.util';
+import {
+  cloudinaryImageSrcSet,
+  cloudinaryImageUrl,
+} from '../../../shared/utils/cloudinary-image-url.util';
 import { HOME_HERO_FALLBACK, HeroActionViewData, HeroViewData } from './home-hero-fallback';
 import { HOME_PROJECTS_FALLBACK } from './home-projects-fallback';
 import { HOME_CTA_FALLBACK } from './home-cta-fallback';
@@ -99,6 +102,8 @@ export class PublicHomeFacade {
       .map((scene, index) => ({
         id: `hero-scene-${scene.orden}-${index}`,
         imageUrl: cloudinaryImageUrl(scene.imagenUrl, 1920),
+        srcSet: cloudinaryImageSrcSet(scene.imagenUrl, [960, 1280, 1920]) ?? undefined,
+        sizes: '100vw',
       }));
   });
 
