@@ -3,6 +3,7 @@ import { SmoothDetails } from '../../../shared/directives/smooth-details.directi
 import { CommonModule } from '@angular/common';
 
 import { Badge } from '../../../shared/components/badge/badge';
+import { LocationMap } from '../../../shared/components/location-map/location-map';
 import { Button } from '../../../shared/components/button/button';
 import { CinematicTour } from '../../../shared/components/cinematic-tour/cinematic-tour';
 import { ContactForm } from '../contact/contact-form/contact-form';
@@ -60,7 +61,16 @@ const BENTO_LAYOUTS: Record<number, readonly string[]> = {
 };
 
 @Component({
-  imports: [SmoothDetails, CommonModule, Button, Badge, CinematicTour, ContactForm, HomeMotion],
+  imports: [
+    LocationMap,
+    SmoothDetails,
+    CommonModule,
+    Button,
+    Badge,
+    CinematicTour,
+    ContactForm,
+    HomeMotion,
+  ],
   selector: 'app-isanorte-home',
   providers: [PublicHomeFacade, PublicContactFacade],
   styleUrl: './home.css',
@@ -110,6 +120,21 @@ export class Home {
     const phone = this.phone();
     return phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : null;
   });
+
+  /** Dirección de la oficina: el mapa se construye con ella, así que cambia al editar la empresa. */
+  readonly officeAddress = computed(() => {
+    const address = this.site?.address() ?? '';
+    const city = this.site?.city() ?? '';
+    // Si la dirección ya nombra la ciudad no se repite.
+    const withCity = city && !address.toLowerCase().includes(city.toLowerCase());
+    return [address, withCity ? city : ''].filter(Boolean).join(', ');
+  });
+  readonly mapEmbedUrl = computed(
+    () => `https://www.google.com/maps?q=${encodeURIComponent(this.officeAddress())}&output=embed`,
+  );
+  readonly mapUrl = computed(
+    () => `https://www.google.com/maps?q=${encodeURIComponent(this.officeAddress())}`,
+  );
 
   readonly heroPrimary = computed(() => {
     const action = this.facade.heroActions()[0];

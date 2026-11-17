@@ -1122,6 +1122,15 @@
               </li>
             }
           </ul>
+          @if (officeAddress()) {
+            <div class="mt-6" data-home-map>
+              <app-location-map
+                [direccion]="officeAddress()"
+                [mapEmbedUrl]="mapEmbedUrl()"
+                [mapUrl]="mapUrl()"
+              />
+            </div>
+          }
         </div>
 
         <div class="lg:col-span-7" data-rise>
