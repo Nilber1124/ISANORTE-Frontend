@@ -207,9 +207,7 @@ for i, (a, c, t, p) in enumerate(TS):
     sql(f"INSERT INTO testimonios (id,autor,cargo,texto,proyecto_slug,orden,activo,fecha_creacion,fecha_actualizacion) "
         f"VALUES (gen_random_uuid(),{q(a)},{q(c)},{q(t)},{q(p)},{i},TRUE,{NOW},{NOW});")
 
-# ---- Clientes
-for i, n in enumerate(["Agroindustria Namora S.A.C.", "Inmobiliaria Cumbe", "Colegio Particular San Ignacio", "Hotel Casa Andina del Norte", "Cooperativa Agraria La Encañada"]):
-    sql(f"INSERT INTO clientes_marca (id,nombre,orden,activo,fecha_creacion,fecha_actualizacion) VALUES (gen_random_uuid(),{q(n)},{i},TRUE,{NOW},{NOW});")
+# ---- Clientes y marcas: sin datos de demostración (la sección se oculta hasta que se carguen reales desde el admin).
 
 # ---- Garantías
 GA = [("Un solo equipo, de principio a fin", "Planos, permisos, obra y acabados con el mismo equipo responsable.", True),
