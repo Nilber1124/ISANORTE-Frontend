@@ -7,6 +7,8 @@ import {
   PublicService,
 } from '../../../data/models/public-content/public-page.model';
 import { Alert } from '../../../shared/components/alert/alert';
+import { Button } from '../../../shared/components/button/button';
+import { CtaBand } from '../../../shared/components/cta-band/cta-band';
 import { PageHeader } from '../../../shared/components/page-header/page-header';
 import { PublicServicesFacade } from './public-services.facade';
 import { Services } from './services';
@@ -70,11 +72,38 @@ describe('Services', () => {
     await TestBed.configureTestingModule({ imports: [Services] })
       .overrideComponent(Services, {
         set: {
-          imports: [Alert, PageHeader, RevealStaggerStub],
+          imports: [Alert, Button, CtaBand, PageHeader, RevealStaggerStub],
           providers: [{ provide: PublicServicesFacade, useValue: facade }],
         },
       })
       .compileComponents();
+  });
+
+  it('offers a quote button per service and a closing contact band', () => {
+    const fixture = TestBed.createComponent(Services);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    const buttons = element.querySelectorAll('[data-service-slug] app-button a');
+
+    expect(buttons).toHaveLength(2);
+    expect(buttons[0].textContent?.trim()).toBe('Cotizar este servicio');
+    // Sin número de WhatsApp cargado, cotizar lleva a la página de contacto.
+    expect(buttons[0].getAttribute('href')).toBe('/contacto');
+    expect(element.querySelector('app-cta-band')).toBeTruthy();
+  });
+
+  it('keeps the quick navigation inside the Services route', () => {
+    facade.services.update((services) => [
+      ...services,
+      ...services.map((s) => ({ ...s, slug: `${s.slug}-b` })),
+    ]);
+    const fixture = TestBed.createComponent(Services);
+    fixture.detectChanges();
+    const links = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('[data-services-nav] a'),
+    ).map((link) => link.getAttribute('href'));
+
+    expect(links.every((href) => href?.startsWith('/servicios#servicio-'))).toBe(true);
   });
 
   it('renders the public catalogue without relying on Home services', () => {
