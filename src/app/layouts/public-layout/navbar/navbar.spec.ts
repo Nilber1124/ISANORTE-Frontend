@@ -13,6 +13,8 @@ describe('Navbar', () => {
       brandLogoWhite: signal<string | null>('/logo-white.svg'),
       brandLogo: signal<string | null>('/logo.svg'),
       siteName: signal('Marca Backend'),
+      whatsappHref: signal<string | null>('https://wa.me/51999111222'),
+      contactPhones: signal<readonly string[]>(['+51 999 111 222']),
     };
 
     await TestBed.configureTestingModule({
@@ -32,7 +34,7 @@ describe('Navbar', () => {
     const desktopLinks = Array.from(nav.querySelectorAll('.hidden.nav-md\\:flex a')).map((link) =>
       link.getAttribute('href'),
     );
-    expect(desktopLinks).toEqual([
+    expect(desktopLinks.filter((href) => href?.startsWith('/'))).toEqual([
       '/',
       '/nosotros',
       '/servicios',
@@ -67,6 +69,16 @@ describe('Navbar', () => {
     expect(mobileMenu.querySelector('a[href="/nosotros"]')).toBeTruthy();
     expect(mobileMenu.querySelector('a[href="/isadecor"]')?.textContent?.trim()).toBe('ISADECOR');
     expect(mobileMenu.textContent).not.toContain('Tienda');
+  });
+
+  it('keeps phone and WhatsApp one tap away in the header', () => {
+    const nav = fixture.nativeElement as HTMLElement;
+    expect(nav.querySelector('a[href="tel:+51999111222"]')).toBeTruthy();
+    const whatsapp = nav.querySelectorAll('a[href="https://wa.me/51999111222"]');
+    // Una versión de escritorio y otra móvil.
+    expect(whatsapp).toHaveLength(2);
+    expect(whatsapp[0].getAttribute('target')).toBe('_blank');
+    expect(nav.querySelector('a[href="/contacto"]')?.textContent?.trim()).toBe('Cotizar');
   });
 
   it('closes the open mobile menu with Escape', () => {

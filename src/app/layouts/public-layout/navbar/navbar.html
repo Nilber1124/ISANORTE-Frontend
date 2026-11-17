@@ -40,12 +40,106 @@
     </div>
 
     <div class="hidden nav-md:flex shrink-0 items-center gap-3">
+      @if (phoneHref(); as tel) {
+        <a
+          [href]="tel"
+          class="hidden min-h-10 items-center gap-2 rounded-button px-2 text-body-sm font-medium text-white/80 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent xl:inline-flex"
+          [attr.aria-label]="'Llamar al ' + phone()"
+        >
+          <svg
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path
+              d="M6.5 3.5h3l1.5 4.25-2 1.35a12 12 0 0 0 5.85 5.85l1.35-2 4.25 1.5v3A2.5 2.5 0 0 1 18 20C10.27 20 4 13.73 4 6a2.5 2.5 0 0 1 2.5-2.5Z"
+            ></path>
+          </svg>
+          {{ phone() }}
+        </a>
+      }
+      @if (whatsappHref(); as wa) {
+        <a
+          [href]="wa"
+          target="_blank"
+          rel="noopener"
+          class="inline-flex min-h-10 items-center gap-2 rounded-button border border-white/25 px-4 text-body-sm font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          aria-label="Escribir por WhatsApp"
+        >
+          <svg
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z"></path>
+          </svg>
+          WhatsApp
+        </a>
+      }
       <a
         routerLink="/contacto"
         class="inline-flex min-h-10 cursor-pointer items-center rounded-button bg-accent px-5 text-body-sm font-semibold text-accent-contrast transition-colors duration-normal hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-brand"
       >
-        Contacto
+        Cotizar
       </a>
+    </div>
+
+    <!-- Móvil: contacto directo siempre a la vista -->
+    <div class="ml-auto flex items-center gap-2 nav-md:hidden">
+      @if (phoneHref(); as tel) {
+        <a
+          [href]="tel"
+          class="inline-flex size-11 items-center justify-center rounded-control border border-white/20 text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          [attr.aria-label]="'Llamar al ' + phone()"
+        >
+          <svg
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path
+              d="M6.5 3.5h3l1.5 4.25-2 1.35a12 12 0 0 0 5.85 5.85l1.35-2 4.25 1.5v3A2.5 2.5 0 0 1 18 20C10.27 20 4 13.73 4 6a2.5 2.5 0 0 1 2.5-2.5Z"
+            ></path>
+          </svg>
+        </a>
+      }
+      @if (whatsappHref(); as wa) {
+        <a
+          [href]="wa"
+          target="_blank"
+          rel="noopener"
+          class="inline-flex size-11 items-center justify-center rounded-control bg-green-500 text-white hover:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          aria-label="Escribir por WhatsApp"
+        >
+          <svg
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z"></path>
+          </svg>
+        </a>
+      }
     </div>
 
     <button
