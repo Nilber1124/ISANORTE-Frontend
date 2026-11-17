@@ -131,7 +131,7 @@ export class PublicSiteFacade {
   }
 
   /** Número de WhatsApp (solo dígitos) de la empresa; null si no hay uno válido. */
-  private readonly whatsappNumber = computed(() => {
+  readonly whatsappNumber = computed(() => {
     const company = this.company();
     return (
       [company?.whatsapp, ...this.contactPhones()]

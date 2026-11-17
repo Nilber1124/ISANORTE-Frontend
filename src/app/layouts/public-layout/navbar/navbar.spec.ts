@@ -7,13 +7,16 @@ import { Navbar } from './navbar';
 
 describe('Navbar', () => {
   let fixture: ComponentFixture<Navbar>;
+  let whatsappNumber: ReturnType<typeof signal<string | null>>;
 
   beforeEach(async () => {
+    whatsappNumber = signal<string | null>('51999111222');
     const facade = {
       brandLogoWhite: signal<string | null>('/logo-white.svg'),
       brandLogo: signal<string | null>('/logo.svg'),
       siteName: signal('Marca Backend'),
       whatsappHref: signal<string | null>('https://wa.me/51999111222'),
+      whatsappNumber,
       contactPhones: signal<readonly string[]>(['+51 999 111 222']),
     };
 
@@ -71,9 +74,21 @@ describe('Navbar', () => {
     expect(mobileMenu.textContent).not.toContain('Tienda');
   });
 
-  it('keeps phone and WhatsApp one tap away in the header', () => {
+  it('shows only WhatsApp when it is the same number as the phone', () => {
+    const nav = fixture.nativeElement as HTMLElement;
+    expect(nav.querySelector('a[href^="tel:"]')).toBeNull();
+    expect(nav.querySelectorAll('a[href="https://wa.me/51999111222"]')).toHaveLength(2);
+  });
+
+  it('shows the phone too when it differs from the WhatsApp number', () => {
+    whatsappNumber.set('51988777666');
+    fixture.detectChanges();
     const nav = fixture.nativeElement as HTMLElement;
     expect(nav.querySelector('a[href="tel:+51999111222"]')).toBeTruthy();
+  });
+
+  it('keeps WhatsApp and the quote button one tap away in the header', () => {
+    const nav = fixture.nativeElement as HTMLElement;
     const whatsapp = nav.querySelectorAll('a[href="https://wa.me/51999111222"]');
     // Una versión de escritorio y otra móvil.
     expect(whatsapp).toHaveLength(2);

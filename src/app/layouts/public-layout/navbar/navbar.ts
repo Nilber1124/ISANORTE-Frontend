@@ -25,9 +25,13 @@ export class Navbar {
   readonly mobileMenuOpen = signal(false);
   readonly whatsappHref = this.facade.whatsappHref;
   readonly phone = computed(() => this.facade.contactPhones()[0] ?? null);
+  /** Solo se muestra el teléfono si es un número distinto al de WhatsApp (si no, sería repetido). */
   readonly phoneHref = computed(() => {
     const phone = this.phone();
-    return phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : null;
+    if (!phone) return null;
+    const digits = phone.replace(/\D/g, '');
+    if (digits && digits === this.facade.whatsappNumber()) return null;
+    return `tel:${phone.replace(/[^\d+]/g, '')}`;
   });
 
   toggleMobileMenu(): void {
