@@ -1,8 +1,14 @@
-<div class="min-w-0">
+<div class="min-w-0" [class]="size() === 'fill' ? 'flex h-full min-h-72 flex-col' : ''">
   @if (safeMapEmbedUrl(); as embedUrl) {
     <div
       class="overflow-hidden rounded-control border border-border bg-surface-soft"
-      [class]="size() === 'large' ? 'aspect-square w-full' : 'h-28'"
+      [class]="
+        size() === 'large'
+          ? 'aspect-square w-full'
+          : size() === 'fill'
+            ? 'min-h-0 w-full flex-1'
+            : 'h-28'
+      "
     >
       <iframe
         class="h-full w-full border-0"

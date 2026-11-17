@@ -1023,8 +1023,8 @@
       class="section-space border-t border-border bg-background-soft"
       data-home-cta
     >
-      <div class="app-container grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-14">
-        <div class="lg:col-span-5" data-rise>
+      <div class="app-container grid gap-10 lg:grid-cols-12 lg:items-stretch lg:gap-14">
+        <div class="flex flex-col lg:col-span-5" data-rise>
           @if (cta.title) {
             <h2 class="mb-4 text-heading-1 text-text-primary">{{ cta.title }}</h2>
           }
@@ -1123,9 +1123,10 @@
             }
           </ul>
           @if (officeAddress()) {
-            <div class="mt-6" data-home-map>
+            <div class="mt-6 flex min-h-80 flex-1 flex-col" data-home-map>
               <app-location-map
-                size="large"
+                size="fill"
+                class="flex-1"
                 [direccion]="officeAddress()"
                 [mapEmbedUrl]="mapEmbedUrl()"
                 [mapUrl]="mapUrl()"

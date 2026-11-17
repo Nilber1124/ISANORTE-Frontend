@@ -5,7 +5,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   selector: 'app-location-map',
   templateUrl: './location-map.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'block min-w-0' },
+  host: { class: 'block min-w-0', '[class.h-full]': "size() === 'fill'" },
 })
 export class LocationMap {
   private readonly sanitizer = inject(DomSanitizer);
@@ -13,8 +13,8 @@ export class LocationMap {
   readonly direccion = input.required<string>();
   readonly mapEmbedUrl = input.required<string>();
   readonly mapUrl = input.required<string>();
-  /** `compact` (pie de página) o `large` (mapa cuadrado a todo el ancho de su columna). */
-  readonly size = input<'compact' | 'large'>('compact');
+  /** `compact` (pie de página) `large` (cuadrado) o `fill` (ocupa el alto que le deja su contenedor). */
+  readonly size = input<'compact' | 'large' | 'fill'>('compact');
 
   protected readonly safeMapEmbedUrl = computed<SafeResourceUrl | null>(() => {
     const url = this.googleMapsUrl(this.mapEmbedUrl());
