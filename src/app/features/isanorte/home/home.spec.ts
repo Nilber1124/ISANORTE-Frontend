@@ -212,7 +212,6 @@ describe('ISANORTE Home', () => {
         .scenes()
         .map((scene) => scene.imageUrl),
     ).toEqual(['/scene-a.jpg', '/scene-b.jpg']);
-    expect(serviceSection.textContent).toContain('SERVICIOS DESDE API');
     expect(serviceSection.textContent).toContain('Soluciones dinámicas');
     expect(serviceSection.querySelector('app-button a')?.getAttribute('href')).toBe('/servicios');
     expect(
@@ -222,20 +221,13 @@ describe('ISANORTE Home', () => {
     expect(serviceSection.textContent).not.toContain(
       'Descripción completa que no debe renderizarse',
     );
-    expect(
-      (serviceSection.querySelector('[role="img"]') as HTMLElement).getAttribute('aria-label'),
-    ).toBe('Interior diseñado por ISADECOR');
-    expect(serviceSection.innerHTML).toContain('/service-design.jpg');
-    expect(serviceSection.innerHTML).toContain('background-image:');
-    const carousels = fixture.debugElement.queryAll(By.directive(CarouselStub));
-    const servicesCarousel = carousels[0].componentInstance as CarouselStub;
-    expect(servicesCarousel.variant()).toBe('coverflow');
-    expect(servicesCarousel.autoPlayInterval()).toBe(4500);
-    expect(servicesCarousel.items().map((item) => item.id)).toEqual([
-      'construccion-api',
-      'acabados-api',
-      'diseno-api',
-    ]);
+    const designImage = serviceSection.querySelector(
+      'img[src="/service-design.jpg"]',
+    ) as HTMLImageElement;
+    expect(designImage.getAttribute('alt')).toBe('Interior diseñado por ISADECOR');
+    // Todos los servicios quedan visibles en una rejilla, sin carrusel.
+    expect(serviceSection.querySelectorAll('li')).toHaveLength(3);
+    expect(fixture.debugElement.queryAll(By.directive(CarouselStub))).toHaveLength(0);
   });
 
   it('does not render Services for a valid empty backend response', () => {
@@ -269,26 +261,19 @@ describe('ISANORTE Home', () => {
       '[data-home-business-unit]',
     ) as HTMLElement;
     expect(section.getAttribute('data-home-business-unit-name')).toBe('Unidad API');
-    expect(section.textContent).toContain('UNIDAD DESDE API');
     expect(section.textContent).toContain('Espacios dinámicos API');
     expect(section.textContent).toContain('Descripción dinámica de la unidad API.');
     expect(section.textContent).toContain('CONOCER UNIDAD API');
-    expect(section.textContent).toContain('CATÁLOGO LEGACY API');
-    expect(section.querySelector('app-button a')?.getAttribute('href')).toBe('#isadecor');
+    // El catálogo sin PDF real (ancla `#catalogo`) no se muestra como botón muerto.
+    expect(section.textContent).not.toContain('CATÁLOGO LEGACY API');
     expect(
       Array.from(section.querySelectorAll('app-button a')).map((link) => link.getAttribute('href')),
-    ).toEqual(['#isadecor', '#catalogo']);
-
-    const background = section.querySelector('[aria-hidden="true"]') as HTMLElement;
-    expect(background.style.backgroundImage).toContain('/unit-background.jpg');
-    expect(background.style.backgroundImage).not.toContain('/unit-main-not-used.jpg');
-    const editorialImages = Array.from(section.querySelectorAll('[role="img"]'));
-    expect(editorialImages.map((image) => image.getAttribute('aria-label'))).toEqual([
-      'Editorial superior',
-      'Editorial inferior dos',
-    ]);
+    ).toEqual(['/isadecor', '/isadecor/productos']);
+    expect(section.innerHTML).toContain('/unit-background.jpg');
+    expect(section.innerHTML).not.toContain('/unit-main-not-used.jpg');
+    const images = Array.from(section.querySelectorAll('img'));
+    expect(images.map((image) => image.getAttribute('alt'))).toContain('Editorial superior');
     expect(section.innerHTML).toContain('/editorial-bottom-1.jpg');
-    expect(section.innerHTML).toContain('/editorial-bottom-2.jpg');
   });
 
   it('hides the business-unit block after a successful null unit response', () => {

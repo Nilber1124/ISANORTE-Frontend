@@ -1,9 +1,104 @@
 /*
- * Estilos específicos de la home de ISANORTE.
- *
- * El antiguo `@keyframes slow-zoom` / `.animate-slow-zoom` se eliminó:
- * el fondo del Hero (recorrido cinematográfico por ambientes con zoom,
- * deriva, rotación 3D y transiciones en fundido) lo gestiona el componente
- * reutilizable `CinematicTour` (GSAP) en
- * `src/app/shared/components/cinematic-tour/`.
+ * Estilos propios del Home de ISANORTE (solo lo que no cubren las utilidades).
+ * El fondo del Hero lo gestiona `CinematicTour`; el movimiento de scroll,
+ * `HomeMotion` (home-motion.directive.ts).
  */
+
+/* Trazos que se dibujan: con `pathLength=1`, sin JS quedan completos. */
+.plan-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+/* Niveles que se levantan desde la base. */
+.plan-grow {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+/* Cuadrícula tipo plano detrás del dibujo. */
+.plan-stage {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--color-border) 70%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-border) 70%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 32px 32px;
+}
+
+/* Paso del proceso: el activo se destaca y despliega su texto; los demás se compactan (solo con movimiento). */
+.process-step__text {
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows var(--duration-entry) var(--ease-standard),
+    opacity var(--duration-normal) var(--ease-standard);
+}
+
+.process-step.is-active {
+  border-color: var(--color-border);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.process-step.is-dim .process-step__title {
+  color: var(--color-text-muted);
+}
+
+.process-step.is-dim .process-step__text {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+
+.process-step.is-active .process-step__num {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+
+/* Riel de etapas: el punto activo crece y toma el acento. */
+.home-rail__link[aria-current='true'] {
+  color: var(--color-accent-strong);
+}
+
+.home-rail__link[aria-current='true'] .home-rail__dot {
+  transform: scale(1.7);
+}
+
+/*
+ * Escenario del proceso. El video 3D está sobre fondo verde y se recorta en un canvas, así la casa
+ * flota directamente sobre el fondo de la página en cualquier tema (sin tarjeta). Mientras no hay
+ * video listo se ve el dibujo técnico de respaldo; con "reducir animaciones", el póster recortado.
+ */
+.plan-video,
+.plan-poster {
+  opacity: 0;
+  transition: opacity var(--duration-entry) var(--ease-standard);
+}
+
+.plan-stage[data-video-state] {
+  border-color: transparent;
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+}
+
+.plan-stage[data-video-state] .plan-fallback {
+  opacity: 0;
+}
+
+.plan-stage[data-video-state='ready'] .plan-video,
+.plan-stage[data-video-state='poster'] .plan-poster {
+  opacity: 1;
+}
+
+/* La casa ocupa poco del cuadro de origen: se amplía un poco sin salirse de la tarjeta. */
+.plan-video,
+.plan-poster {
+  transform: scale(1.32);
+}

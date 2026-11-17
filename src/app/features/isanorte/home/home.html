@@ -1,373 +1,766 @@
-<!-- Hero Section: dinámico desde Fase 3A -->
-@if (facade.hero(); as hero) {
-  <section
-    class="relative min-h-[85vh] flex flex-col justify-center overflow-hidden"
-    data-home-hero
+<div appHomeMotion>
+  <!-- Riel de etapas: orienta al visitante a lo largo del recorrido (solo pantallas muy amplias, 2xl). -->
+  <nav
+    aria-label="Etapas de la página"
+    class="home-rail fixed right-4 top-1/2 z-30 hidden -translate-y-1/2 flex-col gap-1 rounded-full border border-border bg-surface/90 p-1.5 shadow-soft backdrop-blur 2xl:flex"
   >
-    <app-cinematic-tour [scenes]="facade.heroScenes()"></app-cinematic-tour>
-    <div class="absolute inset-0 bg-black/60"></div>
-    <div class="relative z-10 app-container">
-      <div class="max-w-4xl">
-        @if (hero.tag) {
-          <div
-            class="inline-flex items-center px-4 py-1.5 rounded-full border border-accent text-accent text-caption font-semibold uppercase tracking-wider mb-8 animate-fade-in-up"
-          >
-            {{ hero.tag }}
-          </div>
-        }
-        <h1
-          class="text-display-xl text-white mb-6 whitespace-pre-line animate-fade-in-up"
-          style="animation-delay: 100ms"
-        >
-          {{ hero.title }}
-        </h1>
-        <p
-          class="text-body-lg text-white/80 mb-10 max-w-2xl animate-fade-in-up"
-          style="animation-delay: 200ms"
-        >
-          {{ hero.subtitle }}
-        </p>
-        <div class="flex flex-wrap gap-4 animate-fade-in-up" style="animation-delay: 300ms">
-          @if (facade.heroActions()[0]; as primaryAction) {
-            <app-button variant="accent" [href]="primaryAction.url" size="large">{{
-              primaryAction.label
-            }}</app-button>
-          }
-          @if (facade.heroActions()[1]; as secondaryAction) {
-            <app-button variant="primary" [href]="secondaryAction.url" size="large">{{
-              secondaryAction.label
-            }}</app-button>
-          }
-        </div>
-      </div>
-    </div>
-  </section>
-}
-
-<!-- Servicios: contenido dinámico de la misma respuesta Home. -->
-<ng-template #servicesSection let-services let-header="header" let-action="action">
-  <section class="section-space bg-background-soft overflow-hidden" data-home-services>
-    <div class="max-w-[96rem] mx-auto px-4 sm:px-6 md:px-10 lg:px-14">
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
-        <div>
-          <div class="inline-flex items-center gap-2 text-eyebrow text-accent uppercase tracking-widest mb-2.5 font-semibold">
-            <span class="size-2 rounded-full bg-accent"></span>
-            <span>{{ header.eyebrow | uppercase }}</span>
-          </div>
-          <h2 class="text-heading-2 text-text-primary whitespace-pre-line">{{ header.title }}</h2>
-        </div>
-        @if (action) {
-          <app-button variant="primary" [href]="action.url">{{ action.label }}</app-button>
-        }
-      </div>
-
-      <app-carousel
-        [items]="services"
-        variant="coverflow"
-        [autoPlayInterval]="4500"
-        ariaLabel="Carrusel de servicios"
+    @for (stage of rail; track stage.id) {
+      <a
+        [href]="'#' + stage.id"
+        [attr.data-rail-link]="stage.id"
+        class="home-rail__link group relative flex size-9 items-center justify-center rounded-full text-text-muted transition-colors duration-normal hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        [attr.aria-label]="stage.label"
       >
-        <ng-template #cardTemplate let-service let-index="index" let-total="total" let-isActive="isActive">
-          <app-card
-            [href]="service.linkUrl"
-            [ariaLabel]="service.name"
-            padding="none"
-            class="group h-full relative overflow-hidden"
-          >
-            <div
-              class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
-              [style.backgroundImage]="service.imageUrl ? 'url(' + service.imageUrl + ')' : null"
-              [attr.role]="service.imageAlt ? 'img' : null"
-              [attr.aria-label]="service.imageAlt"
-              [attr.aria-hidden]="service.imageAlt ? null : 'true'"
-            ></div>
-            <div
-              class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 via-50% to-black/20"
-            ></div>
-            <div
-              class="absolute inset-0 bg-black/40 backdrop-blur-[0.5px] transition-opacity duration-500"
-              [class.opacity-0]="isActive !== false"
-              [class.pointer-events-none]="isActive !== false"
-            ></div>
-            <div class="absolute top-6 inset-x-6 md:inset-x-8 flex items-center justify-between z-10">
-              <span
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption font-mono uppercase tracking-widest bg-black/45 backdrop-blur-md text-white/90 border border-white/15 shadow-sm"
-              >
-                0{{ index + 1 }} · SERVICIO
-              </span>
-              <span
-                class="size-2 rounded-full transition-colors duration-300"
-                [class.bg-accent]="isActive !== false"
-                [class.bg-white/30]="isActive === false"
-              ></span>
-            </div>
-            <div class="absolute inset-0 p-6 md:p-8 flex flex-col justify-end z-10">
-              <h3
-                class="text-heading-3 md:text-heading-2 text-white mb-2.5 font-bold tracking-tight group-hover:text-accent transition-colors duration-normal"
-              >
-                {{ service.name }}
-              </h3>
-              <p
-                class="text-body-sm md:text-body text-white/80 line-clamp-2 leading-relaxed transition-all duration-300"
-                [class.opacity-0]="isActive === false"
-                [class.max-h-0]="isActive === false"
-                [class.overflow-hidden]="isActive === false"
-              >
-                {{ service.summary }}
-              </p>
-              @if (service.benefits && service.benefits.length > 0) {
-                <ul
-                  class="mt-4 space-y-2 border-t border-white/15 pt-4 transition-all duration-500"
-                  [class.opacity-0]="isActive === false"
-                  [class.max-h-0]="isActive === false"
-                  [class.overflow-hidden]="isActive === false"
-                >
-                  @for (benefit of service.benefits.slice(0, 3); track $index) {
-                    <li class="flex items-center gap-2.5 text-caption md:text-body-sm text-white/95">
-                      <span
-                        class="size-5 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center shrink-0"
-                      >
-                        <svg aria-hidden="true" class="size-3 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                      </span>
-                      <span class="truncate">{{ benefit }}</span>
-                    </li>
-                  }
-                </ul>
-              }
-            </div>
-          </app-card>
-        </ng-template>
-      </app-carousel>
-    </div>
-  </section>
-</ng-template>
+        <span
+          class="home-rail__dot size-2 rounded-full bg-current transition-all duration-normal"
+        ></span>
+        <span
+          class="pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-control border border-border bg-surface px-3 py-1.5 text-caption font-semibold text-text-primary opacity-0 shadow-soft transition-opacity duration-normal group-hover:opacity-100 group-focus-visible:opacity-100"
+          >{{ stage.label }}</span
+        >
+      </a>
+    }
+  </nav>
 
-@if (facade.showServices()) {
-  <ng-container
-    [ngTemplateOutlet]="servicesSection"
-    [ngTemplateOutletContext]="{
-      $implicit: facade.services(),
-      header: facade.servicesHeader(),
-      action: facade.servicesAction(),
-    }"
-  />
-} @else if (facade.error()) {
-  <ng-container
-    [ngTemplateOutlet]="servicesSection"
-    [ngTemplateOutletContext]="{
-      $implicit: servicesFallback.services,
-      header: servicesFallback.header,
-      action: servicesFallback.action,
-    }"
-  />
-}
-
-<!-- Highlight (ISADECOR): baseline estático, fuera de Fase 3B. -->
-@if (businessUnitDisplay(); as businessUnit) {
-  <section
-    data-theme="dark"
-    data-home-business-unit
-    [attr.data-home-business-unit-name]="businessUnit.unit.nombre"
-    class="group relative flex min-h-[36rem] items-center justify-center overflow-hidden border-y border-border bg-background-deep section-space lg:min-h-[44rem]"
-  >
-    <div class="absolute inset-0 z-0">
+  <!-- 1. Hero dimensional: foto de obra (fondo), plano técnico (atmósfera) y ficha (primer plano). -->
+  @if (facade.hero(); as hero) {
+    <section
+      id="inicio"
+      data-theme="dark"
+      data-home-hero
+      class="relative isolate flex min-h-[calc(100svh-4rem)] flex-col overflow-hidden bg-background text-text-primary"
+    >
+      <app-cinematic-tour [scenes]="facade.heroScenes()"></app-cinematic-tour>
+      <!-- Velo solo donde hay texto: lateral en escritorio, inferior en móvil. -->
       <div
-        class="absolute inset-0 bg-cover bg-center transition-transform duration-[3000ms] ease-[var(--ease-standard)] group-hover:scale-105"
-        [style.backgroundImage]="
-          businessUnit.background?.url ? 'url(' + businessUnit.background?.url + ')' : null
-        "
+        class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/10 md:bg-gradient-to-r md:from-black/80 md:via-black/50 md:to-transparent"
+      ></div>
+
+      <!-- Atmósfera: plano técnico que se traza. -->
+      <svg
+        data-hero-layer="0.35"
+        class="pointer-events-none absolute right-6 top-20 hidden w-[min(44vw,38rem)] text-white/60 md:block lg:right-14"
+        viewBox="0 0 600 420"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
         aria-hidden="true"
-      ></div>
-      <div class="absolute inset-0 bg-background-deep/90"></div>
-      <div
-        class="absolute inset-0 bg-gradient-to-t from-background-deep via-background-deep/20 to-background-deep/60"
-      ></div>
-    </div>
-    @if (businessUnit.editorials[0]; as topEditorialImage) {
-      <div
-        class="animate-float-subtle group absolute top-6 right-4 hidden h-64 w-44 overflow-hidden rounded-panel border border-border-strong shadow-floating md:top-8 md:right-8 md:block lg:h-96 lg:w-64 lg:right-12"
-        [style.animation-delay]="'1.5s'"
       >
-        <div
-          class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
-          [style.backgroundImage]="'url(' + topEditorialImage.url + ')'"
-          [attr.role]="topEditorialImage.alt ? 'img' : null"
-          [attr.aria-label]="topEditorialImage.alt"
-          [attr.aria-hidden]="topEditorialImage.alt ? null : 'true'"
-        ></div>
-      </div>
-    }
-    @if (businessUnit.editorials.length > 1) {
-      <div class="absolute bottom-0 left-0 z-0 hidden items-end gap-5 pl-4 md:flex lg:pl-8">
-        @for (
-          item of businessUnit.editorials.slice(1, 3);
-          track item.orden + ':' + item.url;
-          let i = $index
-        ) {
-          <div
-            class="animate-float-subtle group relative overflow-hidden rounded-t-panel border border-border-strong shadow-floating"
-            [class.h-96]="i % 2 === 0"
-            [class.w-72]="i % 2 === 0"
-            [class.h-64]="i % 2 !== 0"
-            [class.w-52]="i % 2 !== 0"
-            [style.animation-delay]="i * 700 + 'ms'"
-          >
-            <div
-              class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-110"
-              [style.backgroundImage]="'url(' + item.url + ')'"
-              [attr.role]="item.alt ? 'img' : null"
-              [attr.aria-label]="item.alt"
-              [attr.aria-hidden]="item.alt ? null : 'true'"
-            ></div>
+        <path data-hero-draw class="plan-stroke" pathLength="1" d="M20 360H580" />
+        <path data-hero-draw class="plan-stroke" pathLength="1" d="M120 360V250H400V360" />
+        <path data-hero-draw class="plan-stroke" pathLength="1" d="M110 250H470" />
+        <path data-hero-draw class="plan-stroke" pathLength="1" d="M200 250V140H460V250" />
+        <path data-hero-draw class="plan-stroke" pathLength="1" d="M190 140H470" />
+        <path
+          data-hero-draw
+          class="plan-stroke"
+          pathLength="1"
+          d="M100 398H500M100 390v16M500 390v16"
+        />
+        <path
+          data-hero-draw
+          class="plan-stroke"
+          pathLength="1"
+          d="M490 140v110M484 140h12M484 250h12"
+        />
+      </svg>
+
+      <div class="app-container relative z-10 flex flex-1 flex-col justify-center py-14 md:py-20">
+        <div class="max-w-3xl">
+          @if (hero.tag) {
+            <p
+              class="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/30 px-4 py-1.5 text-caption font-semibold uppercase tracking-wider text-white"
+            >
+              <span class="size-1.5 rounded-full bg-accent"></span>{{ hero.tag }}
+            </p>
+          }
+          <h1 class="mb-6 whitespace-pre-line text-display-xl text-white">{{ hero.title }}</h1>
+          <p class="mb-10 max-w-2xl text-body-lg text-white/85">{{ hero.subtitle }}</p>
+          <div class="flex flex-wrap gap-3">
+            @if (heroPrimary(); as primaryAction) {
+              <app-button variant="accent" [href]="primaryAction.url" size="large">{{
+                primaryAction.label
+              }}</app-button>
+            }
+            @if (heroSecondary(); as secondaryAction) {
+              <app-button variant="primary" [href]="secondaryAction.url" size="large">{{
+                secondaryAction.label
+              }}</app-button>
+            }
           </div>
-        }
+        </div>
+
+        <!-- Primer plano: ficha con el eje del recorrido. -->
+        <aside
+          data-hero-layer="0.7"
+          class="mt-12 hidden w-72 self-end rounded-card border border-white/20 bg-black/45 p-5 text-white backdrop-blur-md md:absolute md:bottom-10 md:right-8 md:mt-0 md:block lg:right-14"
+          aria-label="Etapas de un proyecto con ISANORTE"
+        >
+          <p class="mb-3 text-caption font-semibold uppercase tracking-wider text-white/70">
+            De principio a fin
+          </p>
+          <ol class="space-y-2.5 text-body-sm">
+            @for (step of process.steps; track step.id) {
+              <li class="flex items-center gap-3">
+                <span class="size-1.5 shrink-0 rounded-full bg-accent"></span>{{ step.title }}
+              </li>
+            }
+          </ol>
+        </aside>
       </div>
-    }
-    <div class="app-container relative z-10 flex flex-col items-center text-center">
-      @if (businessUnit.header.eyebrow) {
-        <app-badge variant="accent" class="mb-6">{{ businessUnit.header.eyebrow }}</app-badge>
-      }
-      <h2 class="text-display text-text-primary mb-6 whitespace-pre-line drop-shadow-md">
-        {{ businessUnit.header.title }}
-      </h2>
-      @if (businessUnit.unit.descripcion) {
-        <p class="text-body-lg text-text-muted mb-10 max-w-xl">
-          {{ businessUnit.unit.descripcion }}
-        </p>
-      }
-      <div class="flex flex-wrap justify-center gap-4">
-        @if (businessUnit.actions[0]; as primaryAction) {
-          <app-button
-            variant="accent"
-            [href]="primaryAction.url"
-            [target]="primaryAction.target"
-            size="large"
-            >{{ primaryAction.label }}</app-button
-          >
-        }
-        @if (businessUnit.actions[1]; as secondaryAction) {
-          <app-button
-            variant="ghost"
-            [href]="secondaryAction.url"
-            [target]="secondaryAction.target"
-            size="large"
-            >{{ secondaryAction.label }}</app-button
-          >
-        }
+
+      <!-- Puntos de confianza. -->
+      <div class="relative z-10 border-t border-white/15 bg-black/35 backdrop-blur-sm">
+        <ul
+          class="app-container grid gap-x-8 gap-y-2 py-4 text-body-sm text-white/90 max-md:pb-20 md:grid-cols-3"
+        >
+          @for (point of trustPoints; track point) {
+            <li class="flex items-start gap-2.5">
+              <svg
+                aria-hidden="true"
+                class="mt-0.5 size-4 shrink-0 text-accent"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.4"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>{{ point }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </section>
+  }
+
+  <!-- 2. Servicios: todos a la vista, sin carrusel. -->
+  @if (servicesDisplay(); as services) {
+    <section id="servicios" class="section-space bg-background" data-home-services>
+      <div class="app-container">
+        <div class="mb-10 flex flex-col justify-between gap-6 md:mb-14 md:flex-row md:items-end">
+          <h2 class="max-w-3xl whitespace-pre-line text-heading-1 text-text-primary" data-rise>
+            {{ services.header.title }}
+          </h2>
+          @if (services.action; as action) {
+            <app-button variant="secondary" [href]="action.url">{{ action.label }}</app-button>
+          }
+        </div>
+
+        <ul
+          class="grid list-none grid-cols-[repeat(auto-fit,minmax(min(100%,16.5rem),1fr))] gap-4 p-0 md:gap-5"
+        >
+          @for (service of services.services; track service.id) {
+            <li class="h-full" data-rise>
+              <app-card
+                [href]="service.linkUrl"
+                [ariaLabel]="service.name"
+                padding="none"
+                class="group"
+              >
+                <div class="flex h-full flex-col">
+                  @if (service.imageUrl) {
+                    <div class="relative aspect-[4/3] overflow-hidden bg-background-muted">
+                      <img
+                        [src]="service.imageUrl"
+                        [alt]="service.imageAlt ?? ''"
+                        loading="lazy"
+                        decoding="async"
+                        width="640"
+                        height="480"
+                        class="size-full object-cover transition-transform duration-entry ease-[var(--ease-standard)] group-hover:scale-[1.03]"
+                      />
+                    </div>
+                  }
+                  <div class="relative flex flex-1 flex-col p-5 md:p-6">
+                    <span
+                      class="mb-4 inline-flex size-11 items-center justify-center rounded-control border border-border bg-surface-soft text-text-primary"
+                      [class.-mt-10]="service.imageUrl"
+                      [class.shadow-soft]="service.imageUrl"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="size-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        viewBox="0 0 24 24"
+                      >
+                        <path [attr.d]="serviceIconPath(service.name)" />
+                      </svg>
+                    </span>
+                    <h3 class="mb-2 text-heading-4 text-text-primary">{{ service.name }}</h3>
+                    @if (service.summary) {
+                      <p class="mb-4 line-clamp-3 text-body-sm text-text-secondary">
+                        {{ service.summary }}
+                      </p>
+                    }
+                    <span
+                      class="mt-auto inline-flex items-center gap-2 text-body-sm font-semibold text-accent-strong"
+                    >
+                      Ver servicio
+                      <svg
+                        aria-hidden="true"
+                        class="size-4 transition-transform duration-normal group-hover:translate-x-1"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M5 12h14m-6-6 6 6-6 6"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </app-card>
+            </li>
+          }
+        </ul>
+      </div>
+    </section>
+  }
+
+  <!-- 3. Proceso: el plano se construye con el scroll (movimiento propio de la página). -->
+  <section
+    id="proceso"
+    data-process
+    class="overflow-x-clip border-y border-border bg-background-soft"
+    aria-labelledby="proceso-title"
+  >
+    <!-- El bloque queda fijo en pantalla mientras se recorre el alto del contenedor: ese recorrido
+         mueve el video y marca el paso activo. -->
+    <div data-process-track class="relative h-[300svh] lg:h-[340svh]">
+      <div
+        class="app-container sticky top-16 flex h-[calc(100svh-4rem)] flex-col justify-center gap-4 lg:gap-8"
+      >
+        <h2
+          id="proceso-title"
+          class="max-w-3xl text-heading-2 text-text-primary lg:text-heading-1"
+          data-rise
+        >
+          {{ process.title }}
+        </h2>
+        <div
+          class="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-10"
+        >
+          <div class="lg:order-2">
+            <figure
+              class="plan-stage relative aspect-video w-full rounded-panel border border-border bg-surface text-text-primary"
+              role="img"
+              aria-label="Una vivienda moderna se construye por etapas: terreno, cimientos, estructura, muros y acabados."
+            >
+              <!-- Respaldo: dibujo técnico (se muestra si el video no está disponible). -->
+              <svg
+                viewBox="0 0 600 430"
+                class="plan-fallback block size-full"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <!-- Etapa 1: terreno y cotas -->
+                <path class="plan-stroke" data-draw data-seg="0" pathLength="1" d="M20 360H580" />
+                <path
+                  class="plan-stroke text-text-muted"
+                  data-draw
+                  data-seg="0"
+                  data-at="0.2"
+                  pathLength="1"
+                  stroke-width="1.5"
+                  d="M20 380C120 370 220 388 320 378S500 372 580 382"
+                />
+                <path
+                  data-fade
+                  data-seg="0"
+                  data-at="0.1"
+                  class="text-text-muted"
+                  stroke-width="1.5"
+                  stroke-dasharray="5 6"
+                  d="M70 300V360M530 300V360"
+                />
+                <path
+                  class="plan-stroke text-text-muted"
+                  data-draw
+                  data-seg="0"
+                  data-at="0.3"
+                  pathLength="1"
+                  stroke-width="1.5"
+                  d="M100 405H500M100 397v16M500 397v16"
+                />
+
+                <!-- Etapa 2: volúmenes y planos -->
+                <path
+                  class="plan-stroke"
+                  data-draw
+                  data-seg="1"
+                  pathLength="1"
+                  d="M120 360V250H400V360"
+                />
+                <path
+                  class="plan-stroke"
+                  data-draw
+                  data-seg="1"
+                  data-at="0.2"
+                  pathLength="1"
+                  d="M110 250H470"
+                />
+                <path
+                  class="plan-stroke"
+                  data-draw
+                  data-seg="1"
+                  data-at="0.3"
+                  pathLength="1"
+                  d="M200 250V140H460V250"
+                />
+                <path
+                  class="plan-stroke"
+                  data-draw
+                  data-seg="1"
+                  data-at="0.5"
+                  pathLength="1"
+                  d="M190 140H470"
+                />
+                <path
+                  class="plan-stroke text-text-muted"
+                  data-draw
+                  data-seg="1"
+                  data-at="0.5"
+                  pathLength="1"
+                  stroke-width="1.5"
+                  d="M490 140v110M484 140h12M484 250h12"
+                />
+
+                <!-- Etapa 3: estructura (los niveles se levantan) -->
+                <rect
+                  class="plan-grow"
+                  data-grow
+                  data-seg="2"
+                  x="120"
+                  y="250"
+                  width="280"
+                  height="110"
+                  fill="currentColor"
+                  fill-opacity="0.1"
+                  stroke="none"
+                />
+                <rect
+                  class="plan-grow"
+                  data-grow
+                  data-seg="2"
+                  data-at="0.35"
+                  x="200"
+                  y="140"
+                  width="260"
+                  height="110"
+                  fill="currentColor"
+                  fill-opacity="0.1"
+                  stroke="none"
+                />
+
+                <!-- Etapa 4: acabados -->
+                <rect
+                  data-fade
+                  data-seg="3"
+                  x="405"
+                  y="140"
+                  width="55"
+                  height="110"
+                  fill="currentColor"
+                  fill-opacity="0.28"
+                  stroke="none"
+                />
+                <path
+                  data-fade
+                  data-seg="3"
+                  class="text-text-muted"
+                  stroke-width="1.5"
+                  d="M419 140v110M433 140v110M447 140v110"
+                />
+                <rect
+                  class="plan-stroke"
+                  data-draw
+                  data-seg="3"
+                  pathLength="1"
+                  x="140"
+                  y="275"
+                  width="100"
+                  height="60"
+                />
+                <rect
+                  class="plan-stroke"
+                  data-draw
+                  data-seg="3"
+                  data-at="0.1"
+                  pathLength="1"
+                  x="225"
+                  y="165"
+                  width="110"
+                  height="60"
+                />
+                <rect
+                  class="plan-stroke"
+                  data-draw
+                  data-seg="3"
+                  data-at="0.2"
+                  pathLength="1"
+                  x="352"
+                  y="165"
+                  width="42"
+                  height="60"
+                />
+                <rect
+                  data-fade
+                  data-seg="3"
+                  data-at="0.2"
+                  x="140"
+                  y="275"
+                  width="100"
+                  height="60"
+                  fill="currentColor"
+                  fill-opacity="0.12"
+                  stroke="none"
+                />
+                <rect
+                  data-fade
+                  data-seg="3"
+                  data-at="0.3"
+                  x="225"
+                  y="165"
+                  width="110"
+                  height="60"
+                  fill="currentColor"
+                  fill-opacity="0.12"
+                  stroke="none"
+                />
+                <rect
+                  data-fade
+                  data-seg="3"
+                  data-at="0.5"
+                  class="text-accent"
+                  x="300"
+                  y="285"
+                  width="48"
+                  height="75"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <path data-fade data-seg="3" data-at="0.4" d="M70 360V335M520 360V325" />
+                <circle
+                  data-fade
+                  data-seg="3"
+                  data-at="0.4"
+                  cx="70"
+                  cy="318"
+                  r="22"
+                  fill="currentColor"
+                  fill-opacity="0.12"
+                />
+                <circle
+                  data-fade
+                  data-seg="3"
+                  data-at="0.45"
+                  cx="520"
+                  cy="304"
+                  r="28"
+                  fill="currentColor"
+                  fill-opacity="0.12"
+                />
+              </svg>
+              <!-- Escenario principal: video 3D sobre fondo verde, recortado en el navegador (canvas WebGL)
+             y controlado por el scroll. TRANSITORIO: archivos locales; a futuro vendrán de la
+             BD / Cloudinary. -->
+              <video
+                class="pointer-events-none absolute left-0 top-0 size-px opacity-0"
+                data-process-video
+                data-src-lg="/media/home/proceso-obra.mp4"
+                data-src-sm="/media/home/proceso-obra-sm.mp4"
+                muted
+                playsinline
+                preload="none"
+                disablepictureinpicture
+                aria-hidden="true"
+              ></video>
+              <canvas
+                class="plan-video absolute inset-0 size-full"
+                data-process-canvas
+                width="1280"
+                height="720"
+                aria-hidden="true"
+              ></canvas>
+              <img
+                class="plan-poster absolute inset-0 size-full object-contain"
+                src="/media/home/proceso-obra-poster.png"
+                alt=""
+                width="1280"
+                height="720"
+                loading="lazy"
+                decoding="async"
+              />
+            </figure>
+          </div>
+
+          <ol class="m-0 flex list-none flex-col gap-2 p-0 lg:order-1 lg:gap-3">
+            @for (step of process.steps; track step.id; let i = $index) {
+              <li
+                data-step-item
+                class="process-step rounded-card border border-transparent px-3 py-2.5 transition-[background-color,border-color,box-shadow] duration-normal lg:px-5 lg:py-4"
+              >
+                <div class="flex items-start gap-3 lg:gap-4">
+                  <span
+                    class="process-step__num mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-border-strong bg-surface text-body-sm font-semibold text-text-primary transition-colors duration-normal lg:size-10"
+                    aria-hidden="true"
+                    >{{ i + 1 }}</span
+                  >
+                  <div class="min-w-0">
+                    <h3
+                      class="process-step__title text-heading-4 text-text-primary transition-colors duration-normal lg:text-heading-3"
+                    >
+                      {{ step.title }}
+                    </h3>
+                    <div class="process-step__text grid">
+                      <p
+                        class="min-h-0 overflow-hidden pt-1.5 text-body-sm text-text-secondary lg:text-body"
+                      >
+                        {{ step.text }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            }
+          </ol>
+        </div>
       </div>
     </div>
   </section>
-}
 
-<!-- Projects: dinámico desde la API con fallback -->
-@if (facade.showProjects()) {
-  <section class="section-space bg-background" data-home-projects>
-    <div class="max-w-[96rem] mx-auto px-4 sm:px-6 md:px-10 lg:px-14">
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-        <div>
-          <span class="text-eyebrow text-accent block mb-2">{{
-            facade.projectsHeader().eyebrow | uppercase
-          }}</span>
-          <h2 class="text-heading-2 text-text-primary whitespace-pre-line">
+  <!-- 4. Proyectos: bento con obras reales. -->
+  @if (facade.showProjects()) {
+    <section id="proyectos" class="section-space bg-background" data-home-projects>
+      <div class="app-container">
+        <div class="mb-10 flex flex-col justify-between gap-6 md:mb-14 md:flex-row md:items-end">
+          <h2 class="max-w-3xl whitespace-pre-line text-heading-1 text-text-primary" data-rise>
             {{ facade.projectsHeader().title }}
           </h2>
-        </div>
-        @if (facade.projectsAction(); as action) {
-          <app-button variant="secondary" [href]="action.url">{{ action.label }}</app-button>
-        }
-      </div>
-      <app-carousel [items]="projects()" variant="marquee" ariaLabel="Carrusel de proyectos">
-        <ng-template #cardTemplate let-project>
-          <app-card [href]="'/proyectos/' + project.slug" padding="none" class="group h-full">
-            <div
-              class="absolute inset-0 bg-cover bg-center transition-transform duration-entry group-hover:scale-105"
-              [style.backgroundImage]="'url(' + project.bgImageUrl + ')'"
-            ></div>
-            <div
-              class="absolute inset-0 bg-gradient-to-t from-brand via-brand/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-normal"
-            ></div>
-            <div
-              class="absolute inset-x-8 top-8 transform transition-transform duration-normal group-hover:-translate-y-2"
-            >
-              <h3 class="text-heading-3 text-white mb-2">{{ project.title }}</h3>
-              <p class="text-caption text-white/70 font-semibold tracking-wider uppercase">
-                {{ project.location }}
-              </p>
-            </div>
-            <div
-              class="absolute bottom-8 right-8 size-12 bg-accent rounded-full flex items-center justify-center text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-normal shadow-card"
-            >
-              <svg aria-hidden="true" class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                ></path>
-              </svg>
-            </div>
-          </app-card>
-        </ng-template>
-      </app-carousel>
-    </div>
-  </section>
-}
-
-<!-- Estadísticas / Cifras de Impacto Corporativo -->
-@if (facade.showStatistics()) {
-  <section
-    data-theme="dark"
-    class="border-y border-border bg-black py-14"
-    aria-label="Cifras y trayectoria corporativa"
-    data-home-statistics
-  >
-    <div class="app-container">
-      <div class="grid grid-cols-2 gap-y-10 lg:grid-cols-4">
-        @for (stat of facade.statistics(); track $index) {
-          <div
-            class="border-l border-border px-6 first:border-l-0 lg:border-l lg:border-border lg:first:border-l-0"
-          >
-            <p class="text-heading-1 text-white">
-              {{ (stat.prefijo ?? '') + stat.valor + (stat.sufijo ?? '') }}
-            </p>
-            <p class="mt-2 font-mono text-caption uppercase tracking-wider text-accent">
-              {{ stat.etiqueta }}
-            </p>
-          </div>
-        }
-      </div>
-    </div>
-  </section>
-}
-
-<!-- Pre-Footer CTA: dinámico desde sección CTA -->
-@if (preFooterData(); as cta) {
-  <section class="bg-background-soft py-16 border-t border-border" data-home-cta>
-    <div class="max-w-[96rem] mx-auto px-4 sm:px-6 md:px-10 lg:px-14">
-      <div
-        class="relative flex flex-col lg:flex-row items-center justify-between gap-8 overflow-hidden bg-surface p-8 md:p-12 rounded-panel shadow-card border border-border"
-      >
-        <div
-          class="absolute inset-0 bg-cover bg-center"
-          [style.backgroundImage]="'url(' + facade.cta().bgImageUrl + ')'"
-        ></div>
-        <div
-          class="absolute inset-0 bg-gradient-to-r from-surface via-surface/90 to-surface/25"
-        ></div>
-        <div
-          class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 w-full"
-        >
-          <div class="text-center lg:text-left">
-            <h2 class="text-heading-3 text-text-primary mb-3">{{ cta.title }}</h2>
-            <p class="text-body text-text-secondary max-w-xl">{{ cta.subtitle }}</p>
-          </div>
-          <app-button variant="accent" [href]="cta.cta.url" size="large">{{
-            cta.cta.label
+          <app-button variant="secondary" [href]="projectsAction().url">{{
+            projectsAction().label
           }}</app-button>
         </div>
+
+        <ul
+          class="grid list-none grid-cols-1 gap-4 p-0 md:auto-rows-[14rem] md:grid-cols-4 lg:auto-rows-[17rem]"
+        >
+          @for (tile of projectTiles(); track tile.id) {
+            <li class="min-h-[18rem] md:min-h-0" [class]="tile.gridClass" data-rise>
+              <a
+                [href]="'/proyectos/' + tile.slug"
+                class="group relative block size-full overflow-hidden rounded-card border border-border bg-background-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <img
+                  [src]="tile.imageUrl"
+                  [alt]="tile.imageAlt"
+                  loading="lazy"
+                  decoding="async"
+                  width="960"
+                  height="720"
+                  class="absolute inset-0 size-full object-cover transition-transform duration-entry ease-[var(--ease-standard)] group-hover:scale-[1.04]"
+                />
+                <span
+                  class="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/80 to-transparent"
+                ></span>
+                <span
+                  class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 md:p-6"
+                >
+                  <span class="min-w-0">
+                    <span
+                      class="block text-white"
+                      [class]="tile.featured ? 'text-heading-3' : 'text-heading-4'"
+                      >{{ tile.title }}</span
+                    >
+                    <span class="mt-1 block truncate text-body-sm text-white/80">{{
+                      tile.location
+                    }}</span>
+                  </span>
+                  <span
+                    class="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-black transition-transform duration-normal group-hover:translate-x-1"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      class="size-4"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5 12h14m-6-6 6 6-6 6"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
       </div>
-    </div>
-  </section>
-}
+    </section>
+  }
+
+  <!-- 5. ISADECOR: otra línea de la casa, otro ambiente. -->
+  @if (businessUnitDisplay(); as businessUnit) {
+    <section
+      id="isadecor"
+      data-theme="dark"
+      data-home-business-unit
+      [attr.data-home-business-unit-name]="businessUnit.unit.nombre"
+      class="section-space relative overflow-hidden border-y border-border bg-background-deep"
+    >
+      @if (businessUnit.background?.url; as backgroundUrl) {
+        <div
+          class="absolute inset-0 bg-cover bg-center opacity-25"
+          [style.backgroundImage]="'url(' + backgroundUrl + ')'"
+          aria-hidden="true"
+        ></div>
+        <div
+          class="absolute inset-0 bg-gradient-to-r from-background-deep via-background-deep/85 to-background-deep/40"
+          aria-hidden="true"
+        ></div>
+      }
+      <div class="app-container relative z-10 grid items-center gap-12 lg:grid-cols-12">
+        <div class="lg:col-span-5">
+          <app-badge variant="accent" class="mb-6">Una línea de ISANORTE</app-badge>
+          <h2 class="mb-5 whitespace-pre-line text-heading-1 text-text-primary" data-rise>
+            {{ businessUnit.header.title }}
+          </h2>
+          @if (businessUnit.unit.descripcion) {
+            <p class="mb-8 text-body-lg text-text-secondary">{{ businessUnit.unit.descripcion }}</p>
+          }
+          <ul class="mb-10 grid list-none gap-x-6 gap-y-3 p-0 sm:grid-cols-2">
+            @for (item of isadecorOffer; track item) {
+              <li class="flex items-center gap-2.5 text-body-sm text-text-primary">
+                <svg
+                  aria-hidden="true"
+                  class="size-4 shrink-0 text-accent"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                {{ item }}
+              </li>
+            }
+          </ul>
+          <div class="flex flex-wrap gap-3">
+            @if (businessUnit.actions[0]; as primaryAction) {
+              <app-button
+                variant="accent"
+                [href]="primaryAction.url"
+                [target]="primaryAction.target"
+                size="large"
+                >{{ primaryAction.label }}</app-button
+              >
+            }
+            <app-button variant="secondary" href="/isadecor/productos" size="large"
+              >Ver productos en la tienda</app-button
+            >
+            @if (businessUnit.actions[1]; as secondaryAction) {
+              <app-button
+                variant="ghost"
+                [href]="secondaryAction.url"
+                [target]="secondaryAction.target"
+                size="large"
+                >{{ secondaryAction.label }}</app-button
+              >
+            }
+          </div>
+        </div>
+
+        @if (unitImages().length > 0) {
+          <div class="grid grid-cols-3 grid-rows-2 gap-3 lg:col-span-7 lg:gap-4">
+            @for (image of unitImages(); track image.orden + ':' + image.url; let i = $index) {
+              <figure
+                class="relative overflow-hidden rounded-card border border-border-strong bg-background-muted"
+                [class]="
+                  i === 0
+                    ? 'col-span-2 row-span-2 aspect-[4/3]'
+                    : 'col-span-1 aspect-square lg:aspect-auto'
+                "
+              >
+                <img
+                  [src]="image.url"
+                  [alt]="image.alt ?? ''"
+                  loading="lazy"
+                  decoding="async"
+                  width="960"
+                  height="720"
+                  class="absolute inset-0 size-full object-cover"
+                />
+              </figure>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- 6. Cierre: una pregunta y tres vías de contacto. -->
+  @if (preFooterData(); as cta) {
+    <section id="cotizar" class="section-space bg-background" data-home-cta>
+      <div class="app-container">
+        <div
+          data-theme="dark"
+          class="relative isolate overflow-hidden rounded-panel border border-border bg-background-deep px-6 py-14 text-text-primary shadow-card md:px-14 md:py-20"
+        >
+          @if (facade.cta().bgImageUrl; as ctaImage) {
+            <img
+              [src]="ctaImage"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              width="1600"
+              height="900"
+              class="absolute inset-0 -z-10 size-full object-cover opacity-45"
+            />
+          }
+          <div
+            class="absolute inset-0 -z-10 bg-gradient-to-r from-background-deep via-background-deep/80 to-transparent"
+          ></div>
+
+          <div class="max-w-2xl" data-rise>
+            <h2 class="mb-4 text-display text-text-primary">{{ cta.title }}</h2>
+            <p class="mb-8 text-body-lg text-text-secondary">{{ cta.subtitle }}</p>
+            <div class="flex flex-wrap gap-3">
+              <app-button variant="accent" [href]="cta.cta.url" size="large">{{
+                cta.cta.label
+              }}</app-button>
+              @if (whatsappHref(); as wa) {
+                <app-button variant="whatsapp" [href]="wa" target="_blank" size="large"
+                  >Escribir por WhatsApp</app-button
+                >
+              }
+              @if (phoneHref(); as tel) {
+                <app-button variant="secondary" [href]="tel" size="large"
+                  >Llamar al {{ phone() }}</app-button
+                >
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+</div>
