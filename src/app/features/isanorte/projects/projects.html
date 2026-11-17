@@ -127,27 +127,18 @@
       ></div>
       <div class="absolute inset-x-0 bottom-0 p-6">
         <h2 class="text-heading-3 text-white">{{ project.nombre }}</h2>
-        @if (project.descripcion || project.ubicacion || project.fechaProyecto) {
-          <p class="mt-2 max-w-[46ch] text-body-sm text-white/85">
-            @if (project.descripcion) {
-              {{ project.descripcion }}
+        @if (project.descripcion) {
+          <p class="mt-2 line-clamp-2 max-w-[46ch] whitespace-pre-line text-body-sm text-white/85">
+            {{ project.descripcion }}
+          </p>
+        }
+        @if (project.ubicacion || project.fechaProyecto) {
+          <p class="mt-3 text-caption font-semibold uppercase tracking-wider text-white/70">
+            {{ project.ubicacion }}
+            @if (project.ubicacion && project.fechaProyecto) {
+              <span aria-hidden="true"> · </span>
             }
-            @if (project.ubicacion) {
-              <span>
-                @if (project.descripcion) {
-                  ·
-                }
-                {{ project.ubicacion }}</span
-              >
-            }
-            @if (project.fechaProyecto) {
-              <span>
-                @if (project.descripcion || project.ubicacion) {
-                  ·
-                }
-                {{ project.fechaProyecto }}</span
-              >
-            }
+            {{ project.fechaProyecto }}
           </p>
         }
       </div>
