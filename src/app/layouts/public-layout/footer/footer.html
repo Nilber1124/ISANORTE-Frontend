@@ -1,8 +1,10 @@
-<footer class="bg-brand text-white pt-12 pb-6 border-t-[4px] border-accent">
+<footer data-theme="dark" class="bg-brand text-white pt-12 pb-6 border-t-[4px] border-accent">
   <div class="app-container mb-10 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
     <div class="pr-4">
       <div class="mb-6">
         <img
+          width="920"
+          height="328"
           class="h-10 w-auto max-w-64 object-contain"
           [src]="facade.brandLogoWhite() || facade.brandLogo() || '/images/isanorte-logo-horizontal-white.svg'"
           [alt]="facade.siteName() || 'ISANORTE'"
@@ -22,7 +24,7 @@
               target="_blank"
               rel="noopener noreferrer"
               [attr.aria-label]="social.nombre"
-              class="size-9 rounded-button bg-surface-soft hover:bg-accent flex items-center justify-center transition-colors duration-normal text-text-secondary hover:text-white"
+              class="size-11 rounded-button bg-surface-soft hover:bg-accent flex items-center justify-center transition-colors duration-normal text-text-secondary hover:text-white"
             >
               <span class="text-[10px] font-bold uppercase" aria-hidden="true">{{
                 (social.icono || social.nombre).substring(0, 2)
@@ -33,7 +35,7 @@
       }
       @if (facade.contactEmails().length > 0 || facade.contactPhones().length > 0) {
         <div>
-          <h4 class="text-eyebrow text-text-muted mb-4">{{ 'Contacto' | uppercase }}</h4>
+          <h2 class="text-eyebrow text-text-muted mb-4">{{ 'Contacto' | uppercase }}</h2>
           <ul class="space-y-3 text-body-sm text-text-secondary">
             @for (email of facade.contactEmails(); track email) {
               <li class="flex items-start gap-3">
@@ -81,7 +83,7 @@
     </div>
 
     <div>
-      <h4 class="text-eyebrow text-text-muted mb-4">{{ 'Navegación' | uppercase }}</h4>
+      <h2 class="text-eyebrow text-text-muted mb-4">{{ 'Navegación' | uppercase }}</h2>
       <ul class="space-y-3">
         @for (link of navigationLinks; track link.url) {
           <li>
@@ -100,7 +102,7 @@
 
     @if (direccionIsanorte(); as direccion) {
       <div class="min-w-0">
-        <h4 class="mb-4 text-eyebrow text-text-muted">{{ 'Ubicación' | uppercase }}</h4>
+        <h2 class="mb-4 text-eyebrow text-text-muted">{{ 'Ubicación' | uppercase }}</h2>
         <app-location-map
           [direccion]="direccion"
           [mapEmbedUrl]="mapEmbedUrlIsanorte"

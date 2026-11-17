@@ -37,13 +37,16 @@ describe('App', () => {
     ]);
   });
 
-  it('should keep ISADECOR routes isolated from the public layout', () => {
+  it('should lazy-load ISADECOR routes outside the public layout', async () => {
     const isadecorRoute = routes.find((route) => route.path === 'isadecor');
     const publicRoute = routes.find((route) => route.path === '');
 
-    expect(isadecorRoute?.component).toBeTruthy();
-    expect(isadecorRoute?.component).not.toBe(publicRoute?.component);
-    expect(isadecorRoute?.loadComponent).toBeUndefined();
+    expect(isadecorRoute?.component).toBeUndefined();
+    expect(isadecorRoute?.loadComponent).toBeTypeOf('function');
+    const loadedLayout = await isadecorRoute?.loadComponent?.();
+    const { IsadecorLayout } = await import('./layouts/isadecor-layout/isadecor-layout');
+    expect(loadedLayout).toBe(IsadecorLayout);
+    expect(isadecorRoute?.loadComponent).not.toBe(publicRoute?.loadComponent);
     expect(isadecorRoute?.children?.map((route) => route.path)).toEqual([
       '',
       'productos',
