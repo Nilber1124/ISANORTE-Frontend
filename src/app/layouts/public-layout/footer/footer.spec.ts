@@ -84,6 +84,25 @@ describe('Footer', () => {
     expect(footer.textContent).not.toContain('Arquitectura');
   });
 
+  it('draws known networks as icons and keeps initials for the rest', () => {
+    const footer = fixture.nativeElement as HTMLElement;
+    const component = fixture.componentInstance;
+    expect(component.socialKind('Facebook')).toBe('facebook');
+    expect(component.socialKind('ig')).toBe('instagram');
+    expect(component.socialKind('LinkedIn')).toBe('linkedin');
+    expect(component.socialKind('YouTube')).toBe('youtube');
+    expect(component.socialKind('Telegram')).toBe('other');
+    expect(footer.querySelector('[aria-label="Redes sociales"] svg')).toBeTruthy();
+  });
+
+  it('offers a quote link even when no contact details are loaded', () => {
+    facade.contactEmails.set([]);
+    facade.contactPhones.set([]);
+    fixture.detectChanges();
+    const footer = fixture.nativeElement as HTMLElement;
+    expect(footer.textContent).toContain('Solicitar cotización');
+  });
+
   it('does not invent optional backend data after a successful empty response', () => {
     facade.brandLogoWhite.set(null);
     facade.companyName.set('');

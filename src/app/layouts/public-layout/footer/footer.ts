@@ -15,4 +15,14 @@ export class Footer {
   readonly facade = inject(PublicSiteFacade);
   readonly navigationLinks = PUBLIC_NAVIGATION_LINKS;
   readonly currentYear = new Date().getFullYear();
+
+  /** Red social reconocida por el nombre o el icono que trae la BD; `other` usa las iniciales. */
+  socialKind(name: string): 'facebook' | 'instagram' | 'linkedin' | 'youtube' | 'other' {
+    const value = name.toLowerCase();
+    if (value.includes('facebook') || value === 'fb') return 'facebook';
+    if (value.includes('instagram') || value === 'ig') return 'instagram';
+    if (value.includes('linkedin')) return 'linkedin';
+    if (value.includes('youtube') || value === 'yt') return 'youtube';
+    return 'other';
+  }
 }
