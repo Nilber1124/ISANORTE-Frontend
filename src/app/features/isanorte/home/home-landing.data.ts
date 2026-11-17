@@ -75,8 +75,8 @@ export const HOME_RESPONSE_PROMISE = 'Te respondemos en menos de 24 horas.';
 /** Etapas del riel lateral; coinciden con los `id` de las secciones del Home. */
 export const HOME_RAIL: readonly { readonly id: string; readonly label: string }[] = [
   { id: 'servicios', label: 'Servicios' },
-  { id: 'proceso', label: 'Proceso' },
   { id: 'proyectos', label: 'Proyectos' },
+  { id: 'proceso', label: 'Proceso' },
   { id: 'isadecor', label: 'ISADECOR' },
   { id: 'cotizar', label: 'Cotizar' },
 ];
