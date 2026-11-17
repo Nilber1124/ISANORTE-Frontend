@@ -1,0 +1,31 @@
+<section class="section-space bg-background" data-cta-band>
+  <div class="app-container">
+    <div
+      data-theme="dark"
+      class="flex flex-col gap-8 rounded-panel border border-border bg-background-deep px-6 py-12 text-text-primary shadow-card md:px-14 md:py-16 lg:flex-row lg:items-center lg:justify-between"
+    >
+      <div class="max-w-2xl">
+        <h2 class="text-heading-1 text-text-primary">{{ title() }}</h2>
+        @if (text(); as description) {
+          <p class="mt-4 text-body-lg text-text-secondary">{{ description }}</p>
+        }
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <app-button variant="accent" size="large" [href]="primaryHref()">{{
+          primaryLabel()
+        }}</app-button>
+        @if (secondaryLabel(); as label) {
+          @if (secondaryHref(); as href) {
+            <app-button
+              variant="secondary"
+              size="large"
+              [href]="href"
+              [target]="secondaryTarget()"
+              >{{ label }}</app-button
+            >
+          }
+        }
+      </div>
+    </div>
+  </div>
+</section>

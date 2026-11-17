@@ -172,12 +172,18 @@ describe('PublicAboutFacade', () => {
     });
 
     expect(titleService.getTitle()).toBe('Nosotros Especial | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toBe('Historia y valores de ISANORTE.');
+    expect(metaService.getTag('name="description"')?.content).toBe(
+      'Historia y valores de ISANORTE.',
+    );
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
     expect(metaService.getTag('property="og:title"')?.content).toBe('Nosotros Especial | ISANORTE');
-    expect(metaService.getTag('property="og:description"')?.content).toBe('Historia y valores de ISANORTE.');
+    expect(metaService.getTag('property="og:description"')?.content).toBe(
+      'Historia y valores de ISANORTE.',
+    );
     expect(metaService.getTag('property="og:type"')?.content).toBe('website');
-    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isanorte.com/about.jpg');
+    expect(metaService.getTag('property="og:image"')?.content).toBe(
+      'https://cdn.isanorte.com/about.jpg',
+    );
   });
 
   it('applies default SEO on API error', () => {
@@ -231,4 +237,3 @@ describe('PublicAboutFacade', () => {
     expect(metaService.getTag('property="og:title"')).toBeNull();
   });
 });
-

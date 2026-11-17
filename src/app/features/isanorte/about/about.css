@@ -24,9 +24,11 @@
   width: min(1000px, 120vw);
   height: min(1000px, 120vw);
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%,
-      var(--color-accent) 0%,
-      color-mix(in srgb, var(--color-accent) 72%, #000) 78%);
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--color-accent) 0%,
+    color-mix(in srgb, var(--color-accent) 72%, #000) 78%
+  );
   box-shadow: 0 2rem 6rem -2rem color-mix(in srgb, var(--color-accent) 55%, transparent);
   will-change: transform;
 }
@@ -143,46 +145,4 @@
 .value-icon svg {
   width: 1.25rem;
   height: 1.25rem;
-}
-
-/* Marcador "+" del acordeón (rota a "×" al abrirse). */
-.value-mark {
-  position: relative;
-  display: inline-block;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-control);
-  transition: background-color var(--duration-entry) ease, border-color var(--duration-entry) ease, transform var(--duration-entry) ease;
-}
-
-.value-mark::before,
-.value-mark::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  translate: -50% -50%;
-  background-color: var(--color-text-primary);
-}
-
-.value-mark::before {
-  width: 0.875rem;
-  height: 2px;
-}
-
-.value-mark::after {
-  width: 2px;
-  height: 0.875rem;
-}
-
-.value-row--open .value-mark {
-  transform: rotate(45deg);
-  border-color: var(--color-accent);
-  background-color: var(--color-accent);
-}
-
-.value-row--open .value-mark::before,
-.value-row--open .value-mark::after {
-  background-color: var(--color-background);
 }

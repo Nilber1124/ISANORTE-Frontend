@@ -8,6 +8,7 @@ import {
   PublicPageType,
 } from '../../../data/models/public-content/public-page.model';
 import { Alert } from '../../../shared/components/alert/alert';
+import { CtaBand } from '../../../shared/components/cta-band/cta-band';
 import { About } from './about';
 import { AboutValueView, PublicAboutFacade } from './public-about.facade';
 
@@ -72,7 +73,7 @@ describe('About', () => {
     await TestBed.configureTestingModule({ imports: [About] })
       .overrideComponent(About, {
         set: {
-          imports: [Alert, RevealStaggerStub],
+          imports: [Alert, CtaBand, RevealStaggerStub],
           providers: [{ provide: PublicAboutFacade, useValue: facade }],
         },
       })
@@ -100,7 +101,20 @@ describe('About', () => {
     );
   });
 
-  it('hides empty dynamic blocks and keeps the accordion interaction', () => {
+  it('renders a list when the values come separated by bars', () => {
+    facade.company.update((company) =>
+      company ? { ...company, valores: 'Rigurosidad técnica | Transparencia total' } : company,
+    );
+    const fixture = TestBed.createComponent(About);
+    fixture.detectChanges();
+
+    const items = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('[data-about-value="valores"] li'),
+    ).map((item) => item.textContent?.trim());
+    expect(items).toEqual(['Rigurosidad técnica', 'Transparencia total']);
+  });
+
+  it('hides empty dynamic blocks and always shows the values without clicks', () => {
     facade.content.update((content) =>
       content ? { ...content, tags: [], imagenUrl: null } : content,
     );
@@ -115,11 +129,10 @@ describe('About', () => {
     expect(element.textContent).not.toContain('Misión desde API');
     expect(element.textContent).toContain('Visión API');
 
-    const button = element.querySelector('button') as HTMLButtonElement;
-    expect(button.getAttribute('aria-expanded')).toBe('false');
-    button.click();
-    fixture.detectChanges();
-    expect(button.getAttribute('aria-expanded')).toBe('true');
+    // Sin acordeón: el texto es visible y no hay botones que lo oculten.
+    expect(element.querySelectorAll('[data-about-value]')).toHaveLength(1);
+    expect(element.querySelector('[data-about-values] button')).toBeNull();
+    expect(element.querySelector('app-cta-band')).toBeTruthy();
 
     facade.company.set(null);
     fixture.detectChanges();

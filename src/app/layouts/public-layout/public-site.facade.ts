@@ -130,19 +130,30 @@ export class PublicSiteFacade {
     this._currentUrl.set(url);
   }
 
-  /** Enlace de WhatsApp con el número de la empresa; null si no hay un número válido. */
-  readonly whatsappHref = computed(() => {
+  /** Número de WhatsApp (solo dígitos) de la empresa; null si no hay uno válido. */
+  private readonly whatsappNumber = computed(() => {
     const company = this.company();
-    const numero = [company?.whatsapp, ...this.contactPhones()]
-      .map((value) => (value ?? '').replace(/\D/g, ''))
-      .find((value) => value.length >= 8);
-    if (!numero) return null;
+    return (
+      [company?.whatsapp, ...this.contactPhones()]
+        .map((value) => (value ?? '').replace(/\D/g, ''))
+        .find((value) => value.length >= 8) ?? null
+    );
+  });
+
+  /** Enlace de WhatsApp con el número de la empresa y un mensaje a medida; null si no hay número. */
+  whatsappHrefFor(message: string): string | null {
+    const numero = this.whatsappNumber();
+    return numero ? `https://wa.me/${numero}?text=${encodeURIComponent(message)}` : null;
+  }
+
+  /** Enlace de WhatsApp con un mensaje que sigue a la página actual; null si no hay número. */
+  readonly whatsappHref = computed(() => {
     const url = this._currentUrl();
     const mensaje =
       url === null
         ? `Hola, quisiera más información de ${this.siteName() || 'su empresa'}.`
         : whatsappMessageFor(url, this.siteName());
-    return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+    return this.whatsappHrefFor(mensaje);
   });
   readonly address = computed(() => this.optionalText(this.company()?.direccion ?? null));
   readonly city = computed(() => this.optionalText(this.company()?.ciudad ?? null));
