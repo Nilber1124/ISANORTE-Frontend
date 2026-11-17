@@ -981,9 +981,36 @@
   @if (trust.faqsFor('HOME').length > 0) {
     <section id="preguntas" class="section-space bg-background" data-home-faq>
       <div class="app-container grid gap-10 lg:grid-cols-12 lg:gap-14">
-        <h2 class="text-heading-1 text-text-primary lg:col-span-4" data-rise>
-          Preguntas frecuentes
-        </h2>
+        <div class="lg:sticky lg:top-28 lg:col-span-4 lg:self-start" data-rise>
+          <p class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
+            Dudas comunes
+          </p>
+          <h2 class="mb-5 text-heading-1 text-text-primary">Preguntas frecuentes</h2>
+          <p class="mb-8 max-w-sm text-body-lg text-text-secondary">
+            Respondemos lo que más nos preguntan antes de empezar una obra.
+          </p>
+          <div class="max-w-sm rounded-card border border-border bg-surface p-5">
+            <p class="mb-1 text-body font-semibold text-text-primary">
+              ¿No encuentras tu respuesta?
+            </p>
+            <p class="mb-3 text-body-sm text-text-secondary">Cuéntanos tu caso y te orientamos.</p>
+            @if (whatsappHref(); as wa) {
+              <a
+                [href]="wa"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 text-body-sm font-semibold text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                >Escríbenos por WhatsApp <span aria-hidden="true">→</span></a
+              >
+            } @else {
+              <a
+                href="#cotizar"
+                class="inline-flex items-center gap-1.5 text-body-sm font-semibold text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                >Déjanos tus datos <span aria-hidden="true">→</span></a
+              >
+            }
+          </div>
+        </div>
         <div class="flex flex-col gap-3 lg:col-span-8">
           @for (faq of trust.faqsFor('HOME'); track faq.pregunta) {
             <details
