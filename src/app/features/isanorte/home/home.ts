@@ -121,20 +121,11 @@ export class Home {
     return phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : null;
   });
 
-  /** Dirección de la oficina: el mapa se construye con ella, así que cambia al editar la empresa. */
-  readonly officeAddress = computed(() => {
-    const address = this.site?.address() ?? '';
-    const city = this.site?.city() ?? '';
-    // Si la dirección ya nombra la ciudad no se repite.
-    const withCity = city && !address.toLowerCase().includes(city.toLowerCase());
-    return [address, withCity ? city : ''].filter(Boolean).join(', ');
-  });
-  readonly mapEmbedUrl = computed(
-    () => `https://www.google.com/maps?q=${encodeURIComponent(this.officeAddress())}&output=embed`,
-  );
-  readonly mapUrl = computed(
-    () => `https://www.google.com/maps?q=${encodeURIComponent(this.officeAddress())}`,
-  );
+  /** El mapa usa el punto elegido en el panel o, si no hay, la dirección de la empresa. */
+  readonly officeAddress = computed(() => this.site?.fullAddress() ?? '');
+  readonly showMap = computed(() => this.site?.hasMap() ?? false);
+  readonly mapEmbedUrl = computed(() => this.site?.mapEmbedUrl() ?? '');
+  readonly mapUrl = computed(() => this.site?.mapUrl() ?? '');
 
   readonly heroPrimary = computed(() => {
     const action = this.facade.heroActions()[0];

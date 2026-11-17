@@ -1,10 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 
 import { CompanyCreateRequest } from '../../../../../data/models/company/company-create-request.model';
 import { CompanyResponse } from '../../../../../data/models/company/company-response.model';
 import { CompanyUpdateRequest } from '../../../../../data/models/company/company-update-request.model';
 import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
+import { LocationPicker } from '../../../../../shared/components/location-picker/location-picker';
 import { Drawer } from '../../../../../shared/components/drawer/drawer';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 import { CompanyFormMode } from '../../admin-company.facade';
@@ -18,7 +27,7 @@ export interface CompanyFormSubmission {
 
 @Component({
   selector: 'app-company-form',
-  imports: [Button, Drawer, InputField, TextareaField],
+  imports: [Button, Drawer, InputField, LocationPicker, TextareaField],
   templateUrl: './company-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -30,7 +39,7 @@ export class CompanyForm {
   readonly showLegalTab = input<boolean>(true);
   readonly onlyAbout = input<boolean>(false);
   readonly submitting = input<boolean>(false);
-  
+
   readonly saved = output<CompanyFormSubmission>();
   readonly canceled = output<void>();
 
@@ -77,6 +86,11 @@ export class CompanyForm {
   readonly emailVentas = signal('');
   readonly whatsapp = signal('');
   readonly horarioAtencion = signal('');
+  readonly anioFundacion = signal('');
+  readonly zonaCobertura = signal('');
+  readonly tiempoRespuesta = signal('');
+  readonly latitud = signal<number | null>(null);
+  readonly longitud = signal<number | null>(null);
   readonly mision = signal('');
   readonly vision = signal('');
   readonly valores = signal('');
@@ -104,6 +118,11 @@ export class CompanyForm {
         this.emailVentas.set(data.emailVentas ?? '');
         this.whatsapp.set(data.whatsapp ?? '');
         this.horarioAtencion.set(data.horarioAtencion ?? '');
+        this.anioFundacion.set(data.anioFundacion?.toString() ?? '');
+        this.zonaCobertura.set(data.zonaCobertura ?? '');
+        this.tiempoRespuesta.set(data.tiempoRespuesta ?? '');
+        this.latitud.set(data.latitud ?? null);
+        this.longitud.set(data.longitud ?? null);
         this.mision.set(data.mision ?? '');
         this.vision.set(data.vision ?? '');
         this.valores.set(data.valores ?? '');
@@ -117,7 +136,7 @@ export class CompanyForm {
   protected submit(): void {
     if (this.submitting()) return;
     this.clearErrors();
-    
+
     // Solo validar campos legales requeridos si estamos editando esa sección o creando una empresa nueva
     if (this.activeSection() === 'legal' || this.mode() === 'create') {
       let hasError = false;
@@ -148,6 +167,11 @@ export class CompanyForm {
       emailVentas: this.emailVentas().trim() || null,
       whatsapp: this.whatsapp().trim() || null,
       horarioAtencion: this.horarioAtencion().trim() || null,
+      anioFundacion: this.anioFundacion().trim() ? Number(this.anioFundacion()) : null,
+      zonaCobertura: this.zonaCobertura().trim() || null,
+      tiempoRespuesta: this.tiempoRespuesta().trim() || null,
+      latitud: this.latitud(),
+      longitud: this.longitud(),
       mision: this.mision().trim() || null,
       vision: this.vision().trim() || null,
       valores: this.valores().trim() || null,
@@ -169,6 +193,11 @@ export class CompanyForm {
     this.emailVentas.set('');
     this.whatsapp.set('');
     this.horarioAtencion.set('');
+    this.anioFundacion.set('');
+    this.zonaCobertura.set('');
+    this.tiempoRespuesta.set('');
+    this.latitud.set(null);
+    this.longitud.set(null);
     this.mision.set('');
     this.vision.set('');
     this.valores.set('');

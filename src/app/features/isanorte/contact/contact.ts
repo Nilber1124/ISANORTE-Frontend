@@ -29,11 +29,9 @@ export class Contact {
   readonly facade = inject(PublicContactFacade);
   readonly site = inject(PublicSiteFacade);
   /** Dirección que se presenta junto al mapa; vacía si la empresa no la tiene cargada. */
-  readonly direccion = computed(() =>
-    [this.site.address(), this.site.city()].filter((value) => value !== null).join(', '),
-  );
-  readonly mapEmbedUrl = 'https://www.google.com/maps?q=-7.1462778,-78.5206944&output=embed';
-  readonly mapUrl = 'https://www.google.com/maps?q=-7.1462778,-78.5206944';
+  readonly direccion = computed(() => this.site.fullAddress());
+  readonly mapEmbedUrl = computed(() => this.site.mapEmbedUrl() ?? '');
+  readonly mapUrl = computed(() => this.site.mapUrl() ?? '');
   readonly channels = computed<readonly ContactChannel[]>(() => {
     const channels: ContactChannel[] = [];
     const whatsapp = this.whatsappHref(this.site.company()?.whatsapp ?? null);

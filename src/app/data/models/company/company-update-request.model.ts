@@ -10,6 +10,11 @@ export interface CompanyUpdateRequest {
   emailVentas?: string | null;
   whatsapp?: string | null;
   horarioAtencion?: string | null;
+  anioFundacion?: number | null;
+  zonaCobertura?: string | null;
+  tiempoRespuesta?: string | null;
+  latitud?: number | null;
+  longitud?: number | null;
   mision?: string | null;
   vision?: string | null;
   valores?: string | null;

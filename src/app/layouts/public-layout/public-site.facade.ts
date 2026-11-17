@@ -155,8 +155,42 @@ export class PublicSiteFacade {
         : whatsappMessageFor(url, this.siteName());
     return this.whatsappHrefFor(mensaje);
   });
+  /** Punto de la oficina elegido en el panel (latitud y longitud), si existe. */
+  readonly coordinates = computed(() => {
+    const company = this.company();
+    const lat = company?.latitud;
+    const lng = company?.longitud;
+    return typeof lat === 'number' && typeof lng === 'number' ? { lat, lng } : null;
+  });
+
   readonly address = computed(() => this.optionalText(this.company()?.direccion ?? null));
   readonly city = computed(() => this.optionalText(this.company()?.ciudad ?? null));
+  /** Dirección completa para mostrar junto al mapa (sin repetir la ciudad). */
+  readonly fullAddress = computed(() => {
+    const address = this.address() ?? '';
+    const city = this.city() ?? '';
+    const withCity = city && !address.toLowerCase().includes(city.toLowerCase());
+    return [address, withCity ? city : ''].filter(Boolean).join(', ');
+  });
+
+  /** Búsqueda del mapa: el punto exacto si hay coordenadas; si no, la dirección. */
+  private readonly mapQuery = computed(() => {
+    const point = this.coordinates();
+    if (point) return `${point.lat},${point.lng}`;
+    const address = this.fullAddress();
+    return address ? encodeURIComponent(address) : null;
+  });
+  readonly mapEmbedUrl = computed(() => {
+    const query = this.mapQuery();
+    return query ? `https://www.google.com/maps?q=${query}&output=embed` : null;
+  });
+  readonly mapUrl = computed(() => {
+    const query = this.mapQuery();
+    return query ? `https://www.google.com/maps?q=${query}` : null;
+  });
+  /** Hay algo que mostrar en el mapa. */
+  readonly hasMap = computed(() => this.mapQuery() !== null);
+
   readonly hasContactDetails = computed(
     () =>
       this.contactEmails().length > 0 ||

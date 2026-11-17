@@ -12,6 +12,8 @@ export interface PublicSiteCompany {
   anioFundacion?: number | null;
   zonaCobertura?: string | null;
   tiempoRespuesta?: string | null;
+  latitud?: number | null;
+  longitud?: number | null;
 }
 
 export interface PublicSiteSocialNetwork {

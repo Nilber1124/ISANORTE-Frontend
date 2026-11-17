@@ -81,6 +81,11 @@ class PublicSiteFacadeStub {
   readonly contactPhones = signal<readonly string[]>(['+51 999 111 222']);
   readonly address = signal<string | null>('Dirección API');
   readonly city = signal<string | null>('Ciudad API');
+  readonly fullAddress = signal('Dirección API, Ciudad API');
+  readonly mapEmbedUrl = signal<string | null>(
+    'https://www.google.com/maps?q=Direcci%C3%B3n%20API&output=embed',
+  );
+  readonly mapUrl = signal<string | null>('https://www.google.com/maps?q=Direcci%C3%B3n%20API');
 }
 
 describe('Contact', () => {

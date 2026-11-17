@@ -40,6 +40,8 @@ UPDATE empresa SET
   anio_fundacion = 2012,
   zona_cobertura = 'Cajamarca, Baños del Inca, Namora, La Encañada, Celendín, Jaén y toda la región Cajamarca.',
   tiempo_respuesta = 'en menos de 24 horas hábiles',
+  latitud = -7.156900,
+  longitud = -78.514800,
   mision = 'Construir obras seguras, bien terminadas y entregadas a tiempo para las familias y empresas de Cajamarca, cuidando cada etapa: del terreno a la llave en mano.',
   vision = 'Ser la constructora de referencia del norte del Perú por la calidad de sus obras, la transparencia de sus presupuestos y la confianza de sus clientes.',
   valores = 'Seguridad en obra | Transparencia en costos | Cumplimiento de plazos | Trabajo con la comunidad',

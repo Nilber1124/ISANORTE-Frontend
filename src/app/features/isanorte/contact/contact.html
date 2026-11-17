@@ -181,7 +181,7 @@
   @if (direccion(); as address) {
     <div class="mt-8" data-contact-map>
       <h2 class="mb-4 text-heading-4 text-text-primary">Ubicación</h2>
-      <app-location-map [direccion]="address" [mapEmbedUrl]="mapEmbedUrl" [mapUrl]="mapUrl" />
+      <app-location-map [direccion]="address" [mapEmbedUrl]="mapEmbedUrl()" [mapUrl]="mapUrl()" />
     </div>
   }
 </ng-template>
