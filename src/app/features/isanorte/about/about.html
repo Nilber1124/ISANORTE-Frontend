@@ -132,7 +132,7 @@
             <div class="sheet1-panel__halo" aria-hidden="true"></div>
             @if (content.imagenUrl) {
               <div
-                class="sheet1-panel__photo absolute bottom-5 left-5 right-[26%] top-10 rounded-control border border-border-strong bg-center shadow-card"
+                class="sheet1-panel__photo absolute inset-3 rounded-control border border-border-strong bg-center shadow-card"
                 [style.background-image]="'url(' + content.imagenUrl + ')'"
                 [attr.role]="content.imagenAlt ? 'img' : null"
                 [attr.aria-label]="content.imagenAlt"
