@@ -21,3 +21,5 @@ se reemplaza por contenido administrable.
 | Opciones del selector «Servicio de interés» (8 servicios reales) | Lista local en `home-landing.data.ts` (`HOME_SERVICE_OPTIONS`) | Salir de la API cuando la BD tenga los 8 servicios reales |
 | Imagen y botón de la sección CTA | El cierre del Home ya no los usa (ahora es el formulario) | Opcional: quitar `imagenUrl` y acciones de la sección CTA, o reutilizarlos |
 | Botón secundario del hero | La BD trae «Habla con un asesor» (va a /contacto) | Cambiarlo a «Ver proyectos» (/proyectos) para no repetir el destino del botón principal |
+| Campos del formulario: ubicación, tipo de obra y consentimiento | Se envían dentro del mensaje (`Servicio de interés:`, `Ubicación:`) y el consentimiento solo se valida en el navegador | Campos `servicio`, `ubicacion` y `consentimiento` (con fecha) en la solicitud de contacto; permitir `email` opcional y `mensaje` opcional |
+| Política de privacidad | No existe la página | Redactarla con asesoría legal (ley de datos personales de Perú) y enlazarla desde el formulario |

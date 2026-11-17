@@ -35,6 +35,21 @@
       (blurred)="f.nombreTouched.set(true)"
     />
     <app-input-field
+      inputId="contact-phone"
+      type="tel"
+      label="WhatsApp o teléfono"
+      placeholder="Ej. 987 654 321"
+      name="telefono"
+      autocomplete="tel"
+      inputMode="tel"
+      [(value)]="f.telefono"
+      [required]="true"
+      [maxLength]="30"
+      [disabled]="f.submitting()"
+      [error]="f.telefonoError()"
+      (blurred)="f.telefonoTouched.set(true)"
+    />
+    <app-input-field
       inputId="contact-email"
       type="email"
       label="Correo electrónico"
@@ -49,33 +64,6 @@
       [error]="f.emailError()"
       (blurred)="f.emailTouched.set(true)"
     />
-    <app-input-field
-      inputId="contact-phone"
-      type="tel"
-      label="Teléfono de contacto"
-      placeholder="Ej. 987 654 321"
-      name="telefono"
-      autocomplete="tel"
-      inputMode="tel"
-      [(value)]="f.telefono"
-      [required]="true"
-      [maxLength]="30"
-      [disabled]="f.submitting()"
-      [error]="f.telefonoError()"
-      (blurred)="f.telefonoTouched.set(true)"
-    />
-    <app-input-field
-      inputId="contact-company"
-      label="Empresa / Constructora (opcional)"
-      placeholder="Nombre de la empresa"
-      name="empresa"
-      autocomplete="organization"
-      [(value)]="f.empresa"
-      [maxLength]="180"
-      [disabled]="f.submitting()"
-      [error]="f.empresaError()"
-      (blurred)="f.empresaTouched.set(true)"
-    />
     @if (services().length > 0) {
       <app-select-field
         inputId="contact-service"
@@ -86,19 +74,55 @@
         [disabled]="f.submitting()"
       />
     }
+    <app-input-field
+      inputId="contact-location"
+      label="Ubicación del terreno u obra (opcional)"
+      placeholder="Ej. distrito y ciudad"
+      name="ubicacion"
+      autocomplete="off"
+      [(value)]="f.ubicacion"
+      [maxLength]="150"
+      [disabled]="f.submitting()"
+      [error]="f.ubicacionError()"
+      (blurred)="f.ubicacionTouched.set(true)"
+    />
     <app-textarea-field
       inputId="contact-message"
-      label="Cuéntanos sobre tu proyecto"
-      placeholder="Describe tu proyecto, ubicación, alcance o servicios requeridos"
+      label="Cuéntanos sobre tu proyecto (opcional)"
+      placeholder="Tipo de obra, metros cuadrados, si ya tienes planos o permisos, plazo deseado"
       name="mensaje"
       [(value)]="f.mensaje"
-      [rows]="5"
-      [required]="true"
-      [maxLength]="5000"
+      [rows]="3"
+      [maxLength]="4000"
       [disabled]="f.submitting()"
       [error]="f.mensajeError()"
       (blurred)="f.mensajeTouched.set(true)"
     />
+
+    <div>
+      <label class="flex cursor-pointer items-start gap-3 text-body-sm text-text-secondary">
+        <input
+          type="checkbox"
+          name="consentimiento"
+          class="mt-0.5 size-5 shrink-0 cursor-pointer accent-accent"
+          [checked]="f.consentimiento()"
+          [disabled]="f.submitting()"
+          [attr.aria-invalid]="f.consentimientoError() ? 'true' : null"
+          [attr.aria-describedby]="f.consentimientoError() ? 'contact-consent-error' : null"
+          (change)="
+            f.consentimiento.set($any($event.target).checked); f.consentimientoTouched.set(true)
+          "
+        />
+        <span>
+          Autorizo que ISANORTE use mis datos para responder esta solicitud
+          <span class="text-error" aria-hidden="true">*</span>
+        </span>
+      </label>
+      @if (f.consentimientoError(); as consentError) {
+        <p id="contact-consent-error" class="form-error mt-2" role="alert">{{ consentError }}</p>
+      }
+    </div>
+
     <div class="mt-2 [&>app-button]:w-full [&_button]:w-full">
       <app-button
         variant="accent"

@@ -53,12 +53,18 @@ export class PublicContactFacade {
   readonly mensaje = signal('');
   /** Servicio de interés (opcional). El contrato no tiene este campo: se antepone al mensaje. */
   readonly servicio = signal('');
+  /** Ubicación del terreno u obra (opcional). Tampoco está en el contrato: va dentro del mensaje. */
+  readonly ubicacion = signal('');
+  /** Autorización para usar los datos y responder la solicitud; es obligatoria para enviar. */
+  readonly consentimiento = signal(false);
   readonly submitted = signal(false);
   readonly nombreTouched = signal(false);
   readonly emailTouched = signal(false);
   readonly telefonoTouched = signal(false);
   readonly empresaTouched = signal(false);
   readonly mensajeTouched = signal(false);
+  readonly ubicacionTouched = signal(false);
+  readonly consentimientoTouched = signal(false);
   readonly submitting = signal(false);
   readonly submitSuccess = signal(false);
   readonly submitError = signal<string | null>(null);
@@ -84,13 +90,17 @@ export class PublicContactFacade {
   readonly empresaError = computed(() =>
     this.optionalTextError(this.empresa(), this.empresaTouched(), 180),
   );
+  /** El mensaje es opcional: solo se valida su largo máximo. */
   readonly mensajeError = computed(() =>
-    this.textError(
-      this.mensaje(),
-      this.mensajeTouched(),
-      5000,
-      'Cuéntanos brevemente sobre tu proyecto.',
-    ),
+    this.optionalTextError(this.mensaje(), this.mensajeTouched(), 4000),
+  );
+  readonly ubicacionError = computed(() =>
+    this.optionalTextError(this.ubicacion(), this.ubicacionTouched(), 150),
+  );
+  readonly consentimientoError = computed(() =>
+    this.shouldShowError(this.consentimientoTouched()) && !this.consentimiento()
+      ? 'Debes aceptar para poder enviar tu solicitud.'
+      : undefined,
   );
   readonly isValid = computed(
     () =>
@@ -98,7 +108,9 @@ export class PublicContactFacade {
       !this.emailErrorForValue() &&
       !this.telefonoErrorForValue() &&
       !this.empresaErrorForValue() &&
-      !this.mensajeErrorForValue(),
+      !this.mensajeErrorForValue() &&
+      !this.ubicacionErrorForValue() &&
+      this.consentimiento(),
   );
 
   load(): void {
@@ -164,14 +176,24 @@ export class PublicContactFacade {
       email: this.email().trim(),
       telefono: this.telefono().trim(),
       empresa: empresa || null,
-      mensaje: this.messageWithService(),
+      mensaje: this.composedMessage(),
     };
   }
 
-  private messageWithService(): string {
-    const servicio = this.servicio().trim();
+  /**
+   * El contrato exige un mensaje no vacío y no tiene campos para servicio ni ubicación: esos datos
+   * se anteponen al texto. Si el visitante no escribe nada, se envía una frase por defecto.
+   */
+  private composedMessage(): string {
+    const header = [
+      this.servicio().trim() && `Servicio de interés: ${this.servicio().trim()}`,
+      this.ubicacion().trim() && `Ubicación: ${this.ubicacion().trim()}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
     const mensaje = this.mensaje().trim();
-    return servicio ? `Servicio de interés: ${servicio}\n\n${mensaje}` : mensaje;
+    if (header && mensaje) return `${header}\n\n${mensaje}`;
+    return header || mensaje || 'Solicitud de cotización desde el sitio web.';
   }
 
   private resetForm(): void {
@@ -181,12 +203,16 @@ export class PublicContactFacade {
     this.empresa.set('');
     this.mensaje.set('');
     this.servicio.set('');
+    this.ubicacion.set('');
+    this.consentimiento.set(false);
     this.submitted.set(false);
     this.nombreTouched.set(false);
     this.emailTouched.set(false);
     this.telefonoTouched.set(false);
     this.empresaTouched.set(false);
     this.mensajeTouched.set(false);
+    this.ubicacionTouched.set(false);
+    this.consentimientoTouched.set(false);
   }
 
   private shouldShowError(touched: boolean): boolean {
@@ -238,8 +264,11 @@ export class PublicContactFacade {
   }
 
   private mensajeErrorForValue(): boolean {
-    const value = this.mensaje().trim();
-    return !value || value.length > 5000;
+    return this.mensaje().trim().length > 4000;
+  }
+
+  private ubicacionErrorForValue(): boolean {
+    return this.ubicacion().trim().length > 150;
   }
 
   private submitMessage(error: unknown): string {

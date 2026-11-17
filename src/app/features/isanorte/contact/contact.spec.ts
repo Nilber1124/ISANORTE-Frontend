@@ -38,6 +38,12 @@ class PublicContactFacadeStub {
   readonly emailTouched = signal(false);
   readonly telefonoTouched = signal(false);
   readonly empresaTouched = signal(false);
+  readonly ubicacion = signal('');
+  readonly ubicacionTouched = signal(false);
+  readonly ubicacionError = signal<string | undefined>(undefined);
+  readonly consentimiento = signal(false);
+  readonly consentimientoTouched = signal(false);
+  readonly consentimientoError = signal<string | undefined>(undefined);
   readonly mensajeTouched = signal(false);
   readonly nombreError = signal<string | undefined>(undefined);
   readonly emailError = signal<string | undefined>(undefined);

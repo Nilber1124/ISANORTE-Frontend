@@ -84,6 +84,7 @@ describe('PublicContactFacade', () => {
     facade.telefono.set(' +51 999 111 222 ');
     facade.empresa.set('   ');
     facade.mensaje.set(' Mensaje API ');
+    facade.consentimiento.set(true);
   }
 
   it('loads CONTACTO once from the centralized site key and exposes editorial content', () => {
@@ -134,6 +135,31 @@ describe('PublicContactFacade', () => {
     expect(api.requests[0].mensaje).toBe('Servicio de interés: Remodelaciones\n\nMensaje API');
   });
 
+  it('adds the location and sends a default message when the visitor writes none', () => {
+    fillValidForm();
+    facade.mensaje.set('');
+    facade.ubicacion.set(' Cajamarca ');
+    facade.submit();
+    expect(api.requests[0].mensaje).toBe('Ubicación: Cajamarca');
+  });
+
+  it('sends a default message when only the required fields are filled', () => {
+    fillValidForm();
+    facade.mensaje.set('');
+    facade.submit();
+
+    expect(api.requests[0].mensaje).toBe('Solicitud de cotización desde el sitio web.');
+  });
+
+  it('requires the data authorization before sending', () => {
+    fillValidForm();
+    facade.consentimiento.set(false);
+    facade.submit();
+
+    expect(api.requests).toEqual([]);
+    expect(facade.consentimientoError()).toContain('aceptar');
+  });
+
   it('does not send an invalid request and exposes contract-aligned validation', () => {
     facade.submit();
 
@@ -141,7 +167,9 @@ describe('PublicContactFacade', () => {
     expect(facade.nombreError()).toContain('nombre');
     expect(facade.emailError()).toContain('correo');
     expect(facade.telefonoError()).toContain('teléfono');
-    expect(facade.mensajeError()).toContain('Cuéntanos');
+    expect(facade.consentimientoError()).toContain('aceptar');
+    // El mensaje es opcional: vacío no es un error.
+    expect(facade.mensajeError()).toBeUndefined();
 
     facade.email.set('invalido');
     expect(facade.emailError()).toContain('válido');
