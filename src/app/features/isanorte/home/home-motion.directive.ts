@@ -139,11 +139,20 @@ export class HomeMotion {
       video.addEventListener('loadedmetadata', () => (this.videoDuration = video.duration), {
         once: true,
       });
+      // El primer fotograma tras cargar puede salir en negro: se pide el fotograma inicial por
+      // `seeked` y solo entonces se muestra el canvas.
       video.addEventListener(
         'loadeddata',
         () => {
-          renderer.draw(video);
-          figure.dataset['videoState'] = 'ready';
+          video.addEventListener(
+            'seeked',
+            () => {
+              renderer.draw(video);
+              figure.dataset['videoState'] = 'ready';
+            },
+            { once: true },
+          );
+          video.currentTime = this.videoTime(0);
           // Algunos navegadores móviles solo pintan fotogramas tras un primer play/pause.
           video
             .play()
