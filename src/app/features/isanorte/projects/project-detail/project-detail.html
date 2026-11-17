@@ -59,6 +59,42 @@
         @if (project.descripcion) {
           <p class="text-body-lg text-text-secondary">{{ project.descripcion }}</p>
         }
+        @if (stagedGallery().length > 0) {
+          <h2 class="mt-12 text-heading-3 text-text-primary">Antes, durante y después</h2>
+          <div class="mt-6 grid gap-4 sm:grid-cols-2" data-project-gallery>
+            @for (image of stagedGallery(); track image.url) {
+              <figure class="m-0">
+                <img
+                  [src]="image.url"
+                  [alt]="image.alt ?? project.nombre"
+                  loading="lazy"
+                  decoding="async"
+                  width="960"
+                  height="720"
+                  class="aspect-[4/3] w-full rounded-panel object-cover"
+                />
+                <figcaption class="mt-2 text-caption uppercase tracking-wider text-text-muted">
+                  {{ stageLabels[image.etiqueta] }}
+                </figcaption>
+              </figure>
+            }
+          </div>
+        }
+        @if (testimonials().length > 0) {
+          <div class="mt-12 space-y-4" data-project-testimonial>
+            @for (item of testimonials(); track item.texto) {
+              <blockquote class="rounded-card border border-border bg-surface-soft p-6">
+                <p class="text-body-lg text-text-primary">“{{ item.texto }}”</p>
+                <footer class="mt-3 text-body-sm text-text-secondary">
+                  {{ item.autor }}
+                  @if (item.cargo) {
+                    , {{ item.cargo }}
+                  }
+                </footer>
+              </blockquote>
+            }
+          </div>
+        }
         @if (gallery().length > 0) {
           <h2 class="mt-12 text-heading-3 text-text-primary">Galería</h2>
           <div class="mt-6 grid gap-4 sm:grid-cols-2">
@@ -83,6 +119,30 @@
         <div>
           <h2 class="text-eyebrow uppercase text-text-muted">Ficha del proyecto</h2>
           <dl class="mt-4 space-y-4 text-body-sm">
+            @if (typeLabel(); as type) {
+              <div>
+                <dt class="text-caption uppercase tracking-wider text-text-muted">Tipo de obra</dt>
+                <dd class="mt-1 text-body text-text-primary">{{ type }}</dd>
+              </div>
+            }
+            @if (project.areaM2) {
+              <div>
+                <dt class="text-caption uppercase tracking-wider text-text-muted">Área</dt>
+                <dd class="mt-1 text-body text-text-primary">{{ project.areaM2 }} m²</dd>
+              </div>
+            }
+            @if (project.plazoMeses) {
+              <div>
+                <dt class="text-caption uppercase tracking-wider text-text-muted">Plazo</dt>
+                <dd class="mt-1 text-body text-text-primary">{{ project.plazoMeses }} meses</dd>
+              </div>
+            }
+            @if (project.alcance) {
+              <div>
+                <dt class="text-caption uppercase tracking-wider text-text-muted">Alcance</dt>
+                <dd class="mt-1 text-body text-text-primary">{{ project.alcance }}</dd>
+              </div>
+            }
             @if (project.ubicacion) {
               <div>
                 <dt class="text-caption uppercase tracking-wider text-text-muted">Ubicación</dt>

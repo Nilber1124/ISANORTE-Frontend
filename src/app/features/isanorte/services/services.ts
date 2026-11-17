@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 
 import { AccessibilityService } from '../../../core/services/accessibility.service';
+import { PublicTrustStore } from '../../../data/services/public-trust.store';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { Alert } from '../../../shared/components/alert/alert';
 import { Button } from '../../../shared/components/button/button';
@@ -19,6 +20,7 @@ import { PublicServicesFacade } from './public-services.facade';
 })
 export class Services {
   readonly facade = inject(PublicServicesFacade);
+  readonly trust = inject(PublicTrustStore);
 
   private readonly site = inject(PublicSiteFacade, { optional: true });
   private readonly document = inject(DOCUMENT);
@@ -26,6 +28,7 @@ export class Services {
 
   constructor() {
     this.facade.load();
+    this.trust.load();
   }
 
   /** WhatsApp general de la empresa (para el cierre de la página); null si no hay número. */

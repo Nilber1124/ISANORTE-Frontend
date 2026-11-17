@@ -113,7 +113,10 @@ describe('PublicContactFacade', () => {
         email: 'persona@example.com',
         telefono: '+51 999 111 222',
         empresa: null,
+        ubicacion: null,
+        servicioInteres: null,
         mensaje: 'Mensaje API',
+        consentimiento: true,
       },
     ]);
 

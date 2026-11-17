@@ -10,7 +10,7 @@
     <div class="section-space bg-background-soft">
       <div class="app-container">
         <div class="flex flex-col gap-8 animate-pulse lg:gap-12">
-          @for (i of [1, 2, 3]; track i) {
+          @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
             <div
               class="grid grid-cols-1 overflow-hidden rounded-card border border-dashed border-border bg-surface shadow-card lg:grid-cols-2"
             >
@@ -138,6 +138,24 @@
             }
           </div>
         </app-reveal-stagger>
+      </div>
+    </section>
+  }
+
+  @if (trust.faqsFor('SERVICIOS').length > 0) {
+    <section class="app-container py-16 lg:py-24" aria-labelledby="faq-servicios" data-services-faq>
+      <h2 id="faq-servicios" class="mb-8 max-w-3xl text-heading-1 text-text-primary">
+        Preguntas frecuentes
+      </h2>
+      <div class="flex max-w-4xl flex-col gap-3">
+        @for (faq of trust.faqsFor('SERVICIOS'); track faq.pregunta) {
+          <details class="rounded-card border border-border bg-surface p-5">
+            <summary class="cursor-pointer text-heading-4 text-text-primary">
+              {{ faq.pregunta }}
+            </summary>
+            <p class="mt-3 text-body text-text-secondary">{{ faq.respuesta }}</p>
+          </details>
+        }
       </div>
     </section>
   }

@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
+import { PublicTrustStore } from '../../../../data/services/public-trust.store';
+import { PROJECT_TYPE_LABELS } from '../../../../data/models/public-content/public-page.model';
 import { PublicSiteFacade } from '../../../../layouts/public-layout/public-site.facade';
 import { Button } from '../../../../shared/components/button/button';
 import { Loading } from '../../../../shared/components/loading/loading';
@@ -18,6 +20,7 @@ import { coverImage } from './related-projects';
 })
 export class ProjectDetail {
   readonly facade = inject(ProjectDetailFacade);
+  readonly trust = inject(PublicTrustStore);
   private readonly route = inject(ActivatedRoute);
 
   private readonly site = inject(PublicSiteFacade, { optional: true });
@@ -47,9 +50,31 @@ export class ProjectDetail {
     this.quoteHref().startsWith('https://wa.me/') ? '_blank' : undefined,
   );
 
+  readonly typeLabel = computed(() => {
+    const type = this.facade.project()?.tipoObra;
+    return type ? PROJECT_TYPE_LABELS[type] : null;
+  });
+
+  /** Galería de la BD (antes, proceso, final, detalle), por etiqueta. */
+  readonly stagedGallery = computed(() => {
+    const slug = this.facade.project()?.slug;
+    return slug ? this.trust.galleryFor(slug) : [];
+  });
+  readonly testimonials = computed(() => {
+    const slug = this.facade.project()?.slug;
+    return slug ? this.trust.testimonialsFor(slug) : [];
+  });
+  protected readonly stageLabels: Record<string, string> = {
+    ANTES: 'Antes',
+    PROCESO: 'Durante la obra',
+    FINAL: 'Resultado',
+    DETALLE: 'Detalle',
+  };
+
   protected readonly coverOf = coverImage;
 
   constructor() {
+    this.trust.load();
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.facade.load(params.get('slug') ?? '');
     });

@@ -10,6 +10,7 @@ import {
   PublicPageType,
   PublicProject,
   PublicProjectImage,
+  PROJECT_TYPE_LABELS,
 } from '../../../data/models/public-content/public-page.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import {
@@ -64,7 +65,15 @@ export class PublicProjectsFacade {
   );
   readonly filters = computed<readonly PublicProjectFilter[]>(() => {
     const unique = new Map<string, PublicProjectFilter>();
+    // Quien busca una constructora filtra por tipo de obra; si no hay tipos cargados, por servicio.
+    const hasTypes = this.projects().some((project) => !!project.tipoObra);
     for (const project of this.projects()) {
+      if (hasTypes) {
+        const type = project.tipoObra;
+        if (type && !unique.has(type))
+          unique.set(type, { slug: type, nombre: PROJECT_TYPE_LABELS[type] ?? type });
+        continue;
+      }
       for (const service of project.servicios ?? []) {
         if (!unique.has(service.slug))
           unique.set(service.slug, { slug: service.slug, nombre: service.nombre });
@@ -75,8 +84,10 @@ export class PublicProjectsFacade {
   readonly filteredProjects = computed<readonly PublicProject[]>(() => {
     const activeFilter = this.activeFilter();
     if (activeFilter === ALL_PROJECTS_FILTER) return this.projects();
-    return this.projects().filter((project) =>
-      (project.servicios ?? []).some((service) => service.slug === activeFilter),
+    return this.projects().filter(
+      (project) =>
+        project.tipoObra === activeFilter ||
+        (project.servicios ?? []).some((service) => service.slug === activeFilter),
     );
   });
   readonly featuredProjects = computed(() => this.filteredProjects().slice(0, 2));

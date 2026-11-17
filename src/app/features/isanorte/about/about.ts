@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 
+import { PublicTrustStore } from '../../../data/services/public-trust.store';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { Alert } from '../../../shared/components/alert/alert';
 import { CtaBand } from '../../../shared/components/cta-band/cta-band';
@@ -17,12 +18,16 @@ import { PublicAboutFacade } from './public-about.facade';
 export class About {
   readonly facade = inject(PublicAboutFacade);
   private readonly site = inject(PublicSiteFacade, { optional: true });
+  readonly trust = inject(PublicTrustStore);
+  readonly coverage = computed(() => this.site?.company()?.zonaCobertura?.trim() || null);
+  readonly foundedYear = computed(() => this.site?.company()?.anioFundacion ?? null);
   readonly whatsappHref = computed(
     () => this.site?.whatsappHrefFor('Hola, quisiera cotizar mi proyecto.') ?? null,
   );
 
   constructor() {
     this.facade.load();
+    this.trust.load();
   }
 
   /** «A | B | C» se presenta como lista; un texto sin barras queda como párrafo (devuelve null). */
