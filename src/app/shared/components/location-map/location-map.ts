@@ -13,6 +13,8 @@ export class LocationMap {
   readonly direccion = input.required<string>();
   readonly mapEmbedUrl = input.required<string>();
   readonly mapUrl = input.required<string>();
+  /** `compact` (pie de página) o `large` (mapa cuadrado a todo el ancho de su columna). */
+  readonly size = input<'compact' | 'large'>('compact');
 
   protected readonly safeMapEmbedUrl = computed<SafeResourceUrl | null>(() => {
     const url = this.googleMapsUrl(this.mapEmbedUrl());
