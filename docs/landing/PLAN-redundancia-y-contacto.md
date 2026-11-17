@@ -67,7 +67,7 @@ Orden sugerido: A, B, C, D, E, F. Cada fase se puede revisar por separado.
 - C: hecha (servicios compactos sin imagen y máximo 4 proyectos en el Home).
 - D: hecha (navbar con ISADECOR directo y sin Tienda; mapa y dirección solo en Contacto, footer sin mapa).
 - E: hecha (componente `app-page-header` en Servicios y Proyectos).
-- Pendiente: F (revisar Nosotros).
+- F: hecha como revisión de contenido (ver `CONTENIDO-NOSOTROS.md`); el texto se carga desde el panel admin, sin cambios de código.
 
 ## 6. Decisiones originales (histórico)
 
