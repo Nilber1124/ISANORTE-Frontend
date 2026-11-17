@@ -1,14 +1,19 @@
 <div class="min-w-0">
   @if (safeMapEmbedUrl(); as embedUrl) {
-    <div class="h-28 overflow-hidden rounded-control border border-border bg-surface-soft">
-      <iframe
-        class="h-full w-full border-0"
-        [src]="embedUrl"
-        [title]="'Mapa de ubicación: ' + direccion()"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        allowfullscreen
-      ></iframe>
+    <div
+      #mapViewport
+      class="h-28 overflow-hidden rounded-control border border-border bg-surface-soft"
+    >
+      @if (mapVisible()) {
+        <iframe
+          class="h-full w-full border-0"
+          [src]="embedUrl"
+          [title]="'Mapa de ubicación: ' + direccion()"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen
+        ></iframe>
+      }
     </div>
   }
 

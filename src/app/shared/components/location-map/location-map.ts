@@ -1,4 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
@@ -9,6 +20,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 })
 export class LocationMap {
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly mapViewport = viewChild<ElementRef<HTMLElement>>('mapViewport');
+
+  protected readonly mapVisible = signal(false);
 
   readonly direccion = input.required<string>();
   readonly mapEmbedUrl = input.required<string>();
@@ -20,6 +35,29 @@ export class LocationMap {
   });
 
   protected readonly safeMapUrl = computed(() => this.googleMapsUrl(this.mapUrl()));
+
+  constructor() {
+    afterNextRender(() => {
+      const viewport = this.mapViewport()?.nativeElement;
+      if (!viewport) return;
+
+      if (!('IntersectionObserver' in globalThis)) {
+        this.mapVisible.set(true);
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) return;
+          this.mapVisible.set(true);
+          observer.disconnect();
+        },
+        { rootMargin: '200px' },
+      );
+      observer.observe(viewport);
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    });
+  }
 
   private googleMapsUrl(value: string): string | null {
     try {

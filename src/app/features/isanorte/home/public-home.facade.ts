@@ -20,6 +20,7 @@ import {
   applyPublicPageSeo,
   clearPublicPageSeo,
 } from '../../../shared/utils/public-page-seo.util';
+import { cloudinaryImageUrl } from '../../../shared/utils/cloudinary-image-url.util';
 import { HOME_HERO_FALLBACK, HeroActionViewData, HeroViewData } from './home-hero-fallback';
 import { HOME_PROJECTS_FALLBACK } from './home-projects-fallback';
 import { HOME_CTA_FALLBACK } from './home-cta-fallback';
@@ -97,7 +98,7 @@ export class PublicHomeFacade {
       )
       .map((scene, index) => ({
         id: `hero-scene-${scene.orden}-${index}`,
-        imageUrl: scene.imagenUrl,
+        imageUrl: cloudinaryImageUrl(scene.imagenUrl, 1920),
       }));
   });
 
@@ -135,7 +136,7 @@ export class PublicHomeFacade {
         slug: service.slug,
         name: service.nombre,
         summary: service.resumen ?? '',
-        imageUrl: service.imagenUrl,
+        imageUrl: service.imagenUrl ? cloudinaryImageUrl(service.imagenUrl, 960) : null,
         imageAlt: service.imagenAlt,
         // La baseline no tiene detalle /servicios/:slug; conserva su enlace sin destino.
         linkUrl: '#',
@@ -191,16 +192,19 @@ export class PublicHomeFacade {
   );
 
   readonly businessUnitBackgroundResource = computed(
-    () =>
-      this.orderedBusinessUnitResources().find(
+    () => {
+      const resource = this.orderedBusinessUnitResources().find(
         (resource) => resource.tipo === PublicBusinessUnitResourceType.IMAGEN_FONDO,
-      ) ?? null,
+      );
+      return resource ? { ...resource, url: cloudinaryImageUrl(resource.url, 1920) } : null;
+    },
   );
 
   readonly businessUnitEditorialResources = computed(() =>
     this.orderedBusinessUnitResources()
       .filter((resource) => resource.tipo === PublicBusinessUnitResourceType.IMAGEN_EDITORIAL)
-      .slice(0, 3),
+      .slice(0, 3)
+      .map((resource) => ({ ...resource, url: cloudinaryImageUrl(resource.url, 800) })),
   );
 
   /** Se deriva para distinguir un PDF/recurso comercial de la UI de catálogo web. */
@@ -253,7 +257,7 @@ export class PublicHomeFacade {
           location: project.ubicacion ?? null,
           dateLabel: project.fechaProyecto ?? null,
           metadata: metadata || project.nombre,
-          imageUrl: mainImg?.url ?? null,
+          imageUrl: mainImg ? cloudinaryImageUrl(mainImg.url, 960) : null,
           imageAlt: mainImg?.alt ?? project.nombre,
           order: project.orden,
         };
@@ -287,7 +291,9 @@ export class PublicHomeFacade {
         description: section?.subtitulo || section?.contenido || HOME_CTA_FALLBACK.copy.description,
       },
       action: this.ctaAction(),
-      bgImageUrl: section?.imagenUrl || HOME_CTA_FALLBACK.bgImageUrl,
+      bgImageUrl: section?.imagenUrl
+        ? cloudinaryImageUrl(section.imagenUrl, 1200)
+        : HOME_CTA_FALLBACK.bgImageUrl,
     };
   });
 

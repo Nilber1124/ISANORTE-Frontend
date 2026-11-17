@@ -6,7 +6,18 @@
       [class.opacity-100]="i === 0"
       [class.opacity-0]="i !== 0"
       [attr.data-scene-image]="scene.imageUrl"
-      [style.backgroundImage]="i === 0 ? 'url(' + scene.imageUrl + ')' : null"
-    ></div>
+    >
+      @if (i === 0) {
+        <img
+          class="absolute inset-0 size-full object-cover object-center"
+          [src]="scene.imageUrl"
+          alt=""
+          width="1920"
+          height="1080"
+          fetchpriority="high"
+          decoding="async"
+        />
+      }
+    </div>
   }
 </div>
