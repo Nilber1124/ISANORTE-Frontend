@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { Alert } from '../../../shared/components/alert/alert';
+import { LocationMap } from '../../../shared/components/location-map/location-map';
 import { Card } from '../../../shared/components/card/card';
 import { ContactForm } from './contact-form/contact-form';
 import { PublicContactFacade } from './public-contact.facade';
@@ -18,7 +19,7 @@ interface ContactChannel {
 }
 
 @Component({
-  imports: [NgTemplateOutlet, Alert, Card, ContactForm],
+  imports: [NgTemplateOutlet, Alert, Card, ContactForm, LocationMap],
   selector: 'app-isanorte-contact',
   providers: [PublicContactFacade],
   templateUrl: './contact.html',
@@ -27,6 +28,12 @@ interface ContactChannel {
 export class Contact {
   readonly facade = inject(PublicContactFacade);
   readonly site = inject(PublicSiteFacade);
+  /** Dirección que se presenta junto al mapa; vacía si la empresa no la tiene cargada. */
+  readonly direccion = computed(() =>
+    [this.site.address(), this.site.city()].filter((value) => value !== null).join(', '),
+  );
+  readonly mapEmbedUrl = 'https://www.google.com/maps?q=-7.1462778,-78.5206944&output=embed';
+  readonly mapUrl = 'https://www.google.com/maps?q=-7.1462778,-78.5206944';
   readonly channels = computed<readonly ContactChannel[]>(() => {
     const channels: ContactChannel[] = [];
     const whatsapp = this.whatsappHref(this.site.company()?.whatsapp ?? null);

@@ -70,12 +70,16 @@
               </p>
             }
             <ng-container [ngTemplateOutlet]="contactChannels" />
+            <ng-container [ngTemplateOutlet]="contactMap" />
           </div>
           <app-contact-form [facade]="facade" />
         </div>
       } @else {
         <div class="items-start lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16">
-          <div><ng-container [ngTemplateOutlet]="contactChannels" /></div>
+          <div>
+            <ng-container [ngTemplateOutlet]="contactChannels" />
+            <ng-container [ngTemplateOutlet]="contactMap" />
+          </div>
           <app-contact-form [facade]="facade" />
         </div>
       }
@@ -169,6 +173,15 @@
           </div>
         </app-card>
       }
+    </div>
+  }
+</ng-template>
+
+<ng-template #contactMap>
+  @if (direccion(); as address) {
+    <div class="mt-8" data-contact-map>
+      <h2 class="mb-4 text-heading-4 text-text-primary">Ubicación</h2>
+      <app-location-map [direccion]="address" [mapEmbedUrl]="mapEmbedUrl" [mapUrl]="mapUrl" />
     </div>
   }
 </ng-template>

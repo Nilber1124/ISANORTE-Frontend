@@ -9,6 +9,7 @@ import {
 } from '../../../data/models/public-content/public-page.model';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { Alert } from '../../../shared/components/alert/alert';
+import { LocationMap } from '../../../shared/components/location-map/location-map';
 import { Card } from '../../../shared/components/card/card';
 import { Contact } from './contact';
 import { ContactForm } from './contact-form/contact-form';
@@ -86,7 +87,7 @@ describe('Contact', () => {
     await TestBed.configureTestingModule({ imports: [Contact] })
       .overrideComponent(Contact, {
         set: {
-          imports: [NgTemplateOutlet, Alert, Card, ContactForm],
+          imports: [NgTemplateOutlet, Alert, Card, ContactForm, LocationMap],
           providers: [
             { provide: PublicContactFacade, useValue: facade },
             { provide: PublicSiteFacade, useValue: site },

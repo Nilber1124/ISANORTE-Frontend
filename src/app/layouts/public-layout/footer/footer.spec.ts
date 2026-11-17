@@ -60,14 +60,8 @@ describe('Footer', () => {
     expect(footer.querySelector('img')?.getAttribute('src')).toBe('/footer-logo.svg');
     expect(footer.querySelector('img')?.getAttribute('alt')).toBe('Sitio Backend');
     expect(footer.textContent).toContain('Resumen corporativo backend');
-    expect(footer.textContent).toContain('Av. Backend 123');
-    expect(footer.textContent).toContain('Ciudad Backend');
-    expect(footer.querySelector('iframe')?.getAttribute('src')).toBe(
-      'https://www.google.com/maps?q=-7.1462778,-78.5206944&output=embed',
-    );
-    expect(
-      footer.querySelector('a[href="https://www.google.com/maps?q=-7.1462778,-78.5206944"]'),
-    ).toBeTruthy();
+    // El mapa y la dirección viven solo en la página Contacto.
+    expect(footer.querySelector('iframe')).toBeNull();
     expect(footer.querySelector('a[href="mailto:contacto@example.com"]')).toBeTruthy();
     expect(footer.querySelector('a[href="tel:+51 555 0101"]')).toBeTruthy();
     expect(footer.querySelector('a[href="https://linkedin.example/company"]')).toBeTruthy();

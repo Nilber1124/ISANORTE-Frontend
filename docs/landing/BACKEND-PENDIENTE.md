@@ -20,3 +20,4 @@ se reemplaza por contenido administrable.
 | Servicio de interés en la solicitud de contacto | Se antepone al mensaje («Servicio de interés: X») | Campo `servicio` en la solicitud de contacto |
 | Opciones del selector «Servicio de interés» (8 servicios reales) | Lista local en `home-landing.data.ts` (`HOME_SERVICE_OPTIONS`) | Salir de la API cuando la BD tenga los 8 servicios reales |
 | Imagen y botón de la sección CTA | El cierre del Home ya no los usa (ahora es el formulario) | Opcional: quitar `imagenUrl` y acciones de la sección CTA, o reutilizarlos |
+| Botón secundario del hero | La BD trae «Habla con un asesor» (va a /contacto) | Cambiarlo a «Ver proyectos» (/proyectos) para no repetir el destino del botón principal |
