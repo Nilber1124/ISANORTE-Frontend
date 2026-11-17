@@ -33,12 +33,6 @@ export interface PublicTestimonial {
   fotoAlt: string | null;
 }
 
-export interface PublicClientBrand {
-  nombre: string;
-  logoUrl: string | null;
-  enlace: string | null;
-}
-
 export interface PublicGuarantee {
   titulo: string;
   texto: string;
@@ -62,7 +56,6 @@ export interface PublicTrustResponse {
   equipo: PublicTeamMember[];
   credenciales: PublicCredential[];
   testimonios: PublicTestimonial[];
-  clientes: PublicClientBrand[];
   garantias: PublicGuarantee[];
   pasos: PublicProcessStep[];
   galeria: PublicProjectGalleryImage[];

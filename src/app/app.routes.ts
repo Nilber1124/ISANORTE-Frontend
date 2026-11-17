@@ -163,14 +163,6 @@ export const routes: Routes = [
         data: { entity: 'testimonios', title: 'Testimonios' },
       },
       {
-        path: 'sitio/clientes-marca',
-        loadComponent: () =>
-          import('./features/admin/site-content/admin-site-content').then(
-            ({ AdminSiteContent }) => AdminSiteContent,
-          ),
-        data: { entity: 'clientes-marca', title: 'Clientes y marcas' },
-      },
-      {
         path: 'sitio/garantias',
         loadComponent: () =>
           import('./features/admin/site-content/admin-site-content').then(

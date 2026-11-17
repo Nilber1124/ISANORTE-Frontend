@@ -11,7 +11,6 @@ Lista de lo que no se puede resolver con código: contenido real, datos y decisi
 - [ ] **3 testimonios reales** de clientes: nombre, qué obra se les hizo y, si autorizan, foto o video corto.
 - [ ] **Fotos del equipo** (fundador, ingenieros, arquitectos) con nombre, cargo y especialidad.
 - [ ] **Credenciales**: licencias, colegiaturas (CIP, CAP), certificaciones, RUC y razón social.
-- [ ] **Marcas o clientes** con los que han trabajado (con permiso para mostrarlos).
 
 ## 2. Datos que deben ser verdaderos
 

@@ -25,7 +25,6 @@ export class PublicTrustStore {
   readonly team = computed(() => this._data()?.equipo ?? []);
   readonly credentials = computed(() => this._data()?.credenciales ?? []);
   readonly testimonials = computed(() => this._data()?.testimonios ?? []);
-  readonly clients = computed(() => this._data()?.clientes ?? []);
   readonly guarantees = computed(() => this._data()?.garantias ?? []);
   readonly heroGuarantees = computed(() => this.guarantees().filter((item) => item.enHero));
   readonly steps = computed(() => this._data()?.pasos ?? []);

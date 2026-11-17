@@ -40,7 +40,6 @@ DELETE FROM testimonios;
 DELETE FROM faqs;
 DELETE FROM miembros_equipo;
 DELETE FROM credenciales;
-DELETE FROM clientes_marca;
 DELETE FROM garantias;
 DELETE FROM pasos_proceso;
 DELETE FROM acciones_landing;
@@ -205,12 +204,6 @@ TS = [("María Elena Quispe", "Propietaria · Baños del Inca", "Nos entregaron 
 for i, (a, c, t, p) in enumerate(TS):
     sql(f"INSERT INTO testimonios (id,autor,cargo,texto,proyecto_slug,orden,activo,fecha_creacion,fecha_actualizacion) "
         f"VALUES (gen_random_uuid(),{q(a)},{q(c)},{q(t)},{q(p)},{i},TRUE,{NOW},{NOW});")
-
-# ---- Clientes y marcas (logos de demostración generados)
-for i, (n, k) in enumerate([("Agroindustria Namora S.A.C.", "cliente-agroindustria"), ("Inmobiliaria Cumbe", "cliente-inmobiliaria"),
-                            ("Colegio Particular San Ignacio", "cliente-colegio"), ("Hotel Casa Andina del Norte", "cliente-hotel"),
-                            ("Cooperativa Agraria La Encañada", "cliente-cooperativa")]):
-    sql(f"INSERT INTO clientes_marca (id,nombre,logo_url,orden,activo,fecha_creacion,fecha_actualizacion) VALUES (gen_random_uuid(),{q(n)},{q(NEW.get(k))},{i},TRUE,{NOW},{NOW});")
 
 # ---- Garantías
 GA = [("Un solo equipo, de principio a fin", "Planos, permisos, obra y acabados con el mismo equipo responsable.", True),

@@ -807,49 +807,6 @@
     </section>
   }
 
-  <!-- Clientes y marcas. -->
-  @if (trust.clients().length > 0) {
-    <section
-      id="clientes"
-      class="border-y border-border bg-background py-10 md:py-14"
-      data-home-clients
-    >
-      <div class="app-container">
-        <p
-          class="mb-6 text-center text-caption font-semibold uppercase tracking-wider text-text-muted"
-        >
-          Empresas e instituciones que confían en nosotros
-        </p>
-        <ul class="m-0 flex list-none flex-wrap items-stretch justify-center gap-4 p-0">
-          @for (client of trust.clients(); track client.nombre) {
-            <li
-              class="flex w-40 flex-col items-center gap-3 rounded-card border border-border bg-surface p-4 text-center"
-            >
-              @if (client.logoUrl) {
-                <span
-                  class="inline-flex size-20 items-center justify-center rounded-control bg-white p-2"
-                >
-                  <img
-                    [src]="client.logoUrl"
-                    [alt]="''"
-                    width="72"
-                    height="72"
-                    loading="lazy"
-                    decoding="async"
-                    class="size-full object-contain"
-                  />
-                </span>
-              }
-              <span class="text-caption font-semibold leading-snug text-text-secondary">{{
-                client.nombre
-              }}</span>
-            </li>
-          }
-        </ul>
-      </div>
-    </section>
-  }
-
   <!-- 5. ISADECOR: otra línea de la casa, otro ambiente. -->
   @if (businessUnitDisplay(); as businessUnit) {
     <section

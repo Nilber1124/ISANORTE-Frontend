@@ -120,19 +120,6 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
     ],
   },
   {
-    key: 'clientes-marca',
-    title: 'Clientes y marcas',
-    description: 'Logos de empresas e instituciones que confían en ISANORTE.',
-    endpoint: 'clientes-marca',
-    folder: 'isanorte/clientes',
-    titleKey: 'nombre',
-    fields: [
-      { key: 'nombre', label: 'Nombre', type: 'text', required: true, maxLength: 150 },
-      { key: 'logoUrl', label: 'Logo', type: 'image' },
-      { key: 'enlace', label: 'Enlace', type: 'text', maxLength: 300 },
-    ],
-  },
-  {
     key: 'garantias',
     title: 'Garantías',
     description: 'Compromisos concretos («Por qué ISANORTE») y puntos del hero.',

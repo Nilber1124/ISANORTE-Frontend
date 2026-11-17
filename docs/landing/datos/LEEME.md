@@ -1,7 +1,7 @@
 # Datos de demostración: ISANORTE, Cajamarca (Perú)
 
 `cajamarca-demo.sql` carga el contenido del sitio para verlo «terminado» en local.
-**Todo es inventado**: teléfonos, correos, RUC, dirección, cifras, equipo, credenciales, testimonios, clientes y
+**Todo es inventado**: teléfonos, correos, RUC, dirección, cifras, equipo, credenciales, testimonios y
 proyectos. Reemplázalo con datos reales desde el panel de administración antes de publicar.
 
 ## Cargarlo (local)
@@ -27,4 +27,4 @@ vuelve a cargar. No toca administradores, productos ISADECOR, cotizaciones ni pe
   porque se agotó la cuota diaria gratuita de Cloudflare Workers AI (se renueva a las 00:00 UTC).
   Ambos scripts esperan la carpeta `demo-cajamarca/` junto a los repositorios.
 
-- La galería antes/durante/después (3 proyectos) y los logos de los 5 clientes de demostración son imágenes generadas con IA; los clientes son empresas ficticias.
+- La galería antes/durante/después (casa campestre, casona y galpón) son imágenes generadas con IA.

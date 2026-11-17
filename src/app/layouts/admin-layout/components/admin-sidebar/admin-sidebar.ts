@@ -48,7 +48,6 @@ export class AdminSidebar {
         { label: 'Equipo', route: '/admin/sitio/equipo' },
         { label: 'Credenciales', route: '/admin/sitio/credenciales' },
         { label: 'Testimonios', route: '/admin/sitio/testimonios' },
-        { label: 'Clientes y marcas', route: '/admin/sitio/clientes-marca' },
         { label: 'Garantías', route: '/admin/sitio/garantias' },
         { label: 'Pasos del proceso', route: '/admin/sitio/pasos-proceso' },
         { label: 'Galería de proyectos', route: '/admin/sitio/proyecto-galeria' },
