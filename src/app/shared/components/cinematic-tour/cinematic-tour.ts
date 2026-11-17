@@ -78,6 +78,11 @@ export class CinematicTour {
     // Accesibilidad: sin movimientos 3D, imagen estática (la primera escena).
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+    const scenes = this.scenes();
+    if (layers.length > 1) {
+      layers[1].style.backgroundImage = `url(${scenes[1].imageUrl})`;
+    }
+
     const ctx = gsap.context(() => {
       const count = layers.length;
       const isDesktop = window.matchMedia('(min-width: 768px)').matches;
@@ -86,7 +91,6 @@ export class CinematicTour {
 
       const sceneDur = this.sceneDuration() / 1000;
       const fade = this.crossFade() / 1000;
-      const blurIn = 6;
 
       // La escala nunca baja de 1: con k reducido (móvil) la capa debe seguir cubriendo todo el contenedor.
       const startScale = 1 + 0.05 * k;
@@ -120,6 +124,18 @@ export class CinematicTour {
         const base = i * sceneDur;
         const exit = base + sceneDur - fade;
 
+        // Solicita la siguiente escena cuando ya se acerca su turno.
+        const preloadIndex = (i + 2) % count;
+        if (count > 2) {
+          tl.call(
+            () => {
+              layers[preloadIndex].style.backgroundImage = `url(${scenes[preloadIndex].imageUrl})`;
+            },
+            [],
+            base + sceneDur - 2,
+          );
+        }
+
         // Avance de cámara durante toda la escena.
         tl.fromTo(
           layer,
@@ -131,14 +147,12 @@ export class CinematicTour {
         // Pequeño zoom adicional de cámara justo antes de terminar la escena.
         tl.to(layer, { scale: exitScale, duration: 0.9, ease: 'power1.in' }, base + sceneDur - 1.5);
 
-        // Transición: ligero desenfoque y fundido de salida.
-        tl.to(layer, { filter: `blur(${blurIn}px)`, duration: 0.7, ease: 'power1.in' }, base + sceneDur - 1.4);
+        // La transición usa opacidad y transform para evitar repintar por blur.
         tl.to(layer, { opacity: 0, duration: fade, ease: 'power1.inOut' }, exit);
 
         // La siguiente escena entra durante el fundido, ya en movimiento.
-        tl.set(next, { opacity: 0, filter: `blur(${blurIn}px)`, scale: startScale, xPercent: mn.x0, yPercent: mn.y0, rotationX: mn.rx0, rotationY: mn.ry0 }, exit);
+        tl.set(next, { opacity: 0, scale: startScale, xPercent: mn.x0, yPercent: mn.y0, rotationX: mn.rx0, rotationY: mn.ry0 }, exit);
         tl.to(next, { opacity: 1, duration: fade, ease: 'power1.inOut' }, exit);
-        tl.to(next, { filter: 'blur(0px)', duration: fade, ease: 'power1.inOut' }, exit);
       }
 
       // Parallax de cámara con el ratón (solo escritorio con puntero fino).

@@ -27,11 +27,11 @@ export const HOME_HERO_FALLBACK: {
     subtitle: 'Soluciones profesionales para construcción, obra civil y acabados.',
   },
   scenes: [
-    { id: 'fallback-exterior', imageUrl: '/images/recorrido-exterior.jpg' },
-    { id: 'fallback-sala', imageUrl: '/images/recorrido-sala.jpg' },
-    { id: 'fallback-cocina', imageUrl: '/images/recorrido-cocina.jpg' },
-    { id: 'fallback-bano', imageUrl: '/images/recorrido-bano.jpg' },
-    { id: 'fallback-dormitorio', imageUrl: '/images/recorrido-dormitorio.jpg' },
+    { id: 'fallback-exterior', imageUrl: '/images/recorrido-exterior.webp' },
+    { id: 'fallback-sala', imageUrl: '/images/recorrido-sala.webp' },
+    { id: 'fallback-cocina', imageUrl: '/images/recorrido-cocina.webp' },
+    { id: 'fallback-bano', imageUrl: '/images/recorrido-bano.webp' },
+    { id: 'fallback-dormitorio', imageUrl: '/images/recorrido-dormitorio.webp' },
   ],
   actions: [
     { label: 'SOLICITAR COTIZACIÓN', url: '/contacto', order: 0 },

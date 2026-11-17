@@ -1,23 +1,8 @@
 import { Routes } from '@angular/router';
-import { Cart } from './features/isadecor/cart/cart';
-import { Catalog } from './features/isadecor/catalog/catalog';
-import { Catalogos } from './features/isadecor/catalogos/catalogos';
-import { Checkout } from './features/isadecor/checkout/checkout';
-import { Home as IsadecorHome } from './features/isadecor/home/home';
-import { ProductDetail } from './features/isadecor/product-detail/product-detail';
-import { Quote } from './features/isadecor/quote/quote';
-import { About } from './features/isanorte/about/about';
-import { Contact } from './features/isanorte/contact/contact';
 import { Home as IsanorteHome } from './features/isanorte/home/home';
-import { Projects } from './features/isanorte/projects/projects';
-import { ProjectDetail } from './features/isanorte/projects/project-detail/project-detail';
-import { Services } from './features/isanorte/services/services';
-import { IsadecorLayout } from './layouts/isadecor-layout/isadecor-layout';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 import { authGuard } from './core/auth/auth.guard';
 import { clienteGuard } from './core/auth/cliente.guard';
-import { IsadecorIngresar } from './features/isadecor/cuenta/ingresar/ingresar';
-import { MiCuenta } from './features/isadecor/cuenta/mi-cuenta/mi-cuenta';
 
 export const routes: Routes = [
   {
@@ -137,26 +122,92 @@ export const routes: Routes = [
     component: PublicLayout,
     children: [
       { path: '', component: IsanorteHome },
-      { path: 'nosotros', component: About },
-      { path: 'servicios', component: Services },
-      { path: 'proyectos', component: Projects },
-      { path: 'proyectos/:slug', component: ProjectDetail },
-      { path: 'contacto', component: Contact },
+      {
+        path: 'nosotros',
+        loadComponent: () => import('./features/isanorte/about/about').then(({ About }) => About),
+      },
+      {
+        path: 'servicios',
+        loadComponent: () =>
+          import('./features/isanorte/services/services').then(({ Services }) => Services),
+      },
+      {
+        path: 'proyectos',
+        loadComponent: () =>
+          import('./features/isanorte/projects/projects').then(({ Projects }) => Projects),
+      },
+      {
+        path: 'proyectos/:slug',
+        loadComponent: () =>
+          import('./features/isanorte/projects/project-detail/project-detail').then(
+            ({ ProjectDetail }) => ProjectDetail,
+          ),
+      },
+      {
+        path: 'contacto',
+        loadComponent: () =>
+          import('./features/isanorte/contact/contact').then(({ Contact }) => Contact),
+      },
     ],
   },
   {
     path: 'isadecor',
-    component: IsadecorLayout,
+    loadComponent: () =>
+      import('./layouts/isadecor-layout/isadecor-layout').then(
+        ({ IsadecorLayout }) => IsadecorLayout,
+      ),
     children: [
-      { path: '', component: IsadecorHome },
-      { path: 'productos', component: Catalog },
-      { path: 'catalogos', component: Catalogos },
-      { path: 'carrito', component: Cart },
-      { path: 'cotizacion', component: Quote },
-      { path: 'checkout', component: Checkout, canActivate: [clienteGuard] },
-      { path: 'ingresar', component: IsadecorIngresar },
-      { path: 'mi-cuenta', component: MiCuenta, canActivate: [clienteGuard] },
-      { path: 'productos/:slug', component: ProductDetail },
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/isadecor/home/home').then(({ Home }) => Home),
+      },
+      {
+        path: 'productos',
+        loadComponent: () =>
+          import('./features/isadecor/catalog/catalog').then(({ Catalog }) => Catalog),
+      },
+      {
+        path: 'catalogos',
+        loadComponent: () =>
+          import('./features/isadecor/catalogos/catalogos').then(({ Catalogos }) => Catalogos),
+      },
+      {
+        path: 'carrito',
+        loadComponent: () => import('./features/isadecor/cart/cart').then(({ Cart }) => Cart),
+      },
+      {
+        path: 'cotizacion',
+        loadComponent: () => import('./features/isadecor/quote/quote').then(({ Quote }) => Quote),
+      },
+      {
+        path: 'checkout',
+        loadComponent: () =>
+          import('./features/isadecor/checkout/checkout').then(({ Checkout }) => Checkout),
+        canActivate: [clienteGuard],
+      },
+      {
+        path: 'ingresar',
+        loadComponent: () =>
+          import('./features/isadecor/cuenta/ingresar/ingresar').then(
+            ({ IsadecorIngresar }) => IsadecorIngresar,
+          ),
+      },
+      {
+        path: 'mi-cuenta',
+        loadComponent: () =>
+          import('./features/isadecor/cuenta/mi-cuenta/mi-cuenta').then(
+            ({ MiCuenta }) => MiCuenta,
+          ),
+        canActivate: [clienteGuard],
+      },
+      {
+        path: 'productos/:slug',
+        loadComponent: () =>
+          import('./features/isadecor/product-detail/product-detail').then(
+            ({ ProductDetail }) => ProductDetail,
+          ),
+      },
     ],
   },
 ];
