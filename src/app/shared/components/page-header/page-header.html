@@ -1,0 +1,17 @@
+<header data-theme="dark" class="relative overflow-hidden bg-background">
+  <div class="app-container py-16 lg:py-24">
+    @if (eyebrow(); as eyebrowText) {
+      <p class="mb-5 flex items-center gap-3 text-eyebrow uppercase text-accent">
+        <span class="h-px w-6 bg-accent" aria-hidden="true"></span>
+        {{ eyebrowText }}
+      </p>
+    }
+    @if (title(); as titleText) {
+      <h1 class="max-w-4xl text-display text-text-primary lg:text-display-xl">
+        {{ titleText }}
+      </h1>
+    }
+  </div>
+</header>
+
+<div class="h-1 w-full bg-accent" aria-hidden="true"></div>

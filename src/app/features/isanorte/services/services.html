@@ -11,7 +11,9 @@
       <div class="app-container">
         <div class="flex flex-col gap-8 animate-pulse lg:gap-12">
           @for (i of [1, 2, 3]; track i) {
-            <div class="grid grid-cols-1 overflow-hidden rounded-card border border-dashed border-border bg-surface shadow-card lg:grid-cols-2">
+            <div
+              class="grid grid-cols-1 overflow-hidden rounded-card border border-dashed border-border bg-surface shadow-card lg:grid-cols-2"
+            >
               <div class="aspect-[4/3] bg-surface-hover lg:aspect-auto lg:min-h-[22rem]"></div>
               <div class="flex flex-col justify-center gap-4 p-6 md:p-8 lg:p-10">
                 <div class="h-3.5 w-20 rounded bg-surface-hover"></div>
@@ -39,28 +41,21 @@
     </app-alert>
   </div>
 } @else if (facade.content(); as content) {
-  <header data-theme="dark" class="relative overflow-hidden bg-background">
-    <div class="app-container py-16 lg:py-24">
-      @if (content.eyebrow) {
-        <p class="mb-5 flex items-center gap-3 text-eyebrow uppercase text-accent">
-          <span class="h-px w-6 bg-accent" aria-hidden="true"></span>
-          {{ content.eyebrow }}
-        </p>
-      }
-      @if (content.titulo) {
-        <h1 class="max-w-4xl text-display text-text-primary lg:text-display-xl">
-          {{ content.titulo }}
-        </h1>
-      }
-    </div>
-  </header>
-
-  <div class="h-1 w-full bg-accent" aria-hidden="true"></div>
+  <app-page-header [eyebrow]="content.eyebrow" [title]="content.titulo" />
 
   @if (facade.showServices()) {
-    <section class="section-space bg-background-soft" aria-label="Listado de servicios" data-services-list>
+    <section
+      class="section-space bg-background-soft"
+      aria-label="Listado de servicios"
+      data-services-list
+    >
       <div class="app-container">
-        <app-reveal-stagger [stagger]="0.16" [duration]="0.85" [ease]="'power3.out'" [trigger]="'view'">
+        <app-reveal-stagger
+          [stagger]="0.16"
+          [duration]="0.85"
+          [ease]="'power3.out'"
+          [trigger]="'view'"
+        >
           <div class="flex flex-col gap-8 lg:gap-12">
             @for (service of facade.services(); track service.slug; let i = $index) {
               <article
@@ -81,7 +76,9 @@
                 </div>
 
                 <div class="flex flex-col justify-center p-6 md:p-8 lg:p-10">
-                  <p class="mb-4 flex flex-wrap items-center gap-3 text-eyebrow uppercase text-accent-strong">
+                  <p
+                    class="mb-4 flex flex-wrap items-center gap-3 text-eyebrow uppercase text-accent-strong"
+                  >
                     <span class="font-mono">{{ serviceNumber(i) }}</span>
                     @if (service.etiqueta) {
                       <span class="h-px w-5 bg-border-strong" aria-hidden="true"></span>
@@ -99,9 +96,15 @@
 
                   @if (service.beneficios.length) {
                     <ul class="mt-6 flex flex-col gap-3">
-                      @for (benefit of service.beneficios; track benefit.orden + ':' + benefit.texto) {
+                      @for (
+                        benefit of service.beneficios;
+                        track benefit.orden + ':' + benefit.texto
+                      ) {
                         <li class="flex items-start gap-3 text-body-sm text-text-secondary">
-                          <span class="mt-[0.7em] h-px w-6 flex-none bg-accent" aria-hidden="true"></span>
+                          <span
+                            class="mt-[0.7em] h-px w-6 flex-none bg-accent"
+                            aria-hidden="true"
+                          ></span>
                           <span>{{ benefit.texto }}</span>
                         </li>
                       }

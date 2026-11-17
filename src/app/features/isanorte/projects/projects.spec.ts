@@ -10,6 +10,7 @@ import {
   PublicProjectImage,
 } from '../../../data/models/public-content/public-page.model';
 import { Alert } from '../../../shared/components/alert/alert';
+import { PageHeader } from '../../../shared/components/page-header/page-header';
 import {
   ALL_PROJECTS_FILTER,
   PublicProjectFilter,
@@ -73,7 +74,9 @@ class PublicProjectsFacadeStub {
   readonly filteredProjects = computed(() =>
     this.activeFilter() === ALL_PROJECTS_FILTER
       ? this.projects()
-      : this.projects().filter((project) => project.servicios.some((service) => service.slug === this.activeFilter())),
+      : this.projects().filter((project) =>
+          project.servicios.some((service) => service.slug === this.activeFilter()),
+        ),
   );
   readonly featuredProjects = computed(() => this.filteredProjects().slice(0, 2));
   readonly secondaryProjects = computed(() => this.filteredProjects().slice(2));
@@ -99,7 +102,7 @@ describe('Projects', () => {
     await TestBed.configureTestingModule({ imports: [Projects], providers: [provideRouter([])] })
       .overrideComponent(Projects, {
         set: {
-          imports: [NgClass, NgTemplateOutlet, Alert, CardStub, RouterLink],
+          imports: [NgClass, NgTemplateOutlet, Alert, CardStub, PageHeader, RouterLink],
           providers: [{ provide: PublicProjectsFacade, useValue: facade }],
         },
       })
@@ -114,7 +117,9 @@ describe('Projects', () => {
 
     expect(element.querySelector('h1')?.textContent).toContain('Título API');
     expect(element.querySelector('[data-project-filters]')?.textContent).toContain('Todos');
-    expect(element.querySelector('[data-project-filters]')?.textContent).toContain('Construcción API');
+    expect(element.querySelector('[data-project-filters]')?.textContent).toContain(
+      'Construcción API',
+    );
     expect(card.textContent).toContain('Descripción API');
     expect(card.textContent).toContain('Ubicación API');
     expect(card.textContent).toContain('2026');
@@ -127,7 +132,9 @@ describe('Projects', () => {
     const fixture = TestBed.createComponent(Projects);
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
-    const buttons = [...element.querySelectorAll<HTMLButtonElement>('[data-project-filters] button')];
+    const buttons = [
+      ...element.querySelectorAll<HTMLButtonElement>('[data-project-filters] button'),
+    ];
     buttons.find((button) => button.textContent?.includes('Decoración API'))?.click();
     fixture.detectChanges();
 
@@ -159,7 +166,9 @@ describe('Projects', () => {
     facade.loading.set(false);
     facade.error.set('Error API');
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('[data-projects-error]')?.textContent).toContain('Error API');
+    expect(fixture.nativeElement.querySelector('[data-projects-error]')?.textContent).toContain(
+      'Error API',
+    );
     expect(fixture.nativeElement.querySelector('[data-projects-list]')).toBeNull();
   });
 });

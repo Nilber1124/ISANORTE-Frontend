@@ -91,7 +91,10 @@ export class PublicServicesFacade {
   private stableOrder<T extends { orden: number }>(values: readonly T[]): T[] {
     return values
       .map((value, sourceIndex) => ({ value, sourceIndex }))
-      .sort((left, right) => left.value.orden - right.value.orden || left.sourceIndex - right.sourceIndex)
+      .sort(
+        (left, right) =>
+          left.value.orden - right.value.orden || left.sourceIndex - right.sourceIndex,
+      )
       .map(({ value }) => value);
   }
 }

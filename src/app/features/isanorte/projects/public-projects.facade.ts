@@ -59,12 +59,15 @@ export class PublicProjectsFacade {
   readonly activeFilter = this._activeFilter.asReadonly();
   readonly content = computed(() => this.page()?.contenido ?? null);
   readonly seo = computed(() => this.page()?.seo ?? null);
-  readonly projects = computed<readonly PublicProject[]>(() => this.stableOrder(this.page()?.proyectos ?? []));
+  readonly projects = computed<readonly PublicProject[]>(() =>
+    this.stableOrder(this.page()?.proyectos ?? []),
+  );
   readonly filters = computed<readonly PublicProjectFilter[]>(() => {
     const unique = new Map<string, PublicProjectFilter>();
     for (const project of this.projects()) {
       for (const service of project.servicios ?? []) {
-        if (!unique.has(service.slug)) unique.set(service.slug, { slug: service.slug, nombre: service.nombre });
+        if (!unique.has(service.slug))
+          unique.set(service.slug, { slug: service.slug, nombre: service.nombre });
       }
     }
     return [{ slug: ALL_PROJECTS_FILTER, nombre: 'Todos' }, ...unique.values()];
@@ -125,7 +128,10 @@ export class PublicProjectsFacade {
   private stableOrder<T extends { orden: number }>(values: readonly T[]): T[] {
     return values
       .map((value, sourceIndex) => ({ value, sourceIndex }))
-      .sort((left, right) => left.value.orden - right.value.orden || left.sourceIndex - right.sourceIndex)
+      .sort(
+        (left, right) =>
+          left.value.orden - right.value.orden || left.sourceIndex - right.sourceIndex,
+      )
       .map(({ value }) => value);
   }
 }

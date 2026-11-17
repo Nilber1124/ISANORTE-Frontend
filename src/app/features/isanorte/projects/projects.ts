@@ -3,11 +3,12 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { RouterLink } from '@angular/router';
 import { Alert } from '../../../shared/components/alert/alert';
+import { PageHeader } from '../../../shared/components/page-header/page-header';
 import { Card } from '../../../shared/components/card/card';
 import { PublicProjectsFacade } from './public-projects.facade';
 
 @Component({
-  imports: [NgClass, NgTemplateOutlet, Alert, Card, RouterLink],
+  imports: [NgClass, NgTemplateOutlet, Alert, Card, PageHeader, RouterLink],
   selector: 'app-isanorte-projects',
   providers: [PublicProjectsFacade],
   templateUrl: './projects.html',

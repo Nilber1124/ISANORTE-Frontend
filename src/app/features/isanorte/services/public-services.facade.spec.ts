@@ -149,10 +149,16 @@ describe('PublicServicesFacade', () => {
     });
 
     expect(titleService.getTitle()).toBe('Servicios de Construcción | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toBe('Servicios profesionales de edificación.');
+    expect(metaService.getTag('name="description"')?.content).toBe(
+      'Servicios profesionales de edificación.',
+    );
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
-    expect(metaService.getTag('property="og:title"')?.content).toBe('Servicios de Construcción | ISANORTE');
-    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isanorte.com/servicios.jpg');
+    expect(metaService.getTag('property="og:title"')?.content).toBe(
+      'Servicios de Construcción | ISANORTE',
+    );
+    expect(metaService.getTag('property="og:image"')?.content).toBe(
+      'https://cdn.isanorte.com/servicios.jpg',
+    );
   });
 
   it('applies default SEO for Servicios on error', () => {
@@ -160,7 +166,9 @@ describe('PublicServicesFacade', () => {
     facade.load();
 
     expect(titleService.getTitle()).toBe('Servicios | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toContain('Descubre nuestros servicios integrales');
+    expect(metaService.getTag('name="description"')?.content).toContain(
+      'Descubre nuestros servicios integrales',
+    );
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
   });
 
@@ -192,4 +200,3 @@ describe('PublicServicesFacade', () => {
     expect(metaService.getTag('name="robots"')).toBeNull();
   });
 });
-

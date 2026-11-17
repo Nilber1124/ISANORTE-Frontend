@@ -190,10 +190,16 @@ describe('PublicProjectsFacade', () => {
     });
 
     expect(titleService.getTitle()).toBe('Portafolio de Obras | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toBe('Proyectos arquitectónicos y civiles.');
+    expect(metaService.getTag('name="description"')?.content).toBe(
+      'Proyectos arquitectónicos y civiles.',
+    );
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
-    expect(metaService.getTag('property="og:title"')?.content).toBe('Portafolio de Obras | ISANORTE');
-    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isanorte.com/proyectos.jpg');
+    expect(metaService.getTag('property="og:title"')?.content).toBe(
+      'Portafolio de Obras | ISANORTE',
+    );
+    expect(metaService.getTag('property="og:image"')?.content).toBe(
+      'https://cdn.isanorte.com/proyectos.jpg',
+    );
   });
 
   it('applies default SEO for Proyectos on error', () => {
@@ -201,7 +207,9 @@ describe('PublicProjectsFacade', () => {
     facade.load();
 
     expect(titleService.getTitle()).toBe('Proyectos | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toContain('Explora nuestro portafolio de proyectos');
+    expect(metaService.getTag('name="description"')?.content).toContain(
+      'Explora nuestro portafolio de proyectos',
+    );
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
   });
 
@@ -233,4 +241,3 @@ describe('PublicProjectsFacade', () => {
     expect(metaService.getTag('name="robots"')).toBeNull();
   });
 });
-

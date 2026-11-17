@@ -7,6 +7,7 @@ import {
   PublicService,
 } from '../../../data/models/public-content/public-page.model';
 import { Alert } from '../../../shared/components/alert/alert';
+import { PageHeader } from '../../../shared/components/page-header/page-header';
 import { PublicServicesFacade } from './public-services.facade';
 import { Services } from './services';
 
@@ -69,7 +70,7 @@ describe('Services', () => {
     await TestBed.configureTestingModule({ imports: [Services] })
       .overrideComponent(Services, {
         set: {
-          imports: [Alert, RevealStaggerStub],
+          imports: [Alert, PageHeader, RevealStaggerStub],
           providers: [{ provide: PublicServicesFacade, useValue: facade }],
         },
       })
