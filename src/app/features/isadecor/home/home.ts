@@ -163,7 +163,7 @@ export class Home {
     'wall-panel-wpc': '/images/isadecor-left-1.jpg',
     'planchas-spc-marmol': '/images/isadecor-left-2.jpg',
     'cielos-rasos-pvc': '/images/isadecor-top.jpg',
-    'pisos-molduras': '/images/isadecor-fondo.jpg',
+    'pisos-molduras': '/images/isadecor-fondo.webp',
   };
 
   /**
@@ -176,7 +176,7 @@ export class Home {
       label: 'Espacio promocional',
       title: 'Texturas que definen el ambiente',
       description: 'Composición de muestra para comunicar futuras novedades de ISADECOR.',
-      imageUrl: '/images/isadecor-fondo.jpg',
+      imageUrl: '/images/isadecor-fondo.webp',
       featured: true,
     },
     {
@@ -238,7 +238,7 @@ export class Home {
     },
     {
       text: 'Cotiza tu proyecto',
-      imageUrl: '/images/isadecor-fondo.jpg',
+      imageUrl: '/images/isadecor-fondo.webp',
       imageAlt: 'Ambiente terminado con acabados ISADECOR',
     },
   ];

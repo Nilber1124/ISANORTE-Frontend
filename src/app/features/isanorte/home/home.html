@@ -74,13 +74,15 @@
             padding="none"
             class="group h-full relative overflow-hidden"
           >
-            <div
-              class="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
-              [style.backgroundImage]="service.imageUrl ? 'url(' + service.imageUrl + ')' : null"
-              [attr.role]="service.imageAlt ? 'img' : null"
-              [attr.aria-label]="service.imageAlt"
-              [attr.aria-hidden]="service.imageAlt ? null : 'true'"
-            ></div>
+            @if (service.imageUrl) {
+              <img
+                class="absolute inset-0 size-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                [src]="service.imageUrl"
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+            }
             <div
               class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 via-50% to-black/20"
             ></div>

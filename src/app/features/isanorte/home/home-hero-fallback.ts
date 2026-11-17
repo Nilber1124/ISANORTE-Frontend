@@ -27,7 +27,7 @@ export const HOME_HERO_FALLBACK: {
     subtitle: 'Soluciones profesionales para construcción, obra civil y acabados.',
   },
   scenes: [
-    { id: 'fallback-exterior', imageUrl: '/images/recorrido-exterior.webp' },
+    { id: 'fallback-exterior', imageUrl: '/images/recorrido-exterior-mobile.webp' },
     { id: 'fallback-sala', imageUrl: '/images/recorrido-sala.webp' },
     { id: 'fallback-cocina', imageUrl: '/images/recorrido-cocina.webp' },
     { id: 'fallback-bano', imageUrl: '/images/recorrido-bano.webp' },

@@ -137,7 +137,7 @@ export class AdminIsadecorLanding {
     { label: 'Madera cálida (Wall Panel)', value: '/images/isadecor-left-1.jpg' },
     { label: 'Mármol SPC / Sofá verde', value: '/images/isadecor-left-2.jpg' },
     { label: 'Pisos & Techos arquitectónicos', value: '/images/isadecor-top.jpg' },
-    { label: 'Ambiente residencial completo', value: '/images/isadecor-fondo.jpg' },
+    { label: 'Ambiente residencial completo', value: '/images/isadecor-fondo.webp' },
     { label: 'Portada Hero moderna', value: '/images/isadecor-hero.jpg' },
   ];
 

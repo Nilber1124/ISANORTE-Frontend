@@ -27,7 +27,7 @@ export const HOME_BUSINESS_UNIT_FALLBACK: {
   },
   background: {
     tipo: PublicBusinessUnitResourceType.IMAGEN_FONDO,
-    url: '/images/isadecor-fondo.jpg',
+    url: '/images/isadecor-fondo.webp',
     alt: null,
     etiqueta: null,
     orden: 0,
