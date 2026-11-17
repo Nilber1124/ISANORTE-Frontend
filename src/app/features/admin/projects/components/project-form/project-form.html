@@ -20,12 +20,7 @@
     <span class="text-error" aria-hidden="true">*</span> Campo obligatorio
   </p>
 
-  <form
-    id="project-form"
-    class="space-y-5"
-    (submit)="submit(); $event.preventDefault()"
-    novalidate
-  >
+  <form id="project-form" class="space-y-5" (submit)="submit(); $event.preventDefault()" novalidate>
     <!-- 1. Ficha técnica de la obra -->
     <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
       <div class="border-b border-border pb-2">
@@ -130,6 +125,60 @@
           [disabled]="submitting()"
         />
       </div>
+    </fieldset>
+
+    <!-- Ficha técnica: se muestra en el detalle público del proyecto -->
+    <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
+      <div class="border-b border-border pb-2">
+        <h4 class="text-body-sm font-semibold text-text-primary">Ficha técnica</h4>
+        <p class="text-caption text-text-muted">
+          Datos que aparecen en la ficha del proyecto y permiten filtrar por tipo de obra.
+        </p>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-body-sm font-semibold text-text-primary" for="project-type">
+            Tipo de obra
+          </label>
+          <select
+            id="project-type"
+            class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+            [disabled]="submitting()"
+            (change)="tipoObra.set($any($event.target).value)"
+          >
+            <option value="" [selected]="tipoObra() === ''">Sin especificar</option>
+            @for (type of projectTypes; track type.value) {
+              <option [value]="type.value" [selected]="tipoObra() === type.value">
+                {{ type.label }}
+              </option>
+            }
+          </select>
+        </div>
+        <app-input-field
+          inputId="project-area"
+          label="Área (m²)"
+          type="number"
+          inputMode="numeric"
+          [(value)]="areaM2"
+          [disabled]="submitting()"
+        />
+        <app-input-field
+          inputId="project-months"
+          label="Plazo de ejecución (meses)"
+          type="number"
+          inputMode="numeric"
+          [(value)]="plazoMeses"
+          [disabled]="submitting()"
+        />
+      </div>
+      <app-textarea-field
+        inputId="project-scope"
+        label="Alcance"
+        [(value)]="alcance"
+        placeholder="Qué se hizo: saneamiento, planos, estructura, acabados…"
+        [rows]="2"
+        [disabled]="submitting()"
+      />
     </fieldset>
 
     <!-- 2. Memoria descriptiva -->

@@ -7,6 +7,10 @@ export interface ProjectResponse {
   cliente: string | null;
   ubicacion: string | null;
   fechaProyecto: string | null;
+  areaM2?: number | null;
+  plazoMeses?: number | null;
+  alcance?: string | null;
+  tipoObra?: string | null;
   descripcion: string;
   imagenUrl: string | null;
   imagenAlt: string | null;
@@ -17,4 +21,3 @@ export interface ProjectResponse {
   fechaCreacion: string | null;
   fechaActualizacion: string | null;
 }
-

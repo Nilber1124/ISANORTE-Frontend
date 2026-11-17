@@ -4,6 +4,10 @@ export interface ProjectUpdateRequest {
   cliente?: string | null;
   ubicacion?: string | null;
   fechaProyecto?: string | null;
+  areaM2?: number | null;
+  plazoMeses?: number | null;
+  alcance?: string | null;
+  tipoObra?: string | null;
   descripcion: string;
   imagenUrl?: string | null;
   imagenAlt?: string | null;
@@ -12,4 +16,3 @@ export interface ProjectUpdateRequest {
   orden: number;
   servicioIds: string[];
 }
-

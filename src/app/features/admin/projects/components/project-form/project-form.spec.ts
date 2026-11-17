@@ -94,6 +94,28 @@ describe('ProjectForm', () => {
     expect(checkboxes.at(-1)?.checked).toBe(false);
   });
 
+  it('keeps the technical sheet when editing so saving does not erase it', async () => {
+    const fixture = await createFixture('edit', {
+      ...project,
+      areaM2: 280,
+      plazoMeses: 9,
+      alcance: 'Planos y obra',
+      tipoObra: 'VIVIENDA',
+    });
+    let submission: ProjectFormSubmission | undefined;
+    fixture.componentInstance.saved.subscribe((value) => (submission = value));
+    Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'))
+      .find((button) => button.textContent?.includes('Guardar cambios'))
+      ?.click();
+
+    expect(submission?.request).toMatchObject({
+      areaM2: 280,
+      plazoMeses: 9,
+      alcance: 'Planos y obra',
+      tipoObra: 'VIVIENDA',
+    });
+  });
+
   it('emits service UUIDs, imagenUrl and imagenAlt on update', async () => {
     const fixture = await createFixture('edit', project);
     let submission: ProjectFormSubmission | undefined;

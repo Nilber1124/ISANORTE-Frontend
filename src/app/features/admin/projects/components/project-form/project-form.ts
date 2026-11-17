@@ -54,6 +54,18 @@ export class ProjectForm implements OnInit {
   readonly cliente = signal('');
   readonly ubicacion = signal('');
   readonly fechaProyecto = signal('');
+  readonly areaM2 = signal('');
+  readonly plazoMeses = signal('');
+  readonly alcance = signal('');
+  readonly tipoObra = signal('');
+  protected readonly projectTypes = [
+    { value: 'VIVIENDA', label: 'Vivienda' },
+    { value: 'COMERCIAL', label: 'Comercial' },
+    { value: 'INDUSTRIAL', label: 'Industrial' },
+    { value: 'INSTITUCIONAL', label: 'Institucional' },
+    { value: 'REMODELACION', label: 'Remodelación' },
+    { value: 'HABILITACION', label: 'Habilitación urbana' },
+  ] as const;
   readonly descripcion = signal('');
   readonly imagenUrl = signal('');
   readonly imagenAlt = signal('');
@@ -82,6 +94,10 @@ export class ProjectForm implements OnInit {
     this.cliente.set(project.cliente ?? '');
     this.ubicacion.set(project.ubicacion ?? '');
     this.fechaProyecto.set(project.fechaProyecto ?? '');
+    this.areaM2.set(project.areaM2?.toString() ?? '');
+    this.plazoMeses.set(project.plazoMeses?.toString() ?? '');
+    this.alcance.set(project.alcance ?? '');
+    this.tipoObra.set(project.tipoObra ?? '');
     this.descripcion.set(project.descripcion);
     this.imagenUrl.set(project.imagenUrl ?? '');
     this.imagenAlt.set(project.imagenAlt ?? '');
@@ -103,6 +119,10 @@ export class ProjectForm implements OnInit {
       cliente: this.optionalValue(this.cliente()),
       ubicacion: this.optionalValue(this.ubicacion()),
       fechaProyecto: this.optionalValue(this.fechaProyecto()),
+      areaM2: this.optionalNumber(this.areaM2()),
+      plazoMeses: this.optionalNumber(this.plazoMeses()),
+      alcance: this.optionalValue(this.alcance()),
+      tipoObra: this.optionalValue(this.tipoObra()),
       descripcion: this.descripcion().trim(),
       imagenUrl: this.optionalValue(this.imagenUrl()),
       imagenAlt: this.optionalValue(this.imagenAlt()),
@@ -117,6 +137,11 @@ export class ProjectForm implements OnInit {
         ? { mode: 'create', request: common }
         : { mode: 'edit', request: common },
     );
+  }
+
+  private optionalNumber(value: string): number | null {
+    const text = value.trim();
+    return text === '' ? null : Number(text);
   }
 
   protected updateNombre(value: string): void {
