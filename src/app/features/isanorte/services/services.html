@@ -143,11 +143,23 @@
   }
 
   @if (trust.faqsFor('SERVICIOS').length > 0) {
-    <section class="app-container py-16 lg:py-24" aria-labelledby="faq-servicios" data-services-faq>
-      <h2 id="faq-servicios" class="mb-8 max-w-3xl text-heading-1 text-text-primary">
-        Preguntas frecuentes
-      </h2>
-      <div class="flex max-w-4xl flex-col gap-3">
+    <section
+      class="app-container grid gap-10 py-16 lg:grid-cols-12 lg:gap-14 lg:py-24"
+      aria-labelledby="faq-servicios"
+      data-services-faq
+    >
+      <div class="lg:sticky lg:top-28 lg:col-span-4 lg:self-start">
+        <p class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
+          Antes de contratar
+        </p>
+        <h2 id="faq-servicios" class="mb-5 text-heading-1 text-text-primary">
+          Preguntas frecuentes
+        </h2>
+        <p class="max-w-sm text-body-lg text-text-secondary">
+          Lo que conviene saber sobre cómo trabajamos cada servicio.
+        </p>
+      </div>
+      <div class="flex flex-col gap-3 lg:col-span-8">
         @for (faq of trust.faqsFor('SERVICIOS'); track faq.pregunta) {
           <details appSmoothDetails class="group rounded-card border border-border bg-surface p-5">
             <summary
