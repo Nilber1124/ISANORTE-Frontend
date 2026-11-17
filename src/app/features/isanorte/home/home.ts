@@ -204,7 +204,12 @@ export class Home {
     actions: readonly HomeBusinessUnitActionView[],
   ): readonly HomeBusinessUnitActionView[] {
     return actions
-      .map((action) => ({ ...action, url: resolveHomeUrl(action.url, '/isadecor') }))
+      .map((action) => ({
+        ...action,
+        url: resolveHomeUrl(action.url, '/isadecor'),
+        // ISADECOR es otra tienda: siempre se abre en una pestaña nueva.
+        target: action.target ?? ('_blank' as const),
+      }))
       .filter((action) => action.url !== '#catalogo');
   }
 }
