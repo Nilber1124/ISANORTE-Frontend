@@ -1,5 +1,7 @@
 # Pendientes de tu parte (material y decisiones)
 
+> Estado: el sitio ya funciona con **datos de demostración de Cajamarca** (`datos/cajamarca-demo.sql`, ver `datos/LEEME.md`). Todo lo marcado abajo debe reemplazarse con datos reales desde el panel `/admin` (Contenido → Equipo, Credenciales, Testimonios, etc.). Faltan también las imágenes específicas: `datos/LEEME.md` lista cuáles.
+
 Lista de lo que no se puede resolver con código: contenido real, datos y decisiones. Cada punto indica dónde se usa. Marca con `[x]` lo que vayas entregando.
 
 ## 1. Material real (lo que más pesa para convencer)
@@ -21,8 +23,8 @@ Lista de lo que no se puede resolver con código: contenido real, datos y decisi
 
 ## 3. Contenido en la base de datos (panel admin)
 
-- [ ] Cargar los **8 servicios reales**: planos, ejecución y supervisión, topografía, saneamiento físico legal, habilitaciones urbanas, remodelaciones, diseño de interiores, estructuras metálicas. Con resumen, descripción, qué incluye e imagen real de cada uno.
-- [ ] Cambiar todo lo que dice **Ecuador**: misión, visión, teléfonos (+593 → +51), dirección y ciudad (hoy Quito), correos `.ec`.
+- [ ] Revisar los **8 servicios** (ya cargados con texto de demostración): planos, ejecución y supervisión, topografía, saneamiento físico legal, habilitaciones urbanas, remodelaciones, diseño de interiores, estructuras metálicas. Con resumen, descripción, qué incluye e imagen real de cada uno.
+- [ ] Reemplazar los datos inventados de Cajamarca (teléfonos, RUC, dirección, correos) por los reales.
 - [ ] Reemplazar los **proyectos de demostración** por proyectos reales (los actuales están ubicados en Quito, Bogotá y otras ciudades que no corresponden).
 - [ ] **Nosotros**: cargar el texto propuesto en `CONTENIDO-NOSOTROS.md` (título, introducción, etiquetas) y la historia real de la empresa.
 - [ ] **Hero del Home**: cambiar el título genérico por una propuesta concreta y cambiar el botón secundario «Habla con un asesor» por «Ver proyectos».
@@ -39,7 +41,7 @@ Lista de lo que no se puede resolver con código: contenido real, datos y decisi
 
 ## 5. Técnico (cuando el material esté listo)
 
-- [ ] Subir los videos e imágenes a **Cloudinary** y enlazarlos desde la BD (hoy el video del proceso está en `public/media/home/`).
+- [ ] Subir los videos e imágenes a **Cloudinary** y enlazarlos desde la BD (ya está en Cloudinary como demostración).
 - [ ] Decidir si se mantiene el **video 3D** del proceso o se reemplaza por fotos reales de una obra de ISANORTE.
-- [ ] Cambios del **backend** (ver `BACKEND-PENDIENTE.md`): campos del formulario (ubicación, servicio, consentimiento), correo y mensaje opcionales, datos de proyecto (m², plazo), equipo, testimonios y credenciales.
+- [x] Cambios del **backend** (campos del formulario, ficha de proyecto, equipo, testimonios, credenciales): hechos. Ver `BACKEND-PENDIENTE.md`.
 - [ ] Analítica: elegir herramienta (por ejemplo Google Analytics) para medir envíos de formulario, toques en WhatsApp y llamadas.

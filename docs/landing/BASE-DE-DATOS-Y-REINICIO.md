@@ -1,3 +1,5 @@
+> **Histórico.** Se eligió reiniciar: migraciones y seeders eliminados, esquema nuevo en el backend. Estado actual en `BACKEND-PENDIENTE.md` y `datos/LEEME.md`.
+
 # Integración con el backend y plan para reiniciar la base de datos
 
 Basado en la lectura del backend (solo lectura, sin cambios): migraciones Flyway V1 a V14, entidades, controladores y la configuración de Render. No pude ver la base de datos desplegada, así que lo que sigue es lo que dice el código, no el estado real de los datos.
