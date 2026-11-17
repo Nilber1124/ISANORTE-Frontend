@@ -249,7 +249,7 @@ for i, (v, pre, suf, et) in enumerate([(12, "+", " años", "De experiencia en la
 
 # ---- Páginas
 PAG = [("NOSOTROS", "Nosotros", "Una constructora de Cajamarca para Cajamarca", "ISANORTE nació en 2012 para que construir no sea un dolor de cabeza: un solo equipo acompaña tu obra del terreno a la llave en mano.",
-        "Somos ingenieros, arquitectos y técnicos de la región. Conocemos el terreno, el clima y los trámites de Cajamarca, y nos hacemos responsables de la obra de principio a fin.", img("nosotros-imagen"), img("nosotros-fondo"),
+        "Somos ingenieros, arquitectos y técnicos de la región. Conocemos el terreno, el clima y los trámites de Cajamarca, y nos hacemos responsables de la obra de principio a fin.", img("nosotros-imagen", "servicio-construccion"), img("nosotros-fondo"),
         ["Cajamarca", "Obra con garantía", "Equipo local"]),
        ("SERVICIOS", "Servicios", "Ocho servicios para construir sin improvisar", "Desde medir tu terreno hasta entregarte la obra terminada.", None, None, None, []),
        ("PROYECTOS", "Proyectos", "Obras que ya puedes visitar", "Viviendas, comercios, remodelaciones e infraestructura en toda la región Cajamarca.", None, None, None, []),
