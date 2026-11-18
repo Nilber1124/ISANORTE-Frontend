@@ -1,0 +1,338 @@
+<main class="min-h-[70vh] bg-background">
+  <!-- Encabezado editorial del catálogo -->
+  <section
+    class="catalog-hero relative overflow-hidden border-b border-border bg-background-soft"
+    aria-label="Catálogo de productos ISADECOR"
+  >
+    <div class="app-container relative py-14 sm:py-16 lg:py-20">
+      <p class="store-mono text-[12px] uppercase tracking-[0.2em] text-text-muted">
+        ISADECOR · CATÁLOGO
+      </p>
+      <h1 class="store-serif mt-4 max-w-2xl text-[2.1rem] leading-[1.12] tracking-[-0.02em] text-text-primary sm:text-[2.75rem]">
+        Acabados y revestimientos, por metro
+      </h1>
+      <p class="mt-4 max-w-xl text-[1rem] leading-relaxed text-text-secondary">
+        Paneles WPC, planchas SPC y cielos rasos PVC listos para filtrar por colección, precio y
+        disponibilidad.
+      </p>
+
+      <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-[0.82rem] text-text-secondary">
+        <span class="inline-flex items-center gap-2">
+          <svg class="size-4 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7l8-4 8 4-8 4-8-4zm0 0v10l8 4m0-14v14m8-14v10l-8 4" />
+          </svg>
+          Materiales de alta durabilidad
+        </span>
+        <span class="hidden h-3 w-px bg-border sm:inline-block" aria-hidden="true"></span>
+        <span class="inline-flex items-center gap-2">
+          <svg class="size-4 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v14H4zM8 9h8M8 13h5" />
+          </svg>
+          Cotizaciones personalizadas
+        </span>
+        <span class="hidden h-3 w-px bg-border sm:inline-block" aria-hidden="true"></span>
+        <span class="inline-flex items-center gap-2">
+          <svg class="size-4 text-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7l2-3h14l2 3M3 7h18M5 7v12h14V7M9 11h6" />
+          </svg>
+          Stock para despacho en obra
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Área Interactiva del Catálogo -->
+  <section class="app-container py-10 sm:py-12 lg:py-16" aria-labelledby="catalog-results-title">
+    <h2 id="catalog-results-title" class="sr-only">Productos del catálogo</h2>
+
+    @if (facade.loading()) {
+      <div class="rounded-[12px] border border-border bg-surface py-16 sm:py-20">
+        <app-loading label="Cargando catálogo y colecciones de ISADECOR..." size="large" />
+      </div>
+    } @else if (facade.error()) {
+      <div class="mx-auto max-w-2xl">
+        <app-alert variant="error" title="No se pudo cargar el catálogo">
+          <p>{{ facade.error() }}</p>
+          <div class="mt-4">
+            <app-button variant="secondary" size="small" (click)="facade.load()">
+              Reintentar carga
+            </app-button>
+          </div>
+        </app-alert>
+      </div>
+    } @else if (facade.totalItems() === 0 && !facade.hasActiveFilters()) {
+      <app-empty-state
+        emptyStateId="catalog-empty"
+        title="No hay productos disponibles en este momento"
+        description="Estamos actualizando nuestras colecciones de acabados. Vuelve pronto para conocer las novedades."
+      />
+    } @else {
+      <div class="flex flex-col items-start gap-8 lg:flex-row">
+        <!-- Sidebar de Filtros y Categorías -->
+        <aside
+          class="w-full shrink-0 lg:sticky lg:top-24 lg:block lg:w-72 xl:w-80"
+          [class.hidden]="!mobileFiltersOpen()"
+          [class.block]="mobileFiltersOpen()"
+        >
+          <div class="rounded-[12px] border border-border bg-surface p-6">
+            <!-- Cabecera del Sidebar -->
+            <div class="flex items-center justify-between border-b border-border pb-4">
+              <h2 class="text-[0.95rem] font-semibold text-text-primary">Filtros</h2>
+
+              <div class="flex items-center gap-3">
+                @if (facade.hasActiveFilters()) {
+                  <button
+                    type="button"
+                    (click)="facade.clearFilters()"
+                    class="text-[0.8rem] font-medium text-text-secondary underline-offset-2 hover:text-text-primary hover:underline"
+                  >
+                    Limpiar todo
+                  </button>
+                }
+                <!-- Botón de cerrar en móvil -->
+                <button
+                  type="button"
+                  (click)="closeMobileFilters()"
+                  class="rounded-[6px] p-1 text-text-muted hover:bg-surface-hover hover:text-text-primary lg:hidden"
+                  aria-label="Cerrar filtros"
+                >
+                  <svg aria-hidden="true" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Colecciones -->
+            <div class="mt-5">
+              <div class="mb-3 flex items-center justify-between">
+                <span class="pc-mono text-[11px] uppercase tracking-[0.1em] text-text-muted">
+                  Colecciones
+                </span>
+                <span class="text-[11px] text-text-muted">{{ facade.categories().length }}</span>
+              </div>
+
+              <div class="flex flex-col">
+                <!-- Todas las colecciones -->
+                <button
+                  type="button"
+                  (click)="facade.setSelectedCategory(null)"
+                  class="store-filter-row"
+                  [class.store-filter-row--active]="facade.selectedCategory() === null"
+                >
+                  <span class="truncate">Todas las colecciones</span>
+                  <span class="store-filter-count">{{ facade.totalItems() }}</span>
+                </button>
+
+                <!-- Categorías dinámicas -->
+                @for (category of facade.categories(); track category.slug) {
+                  <button
+                    type="button"
+                    (click)="handleCategoryClick(category.slug)"
+                    class="store-filter-row"
+                    [class.store-filter-row--active]="facade.selectedCategory() === category.slug"
+                  >
+                    <span class="truncate">{{ category.nombre }}</span>
+                    <span class="store-filter-count">{{ facade.getCategoryCount(category.slug) }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Disponibilidad y Ofertas -->
+            <div class="mt-6 border-t border-border pt-5">
+              <span class="pc-mono mb-3 block text-[11px] uppercase tracking-[0.1em] text-text-muted">
+                Disponibilidad y ofertas
+              </span>
+
+              <div class="flex flex-col gap-1">
+                <!-- Solo en oferta -->
+                <button
+                  type="button"
+                  (click)="facade.toggleOnlyDiscount()"
+                  class="store-check-row"
+                  [attr.aria-pressed]="facade.onlyDiscount()"
+                >
+                  <span
+                    class="store-check-box"
+                    [class.store-check-box--checked]="facade.onlyDiscount()"
+                    aria-hidden="true"
+                  >
+                    @if (facade.onlyDiscount()) {
+                      <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    }
+                  </span>
+                  <span>Solo en oferta</span>
+                </button>
+
+                <!-- Entrega inmediata -->
+                <button
+                  type="button"
+                  (click)="facade.toggleOnlyInStock()"
+                  class="store-check-row"
+                  [attr.aria-pressed]="facade.onlyInStock()"
+                >
+                  <span
+                    class="store-check-box"
+                    [class.store-check-box--checked]="facade.onlyInStock()"
+                    aria-hidden="true"
+                  >
+                    @if (facade.onlyInStock()) {
+                      <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    }
+                  </span>
+                  <span>Entrega inmediata</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Área Principal de Productos -->
+        <div class="w-full min-w-0 flex-1 space-y-6">
+          <!-- Barra Superior: Buscador y Ordenar Por -->
+          <div class="flex flex-col gap-4 border-b border-border pb-6 sm:grid sm:grid-cols-12 sm:items-end sm:gap-4">
+            <!-- Buscador -->
+            <div class="sm:col-span-7 md:col-span-8">
+              <app-input-field
+                inputId="catalog-search"
+                label="Buscar en el catálogo"
+                type="search"
+                name="catalog-search"
+                placeholder="Buscar por nombre, SKU o acabado (ej: Wall panel, mármol, PVC)..."
+                autocomplete="off"
+                [value]="facade.searchTerm()"
+                (valueChange)="facade.setSearchTerm($event)"
+              />
+            </div>
+
+            <!-- Ordenar por + Botón móvil de filtros -->
+            <div class="flex items-end gap-2 sm:col-span-5 md:col-span-4">
+              <div class="flex-1">
+                <app-select-field
+                  inputId="catalog-sort"
+                  label="Ordenar por"
+                  name="catalog-sort"
+                  [options]="sortOptions"
+                  [value]="facade.sortOption()"
+                  (valueChange)="updateSortOption($event)"
+                />
+              </div>
+
+              <!-- Botón móvil para alternar filtros -->
+              <button
+                type="button"
+                (click)="toggleMobileFilters()"
+                class="flex h-[2.875rem] shrink-0 items-center gap-1.5 rounded-[6px] border border-border bg-surface px-3 text-[0.85rem] font-medium text-text-primary hover:bg-surface-hover lg:hidden"
+              >
+                <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                </svg>
+                <span>Filtros</span>
+                @if (activeFiltersCount() > 0) {
+                  <span class="flex size-5 items-center justify-center rounded-full bg-[#111111] text-[11px] font-semibold text-white">
+                    {{ activeFiltersCount() }}
+                  </span>
+                }
+              </button>
+            </div>
+          </div>
+
+          <!-- Resumen de Resultados y Píldoras de Filtros Activos -->
+          <div class="flex flex-wrap items-center justify-between gap-3 text-[0.85rem]">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-text-secondary">
+                Mostrando <strong class="font-semibold text-text-primary">{{ facade.products().length }}</strong>
+                de {{ facade.totalItems() }} {{ facade.totalItems() === 1 ? 'producto' : 'productos' }}
+              </span>
+
+              @if (selectedCategory(); as cat) {
+                <span class="store-pill">
+                  <span>{{ cat.nombre }}</span>
+                  <button type="button" (click)="facade.setSelectedCategory(null)" title="Quitar filtro de colección" aria-label="Quitar filtro de colección">
+                    <svg aria-hidden="true" class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                  </button>
+                </span>
+              }
+
+              @if (facade.searchTerm().trim().length > 0) {
+                <span class="store-pill">
+                  <span>&ldquo;{{ facade.searchTerm() }}&rdquo;</span>
+                  <button type="button" (click)="facade.setSearchTerm('')" title="Quitar término de búsqueda" aria-label="Quitar término de búsqueda">
+                    <svg aria-hidden="true" class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                  </button>
+                </span>
+              }
+
+              @if (facade.onlyDiscount()) {
+                <span class="store-pill">
+                  <span>Solo ofertas</span>
+                  <button type="button" (click)="facade.toggleOnlyDiscount()" title="Quitar filtro de ofertas" aria-label="Quitar filtro de ofertas">
+                    <svg aria-hidden="true" class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                  </button>
+                </span>
+              }
+
+              @if (facade.onlyInStock()) {
+                <span class="store-pill">
+                  <span>Entrega inmediata</span>
+                  <button type="button" (click)="facade.toggleOnlyInStock()" title="Quitar filtro de entrega inmediata" aria-label="Quitar filtro de entrega inmediata">
+                    <svg aria-hidden="true" class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                  </button>
+                </span>
+              }
+            </div>
+
+            @if (facade.hasActiveFilters()) {
+              <button
+                type="button"
+                (click)="facade.clearFilters()"
+                class="inline-flex items-center gap-1.5 text-[0.8rem] font-medium text-text-secondary hover:text-text-primary"
+              >
+                <svg aria-hidden="true" class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Restablecer todos los filtros
+              </button>
+            }
+          </div>
+
+          <!-- Cuadrícula de Productos -->
+          @if (facade.products().length > 0) {
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+              @for (product of facade.products(); track product.slug; let i = $index) {
+                <app-product-card [product]="product" [style.--i]="i" />
+              }
+            </div>
+
+            <div class="pt-2">
+              <app-pagination
+                [currentPage]="facade.currentPage()"
+                [totalPages]="facade.totalPages()"
+                [totalItems]="facade.totalItems()"
+                (pageChange)="facade.setPage($event)"
+              />
+            </div>
+          } @else {
+            <div class="py-6">
+              <app-empty-state
+                emptyStateId="catalog-no-results"
+                title="No encontramos productos con los filtros seleccionados"
+                description="Intenta buscar con otros términos, restablece los filtros o explora todas las colecciones."
+                compact
+              >
+                <app-button empty-state-actions variant="secondary" (click)="facade.clearFilters()">
+                  Restablecer filtros
+                </app-button>
+              </app-empty-state>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+</main>

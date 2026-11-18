@@ -1,0 +1,225 @@
+<app-drawer
+  drawerId="admin-order-detail"
+  title="Detalle de pedido"
+  description="Información administrativa del pedido confirmado por el cliente."
+  [open]="true"
+  [dismissible]="!changingStatus()"
+  (closed)="closed.emit()"
+>
+  @if (loading()) {
+    <app-loading label="Cargando detalle de pedido" size="large" />
+  } @else if (error(); as detailError) {
+    <app-alert variant="error" title="No pudimos mostrar el detalle">{{ detailError }}</app-alert>
+  } @else if (order(); as order) {
+    <div class="space-y-6">
+      <div
+        class="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-start sm:justify-between"
+      >
+        <div>
+          <p class="font-mono text-body-sm font-semibold text-text-primary">{{ order.codigo }}</p>
+          <p class="mt-2 text-body-sm text-text-muted">
+            @if (order.fechaCreacion) {
+              Recibido el {{ order.fechaCreacion | date: 'dd/MM/yyyy, HH:mm' }}
+            } @else {
+              Fecha no disponible
+            }
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          @if (order.stockDescontado) {
+            <app-badge variant="neutral" size="small">Stock descontado</app-badge>
+          }
+          <app-badge [variant]="statusVariant(order.estado)" size="medium" dot>
+            {{ statusLabel(order.estado) }}
+          </app-badge>
+        </div>
+      </div>
+
+      <section aria-labelledby="order-address-title">
+        <h3 id="order-address-title" class="text-heading-4 text-text-primary">Dirección de envío</h3>
+        <app-card class="mt-4" padding="small">
+          <dl class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <dt class="detail-label">Nombre de la dirección</dt>
+              <dd class="detail-value">{{ order.direccionAlias ?? 'No indicado' }}</dd>
+            </div>
+            <div>
+              <dt class="detail-label">Teléfono de contacto</dt>
+              <dd class="detail-value">{{ order.direccionTelefonoContacto }}</dd>
+            </div>
+            <div class="sm:col-span-2">
+              <dt class="detail-label">Dirección</dt>
+              <dd class="detail-value">
+                {{ order.direccionCalle }}, {{ order.direccionDistrito }}, {{ order.direccionCiudad }}
+              </dd>
+            </div>
+            @if (order.direccionReferencia) {
+              <div class="sm:col-span-2">
+                <dt class="detail-label">Referencia</dt>
+                <dd class="detail-value">{{ order.direccionReferencia }}</dd>
+              </div>
+            }
+          </dl>
+        </app-card>
+      </section>
+
+      <section aria-labelledby="order-billing-title">
+        <h3 id="order-billing-title" class="text-heading-4 text-text-primary">Facturación</h3>
+        <app-card class="mt-4" padding="small">
+          <dl class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <dt class="detail-label">RUC</dt>
+              <dd class="detail-value">{{ order.ruc ?? 'No indicado' }}</dd>
+            </div>
+            <div>
+              <dt class="detail-label">Razón social</dt>
+              <dd class="detail-value">{{ order.razonSocial ?? 'No indicada' }}</dd>
+            </div>
+          </dl>
+        </app-card>
+      </section>
+
+      <section aria-labelledby="order-products-title">
+        <div class="flex items-end justify-between gap-4">
+          <h3 id="order-products-title" class="text-heading-4 text-text-primary">
+            Productos del pedido
+          </h3>
+          <p class="text-body-sm font-semibold text-text-primary">
+            Total:
+            @if (order.totalPedido !== null) {
+              {{ order.totalPedido | number: '1.2-2' }}
+            } @else {
+              <span class="font-normal text-text-muted">Por confirmar</span>
+            }
+          </p>
+        </div>
+
+        @if (order.detalles?.length) {
+          <div class="mt-4 overflow-x-auto rounded-card border border-border">
+            <table class="w-full min-w-[48rem] border-collapse text-left">
+              <caption class="sr-only">
+                Productos incluidos en el pedido
+              </caption>
+              <thead class="border-b border-border bg-background-soft">
+                <tr>
+                  <th scope="col" class="detail-table-heading">Producto</th>
+                  <th scope="col" class="detail-table-heading">SKU</th>
+                  <th scope="col" class="detail-table-heading">Cantidad</th>
+                  <th scope="col" class="detail-table-heading">Precio unitario</th>
+                  <th scope="col" class="detail-table-heading">Subtotal</th>
+                  <th scope="col" class="detail-table-heading">Notas</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (detail of order.detalles; track detail.id) {
+                  <tr>
+                    <th scope="row" class="detail-cell font-semibold text-text-primary">
+                      {{ detail.nombreProducto }}
+                    </th>
+                    <td class="detail-cell font-mono">{{ detail.sku ?? '—' }}</td>
+                    <td class="detail-cell">{{ detail.cantidad }}</td>
+                    <td class="detail-cell">
+                      @if (detail.precioUnitario !== null) {
+                        {{ detail.precioUnitario | number: '1.2-2' }}
+                      } @else {
+                        Por confirmar
+                      }
+                    </td>
+                    <td class="detail-cell">
+                      @if (detail.subtotal !== null) {
+                        {{ detail.subtotal | number: '1.2-2' }}
+                      } @else {
+                        Por confirmar
+                      }
+                    </td>
+                    <td class="detail-cell">{{ detail.notas ?? 'Sin notas' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <app-empty-state
+            class="mt-4"
+            emptyStateId="order-products-empty"
+            title="Sin productos disponibles"
+            description="La respuesta no incluye detalles de productos para este pedido."
+            compact
+          />
+        }
+      </section>
+
+      <section aria-labelledby="order-tracking-title">
+        <h3 id="order-tracking-title" class="text-heading-4 text-text-primary">
+          Historial de estados
+        </h3>
+        @if (order.seguimientos?.length) {
+          <ol class="mt-4 space-y-3">
+            @for (tracking of order.seguimientos; track tracking.id) {
+              <li class="rounded-card border border-border bg-surface-soft p-4">
+                <p class="text-body-sm font-semibold text-text-primary">
+                  {{ statusLabel(tracking.estadoAnterior) }} →
+                  {{ statusLabel(tracking.estadoNuevo) }}
+                </p>
+                <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-caption text-text-muted">
+                  @if (tracking.fecha) {
+                    <span>{{ tracking.fecha | date: 'dd/MM/yyyy, HH:mm' }}</span>
+                  }
+                  @if (tracking.administradorNombre) {
+                    <span>{{ tracking.administradorNombre }}</span>
+                  }
+                </div>
+                @if (tracking.comentario) {
+                  <p class="mt-2 text-body-sm text-text-secondary">{{ tracking.comentario }}</p>
+                }
+              </li>
+            }
+          </ol>
+        } @else {
+          <p class="mt-3 text-body-sm text-text-muted">Sin cambios de estado registrados.</p>
+        }
+      </section>
+
+      <section
+        class="rounded-card border border-border bg-background-soft p-4 sm:p-5"
+        aria-labelledby="order-status-title"
+      >
+        <h3 id="order-status-title" class="text-heading-4 text-text-primary">Cambiar estado</h3>
+        @if (order.estado === 'CANCELADO') {
+          <p class="mt-1 text-body-sm text-text-secondary">
+            Un pedido cancelado no puede cambiar de estado.
+          </p>
+        } @else {
+          <p class="mt-1 text-body-sm text-text-secondary">
+            El backend registrará automáticamente este cambio en el historial. Si cancelas un
+            pedido con stock descontado, el inventario se restituye automáticamente.
+          </p>
+          @if (statusError(); as statusError) {
+            <app-alert class="mt-4" variant="error" title="No se actualizó el estado">
+              {{ statusError }}
+            </app-alert>
+          }
+          <div class="mt-4 grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <app-select-field
+              inputId="order-next-status"
+              label="Estado"
+              [options]="statusOptions"
+              [value]="nextStatus()"
+              (valueChange)="updateNextStatus($event)"
+              [disabled]="changingStatus()"
+              required
+            />
+            <app-button
+              variant="primary"
+              [loading]="changingStatus()"
+              [disabled]="changingStatus() || nextStatus() === order.estado"
+              (click)="submitStatus()"
+            >
+              Actualizar estado
+            </app-button>
+          </div>
+        }
+      </section>
+    </div>
+  }
+</app-drawer>

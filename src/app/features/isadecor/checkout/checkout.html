@@ -1,0 +1,262 @@
+<main class="min-h-[70vh] bg-background">
+  <div class="app-container py-8 sm:py-10 lg:py-12">
+    <nav aria-label="Migas de pan" class="mb-8">
+      <a
+        routerLink="/isadecor/productos"
+        class="text-body-sm text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        >Catálogo</a
+      >
+      <span aria-hidden="true" class="mx-2 text-text-muted">/</span>
+      <span class="text-body-sm text-text-secondary" aria-current="page">Comprar</span>
+    </nav>
+
+    <header class="mb-8 max-w-3xl">
+      <p class="text-eyebrow uppercase text-text-muted">ISADECOR</p>
+      <h1 class="mt-3 text-heading-1 text-text-primary">Confirma tu pedido</h1>
+      <p class="mt-3 text-body-lg text-text-secondary">
+        Revisa los productos, indica dónde entregamos y confirma tu pedido. El pago se coordina
+        por transferencia, Plin o Yape según las instrucciones que te mostraremos al confirmar.
+      </p>
+    </header>
+
+    @if (facade.error() && !facade.orderResult()) {
+      <app-alert class="mb-6" variant="error" title="Ocurrió un problema">{{
+        facade.error()
+      }}</app-alert>
+    }
+
+    @if (facade.mergingProduct()) {
+      <div class="rounded-panel border border-border bg-surface py-16">
+        <app-loading label="Agregando el producto a tu pedido..." size="large" />
+      </div>
+    } @else if (facade.orderResult(); as order) {
+      <section class="mx-auto max-w-2xl" aria-labelledby="order-success-title">
+        <app-card padding="large">
+          <app-alert variant="success" title="Pedido registrado"
+            >Recibimos tu pedido. Te contactaremos para coordinar el pago y la entrega.</app-alert
+          >
+          <h2 id="order-success-title" class="mt-7 text-heading-2 text-text-primary">
+            Gracias por tu compra
+          </h2>
+          <p class="mt-3 text-body text-text-secondary">
+            Tu código de pedido es <strong class="text-text-primary">{{ order.codigo }}</strong>.
+          </p>
+          <dl class="mt-7 divide-y divide-border border-y border-border text-body-sm">
+            <div class="flex justify-between gap-5 py-4">
+              <dt class="text-text-muted">Estado</dt>
+              <dd><app-badge variant="info">Pendiente de pago</app-badge></dd>
+            </div>
+            <div class="flex justify-between gap-5 py-4">
+              <dt class="text-text-muted">Entrega</dt>
+              <dd class="text-right text-text-primary">
+                {{ order.direccionCalle }}, {{ order.direccionDistrito }}, {{ order.direccionCiudad }}
+              </dd>
+            </div>
+            @for (detail of order.detalles; track detail.sku) {
+              <div class="flex justify-between gap-5 py-4">
+                <dt class="text-text-muted">{{ detail.nombreProducto }}</dt>
+                <dd class="text-right font-semibold text-text-primary">
+                  Cantidad: {{ detail.cantidad }}
+                </dd>
+              </div>
+            }
+            <div class="flex justify-between gap-5 py-4">
+              <dt class="text-text-muted">Total</dt>
+              <dd class="font-semibold text-text-primary">
+                @if (order.totalPedido !== null) {
+                  S/ {{ order.totalPedido | number: '1.2-2' }}
+                } @else {
+                  Por confirmar
+                }
+              </dd>
+            </div>
+          </dl>
+          <app-alert class="mt-7" variant="info" title="¿Cómo pago?">
+            Realiza el pago por transferencia, Plin o Yape a los datos de contacto de ISADECOR y
+            envíanos el comprobante. Confirmaremos tu pedido en cuanto verifiquemos el pago.
+          </app-alert>
+          <app-button class="mt-7" variant="secondary" href="/isadecor/productos"
+            >Volver al catálogo</app-button
+          >
+        </app-card>
+      </section>
+    } @else if (cart.items().length === 0) {
+      <app-empty-state
+        emptyStateId="checkout-empty-cart"
+        title="Tu carrito está vacío"
+        description="Agrega productos desde el catálogo o el detalle de un producto con el botón 'Comprar ahora' para empezar tu pedido."
+      >
+        <app-button empty-state-actions variant="secondary" href="/isadecor/productos"
+          >Ver catálogo</app-button
+        >
+      </app-empty-state>
+    } @else {
+      <div
+        class="grid items-start gap-8 lg:grid-cols-[minmax(18rem,0.72fr)_minmax(0,1.28fr)] lg:gap-12"
+      >
+        <aside class="lg:sticky lg:top-8" aria-labelledby="checkout-items-title">
+          <app-card padding="large">
+            <div class="flex items-center justify-between gap-3">
+              <h2 id="checkout-items-title" class="text-heading-3 text-text-primary">
+                Productos ({{ cart.totalQuantity() }})
+              </h2>
+              <a
+                routerLink="/isadecor/carrito"
+                class="text-body-sm font-semibold text-text-secondary underline-offset-2 hover:text-text-primary hover:underline"
+                >Editar</a
+              >
+            </div>
+            <ul class="mt-5 space-y-4 divide-y divide-border">
+              @for (item of cart.items(); track item.key) {
+                <li class="flex gap-3 pt-4 first:pt-0">
+                  @if (item.imageUrl) {
+                    <img
+                      class="size-14 shrink-0 rounded-control bg-background-soft object-cover"
+                      [src]="item.imageUrl"
+                      [alt]="item.imageAlt"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div
+                      class="flex size-14 shrink-0 items-center justify-center rounded-control bg-background-soft text-caption text-text-muted"
+                    >
+                      N/D
+                    </div>
+                  }
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-body-sm font-semibold text-text-primary">
+                      {{ item.productName }}
+                    </p>
+                    @if (item.variant) {
+                      <p class="text-caption text-text-muted">{{ item.variant.name }}</p>
+                    }
+                    <p class="mt-1 text-caption text-text-muted">Cantidad: {{ item.quantity }}</p>
+                  </div>
+                  <p class="shrink-0 text-body-sm font-semibold text-text-primary">
+                    @if (cart.subtotal(item) !== null) {
+                      S/ {{ cart.subtotal(item)! | number: '1.2-2' }}
+                    } @else {
+                      Por confirmar
+                    }
+                  </p>
+                </li>
+              }
+            </ul>
+            <dl class="mt-5 divide-y divide-border border-y border-border text-body-sm">
+              <div class="flex justify-between gap-4 py-3">
+                <dt class="text-text-secondary">
+                  {{ cart.hasCompletePricing() ? 'Total' : 'Total parcial' }}
+                </dt>
+                <dd class="font-semibold text-text-primary">
+                  @if (cart.pricedItemCount() > 0) {
+                    S/ {{ cart.estimatedTotal() | number: '1.2-2' }}
+                  } @else {
+                    Por confirmar
+                  }
+                </dd>
+              </div>
+            </dl>
+            <p class="mt-4 text-caption text-text-muted">
+              Confirmaremos el precio final y la disponibilidad exacta al momento de preparar tu
+              pedido.
+            </p>
+          </app-card>
+        </aside>
+
+        <section aria-labelledby="checkout-form-title">
+          <app-card padding="large">
+            <h2 id="checkout-form-title" class="text-heading-2 text-text-primary">
+              Dirección de entrega
+            </h2>
+            <p class="mt-2 text-body text-text-secondary">
+              Los campos marcados con * son obligatorios.
+            </p>
+            <form class="mt-7 space-y-5" (submit)="submit($event)" novalidate>
+              @if (facade.loadingAddresses()) {
+                <app-loading label="Cargando tus direcciones..." size="small" />
+              } @else if (facade.addresses().length > 0) {
+                <app-select-field
+                  inputId="checkout-address"
+                  label="Dirección"
+                  [value]="selectedAddressId()"
+                  (valueChange)="selectAddress($event)"
+                  [options]="addressOptions()"
+                  required
+                />
+              }
+
+              @if (usingNewAddress()) {
+                <app-input-field
+                  inputId="checkout-alias"
+                  label="Nombre de la dirección"
+                  [(value)]="alias"
+                  placeholder="Casa, Obra, Oficina..."
+                />
+                <app-input-field
+                  inputId="checkout-calle"
+                  label="Calle o avenida"
+                  [(value)]="calle"
+                  autocomplete="street-address"
+                  [error]="fieldErrors().calle"
+                  required
+                />
+                <div class="grid gap-5 sm:grid-cols-2">
+                  <app-input-field
+                    inputId="checkout-distrito"
+                    label="Distrito"
+                    [(value)]="distrito"
+                    autocomplete="address-level2"
+                    [error]="fieldErrors().distrito"
+                    required
+                  /><app-input-field
+                    inputId="checkout-ciudad"
+                    label="Ciudad"
+                    [(value)]="ciudad"
+                    autocomplete="address-level1"
+                    [error]="fieldErrors().ciudad"
+                    required
+                  />
+                </div>
+                <app-input-field
+                  inputId="checkout-referencia"
+                  label="Referencia"
+                  [(value)]="referencia"
+                  placeholder="Portón azul, frente al parque..."
+                />
+                <app-input-field
+                  inputId="checkout-telefono"
+                  label="Teléfono de contacto"
+                  type="tel"
+                  [(value)]="telefonoContacto"
+                  autocomplete="tel"
+                  inputMode="tel"
+                  [error]="fieldErrors().telefonoContacto"
+                  required
+                />
+              }
+
+              <h3 class="text-heading-3 text-text-primary">Facturación (opcional)</h3>
+              <div class="grid gap-5 sm:grid-cols-2">
+                <app-input-field inputId="checkout-ruc" label="RUC" [(value)]="ruc" />
+                <app-input-field
+                  inputId="checkout-razon-social"
+                  label="Razón social"
+                  [(value)]="razonSocial"
+                />
+              </div>
+
+              <app-button
+                type="submit"
+                variant="accent"
+                size="large"
+                [loading]="facade.submitting()"
+                [disabled]="facade.submitting()"
+                >Confirmar pedido</app-button
+              >
+            </form>
+          </app-card>
+        </section>
+      </div>
+    }
+  </div>
+</main>

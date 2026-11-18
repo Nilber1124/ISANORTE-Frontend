@@ -1,0 +1,168 @@
+<div [class]="rootClass()" data-a11y-widget>
+  <button
+    #trigger
+    type="button"
+    [class]="triggerClass()"
+    aria-label="Opciones de accesibilidad"
+    aria-controls="a11y-panel"
+    [attr.aria-expanded]="open()"
+    (click)="toggle()"
+  >
+    <svg class="size-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="4.5" r="1.9" fill="currentColor" />
+      <path
+        d="M5 8.2c2.3.9 4.6 1.3 7 1.3s4.7-.4 7-1.3M12 9.5v4.1m0 0-2.7 6.4m2.7-6.4 2.7 6.4"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.9"
+      />
+    </svg>
+  </button>
+
+  @if (open()) {
+    <div
+      #panel
+      id="a11y-panel"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="a11y-panel-title"
+      tabindex="-1"
+      [class]="panelClass()"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <h2 id="a11y-panel-title" class="text-heading-4 text-text-primary">Accesibilidad</h2>
+        <button
+          type="button"
+          class="-mr-1 -mt-1 inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-control text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary"
+          aria-label="Cerrar opciones de accesibilidad"
+          (click)="close()"
+        >
+          <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+          </svg>
+        </button>
+      </div>
+      <p class="mt-1 text-body-sm text-text-secondary">
+        Ajusta cómo ves y usas este sitio. Tus preferencias se recuerdan en este dispositivo.
+      </p>
+
+      <ul class="mt-4 grid grid-cols-2 gap-2">
+        <li>
+          <button
+            type="button"
+            role="switch"
+            [class]="tileClass(a11y.darkMode())"
+            [attr.aria-checked]="a11y.darkMode()"
+            (click)="a11y.toggleDarkMode()"
+          >
+            <svg class="size-7 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2Z" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8" />
+            </svg>
+            <span class="text-body-sm font-semibold leading-tight">Modo oscuro</span>
+            <span class="text-caption font-medium" aria-hidden="true">{{ a11y.darkMode() ? 'Activado' : 'Apagado' }}</span>
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            role="switch"
+            [class]="tileClass(a11y.highContrast())"
+            [attr.aria-checked]="a11y.highContrast()"
+            (click)="a11y.setHighContrast(!a11y.highContrast())"
+          >
+            <svg class="size-7 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8" />
+              <path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" />
+            </svg>
+            <span class="text-body-sm font-semibold leading-tight">Alto contraste</span>
+            <span class="text-caption font-medium" aria-hidden="true">{{ a11y.highContrast() ? 'Activado' : 'Apagado' }}</span>
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            role="switch"
+            [class]="tileClass(a11y.reduceMotion())"
+            [attr.aria-checked]="a11y.reduceMotion()"
+            (click)="a11y.setReduceMotion(!a11y.reduceMotion())"
+          >
+            <svg class="size-7 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="6.5" y="5" width="3.6" height="14" rx="1" fill="currentColor" />
+              <rect x="13.9" y="5" width="3.6" height="14" rx="1" fill="currentColor" />
+            </svg>
+            <span class="text-body-sm font-semibold leading-tight">Reducir animaciones</span>
+            <span class="text-caption font-medium" aria-hidden="true">{{ a11y.reduceMotion() ? 'Activado' : 'Apagado' }}</span>
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            role="switch"
+            [class]="tileClass(a11y.highlightLinks())"
+            [attr.aria-checked]="a11y.highlightLinks()"
+            (click)="a11y.setHighlightLinks(!a11y.highlightLinks())"
+          >
+            <svg class="size-7 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" />
+            </svg>
+            <span class="text-body-sm font-semibold leading-tight">Resaltar enlaces</span>
+            <span class="text-caption font-medium" aria-hidden="true">{{ a11y.highlightLinks() ? 'Activado' : 'Apagado' }}</span>
+          </button>
+        </li>
+
+        <!-- Tamaño del texto -->
+        <li
+          class="col-span-2 flex flex-col gap-2 rounded-control border border-border bg-surface px-3 py-2"
+          role="group"
+          aria-labelledby="a11y-text-label"
+        >
+          <span class="flex items-center gap-3">
+            <span
+              class="inline-flex size-5 shrink-0 items-center justify-center text-body-sm font-bold"
+              aria-hidden="true"
+              >Aa</span
+            >
+            <span id="a11y-text-label" class="text-body-sm font-semibold">Tamaño del texto</span>
+          </span>
+          <span class="flex items-center gap-2">
+            <button
+              type="button"
+              class="inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-control border border-border bg-surface-soft text-body-sm font-bold transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Reducir tamaño del texto"
+              [disabled]="!a11y.canDecreaseText()"
+              (click)="a11y.decreaseText()"
+            >
+              A−
+            </button>
+            <span
+              class="min-w-[5ch] whitespace-nowrap text-center text-body-sm font-semibold"
+              [attr.aria-label]="'Tamaño actual: ' + a11y.textScale() + ' por ciento'"
+              role="img"
+              >{{ a11y.textScale() }} %</span
+            >
+            <button
+              type="button"
+              class="inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-control border border-border bg-surface-soft text-body-lg font-bold transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Aumentar tamaño del texto"
+              [disabled]="!a11y.canIncreaseText()"
+              (click)="a11y.increaseText()"
+            >
+              A+
+            </button>
+          </span>
+        </li>
+      </ul>
+
+      <button
+        type="button"
+        class="mt-4 inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-control border border-border-strong px-4 text-body-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover"
+        (click)="a11y.reset()"
+      >
+        Restablecer todo
+      </button>
+    </div>
+  }
+
+  <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">{{ a11y.announcement() }}</p>
+</div>

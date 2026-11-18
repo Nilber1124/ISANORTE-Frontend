@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "dist/ISANORTE-FRONTEND/browser",
+  "rewrites": [
+    {
+      "source": "/((?!assets/|images/|.*\\..*).*)",
+      "destination": "/index.csr.html"
+    }
+  ]
+}

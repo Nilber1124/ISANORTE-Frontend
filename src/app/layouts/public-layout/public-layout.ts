@@ -1,0 +1,28 @@
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+
+import { Footer } from './footer/footer';
+import { Navbar } from './navbar/navbar';
+import { WhatsappFloat } from '../../shared/components/whatsapp-float/whatsapp-float';
+import { AccessibilityWidget } from '../../shared/components/accessibility-widget/accessibility-widget';
+import { PublicSiteFacade } from './public-site.facade';
+import { AnnouncementRibbon } from '../../features/announcements/announcement-ribbon';
+import { BrandService } from '../../core/services/brand.service';
+
+@Component({
+  selector: 'app-public-layout',
+  imports: [RouterOutlet, Navbar, Footer, WhatsappFloat, AccessibilityWidget, AnnouncementRibbon],
+  providers: [PublicSiteFacade],
+  templateUrl: './public-layout.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class PublicLayout {
+  private readonly publicSite = inject(PublicSiteFacade);
+  private readonly brand = inject(BrandService);
+  readonly whatsappHref = this.publicSite.whatsappHref;
+
+  constructor() {
+    this.brand.setBrand('isanorte');
+    this.publicSite.load();
+  }
+}
