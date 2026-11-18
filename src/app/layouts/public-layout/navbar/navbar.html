@@ -1,12 +1,20 @@
 <nav class="bg-brand px-6 py-4 sticky top-0 z-50" aria-label="Navegación principal">
   <div class="flex items-center justify-between gap-6">
+<<<<<<< HEAD
     <a routerLink="/" class="flex min-w-0 shrink items-center md:w-64" (click)="closeNavigation()" aria-label="ISANORTE — Inicio">
+=======
+    <a routerLink="/" class="flex min-w-0 shrink items-center md:w-64" (click)="closeNavigation()">
+>>>>>>> 085357bcb108ba06098735dfbe178cfe3a8f8c99
       <img
         width="920"
         height="328"
         class="h-10 w-auto min-w-0 max-w-64 object-contain"
         [src]="facade.brandLogoWhite() || facade.brandLogo() || '/images/isanorte-logo-horizontal-white.svg'"
+<<<<<<< HEAD
         alt=""
+=======
+        [alt]="facade.siteName() || 'ISANORTE'"
+>>>>>>> 085357bcb108ba06098735dfbe178cfe3a8f8c99
       />
     </a>
 

@@ -35,11 +35,20 @@
     <div class="mt-8 flex items-center justify-between px-1">
       <!-- Indicadores de paginación (Dots / Pills) -->
       @if (showIndicators()) {
+<<<<<<< HEAD
         <div class="flex items-center gap-2" role="group" aria-label="Selector de diapositiva">
           @for (item of items(); track item.id; let i = $index) {
             <button
               type="button"
               [attr.aria-current]="i === current() ? 'true' : null"
+=======
+        <div class="flex items-center gap-2" role="tablist" aria-label="Selector de diapositiva">
+          @for (item of items(); track item.id; let i = $index) {
+            <button
+              type="button"
+              role="tab"
+              [attr.aria-selected]="i === current()"
+>>>>>>> 085357bcb108ba06098735dfbe178cfe3a8f8c99
               [attr.aria-label]="'Ir al elemento ' + (i + 1)"
               (click)="goTo(i)"
               class="h-2 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"

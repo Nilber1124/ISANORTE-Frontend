@@ -197,8 +197,13 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+<<<<<<< HEAD
   background: var(--theme-accent);
   color: var(--theme-accent-contrast);
+=======
+  background: #fff;
+  color: var(--announcement-accent);
+>>>>>>> 085357bcb108ba06098735dfbe178cfe3a8f8c99
   font-size: 11px;
   font-weight: 700;
   animation: announcement-pulse 2s infinite;

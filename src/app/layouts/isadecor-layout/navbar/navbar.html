@@ -4,11 +4,19 @@
   class="isadecor-shell sticky top-0 z-50 border-b border-border bg-background-deep"
 >
   <div class="app-container flex items-center justify-between gap-6 py-4">
+<<<<<<< HEAD
     <a routerLink="/isadecor" class="flex min-w-0 shrink items-center" (click)="closeMenu()" aria-label="ISADECOR — Inicio">
       <img
         class="h-10 w-auto min-w-0 max-w-64 object-contain"
         src="/images/isadecor-logo-horizontal-white.svg"
         alt=""
+=======
+    <a routerLink="/isadecor" class="flex min-w-0 shrink items-center" (click)="closeMenu()">
+      <img
+        class="h-10 w-auto min-w-0 max-w-64 object-contain"
+        src="/images/isadecor-logo-horizontal-white.svg"
+        alt="ISADECOR"
+>>>>>>> 085357bcb108ba06098735dfbe178cfe3a8f8c99
       />
     </a>
 
@@ -81,10 +89,18 @@
                     Líneas de Producto
                   </span>
                 </div>
+<<<<<<< HEAD
                 <ul class="space-y-0.5">
                   @for (child of link.children ?? []; track child.label) {
                     <li>
                       <a
+=======
+                <ul class="space-y-0.5" role="menu">
+                  @for (child of link.children ?? []; track child.label) {
+                    <li role="presentation">
+                      <a
+                        role="menuitem"
+>>>>>>> 085357bcb108ba06098735dfbe178cfe3a8f8c99
                         [routerLink]="link.url"
                         [queryParams]="child.queryParams"
                         (click)="closeProductsDropdown()"
@@ -184,8 +200,14 @@
                 <p class="mt-0.5 truncate text-caption text-white/55">{{ cliente.cliente()?.email }}</p>
               </div>
               <ul class="mt-1 space-y-0.5">
+<<<<<<< HEAD
                 <li>
                   <a
+=======
+                <li role="presentation">
+                  <a
+                    role="menuitem"
+>>>>>>> 085357bcb108ba06098735dfbe178cfe3a8f8c99
                     routerLink="/isadecor/mi-cuenta"
                     (click)="cerrarCuentaMenu()"
                     class="block rounded-control px-3 py-2.5 text-body-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
@@ -193,8 +215,14 @@
                     Mi cuenta
                   </a>
                 </li>
+<<<<<<< HEAD
                 <li>
                   <a
+=======
+                <li role="presentation">
+                  <a
+                    role="menuitem"
+>>>>>>> 085357bcb108ba06098735dfbe178cfe3a8f8c99
                     routerLink="/isadecor/mi-cuenta"
                     fragment="cotizaciones"
                     (click)="cerrarCuentaMenu()"
@@ -203,8 +231,14 @@
                     Mis cotizaciones
                   </a>
                 </li>
+<<<<<<< HEAD
                 <li class="mt-1 border-t border-white/10 pt-1">
                   <button
+=======
+                <li role="presentation" class="mt-1 border-t border-white/10 pt-1">
+                  <button
+                    role="menuitem"
+>>>>>>> 085357bcb108ba06098735dfbe178cfe3a8f8c99
                     type="button"
                     (click)="cerrarSesion()"
                     class="block w-full cursor-pointer rounded-control px-3 py-2.5 text-left text-body-sm text-white/60 transition-colors hover:bg-white/10 hover:text-white"
