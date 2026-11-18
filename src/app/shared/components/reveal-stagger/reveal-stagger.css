@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+/* Los elementos `[data-reveal]` solo se ocultan antes de animar cuando no hay
+   preferencia de movimiento reducido. Con `prefers-reduced-motion: reduce`
+   permanecen en su estado final. */
+
+/* `::ng-deep` aplica la regla también al contenido proyectado por el
+   consumidor (`<ng-content>`), que no forma parte del template propio. */
+@media (prefers-reduced-motion: no-preference) {
+  :host ::ng-deep [data-reveal] {
+    opacity: 0;
+  }
+}

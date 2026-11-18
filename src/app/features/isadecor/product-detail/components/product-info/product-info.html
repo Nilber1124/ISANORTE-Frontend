@@ -1,0 +1,102 @@
+<section class="flex flex-col" aria-labelledby="product-title">
+  <!-- Eyebrow: Category / Collection -->
+  @if (categoryName(); as category) {
+    <p class="text-eyebrow font-semibold uppercase tracking-widest text-text-muted mb-2">
+      {{ category }}
+    </p>
+  }
+
+  <!-- Title -->
+  <h1 id="product-title" class="text-heading-1 lg:text-display font-semibold tracking-tight text-text-primary leading-[1.12]">
+    {{ product().nombre }}
+  </h1>
+
+  <!-- Meta Header: SKU & Status -->
+  <div class="mt-3 flex flex-wrap items-center gap-3 text-caption text-text-muted">
+    <span class="font-mono uppercase tracking-wider">SKU: {{ product().sku }}</span>
+    <span aria-hidden="true" class="text-border-strong">·</span>
+    <app-badge [variant]="availability().variant" size="small">
+      {{ availability().label }}
+    </app-badge>
+  </div>
+
+  <!-- Editorial Lead / Summary (Architectural introduction) -->
+  @if (showSummary()) {
+    <p class="mt-5 text-body-lg text-text-secondary leading-relaxed font-normal">
+      {{ product().resumen }}
+    </p>
+  }
+
+  <!-- Pricing -->
+  <div class="mt-6 flex flex-wrap items-baseline gap-3.5">
+    @if (product().precioBase !== null) {
+      <span class="text-display font-medium tracking-tight text-text-primary">
+        S/ {{ product().precioBase | number: '1.2-2' }}
+      </span>
+      @if (product().precioAnterior !== null && product().precioAnterior! > product().precioBase!) {
+        <span class="text-heading-3 text-text-muted line-through font-normal">
+          S/ {{ product().precioAnterior | number: '1.2-2' }}
+        </span>
+      }
+      @if (product().descuentoPorcentaje !== null && product().descuentoPorcentaje! > 0) {
+        <span class="rounded-control bg-accent/10 px-2.5 py-1 text-caption font-semibold text-accent-strong tracking-wide">
+          -{{ product().descuentoPorcentaje | number: '1.0-0' }}%
+        </span>
+      }
+    } @else {
+      <span class="text-heading-2 font-medium text-text-primary">Consultar precio</span>
+    }
+  </div>
+
+  <div class="my-8 border-t border-border/60"></div>
+
+  <!-- Calculator (Architectural material estimator) -->
+  <div class="mb-2">
+    <app-product-calculator
+      [config]="calculationConfig()"
+      (quantityChange)="quantityChange.emit($event)"
+    />
+  </div>
+
+  <!-- Variants Slot -->
+  <ng-content select="[slot=variants]"></ng-content>
+
+  <!-- Actions Slot (Quantity, Add to Cart, Quote CTA) -->
+  <div class="mt-8">
+    <ng-content select="[slot=actions]"></ng-content>
+  </div>
+
+  <!-- Logistics & Architectural Service Specifications -->
+  <div class="mt-10 pt-8 border-t border-border/50 space-y-3.5">
+    <!-- Store Pickup -->
+    <div class="flex items-center gap-3 text-body-sm text-text-secondary">
+      @if (product().retiroEnTienda) {
+        <svg class="size-4.5 text-success shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        <span>Disponible para retiro inmediato en almacén y tienda</span>
+      } @else {
+        <svg class="size-4.5 text-text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>Exclusivo para despacho y envío directo a obra o proyecto</span>
+      }
+    </div>
+
+    <!-- Free Delivery Info -->
+    <div class="flex items-center gap-3 text-body-sm text-text-secondary">
+      <svg class="size-4.5 text-text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+      <span>Despacho programado sin costo en Lima Metropolitana desde S/ 599</span>
+    </div>
+
+    <!-- Nationwide Shipping -->
+    <div class="flex items-center gap-3 text-body-sm text-text-secondary">
+      <svg class="size-4.5 text-text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+      <span>Envíos y logística especializada a nivel nacional</span>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,38 @@
+<div
+  class="pointer-events-none fixed bottom-5 right-4 z-[100] flex w-full max-w-sm flex-col gap-2 sm:right-6"
+  aria-live="polite"
+  aria-atomic="false"
+>
+  @for (toast of toastService.toasts(); track trackById($index, toast)) {
+    <div
+      class="pointer-events-auto flex items-start gap-3 rounded-card border px-4 py-3.5 shadow-floating animate-fade-in-up"
+      [class]="toastClasses(toast.type)"
+      role="alert"
+    >
+      <svg class="mt-0.5 size-4 shrink-0" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        @switch (toast.type) {
+          @case ('success') {
+            <path fill-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clip-rule="evenodd" />
+          }
+          @case ('error') {
+            <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14Zm2.78-4.22a.75.75 0 0 1-1.06 1.06L8 9.06l-1.72 1.78a.75.75 0 1 1-1.06-1.06L6.94 8 5.22 6.28a.75.75 0 0 1 1.06-1.06L8 6.94l1.72-1.72a.75.75 0 1 1 1.06 1.06L9.06 8l1.72 1.78Z" clip-rule="evenodd" />
+          }
+          @default {
+            <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14Zm.75-10a.75.75 0 0 0-1.5 0v4.5a.75.75 0 0 0 1.5 0V5Zm0 6.5a.75.75 0 0 0-1.5 0V12a.75.75 0 0 0 1.5 0v-.5Z" clip-rule="evenodd" />
+          }
+        }
+      </svg>
+      <p class="flex-1 text-body-sm leading-snug">{{ toast.message }}</p>
+      <button
+        type="button"
+        class="-m-1 inline-flex size-7 shrink-0 items-center justify-center rounded-control opacity-60 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        aria-label="Cerrar notificación"
+        (click)="toastService.dismiss(toast.id)"
+      >
+        <svg class="size-3.5" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="m2 2 10 10m0-10L2 12" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" />
+        </svg>
+      </button>
+    </div>
+  }
+</div>

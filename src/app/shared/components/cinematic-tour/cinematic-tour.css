@@ -1,0 +1,14 @@
+:host {
+    display: block;
+}
+
+.cinematic-tour__layer {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cinematic-tour__layer {
+        will-change: auto;
+    }
+}

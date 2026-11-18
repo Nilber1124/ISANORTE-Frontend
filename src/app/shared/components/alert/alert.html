@@ -1,0 +1,28 @@
+<div [class]="classes()" [attr.role]="role()" [attr.aria-live]="liveMode()" aria-atomic="true">
+  <span [class]="indicatorClasses()" aria-hidden="true"></span>
+  <div class="min-w-0 flex-1">
+    @if (title()) {
+      <p class="text-body-sm font-semibold text-text-primary">{{ title() }}</p>
+    }
+    <div class="text-body-sm text-text-secondary" [class.mt-1]="title()">
+      <ng-content />
+    </div>
+  </div>
+  @if (dismissible()) {
+    <button
+      type="button"
+      class="-m-2 inline-flex size-10 shrink-0 items-center justify-center rounded-control text-text-muted transition-colors duration-150 hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      aria-label="Cerrar mensaje"
+      (click)="dismissed.emit()"
+    >
+      <svg class="size-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path
+          d="m4 4 8 8m0-8-8 8"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-width="1.5"
+        />
+      </svg>
+    </button>
+  }
+</div>

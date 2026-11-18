@@ -1,0 +1,84 @@
+<form class="space-y-5" (submit)="submit($event)" novalidate>
+  @if (serverError(); as message) {
+    <app-alert variant="error" title="No se pudo guardar">{{ message }}</app-alert>
+  }
+
+  <app-input-field
+    inputId="address-alias"
+    label="Nombre de la dirección"
+    [(value)]="alias"
+    placeholder="Casa, Obra, Oficina..."
+    [disabled]="submitting()"
+  />
+  <app-input-field
+    inputId="address-calle"
+    label="Calle o avenida"
+    [(value)]="calle"
+    autocomplete="street-address"
+    [error]="fieldErrors().calle"
+    [disabled]="submitting()"
+    required
+  />
+  <div class="grid gap-5 sm:grid-cols-2">
+    <app-input-field
+      inputId="address-distrito"
+      label="Distrito"
+      [(value)]="distrito"
+      autocomplete="address-level2"
+      [error]="fieldErrors().distrito"
+      [disabled]="submitting()"
+      required
+    /><app-input-field
+      inputId="address-ciudad"
+      label="Ciudad"
+      [(value)]="ciudad"
+      autocomplete="address-level1"
+      [error]="fieldErrors().ciudad"
+      [disabled]="submitting()"
+      required
+    />
+  </div>
+  <app-input-field
+    inputId="address-referencia"
+    label="Referencia"
+    [(value)]="referencia"
+    placeholder="Portón azul, frente al parque..."
+    [disabled]="submitting()"
+  />
+  <app-input-field
+    inputId="address-telefono"
+    label="Teléfono de contacto"
+    type="tel"
+    [(value)]="telefonoContacto"
+    autocomplete="tel"
+    inputMode="tel"
+    [error]="fieldErrors().telefonoContacto"
+    [disabled]="submitting()"
+    required
+  />
+
+  <label
+    class="flex cursor-pointer items-center justify-between rounded-xl border border-border bg-surface-soft p-3.5 transition-colors hover:bg-surface-hover"
+  >
+    <div>
+      <span class="text-body-sm font-semibold text-text-primary">Dirección principal</span>
+      <p class="text-caption text-text-muted">Se preselecciona automáticamente al comprar.</p>
+    </div>
+    <input
+      class="form-choice h-5 w-5 rounded text-primary focus:ring-primary"
+      type="checkbox"
+      [checked]="principal()"
+      [disabled]="submitting()"
+      (change)="togglePrincipal($event)"
+    />
+  </label>
+
+  <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button type="button" variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
+      Cancelar
+    </app-button>
+    <app-button type="submit" variant="accent" [loading]="submitting()" [disabled]="submitting()">
+      Guardar dirección
+    </app-button>
+  </div>
+</form>
