@@ -1,12 +1,14 @@
-# ISANORTE Design System
+# ISANORTE · ISADECOR Design System
 
-Esta guía define la base visual compartida del frontend de ISANORTE para que las páginas públicas y privadas utilicen las mismas decisiones de color, tipografía, espacio, geometría e interacción.
+Esta guía define la base visual compartida del frontend (ISANORTE, ISADECOR y administración) para que las páginas públicas y privadas utilicen las mismas decisiones de color, tipografía, espacio, geometría e interacción. Es una guía viva: cuando una decisión de diseño demuestra funcionar mejor en una pantalla real, se actualiza aquí en lugar de mantener una regla que ya no se sigue.
 
 ## 1. Identidad visual
 
-ISANORTE comunica ingeniería, arquitectura, precisión y confianza. La interfaz combina minimalismo con un futurismo sobrio: superficies de contraste contenido, tipografía limpia, geometría firme y espacio negativo generoso. El tema claro expresa limpieza y precisión; el oscuro conserva la identidad técnica y premium original.
+**ISANORTE** comunica ingeniería, arquitectura, precisión y confianza: minimalismo con un futurismo sobrio, tipografía limpia, geometría firme y espacio negativo generoso.
 
-El negro, el blanco y los grises construyen aproximadamente el 97 % de la experiencia visual. El naranja identifica llamadas a la acción excepcionales, estados activos y detalles breves de marca. Su escasez le da fuerza; nunca debe convertirse en el fondo dominante de una sección, navbar o footer.
+**ISADECOR** es una tienda de acabados e interiores. Comunica material, calidez y facilidad de compra: fotografía y texturas reales, jerarquía clara entre descubrir, elegir y comprar, y movimiento con propósito (ver §26). Hereda los tokens, la tipografía y los componentes del sistema.
+
+El negro, el blanco y los grises forman la base neutra. El naranja es el color de acción y de marca: identifica llamadas a la acción, estados activos, etiquetas de oferta y detalles de marca. Puede ocupar superficies puntuales y acotadas (una cinta de avisos, una etiqueta, un botón) siempre con texto de contraste suficiente (AA); no se usa para teñir páginas completas ni bloques de lectura.
 
 ## Temas
 
@@ -170,7 +172,7 @@ La profundidad sigue esta secuencia: `background` → `background-soft` → `sur
 
 - `primary`: usa `action-primary` y `action-primary-text`; es oscuro en Light y claro en Dark. Acción principal habitual.
 - `secondary`: usa la superficie, texto y borde del tema. Acción secundaria cercana.
-- `accent`: naranja. Solo para acciones de alta importancia, como “Solicitar cotización”.
+- `accent`: naranja. Acciones de mayor importancia comercial: comprar, cotizar, buscar, ver oferta. Una por zona visible para que conserve su jerarquía.
 - `ghost`: transparente y sin borde dominante. Acciones terciarias o de baja prominencia.
 
 Cada variante incorpora hover, active, focus-visible, disabled y loading. Loading mantiene el texto, muestra progreso y expone `aria-busy`.
@@ -197,13 +199,21 @@ La futura familia principal debe ser outline, geométrica y de grosor uniforme. 
 
 ## 17. Imágenes
 
-Se priorizan imágenes grandes y nítidas de arquitectura, construcción, materiales y procesos. Deben usar crop limpio, `object-cover` y los radios del sistema. Un overlay oscuro puede proteger el contraste del texto. La imagen apoya la información y no compite con ella.
+Se priorizan imágenes grandes y nítidas de arquitectura, interiores, materiales y procesos. En ISADECOR se usan además texturas de material en primer plano y escenas de ambiente. Deben usar crop limpio, `object-cover`, dimensiones declaradas (`width`/`height`), `loading="lazy"` salvo la imagen principal, y los radios del sistema. Un degradado puede proteger el contraste del texto. Las imágenes generadas o de muestra no deben mostrar texto, marcas ni personas, y se marcan como muestra en la fuente de datos hasta contar con fotografía real.
 
 ## 18. Animaciones
 
-Los tiempos de referencia son 150 ms para respuesta rápida, 250 ms para transición normal y 500 ms para entrada. Se animan principalmente opacity, color y transformaciones cortas. Una elevación de card no supera 4 px y una escala debe ser apenas perceptible.
+Los tiempos de referencia son 150 ms para respuesta rápida, 250 ms para transición normal y 500 ms para entrada. Para interfaz se animan principalmente opacity, color y transformaciones cortas; una elevación de card no supera 4 px.
 
-No se usan saltos, rotaciones decorativas, zoom fuerte, glow pulsante ni parallax excesivo. La hoja global respeta `prefers-reduced-motion` reduciendo animaciones y transiciones. Además, el atributo `data-motion="reduce"` (activable desde el panel de accesibilidad, §25) aplica la misma reducción y fuerza los elementos `[data-reveal]` a su estado final. Los componentes con GSAP (`reveal-stagger`, `cinematic-tour`, `carousel`, `announcement-ribbon`) consultan `AccessibilityService.reduceMotion()` y no animan ni hacen autoplay cuando está activo.
+Se permite movimiento de mayor escala cuando comunica el producto y cumple estas condiciones:
+
+- Tiene un propósito claro (mostrar una transformación, guiar el recorrido), no es decorativo.
+- El contenido esencial y las acciones siguen disponibles sin animación (respaldo estático).
+- Respeta `prefers-reduced-motion` y `data-motion="reduce"` (§25): sin animación, sin autoplay, con la versión estática.
+- Se pausa al pasar el cursor o enfocar cuando avanza solo (marquesinas), y nunca bloquea el acceso a la compra (siempre hay un salto directo a la tienda).
+- No usa glow pulsante, rotaciones decorativas ni saltos de layout.
+
+La hoja global reduce animaciones y transiciones con `prefers-reduced-motion`. El atributo `data-motion="reduce"` aplica la misma reducción y fuerza los elementos `[data-reveal]` a su estado final. Los componentes con GSAP o movimiento propio consultan `AccessibilityService.reduceMotion()`.
 
 ## 19. Responsive
 
@@ -229,27 +239,25 @@ El desarrollo es mobile-first. Los layouts comienzan en una columna, incorporan 
 - Usar la escala tipográfica por rol: `text-heading-2`, `text-body-sm`, etc.
 - Elegir spacing de Tailwind antes de crear valores nuevos.
 - Componer páginas con `app-container`, componentes compartidos y HTML semántico.
-- Reservar el naranja para CTA excepcional, activo o pequeño detalle de marca.
+- Usar el naranja para acción, estado activo, oferta o detalle de marca, con contraste AA y sin teñir páginas completas.
 - Mantener CSS específico dentro del componente solo cuando represente comportamiento propio.
-- Navbar futura: fondo oscuro o transparente sobre hero, borde inferior sutil, navegación blanca/gris, activo claro y un solo CTA accent cuando lo amerite.
+- Navbar: fondo oscuro o transparente sobre hero, borde inferior sutil, navegación blanca/gris, activo claro y un solo CTA accent. En ISADECOR incorpora buscador y categorías cuando se trate de la tienda.
 - Footer futuro: `background-deep`, espacio amplio, texto secundario, divisores sutiles, logo, contacto, enlaces y redes.
 
 ## 22. Qué NO hacer
 
 | NO                                                           | SÍ                                                                                            |
 | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| Usar naranja en grandes superficies, navbar o footer         | Usar naranja como línea, punto, activo o CTA excepcional                                      |
+| Teñir páginas o bloques de lectura completos de naranja      | Usarlo en acciones, etiquetas, cintas y detalles acotados con contraste AA                    |
 | Inventar `text-[47px]` o `text-[71px]`                       | Usar `text-display`, `text-heading-1` y el resto de la escala                                 |
-| Repetir `bg-[#0c0c0a]` en componentes                        | Usar `bg-background`                                                                          |
-| Repetir `text-[#b5b5b0]`                                     | Usar `text-text-secondary`                                                                    |
+| Repetir `bg-[#0c0c0a]` o `text-[#b5b5b0]` en componentes     | Usar `bg-background`, `text-text-secondary` y el resto de tokens semánticos                   |
 | Inventar colores por componente                              | Utilizar tokens semánticos y proponer un token solo si el caso se repite                      |
-| Crear todos los elementos con radios máximos                 | Mantener `rounded-control`, `rounded-button`, `rounded-card` y `rounded-panel` según contexto |
-| Usar `rounded-full` en cards o botones habituales            | Reservarlo para badges, chips, avatares e indicadores                                         |
+| Usar `rounded-full` en cards o paneles                       | Reservarlo para chips, filtros, badges, avatares e indicadores                                |
 | Agregar sombras enormes o glow constante                     | Elegir `shadow-soft`, `shadow-card` o `shadow-floating`                                       |
-| Introducir espacios como `mt-[37px]` o `gap-[29px]`          | Elegir valores consistentes de la escala de 4 px                                              |
+| Introducir espacios arbitrarios repetidos                    | Elegir valores de la escala de 4 px; un valor puntual (altura de escena, offset sticky) es válido si se justifica |
 | Hacer una card estática con hover de elevación               | Activar interacción visual solo cuando la card tenga un destino real                          |
 | Usar colores de estado como decoración                       | Aplicarlos a validación, mensajes, badges y estados administrativos                           |
-| Usar `bg-[#ffffff]` o `text-[#111111]` para colores del tema | Usar `bg-background`, `bg-surface` y `text-text-primary`                                      |
+| Hacer movimiento sin respaldo estático ni pausa              | Seguir las condiciones de §18                                                                 |
 | Consultar Light/Dark dentro de cada componente               | Dejar que el mismo token semántico cambie mediante `data-theme`                               |
 
 ## 23. Componentes compartidos — segunda tanda
@@ -654,3 +662,35 @@ Aplica a `a[href]`, excepto los que son botones (`rounded-button`), los circular
 - Los textos sobre imágenes dependen de sus overlays; en alto contraste se recomienda mantener overlays oscuros opacos.
 - "Reducir animaciones" no pausa vídeos incrustados.
 
+## 26. Patrones de tienda (ISADECOR)
+
+Patrones definidos para la Home de ISADECOR. Se reutilizan en el resto de la tienda cuando aplique. El contenido llega del backend (`GET .../unidades/isadecor/home`) y es editable desde administración; ver `docs/isadecor/ESTRUCTURA-HOME.md`.
+
+| Patrón | Descripción y reglas |
+| ------ | -------------------- |
+| **Escena con scroll** (`app-arma-ambiente`) | Hero y recorrido en una sola pieza: un video a pantalla completa avanza con el scroll y cada paso presenta una categoría. Respaldo estático; botón fijo "Ir a la tienda"; pasos navegables; encuadre adaptado en móvil. |
+| **Cinta de avisos** (`app-home-ribbon`) | Franja delgada con textos cortos y enlaces opcionales, editables desde administración. Se pausa al pasar el cursor o enfocar; con movimiento reducido queda estática. |
+| **Promociones** (`app-home-promo-banner`) | Una promoción grande y dos pequeñas, siempre con producto real, etiqueta (`-20 %` o `Nuevo`), precio anterior y actual, vigencia y destino directo. Se ocultan al vencer; máximo tres. |
+| **Tarjeta de producto** (`app-home-product-tile`) | Foto, categoría, nombre, precio por unidad, etiqueta de descuento y acción según modalidad: *Comprar* (relleno) o *Cotizar* (contorno). |
+| **Filtro de tienda** | Chips de categoría y "Ofertas" sobre una cuadrícula (2, 3 o 4 columnas). Sin carruseles ni barras de scroll horizontal visibles. |
+| **Cabecera de tienda** (`app-isadecor-navbar`) | Tres niveles fijos: aviso fino (envíos e instalación), logo + buscador central + cuenta + carrito, y fila de categorías con la zona de entrega. En móvil el buscador pasa a su propia fila. |
+| **Campaña editable** | Una tarjeta con texto y foto para una temporada o lanzamiento, con enlace a una categoría. Se oculta si no hay campaña. |
+| **Fila "Fáciles de instalar"** | Productos marcados como fáciles de instalar, elegidos por demanda o fijados a mano, en cuadrícula con enlace a su categoría; sin carrusel. Se oculta si no hay productos. |
+| **Franja de confianza** | Envío, instalación, garantía y pago en una línea de cuatro. Contenido fijo en el código (`isadecor-home.static.ts`); los textos son de muestra hasta confirmarlos con el cliente. |
+| **Bloque para constructoras y arquitectos** | Texto, botón de presupuesto y lista de cuatro puntos separados por filetes. |
+| **Pie de confianza** (`app-isadecor-footer`) | Compra con confianza, ayuda, medios de pago (texto en mono) y legales; incluye Libro de Reclamaciones (confirmar enlace y obligación con el cliente). Los elementos sin destino aún se muestran como texto. |
+| **Tarjeta de producto** | Añade muestras de color de los acabados (los agotados se atenúan y se anuncian como «agotado»), valoración con estrellas y número de reseñas, plazo de entrega en mono y «Quedan N» cuando el stock es bajo. |
+
+Estados: la Home hace una sola petición; mientras carga muestra esqueletos, si falla ofrece «Reintentar» y toda sección sin contenido activo se oculta (sin cajas vacías).
+
+Orden de la Home de tienda: cabecera (buscar, categorías, entrega), escena, cinta y promociones, campaña, elegir (selección filtrable de ocho), fila de fáciles de instalar, franja de confianza, constructoras y arquitectos, reseñas y pie de confianza.
+
+## 27. Dirección visual de ISADECOR: Showroom
+
+Dirección adoptada para ISADECOR tras comparar cinco propuestas. Se activa con la clase `showroom` del layout de ISADECOR (`src/styles/showroom.css`), sin afectar a ISANORTE ni a administración.
+
+- **Tipografía:** Outfit para titulares y nombres de producto (geométrica minimalista; peso 500, tracking -0.03em), Hanken Grotesk para cuerpo y controles, y JetBrains Mono para eyebrows, medidas, unidades y fechas. Se cargan desde Google Fonts en `index.html` (pendiente autoalojarlas).
+- **Forma:** esquinas contenidas (control 4 px, botón y card 6 px, panel 8 px) mediante la sobrescritura de `--radius-*`. `rounded-full` solo en chips.
+- **Color:** los tokens de marca en claro y oscuro; un solo acento naranja. El naranja aparece como filete (`filete-b`, `filete-l`), etiqueta de oferta, botón de acción y separador de la cinta; no como bloque de color.
+- **Composición:** la imagen manda y el texto va en su propia zona (promociones con imagen a un lado y texto al otro). Una ficha destacada y dos secundarias, no tres iguales. Cinta de avisos como filete fino con separadores `/`.
+- **Excepción documentada:** la escena con scroll del Home superpone texto sobre el video; es el único caso y mantiene contraste mediante degradado.
