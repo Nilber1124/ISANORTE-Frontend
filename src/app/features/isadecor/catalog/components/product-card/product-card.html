@@ -29,13 +29,13 @@
             stroke-width="1.5"
           />
         </svg>
-        <span class="text-[11px] font-semibold uppercase tracking-wider">Imagen no disponible</span>
+        <span class="text-[0.875rem] font-semibold uppercase tracking-wider">Imagen no disponible</span>
       </div>
     }
 
     @if (product().descuentoPorcentaje && product().descuentoPorcentaje! > 0) {
       <span
-        class="absolute left-3 top-3 inline-flex items-center rounded-full bg-[#FDEBEC] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9F2F2D]"
+        class="absolute left-3 top-3 inline-flex items-center rounded-full bg-[#FDEBEC] px-2.5 py-1 text-[0.8125rem] font-semibold uppercase tracking-[0.08em] text-[#9F2F2D]"
       >
         -{{ product().descuentoPorcentaje | number: '1.0-0' }}%
       </span>
@@ -43,7 +43,7 @@
 
     @if (presentation() === 'featured') {
       <span
-        class="absolute right-3 top-3 inline-flex items-center rounded-full bg-[#FBF3DB] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#956400]"
+        class="absolute right-3 top-3 inline-flex items-center rounded-full bg-[#FBF3DB] px-2.5 py-1 text-[0.8125rem] font-semibold uppercase tracking-[0.08em] text-[#956400]"
       >
         Destacado
       </span>
@@ -54,14 +54,14 @@
     <div class="flex flex-wrap gap-1.5">
       @for (category of visibleCategories(); track category.slug) {
         <span
-          class="inline-flex items-center rounded-full bg-background-soft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-text-secondary"
+          class="inline-flex items-center rounded-full bg-background-soft px-2.5 py-1 text-[0.8125rem] font-semibold uppercase tracking-[0.06em] text-text-secondary"
         >
           {{ category.nombre }}
         </span>
       }
       @if (remainingCategoryCount() > 0) {
         <span
-          class="inline-flex items-center rounded-full bg-background-soft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-text-secondary"
+          class="inline-flex items-center rounded-full bg-background-soft px-2.5 py-1 text-[0.8125rem] font-semibold uppercase tracking-[0.06em] text-text-secondary"
           [attr.aria-label]="remainingCategoryCount() + ' categorías adicionales'"
         >
           +{{ remainingCategoryCount() }}
@@ -69,7 +69,7 @@
       }
     </div>
 
-    <p class="pc-mono mt-1 text-[10px] uppercase tracking-[0.1em] text-text-muted">
+    <p class="pc-mono mt-1 text-[0.8125rem] uppercase tracking-[0.1em] text-text-muted">
       SKU {{ product().sku }}
     </p>
     <h3
@@ -85,14 +85,14 @@
       </a>
     </h3>
 
-    <p class="line-clamp-2 text-[0.85rem] leading-relaxed text-text-secondary">
+    <p class="line-clamp-2 text-[0.9375rem] leading-relaxed text-text-secondary">
       {{ product().resumen || product().descripcion }}
     </p>
 
     <div class="mt-auto flex flex-col gap-3 border-t border-border pt-4">
       <div class="flex items-end justify-between gap-2">
         <div>
-          <p class="text-[11px] text-text-muted">Precio referencial</p>
+          <p class="text-[0.875rem] text-text-muted">Precio referencial</p>
           @if (product().precioBase !== null) {
             <div class="flex items-baseline gap-2">
               <p class="pc-mono mt-0.5 text-[1.05rem] font-medium text-text-primary">
@@ -102,19 +102,19 @@
                 product().precioAnterior !== null &&
                 product().precioAnterior! > product().precioBase!
               ) {
-                <p class="pc-mono text-[11px] text-text-muted line-through">
+                <p class="pc-mono text-[0.875rem] text-text-muted line-through">
                   S/ {{ product().precioAnterior | number: '1.2-2' }}
                 </p>
               }
             </div>
           } @else {
-            <p class="mt-0.5 text-[0.9rem] font-semibold text-text-primary">Consultar precio</p>
+            <p class="mt-0.5 text-[1rem] font-semibold text-text-primary">Consultar precio</p>
           }
         </div>
 
         <span
           [class]="toneClasses(availability().tone)"
-          class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
+          class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.8125rem] font-semibold uppercase tracking-[0.06em]"
         >
           <span [class]="toneDotClasses(availability().tone)" class="size-1.5 rounded-full" aria-hidden="true"></span>
           {{ availability().label }}
@@ -124,13 +124,13 @@
       <div class="grid grid-cols-2 gap-2 pt-1">
         <!-- Solo visual: el enlace de toda la tarjeta lleva al producto. -->
         <span
-          class="inline-flex min-h-10 items-center justify-center rounded-[6px] border border-border-strong bg-surface px-3 text-[0.85rem] font-medium text-text-primary transition-colors duration-fast group-hover:border-text-primary"
+          class="inline-flex min-h-10 items-center justify-center rounded-[6px] border border-border-strong bg-surface px-3 text-[0.9375rem] font-medium text-text-primary transition-colors duration-fast group-hover:border-text-primary"
           aria-hidden="true"
         >
           Ver producto
         </span>
         <a
-          class="relative z-10 inline-flex min-h-10 cursor-pointer items-center justify-center gap-1.5 rounded-[6px] bg-[#111111] px-3 text-[0.85rem] font-semibold text-white transition-colors duration-fast hover:bg-[#333333] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus active:scale-[0.98]"
+          class="relative z-10 inline-flex min-h-10 cursor-pointer items-center justify-center gap-1.5 rounded-[6px] bg-[#111111] px-3 text-[0.9375rem] font-semibold text-white transition-colors duration-fast hover:bg-[#333333] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus active:scale-[0.98]"
           [routerLink]="['/isadecor/cotizacion']"
           [queryParams]="{ producto: product().slug }"
           [attr.aria-label]="'Cotizar ' + product().nombre"
