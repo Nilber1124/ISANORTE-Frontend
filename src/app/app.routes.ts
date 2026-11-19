@@ -131,6 +131,14 @@ export const routes: Routes = [
         data: { title: 'Anuncios' },
       },
       {
+        path: 'home-isadecor/resenas',
+        loadComponent: () =>
+          import('./features/admin/home-reviews/admin-home-reviews').then(
+            ({ AdminHomeReviews }) => AdminHomeReviews,
+          ),
+        data: { title: 'Reseñas del Home' },
+      },
+      {
         path: 'home-isadecor/hero',
         loadComponent: () =>
           import('./features/admin/site-content/admin-site-content').then(

@@ -1,0 +1,71 @@
+<header class="max-w-3xl">
+  <p class="text-eyebrow uppercase text-text-muted">Home ISADECOR</p>
+  <h1 class="mt-3 text-heading-1 text-text-primary">Reseñas del Home</h1>
+  <p class="mt-3 text-body text-text-secondary">
+    Marca las reseñas reales que se muestran en la Home (máximo 6, por orden). Las demás siguen
+    visibles solo en la ficha de su producto.
+  </p>
+</header>
+
+@if (error(); as message) {
+  <p class="mt-6 rounded-card border border-border bg-surface p-4 text-body-sm" role="alert">
+    {{ message }}
+    <button type="button" class="ml-2 font-semibold underline" (click)="load()">Reintentar</button>
+  </p>
+}
+
+@if (loading()) {
+  <p class="mt-8 text-body text-text-secondary" role="status">Cargando…</p>
+} @else if (reviews().length === 0 && !error()) {
+  <p
+    class="mt-8 rounded-card border border-border bg-surface p-8 text-center text-body text-text-secondary"
+  >
+    Aún no hay reseñas de clientes.
+  </p>
+} @else {
+  <ul class="m-0 mt-8 flex list-none flex-col gap-3 p-0">
+    @for (review of reviews(); track review.id) {
+      <li
+        class="flex flex-wrap items-start justify-between gap-4 rounded-card border border-border bg-surface p-4"
+      >
+        <div class="min-w-0 max-w-2xl">
+          <p class="text-body-sm font-semibold text-text-primary">
+            {{ review.nombreCliente }}
+            <span
+              class="ml-2 font-normal text-accent"
+              [attr.aria-label]="review.calificacion + ' de 5 estrellas'"
+              >{{ stars(review.calificacion) }}</span
+            >
+          </p>
+          <p class="mt-1 text-body text-text-primary">{{ review.comentario }}</p>
+          <p class="mt-1 text-caption text-text-muted">{{ review.productoNombre }}</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2 text-body-sm font-semibold text-text-primary">
+            <input
+              type="checkbox"
+              class="size-5"
+              [checked]="review.mostrarEnHome"
+              [disabled]="savingId() === review.id"
+              (change)="save(review, { mostrarEnHome: $any($event.target).checked })"
+            />
+            En la Home
+          </label>
+          @if (review.mostrarEnHome) {
+            <label class="flex items-center gap-2 text-body-sm text-text-secondary">
+              Orden
+              <input
+                type="number"
+                min="0"
+                class="min-h-10 w-20 rounded-control border border-border bg-background px-2 text-body"
+                [value]="review.ordenHome"
+                [disabled]="savingId() === review.id"
+                (change)="save(review, { ordenHome: $any($event.target).value })"
+              />
+            </label>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+}
