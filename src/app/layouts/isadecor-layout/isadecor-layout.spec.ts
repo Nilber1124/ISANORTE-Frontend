@@ -55,10 +55,6 @@ describe('IsadecorLayout', () => {
       productos: { contenido: [], pagina: 0, tamano: 1, totalElementos: 0, totalPaginas: 0 },
     });
 
-    const announcementsRequest = http.expectOne('/api/publico/anuncios/ISADECOR?ubicacion=GENERAL');
-    expect(announcementsRequest.request.method).toBe('GET');
-    announcementsRequest.flush([]);
-
     fixture.detectChanges();
 
     http.expectNone('/api/publico/sitios/isanorte');

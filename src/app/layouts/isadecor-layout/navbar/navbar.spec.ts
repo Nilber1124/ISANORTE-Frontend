@@ -69,7 +69,7 @@ describe('Isadecor Navbar', () => {
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).not.toContain('Cargando categorías...');
-    expect(element.textContent).toContain('No hay categorías disponibles');
+    expect(element.querySelector('a[href*="categoria="]')).toBeNull();
   });
 
   it('manages products dropdown open and close states', () => {

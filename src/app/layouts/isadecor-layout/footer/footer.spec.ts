@@ -13,6 +13,7 @@ describe('Isadecor Footer', () => {
     contactPhones: ReturnType<typeof signal<readonly string[]>>;
     address: ReturnType<typeof signal<string | null>>;
     city: ReturnType<typeof signal<string | null>>;
+    whatsappHref: ReturnType<typeof signal<string | null>>;
   };
 
   beforeEach(async () => {
@@ -22,6 +23,7 @@ describe('Isadecor Footer', () => {
       contactPhones: signal<readonly string[]>(['+593 98 765 4321']),
       address: signal<string | null>('Av. República del Salvador 100'),
       city: signal<string | null>('Quito'),
+      whatsappHref: signal<string | null>('https://wa.me/51999999999'),
     };
 
     await TestBed.configureTestingModule({
@@ -39,9 +41,7 @@ describe('Isadecor Footer', () => {
     expect(footer.querySelector('a[href="tel:+593 98 765 4321"]')).toBeTruthy();
     expect(footer.textContent).toContain('Av. República del Salvador 100');
     expect(footer.textContent).toContain('Quito');
-    expect(footer.querySelector('iframe')?.getAttribute('src')).toBe(
-      'https://www.google.com/maps?q=-7.1462778,-78.5206944&output=embed',
-    );
+    expect(footer.querySelector('iframe')).toBeNull();
     expect(
       footer.querySelector('a[href="https://www.google.com/maps?q=-7.1462778,-78.5206944"]'),
     ).toBeTruthy();
@@ -51,11 +51,20 @@ describe('Isadecor Footer', () => {
   it('preserves ISADECOR branding, navigation and static footer copy', () => {
     const footer = fixture.nativeElement as HTMLElement;
     expect(footer.textContent).toContain('ISADECOR');
-    expect(footer.textContent).toContain('Acabados y revestimientos para interiores');
-    expect(footer.querySelector('a[href="/isadecor"]')).toBeTruthy();
+    expect(footer.textContent).toContain('Paneles WPC, planchas SPC, pisos y cielos rasos');
+    expect(footer.querySelector('a[href="/isadecor/productos"]')).toBeTruthy();
     expect(footer.querySelector('a[href="/isadecor/catalogos"]')).toBeTruthy();
     expect(footer.querySelector('a[href="/isadecor/cotizacion"]')).toBeTruthy();
-    expect(footer.textContent).toContain('© 2025 ISADECOR. Todos los derechos reservados.');
+    expect(footer.textContent).toContain('© 2026 ISADECOR. Todos los derechos reservados.');
+  });
+
+  it('shows the WhatsApp action only when the site provides a link', () => {
+    const footer = fixture.nativeElement as HTMLElement;
+    expect(footer.querySelector('a[href="https://wa.me/51999999999"]')).toBeTruthy();
+
+    facade.whatsappHref.set(null);
+    fixture.detectChanges();
+    expect(footer.querySelector('a[href^="https://wa.me"]')).toBeNull();
   });
 
   it('hides the contact section when there are no contact details', () => {

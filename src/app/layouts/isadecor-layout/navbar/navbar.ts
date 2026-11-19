@@ -1,4 +1,3 @@
-import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -35,7 +34,7 @@ export interface IsadecorNavLink {
 
 @Component({
   selector: 'app-isadecor-navbar',
-  imports: [NgClass, RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,7 +79,7 @@ export class Navbar {
       url: '/isadecor/productos',
       children: this.dynamicCategories(),
     },
-    { label: 'Catálogo', url: '/isadecor/catalogos' },
+    { label: 'Catálogos PDF', url: '/isadecor/catalogos' },
   ]);
 
   constructor() {
@@ -142,6 +141,16 @@ export class Navbar {
           this.dynamicCategories.set([]);
         },
       });
+  }
+
+  /** Entrega de la tienda (muestra: confirmar zonas con el cliente). */
+  readonly deliveryLabel = 'Entrega en Cajamarca y todo el Perú';
+
+  buscar(event: Event, query: string): void {
+    event.preventDefault();
+    const q = query.trim();
+    this.closeMenu();
+    void this.router.navigate(['/isadecor/productos'], { queryParams: q ? { q } : {} });
   }
 
   toggleMenu(): void {

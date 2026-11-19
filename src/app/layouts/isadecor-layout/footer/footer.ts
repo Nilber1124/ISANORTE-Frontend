@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { LocationMap } from '../../../shared/components/location-map/location-map';
 import { PublicSiteFacade } from '../../public-layout/public-site.facade';
 
 export interface IsadecorFooterLink {
@@ -11,7 +10,7 @@ export interface IsadecorFooterLink {
 
 @Component({
   selector: 'app-isadecor-footer',
-  imports: [RouterLink, LocationMap],
+  imports: [RouterLink],
   templateUrl: './footer.html',
   styleUrl: './footer.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,26 +19,34 @@ export class Footer {
   readonly facade = inject(PublicSiteFacade);
 
   readonly description =
-    'Acabados y revestimientos para interiores: paneles WPC, planchas SPC y cielos rasos PVC para elevar el confort y la estética de tus espacios.';
+    'Paneles WPC, planchas SPC, pisos y cielos rasos para tus interiores.';
 
-  readonly navigation: IsadecorFooterLink[] = [
-    { label: 'Inicio', url: '/isadecor' },
-    { label: 'Catálogo', url: '/isadecor/catalogos' },
-    { label: 'Cotización', url: '/isadecor/cotizacion' },
+  readonly shop: IsadecorFooterLink[] = [
+    { label: 'Productos', url: '/isadecor/productos' },
+    { label: 'Catálogos PDF', url: '/isadecor/catalogos' },
+    { label: 'Cotizar un proyecto', url: '/isadecor/cotizacion' },
+    { label: 'Seguimiento de mi pedido', url: '/isadecor/mi-cuenta' },
   ];
 
-  readonly collections: IsadecorFooterLink[] = [
-    { label: 'Paneles WPC', url: '/isadecor/productos' },
-    { label: 'Planchas SPC', url: '/isadecor/productos' },
-    { label: 'Cielos rasos PVC', url: '/isadecor/productos' },
+  /**
+   * Ayuda (muestra): confirmar con el cliente y enlazar cada página cuando exista.
+   * `url: null` se muestra atenuado hasta contar con el destino.
+   */
+  readonly help: readonly { label: string; url: string | null }[] = [
+    { label: 'Cambios y devoluciones', url: null },
+    { label: 'Tipos de entrega', url: null },
+    { label: 'Garantía de fábrica', url: null },
+    { label: 'Venta para constructoras', url: '/isadecor/cotizacion' },
   ];
 
-  readonly copyright = '© 2025 ISADECOR. Todos los derechos reservados.';
+  readonly payments = 'Visa · Mastercard · Yape · Plin · Transferencia';
+
+  readonly whatsappHref = this.facade.whatsappHref;
+
+  readonly copyright = '© 2026 ISADECOR. Todos los derechos reservados.';
 
   readonly direccionIsadecor = computed(() =>
     [this.facade.address(), this.facade.city()].filter((value) => value !== null).join(', '),
   );
-  readonly mapEmbedUrlIsadecor =
-    'https://www.google.com/maps?q=-7.1462778,-78.5206944&output=embed';
   readonly mapUrlIsadecor = 'https://www.google.com/maps?q=-7.1462778,-78.5206944';
 }

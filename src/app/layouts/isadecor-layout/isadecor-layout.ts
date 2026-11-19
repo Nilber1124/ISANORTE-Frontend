@@ -6,16 +6,16 @@ import { Navbar } from './navbar/navbar';
 import { PublicSiteFacade } from '../public-layout/public-site.facade';
 import { WhatsappFloat } from '../../shared/components/whatsapp-float/whatsapp-float';
 import { AccessibilityWidget } from '../../shared/components/accessibility-widget/accessibility-widget';
-import { AnnouncementRibbon } from '../../features/announcements/announcement-ribbon';
 import { BrandService } from '../../core/services/brand.service';
 
 @Component({
   selector: 'app-isadecor-layout',
-  imports: [RouterOutlet, Navbar, Footer, WhatsappFloat, AccessibilityWidget, AnnouncementRibbon],
+  imports: [RouterOutlet, Navbar, Footer, WhatsappFloat, AccessibilityWidget],
   providers: [PublicSiteFacade],
   templateUrl: './isadecor-layout.html',
   styleUrl: './isadecor-layout.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'showroom' },
 })
 export class IsadecorLayout {
   private readonly publicSite = inject(PublicSiteFacade);

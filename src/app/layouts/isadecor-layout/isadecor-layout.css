@@ -2,6 +2,3 @@
   display: block;
 }
 
-:host:has(app-isadecor-home) > app-announcement-ribbon {
-  display: none;
-}
