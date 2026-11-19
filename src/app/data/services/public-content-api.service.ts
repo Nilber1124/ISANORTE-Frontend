@@ -18,6 +18,7 @@ import {
   RecommendedProductResponse,
   ReviewSummaryResponse,
 } from '../models/product/product-review.model';
+import { IsadecorHomeResponse } from '../models/isadecor-home/isadecor-home-response.model';
 import { PublicBusinessUnitResponse } from '../models/public-content/public-business-unit.model';
 import { PublicHomeResponse } from '../models/public-content/public-home.model';
 import {
@@ -110,6 +111,12 @@ export class PublicContentApiService {
     return this.http.get<PublicProductCatalogResponse>(
       `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/catalogo`,
       { params },
+    );
+  }
+
+  getIsadecorHome(siteKey: string, unitSlug: string): Observable<IsadecorHomeResponse> {
+    return this.http.get<IsadecorHomeResponse>(
+      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/home`,
     );
   }
 
