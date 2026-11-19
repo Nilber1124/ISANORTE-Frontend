@@ -12,6 +12,7 @@ import { Home as IsanorteHome } from './features/isanorte/home/home';
 import { Projects } from './features/isanorte/projects/projects';
 import { ProjectDetail } from './features/isanorte/projects/project-detail/project-detail';
 import { Services } from './features/isanorte/services/services';
+import { Community } from './features/isadecor/community/community';
 import { IsadecorLayout } from './layouts/isadecor-layout/isadecor-layout';
 import { PublicLayout } from './layouts/public-layout/public-layout';
 import { authGuard } from './core/auth/auth.guard';
@@ -137,6 +138,14 @@ export const routes: Routes = [
             ({ AdminHomeReviews }) => AdminHomeReviews,
           ),
         data: { title: 'Reseñas del Home' },
+      },
+      {
+        path: 'home-isadecor/publicaciones',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'isadecor-publicaciones', title: 'Videos de redes sociales' },
       },
       {
         path: 'home-isadecor/hero',
@@ -284,6 +293,7 @@ export const routes: Routes = [
       { path: '', component: IsadecorHome },
       { path: 'productos', component: Catalog },
       { path: 'catalogos', component: Catalogos },
+      { path: 'comunidad', component: Community },
       { path: 'carrito', component: Cart },
       { path: 'cotizacion', component: Quote },
       { path: 'checkout', component: Checkout, canActivate: [clienteGuard] },

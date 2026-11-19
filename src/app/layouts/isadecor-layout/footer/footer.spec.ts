@@ -14,6 +14,9 @@ describe('Isadecor Footer', () => {
     address: ReturnType<typeof signal<string | null>>;
     city: ReturnType<typeof signal<string | null>>;
     whatsappHref: ReturnType<typeof signal<string | null>>;
+    presentableSocialNetworks: ReturnType<
+      typeof signal<readonly { nombre: string; url: string; icono: string | null; orden: number }[]>
+    >;
   };
 
   beforeEach(async () => {
@@ -24,6 +27,15 @@ describe('Isadecor Footer', () => {
       address: signal<string | null>('Av. República del Salvador 100'),
       city: signal<string | null>('Quito'),
       whatsappHref: signal<string | null>('https://wa.me/51999999999'),
+      presentableSocialNetworks: signal([
+        {
+          nombre: 'Instagram',
+          url: 'https://instagram.com/isadecor',
+          icono: 'instagram',
+          orden: 0,
+        },
+        { nombre: 'Facebook', url: 'https://facebook.com/isadecor', icono: 'facebook', orden: 1 },
+      ]),
     };
 
     await TestBed.configureTestingModule({
@@ -56,6 +68,13 @@ describe('Isadecor Footer', () => {
     expect(footer.querySelector('a[href="/isadecor/catalogos"]')).toBeTruthy();
     expect(footer.querySelector('a[href="/isadecor/cotizacion"]')).toBeTruthy();
     expect(footer.textContent).toContain('© 2026 ISADECOR. Todos los derechos reservados.');
+  });
+
+  it('shows only the Instagram and TikTok links of the company', () => {
+    const footer = fixture.nativeElement as HTMLElement;
+    expect(footer.querySelector('a[href="https://instagram.com/isadecor"]')).toBeTruthy();
+    expect(footer.querySelector('a[href="https://facebook.com/isadecor"]')).toBeNull();
+    expect(footer.querySelector('a[href="/isadecor/comunidad"]')).toBeTruthy();
   });
 
   it('shows the WhatsApp action only when the site provides a link', () => {

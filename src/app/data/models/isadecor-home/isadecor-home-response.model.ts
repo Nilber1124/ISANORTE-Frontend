@@ -3,6 +3,16 @@ export type HomeSaleMode = 'COMPRAR' | 'COTIZAR';
 export type HomeSaleUnit = 'M2' | 'UNIDAD' | 'CAJA' | 'ML';
 export type HomeStockState = 'DISPONIBLE' | 'QUEDAN' | 'AGOTADO' | 'SIN_CONTROL';
 
+export type IsadecorPublicationNetwork = 'INSTAGRAM' | 'TIKTOK';
+
+/** Video de una red social cargado desde administración. */
+export interface IsadecorPublicationResponse {
+  red: IsadecorPublicationNetwork;
+  url: string;
+  titulo: string | null;
+  miniaturaUrl: string | null;
+}
+
 export interface IsadecorHomeProductCardResponse {
   slug: string;
   nombre: string;
@@ -64,4 +74,5 @@ export interface IsadecorHomeResponse {
     productoNombre: string;
     productoSlug: string;
   }[];
+  comunidad: IsadecorPublicationResponse[];
 }

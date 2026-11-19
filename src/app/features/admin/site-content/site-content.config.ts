@@ -17,6 +17,8 @@ export interface SiteContentField {
   readonly options?: readonly { readonly value: string; readonly label: string }[];
   readonly help?: string;
   readonly ref?: SiteContentRef;
+  /** Valor con el que arranca un registro nuevo. */
+  readonly initial?: string;
 }
 
 export interface SiteContentEntity {
@@ -439,6 +441,48 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
         type: 'number',
         required: true,
         help: 'Entre 1 y 24.',
+      },
+    ],
+  },
+  {
+    key: 'isadecor-publicaciones',
+    title: 'Videos de redes sociales',
+    description:
+      'Pega el enlace de un video o reel de Instagram: el título y la miniatura se obtienen solos. Salen en «Síguenos» del Home (los 4 primeros) y en la página Comunidad.',
+    endpoint: 'isadecor/publicaciones',
+    folder: 'isadecor/comunidad',
+    unitSlug: UNIT,
+    titleKey: 'titulo',
+    subtitleKey: 'url',
+    fields: [
+      {
+        key: 'url',
+        label: 'Enlace de la publicación',
+        type: 'text',
+        required: true,
+        maxLength: 500,
+        help: 'Ej.: https://www.instagram.com/reel/XXXXXXXX/ — solo publicaciones o reels, no el perfil.',
+      },
+      {
+        key: 'red',
+        label: 'Red social',
+        type: 'select',
+        required: true,
+        initial: 'INSTAGRAM',
+        options: [{ value: 'INSTAGRAM', label: 'Instagram' }],
+      },
+      {
+        key: 'titulo',
+        label: 'Título (opcional)',
+        type: 'text',
+        maxLength: 200,
+        help: 'Si lo dejas vacío se toma de la red.',
+      },
+      {
+        key: 'miniaturaUrl',
+        label: 'Miniatura (opcional)',
+        type: 'image',
+        help: 'Se obtiene sola de Instagram. Sube una imagen solo si no aparece o quieres otra.',
       },
     ],
   },

@@ -68,6 +68,7 @@ export class AdminSidebar {
       items: [
         { label: 'Hero de la Home', route: '/admin/home-isadecor/hero' },
         { label: 'Reseñas del Home', route: '/admin/home-isadecor/resenas' },
+        { label: 'Videos de redes', route: '/admin/home-isadecor/publicaciones' },
         { label: 'Cinta de avisos', route: '/admin/home-isadecor/cinta' },
         { label: 'Promociones', route: '/admin/home-isadecor/promociones' },
         { label: 'Campaña', route: '/admin/home-isadecor/campana' },

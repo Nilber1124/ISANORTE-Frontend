@@ -151,7 +151,12 @@ export class AdminSiteContent {
     this.pinned.set([]);
     this.excluded.set([]);
     for (const field of entity.fields) {
-      value[field.key] = field.type === 'checkbox' ? false : field.type === 'number' ? null : '';
+      value[field.key] =
+        field.type === 'checkbox'
+          ? false
+          : field.type === 'number'
+            ? null
+            : (field.initial ?? '');
     }
     this.form.set(value);
     this.editing.set('new');

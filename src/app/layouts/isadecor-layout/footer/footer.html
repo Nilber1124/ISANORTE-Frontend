@@ -1,11 +1,38 @@
-<footer data-theme="dark" class="showroom filete-t bg-background-deep pb-20 pt-9 text-white sm:pb-6">
+<footer
+  data-theme="dark"
+  class="showroom filete-t bg-background-deep pb-20 pt-9 text-white sm:pb-6"
+>
   <div class="app-container grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4">
     <div class="col-span-2 md:col-span-1">
-      <img class="h-9 w-auto max-w-56 object-contain" src="/images/isadecor-logo-horizontal-white.svg" alt="ISADECOR" />
+      <img
+        class="h-9 w-auto max-w-56 object-contain"
+        src="/images/isadecor-logo-horizontal-white.svg"
+        alt="ISADECOR"
+      />
       <p class="mt-3 max-w-xs text-body-sm text-text-secondary">{{ description }}</p>
+      @if (networks().length) {
+        <p class="mt-4 flex gap-2" aria-label="Redes sociales">
+          @for (network of networks(); track network.url) {
+            <a
+              [href]="network.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              [attr.aria-label]="network.label"
+              class="flex size-10 items-center justify-center rounded-button border border-border-strong text-text-secondary hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <app-social-icon [network]="network.kind" />
+            </a>
+          }
+        </p>
+      }
       @if (whatsappHref(); as wa) {
-        <a [href]="wa" target="_blank" rel="noopener noreferrer"
-          class="mt-4 inline-flex items-center rounded-button bg-accent px-4 py-2 text-body-sm font-semibold text-accent-contrast hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">Escribir por WhatsApp</a>
+        <a
+          [href]="wa"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-4 inline-flex items-center rounded-button bg-accent px-4 py-2 text-body-sm font-semibold text-accent-contrast hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          >Escribir por WhatsApp</a
+        >
       }
     </div>
 
@@ -13,7 +40,9 @@
       <h4 class="mb-3 text-eyebrow uppercase text-text-muted">Comprar</h4>
       <ul class="space-y-2 text-body-sm">
         @for (link of shop; track link.label) {
-          <li><a [routerLink]="link.url" class="enlace text-text-secondary">{{ link.label }}</a></li>
+          <li>
+            <a [routerLink]="link.url" class="enlace text-text-secondary">{{ link.label }}</a>
+          </li>
         }
       </ul>
     </div>
@@ -38,15 +67,25 @@
         <h4 class="mb-3 text-eyebrow uppercase text-text-muted">Contacto</h4>
         <ul class="space-y-2 text-body-sm text-text-secondary">
           @if (facade.contactEmails()[0]; as email) {
-            <li><a [href]="'mailto:' + email" class="enlace">{{ email }}</a></li>
+            <li>
+              <a [href]="'mailto:' + email" class="enlace">{{ email }}</a>
+            </li>
           }
           @if (facade.contactPhones()[0]; as phone) {
-            <li><a [href]="'tel:' + phone" class="enlace">{{ phone }}</a></li>
+            <li>
+              <a [href]="'tel:' + phone" class="enlace">{{ phone }}</a>
+            </li>
           }
           @if (direccionIsadecor(); as direccion) {
             <li>
               {{ direccion }}
-              <a [href]="mapUrlIsadecor" target="_blank" rel="noopener noreferrer" class="enlace ml-1 whitespace-nowrap text-accent-strong">Ver mapa →</a>
+              <a
+                [href]="mapUrlIsadecor"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="enlace ml-1 whitespace-nowrap text-accent-strong"
+                >Ver mapa →</a
+              >
             </li>
           }
         </ul>
@@ -54,10 +93,17 @@
     }
   </div>
 
-  <div class="app-container mt-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-border pt-4 text-caption text-text-muted">
-    <p class="sm:pl-14">{{ copyright }} <span class="hidden font-mono sm:inline">· {{ payments }}</span></p>
+  <div
+    class="app-container mt-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-border pt-4 text-caption text-text-muted"
+  >
+    <p class="sm:pl-14">
+      {{ copyright }} <span class="hidden font-mono sm:inline">· {{ payments }}</span>
+    </p>
     <div class="flex flex-wrap items-center gap-x-5 gap-y-2 sm:pr-16">
-      <span class="rounded-control border border-border-strong px-2.5 py-1 font-mono uppercase tracking-[0.08em] text-text-secondary">Libro de Reclamaciones</span>
+      <span
+        class="rounded-control border border-border-strong px-2.5 py-1 font-mono uppercase tracking-[0.08em] text-text-secondary"
+        >Libro de Reclamaciones</span
+      >
       <a href="#" class="enlace">Privacidad</a>
       <a href="#" class="enlace">Términos</a>
     </div>

@@ -48,6 +48,7 @@ describe('App', () => {
       '',
       'productos',
       'catalogos',
+      'comunidad',
       'carrito',
       'cotizacion',
       'checkout',
