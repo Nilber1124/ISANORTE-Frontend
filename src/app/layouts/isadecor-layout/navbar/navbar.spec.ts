@@ -33,7 +33,9 @@ describe('Isadecor Navbar', () => {
 
     component.loadCategories();
 
-    const req = http.expectOne('/api/publico/sitios/isanorte/unidades/isadecor/catalogo?page=0&size=1');
+    const req = http.expectOne(
+      '/api/publico/sitios/isanorte/unidades/isadecor/catalogo?page=0&size=1',
+    );
     expect(req.request.method).toBe('GET');
     req.flush(mockCatalog);
 
@@ -60,7 +62,9 @@ describe('Isadecor Navbar', () => {
 
     fixture.detectChanges();
 
-    const req = http.expectOne('/api/publico/sitios/isanorte/unidades/isadecor/catalogo?page=0&size=1');
+    const req = http.expectOne(
+      '/api/publico/sitios/isanorte/unidades/isadecor/catalogo?page=0&size=1',
+    );
     req.flush('Server Error', { status: 500, statusText: 'Server Error' });
     fixture.detectChanges();
 

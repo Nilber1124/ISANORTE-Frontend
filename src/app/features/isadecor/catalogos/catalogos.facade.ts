@@ -57,7 +57,13 @@ export class CatalogosFacade {
       .subscribe({
         next: (unit) => {
           this._catalogos.set([...unit.catalogos].sort((a, b) => a.orden - b.orden));
-          applyPublicPageSeo(this.title, this.meta, { seo: unit.seo }, this.seoDefaults, this.document);
+          applyPublicPageSeo(
+            this.title,
+            this.meta,
+            { seo: unit.seo },
+            this.seoDefaults,
+            this.document,
+          );
         },
         error: () => {
           this._error.set(

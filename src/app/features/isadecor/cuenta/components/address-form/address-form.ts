@@ -95,7 +95,9 @@ export class AddressForm implements OnInit {
       calle: this.calle().trim() ? undefined : 'Ingresa la calle o avenida.',
       distrito: this.distrito().trim() ? undefined : 'Ingresa el distrito.',
       ciudad: this.ciudad().trim() ? undefined : 'Ingresa la ciudad.',
-      telefonoContacto: this.telefonoContacto().trim() ? undefined : 'Ingresa un teléfono de contacto.',
+      telefonoContacto: this.telefonoContacto().trim()
+        ? undefined
+        : 'Ingresa un teléfono de contacto.',
     };
   }
 

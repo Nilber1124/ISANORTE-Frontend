@@ -8,7 +8,9 @@
       <p class="store-mono text-[12px] uppercase tracking-[0.2em] text-text-muted">
         ISADECOR · CATÁLOGOS
       </p>
-      <h1 class="store-serif mt-4 max-w-2xl text-[2.1rem] leading-[1.12] tracking-[-0.02em] text-text-primary sm:text-[2.75rem]">
+      <h1
+        class="store-serif mt-4 max-w-2xl text-[2.1rem] leading-[1.12] tracking-[-0.02em] text-text-primary sm:text-[2.75rem]"
+      >
         Catálogos en PDF, por línea
       </h1>
       <p class="mt-4 max-w-xl text-[1rem] leading-relaxed text-text-secondary">
@@ -44,7 +46,9 @@
     } @else {
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         @for (catalogo of facade.catalogos(); track catalogo.titulo) {
-          <article class="group flex flex-col overflow-hidden rounded-[12px] border border-border bg-surface shadow-xs transition-all hover:border-text-muted hover:shadow-card">
+          <article
+            class="group flex flex-col overflow-hidden rounded-[12px] border border-border bg-surface shadow-xs transition-all hover:border-text-muted hover:shadow-card"
+          >
             <div class="relative aspect-[3/4] w-full overflow-hidden bg-surface-soft">
               <img
                 [src]="catalogo.imagenPortadaUrl"

@@ -134,7 +134,9 @@ describe('Checkout', () => {
     await create({});
     facade.addresses.set(addresses);
     fixture.detectChanges();
-    const component = fixture.componentInstance as unknown as { submit(event: Event): void } & Checkout;
+    const component = fixture.componentInstance as unknown as {
+      submit(event: Event): void;
+    } & Checkout;
     component.submit(new Event('submit'));
 
     expect(facade.submitCalls).toHaveLength(0);
@@ -149,7 +151,9 @@ describe('Checkout', () => {
   it('submits the inline new-address details built from the form', async () => {
     await create({});
     cart.addProduct(product, null, 1);
-    const component = fixture.componentInstance as unknown as { submit(event: Event): void } & Checkout;
+    const component = fixture.componentInstance as unknown as {
+      submit(event: Event): void;
+    } & Checkout;
     component.calle.set('Calle Nueva 1');
     component.distrito.set('Surco');
     component.ciudad.set('Lima');

@@ -7,7 +7,10 @@ import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
 import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
-import { PublicQuoteRequest, PublicQuoteResponse } from '../../../data/models/public-content/public-quote.model';
+import {
+  PublicQuoteRequest,
+  PublicQuoteResponse,
+} from '../../../data/models/public-content/public-quote.model';
 import { QuoteChannel } from '../../../data/models/quote/quote-channel.enum';
 import { QuoteStatus } from '../../../data/models/quote/quote-status.enum';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
@@ -62,14 +65,23 @@ class PublicContentApiStub {
   productResponse$: Observable<PublicProductDetailResponse> = of(product);
   quoteResponse$: Observable<PublicQuoteResponse> = of(response);
   requestedProductParams: Array<{ siteKey: string; unitSlug: string; productSlug: string }> = [];
-  requestedQuoteParams: Array<{ siteKey: string; unitSlug: string; request: PublicQuoteRequest }> = [];
+  requestedQuoteParams: Array<{ siteKey: string; unitSlug: string; request: PublicQuoteRequest }> =
+    [];
 
-  getProductDetail(siteKey: string, unitSlug: string, productSlug: string): Observable<PublicProductDetailResponse> {
+  getProductDetail(
+    siteKey: string,
+    unitSlug: string,
+    productSlug: string,
+  ): Observable<PublicProductDetailResponse> {
     this.requestedProductParams.push({ siteKey, unitSlug, productSlug });
     return this.productResponse$;
   }
 
-  createQuote(siteKey: string, unitSlug: string, quoteReq: PublicQuoteRequest): Observable<PublicQuoteResponse> {
+  createQuote(
+    siteKey: string,
+    unitSlug: string,
+    quoteReq: PublicQuoteRequest,
+  ): Observable<PublicQuoteResponse> {
     this.requestedQuoteParams.push({ siteKey, unitSlug, request: quoteReq });
     return this.quoteResponse$;
   }

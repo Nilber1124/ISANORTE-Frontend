@@ -1,5 +1,12 @@
 import { DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, afterNextRender, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
@@ -72,7 +79,11 @@ export class Quote {
       const quantity = this.parseInitialQuantity(params.get('cantidad'));
       afterNextRender(() => {
         this.facade.mergeProductIntoCart(productoSlug, quantity);
-        void this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+        void this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: {},
+          replaceUrl: true,
+        });
       });
     }
   }

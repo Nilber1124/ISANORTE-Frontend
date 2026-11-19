@@ -64,11 +64,16 @@ export class ArmaAmbiente {
     if (!trigger) return;
     const count = this.scene().pasos.length;
     const progress = HERO_FADE + (1 - HERO_FADE) * ((index + 0.6) / count);
-    window.scrollTo({ top: trigger.start + (trigger.end - trigger.start) * progress, behavior: this.scrollBehavior() });
+    window.scrollTo({
+      top: trigger.start + (trigger.end - trigger.start) * progress,
+      behavior: this.scrollBehavior(),
+    });
   }
 
   goToStore(): void {
-    document.getElementById('tienda')?.scrollIntoView({ behavior: this.scrollBehavior(), block: 'start' });
+    document
+      .getElementById('tienda')
+      ?.scrollIntoView({ behavior: this.scrollBehavior(), block: 'start' });
   }
 
   private scrollBehavior(): ScrollBehavior {
@@ -81,7 +86,8 @@ export class ArmaAmbiente {
   }
 
   private async init(): Promise<void> {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || this.a11y.reduceMotion()) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || this.a11y.reduceMotion())
+      return;
     const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
       import('gsap'),
       import('gsap/ScrollTrigger'),

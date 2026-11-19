@@ -114,9 +114,9 @@ describe('MiCuenta', () => {
       telefonoContacto: '999999999',
       principal: false,
     };
-    (fixture.componentInstance as unknown as { saveAddress(value: AddressRequest): void }).saveAddress(
-      request,
-    );
+    (
+      fixture.componentInstance as unknown as { saveAddress(value: AddressRequest): void }
+    ).saveAddress(request);
     expect(facade.saveAddressCalls).toEqual([request]);
   });
 });

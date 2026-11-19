@@ -8,7 +8,10 @@ import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-
 import { AddressResponse } from '../../../data/models/address/address.model';
 import { OrderStatus } from '../../../data/models/order/order-status.enum';
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
-import { PublicOrderRequest, PublicOrderResponse } from '../../../data/models/public-content/public-order.model';
+import {
+  PublicOrderRequest,
+  PublicOrderResponse,
+} from '../../../data/models/public-content/public-order.model';
 import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
 import { ClienteApiService } from '../../../data/services/cliente-api.service';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
@@ -70,14 +73,23 @@ class PublicContentApiStub {
   productResponse$: Observable<PublicProductDetailResponse> = of(product);
   orderResponse$: Observable<PublicOrderResponse> = of(response);
   requestedProductParams: Array<{ siteKey: string; unitSlug: string; productSlug: string }> = [];
-  requestedOrderParams: Array<{ siteKey: string; unitSlug: string; request: PublicOrderRequest }> = [];
+  requestedOrderParams: Array<{ siteKey: string; unitSlug: string; request: PublicOrderRequest }> =
+    [];
 
-  getProductDetail(siteKey: string, unitSlug: string, productSlug: string): Observable<PublicProductDetailResponse> {
+  getProductDetail(
+    siteKey: string,
+    unitSlug: string,
+    productSlug: string,
+  ): Observable<PublicProductDetailResponse> {
     this.requestedProductParams.push({ siteKey, unitSlug, productSlug });
     return this.productResponse$;
   }
 
-  createOrder(siteKey: string, unitSlug: string, orderReq: PublicOrderRequest): Observable<PublicOrderResponse> {
+  createOrder(
+    siteKey: string,
+    unitSlug: string,
+    orderReq: PublicOrderRequest,
+  ): Observable<PublicOrderResponse> {
     this.requestedOrderParams.push({ siteKey, unitSlug, request: orderReq });
     return this.orderResponse$;
   }

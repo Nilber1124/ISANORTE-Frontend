@@ -45,7 +45,9 @@ describe('AddressForm', () => {
 
   it('requires calle, distrito, ciudad and telefonoContacto', async () => {
     await create();
-    const component = fixture.componentInstance as unknown as { submit(event: Event): void } & AddressForm;
+    const component = fixture.componentInstance as unknown as {
+      submit(event: Event): void;
+    } & AddressForm;
     component.submit(new Event('submit'));
     expect(component.fieldErrors().calle).toBeTruthy();
     expect(component.fieldErrors().distrito).toBeTruthy();
@@ -55,7 +57,9 @@ describe('AddressForm', () => {
 
   it('emits the trimmed form value on a valid submit', async () => {
     await create();
-    const component = fixture.componentInstance as unknown as { submit(event: Event): void } & AddressForm;
+    const component = fixture.componentInstance as unknown as {
+      submit(event: Event): void;
+    } & AddressForm;
     const emitted: AddressFormValue[] = [];
     component.saved.subscribe((value) => emitted.push(value));
 
@@ -84,11 +88,9 @@ describe('AddressForm', () => {
     let canceled = false;
     component.canceled.subscribe(() => (canceled = true));
 
-    (fixture.nativeElement as HTMLElement)
-      .querySelectorAll('button')
-      .forEach((button) => {
-        if (button.type === 'button' && button.textContent?.includes('Cancelar')) button.click();
-      });
+    (fixture.nativeElement as HTMLElement).querySelectorAll('button').forEach((button) => {
+      if (button.type === 'button' && button.textContent?.includes('Cancelar')) button.click();
+    });
 
     expect(canceled).toBe(true);
   });

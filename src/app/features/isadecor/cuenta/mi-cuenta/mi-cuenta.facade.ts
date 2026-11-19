@@ -130,7 +130,10 @@ export class MiCuentaFacade {
       : this.api.crearDireccion(request);
 
     request$
-      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this._savingAddress.set(false)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._savingAddress.set(false)),
+      )
       .subscribe({
         next: () => {
           this.closeAddressForm();
@@ -149,7 +152,10 @@ export class MiCuentaFacade {
     this._deletingAddressId.set(id);
     this.api
       .eliminarDireccion(id)
-      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this._deletingAddressId.set(null)))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._deletingAddressId.set(null)),
+      )
       .subscribe({
         next: () => this.cargarDirecciones(),
         error: () =>

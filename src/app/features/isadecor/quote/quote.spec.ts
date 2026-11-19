@@ -108,7 +108,9 @@ describe('Quote', () => {
 
   it('submits the customer details built from the form and blocks an empty-cart submit', async () => {
     await create({});
-    const component = fixture.componentInstance as unknown as { submit(event: Event): void } & Quote;
+    const component = fixture.componentInstance as unknown as {
+      submit(event: Event): void;
+    } & Quote;
     component.nombreCliente.set('Ana');
     component.emailCliente.set('ana@example.com');
     component.telefonoCliente.set('999 999 999');

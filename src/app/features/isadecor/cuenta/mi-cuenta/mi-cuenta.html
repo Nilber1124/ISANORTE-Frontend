@@ -1,6 +1,8 @@
 <main class="bg-background">
   <div class="app-container py-10 sm:py-14">
-    <header class="flex flex-col gap-6 border-b border-border pb-8 sm:flex-row sm:items-center sm:justify-between">
+    <header
+      class="flex flex-col gap-6 border-b border-border pb-8 sm:flex-row sm:items-center sm:justify-between"
+    >
       <div class="flex items-center gap-5">
         <span
           class="flex size-16 shrink-0 items-center justify-center rounded-full bg-brand text-heading-4 font-semibold text-white"
@@ -66,9 +68,13 @@
           <app-alert variant="error" title="No se pudo cargar">{{ message }}</app-alert>
         </div>
       } @else if (facade.orders().length === 0) {
-        <div class="mt-6 rounded-panel border border-dashed border-border-strong bg-surface-soft px-6 py-14 text-center">
+        <div
+          class="mt-6 rounded-panel border border-dashed border-border-strong bg-surface-soft px-6 py-14 text-center"
+        >
           <p class="text-body text-text-primary">Aún no has realizado pedidos.</p>
-          <p class="mt-2 text-body-sm text-text-secondary">Elige un producto del catálogo y compra en minutos.</p>
+          <p class="mt-2 text-body-sm text-text-secondary">
+            Elige un producto del catálogo y compra en minutos.
+          </p>
           <a
             routerLink="/isadecor/productos"
             class="mt-6 inline-flex min-h-10 items-center rounded-button bg-accent px-5 py-2 text-body-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
@@ -77,17 +83,22 @@
           </a>
         </div>
       } @else {
-        <ul class="mt-6 divide-y divide-border overflow-hidden rounded-panel border border-border bg-surface">
+        <ul
+          class="mt-6 divide-y divide-border overflow-hidden rounded-panel border border-border bg-surface"
+        >
           @for (pedido of facade.orders(); track pedido.codigo) {
             <li class="p-5 sm:p-6">
               <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div class="min-w-0">
-                  <p class="font-mono text-body-sm font-semibold text-text-primary">{{ pedido.codigo }}</p>
+                  <p class="font-mono text-body-sm font-semibold text-text-primary">
+                    {{ pedido.codigo }}
+                  </p>
                   <p class="mt-1 text-caption text-text-muted">
                     {{ pedido.fechaCreacion | date: 'dd/MM/yyyy · HH:mm' }}
                   </p>
                   <p class="mt-1 text-caption text-text-muted">
-                    {{ pedido.direccionCalle }}, {{ pedido.direccionDistrito }}, {{ pedido.direccionCiudad }}
+                    {{ pedido.direccionCalle }}, {{ pedido.direccionDistrito }},
+                    {{ pedido.direccionCiudad }}
                   </p>
                 </div>
                 <app-badge [variant]="orderEstadoVariant(pedido.estado)" size="medium">
@@ -131,8 +142,12 @@
 
     <section id="direcciones" class="mt-12 scroll-mt-28" aria-labelledby="mis-direcciones-titulo">
       <div class="flex items-end justify-between gap-4">
-        <h2 id="mis-direcciones-titulo" class="text-heading-3 text-text-primary">Mis direcciones</h2>
-        <app-button variant="secondary" (click)="facade.openAddressForm()">Agregar dirección</app-button>
+        <h2 id="mis-direcciones-titulo" class="text-heading-3 text-text-primary">
+          Mis direcciones
+        </h2>
+        <app-button variant="secondary" (click)="facade.openAddressForm()"
+          >Agregar dirección</app-button
+        >
       </div>
 
       @if (facade.loadingAddresses()) {
@@ -144,16 +159,22 @@
           <app-alert variant="error" title="No se pudo cargar">{{ message }}</app-alert>
         </div>
       } @else if (facade.addresses().length === 0) {
-        <div class="mt-6 rounded-panel border border-dashed border-border-strong bg-surface-soft px-6 py-14 text-center">
+        <div
+          class="mt-6 rounded-panel border border-dashed border-border-strong bg-surface-soft px-6 py-14 text-center"
+        >
           <p class="text-body text-text-primary">Aún no has guardado direcciones.</p>
           <p class="mt-2 text-body-sm text-text-secondary">
             Guarda una dirección para completar tus compras más rápido.
           </p>
         </div>
       } @else {
-        <ul class="mt-6 divide-y divide-border overflow-hidden rounded-panel border border-border bg-surface">
+        <ul
+          class="mt-6 divide-y divide-border overflow-hidden rounded-panel border border-border bg-surface"
+        >
           @for (direccion of facade.addresses(); track direccion.id) {
-            <li class="flex flex-col gap-3 p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+            <li
+              class="flex flex-col gap-3 p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6"
+            >
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
                   <p class="font-semibold text-text-primary">{{ addressLabel(direccion) }}</p>
@@ -170,7 +191,11 @@
                 <p class="mt-1 text-caption text-text-muted">{{ direccion.telefonoContacto }}</p>
               </div>
               <div class="flex shrink-0 gap-2">
-                <app-button variant="secondary" size="small" (click)="facade.openAddressForm(direccion)">
+                <app-button
+                  variant="secondary"
+                  size="small"
+                  (click)="facade.openAddressForm(direccion)"
+                >
                   Editar
                 </app-button>
                 <app-button
@@ -191,7 +216,9 @@
 
     <section id="cotizaciones" class="mt-12 scroll-mt-28" aria-labelledby="mis-cotizaciones-titulo">
       <div class="flex items-end justify-between gap-4">
-        <h2 id="mis-cotizaciones-titulo" class="text-heading-3 text-text-primary">Mis cotizaciones</h2>
+        <h2 id="mis-cotizaciones-titulo" class="text-heading-3 text-text-primary">
+          Mis cotizaciones
+        </h2>
       </div>
 
       @if (facade.loadingQuotes()) {
@@ -203,9 +230,13 @@
           <app-alert variant="error" title="No se pudo cargar">{{ message }}</app-alert>
         </div>
       } @else if (facade.quotes().length === 0) {
-        <div class="mt-6 rounded-panel border border-dashed border-border-strong bg-surface-soft px-6 py-14 text-center">
+        <div
+          class="mt-6 rounded-panel border border-dashed border-border-strong bg-surface-soft px-6 py-14 text-center"
+        >
           <p class="text-body text-text-primary">Aún no has solicitado cotizaciones.</p>
-          <p class="mt-2 text-body-sm text-text-secondary">Elige un producto del catálogo y solicita tu cotización en minutos.</p>
+          <p class="mt-2 text-body-sm text-text-secondary">
+            Elige un producto del catálogo y solicita tu cotización en minutos.
+          </p>
           <a
             routerLink="/isadecor/productos"
             class="mt-6 inline-flex min-h-10 items-center rounded-button bg-accent px-5 py-2 text-body-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
@@ -214,12 +245,16 @@
           </a>
         </div>
       } @else {
-        <ul class="mt-6 divide-y divide-border overflow-hidden rounded-panel border border-border bg-surface">
+        <ul
+          class="mt-6 divide-y divide-border overflow-hidden rounded-panel border border-border bg-surface"
+        >
           @for (cotizacion of facade.quotes(); track cotizacion.codigo) {
             <li class="p-5 sm:p-6">
               <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div class="min-w-0">
-                  <p class="font-mono text-body-sm font-semibold text-text-primary">{{ cotizacion.codigo }}</p>
+                  <p class="font-mono text-body-sm font-semibold text-text-primary">
+                    {{ cotizacion.codigo }}
+                  </p>
                   <p class="mt-1 text-caption text-text-muted">
                     {{ cotizacion.fechaCreacion | date: 'dd/MM/yyyy · HH:mm' }}
                   </p>

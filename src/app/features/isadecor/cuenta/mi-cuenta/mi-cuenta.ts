@@ -1,5 +1,11 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, afterNextRender, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  afterNextRender,
+  computed,
+  inject,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { ClienteAuthService } from '../../../../core/auth/cliente-auth.service';
@@ -14,7 +20,10 @@ import { Modal } from '../../../../shared/components/modal/modal';
 import { AddressForm, AddressFormValue } from '../components/address-form/address-form';
 import { MiCuentaFacade } from './mi-cuenta.facade';
 
-const QUOTE_CERRADAS: ReadonlySet<QuoteStatus> = new Set([QuoteStatus.CERRADA, QuoteStatus.CANCELADA]);
+const QUOTE_CERRADAS: ReadonlySet<QuoteStatus> = new Set([
+  QuoteStatus.CERRADA,
+  QuoteStatus.CANCELADA,
+]);
 
 const QUOTE_ESTADO_VARIANTS: Record<QuoteStatus, BadgeVariant> = {
   [QuoteStatus.NUEVA]: 'info',
@@ -34,7 +43,10 @@ const QUOTE_ESTADO_LABELS: Record<QuoteStatus, string> = {
   [QuoteStatus.CANCELADA]: 'Cancelada',
 };
 
-const ORDER_CERRADOS: ReadonlySet<OrderStatus> = new Set([OrderStatus.ENTREGADO, OrderStatus.CANCELADO]);
+const ORDER_CERRADOS: ReadonlySet<OrderStatus> = new Set([
+  OrderStatus.ENTREGADO,
+  OrderStatus.CANCELADO,
+]);
 
 const ORDER_ESTADO_VARIANTS: Record<OrderStatus, BadgeVariant> = {
   [OrderStatus.PENDIENTE_PAGO]: 'warning',
@@ -56,17 +68,7 @@ const ORDER_ESTADO_LABELS: Record<OrderStatus, string> = {
 
 @Component({
   selector: 'app-isadecor-mi-cuenta',
-  imports: [
-    Alert,
-    AddressForm,
-    Badge,
-    Button,
-    DatePipe,
-    DecimalPipe,
-    Loading,
-    Modal,
-    RouterLink,
-  ],
+  imports: [Alert, AddressForm, Badge, Button, DatePipe, DecimalPipe, Loading, Modal, RouterLink],
   providers: [MiCuentaFacade],
   templateUrl: './mi-cuenta.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

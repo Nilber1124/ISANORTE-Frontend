@@ -33,7 +33,18 @@ interface CheckoutFieldErrors {
 
 @Component({
   selector: 'app-isadecor-checkout',
-  imports: [Alert, Badge, Button, Card, DecimalPipe, EmptyState, InputField, Loading, RouterLink, SelectField],
+  imports: [
+    Alert,
+    Badge,
+    Button,
+    Card,
+    DecimalPipe,
+    EmptyState,
+    InputField,
+    Loading,
+    RouterLink,
+    SelectField,
+  ],
   providers: [CheckoutFacade],
   templateUrl: './checkout.html',
   styleUrl: './checkout.css',
@@ -87,7 +98,11 @@ export class Checkout {
       const quantity = this.parseInitialQuantity(params.get('cantidad'));
       afterNextRender(() => {
         this.facade.mergeProductIntoCart(productoSlug, quantity);
-        void this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+        void this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: {},
+          replaceUrl: true,
+        });
       });
     }
   }
@@ -127,7 +142,9 @@ export class Checkout {
       calle: this.calle().trim() ? undefined : 'Ingresa la calle o avenida.',
       distrito: this.distrito().trim() ? undefined : 'Ingresa el distrito.',
       ciudad: this.ciudad().trim() ? undefined : 'Ingresa la ciudad.',
-      telefonoContacto: this.telefonoContacto().trim() ? undefined : 'Ingresa un teléfono de contacto.',
+      telefonoContacto: this.telefonoContacto().trim()
+        ? undefined
+        : 'Ingresa un teléfono de contacto.',
     };
   }
 

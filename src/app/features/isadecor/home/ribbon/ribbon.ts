@@ -37,15 +37,28 @@ import { HomeRibbonItem } from '../isadecor-home.model';
     }
   `,
   template: `
-    <aside class="ribbon overflow-hidden border-y border-text-primary text-text-primary" aria-label="Avisos de ISADECOR">
+    <aside
+      class="ribbon overflow-hidden border-y border-text-primary text-text-primary"
+      aria-label="Avisos de ISADECOR"
+    >
       <div class="track flex w-max py-2.5">
         @for (copy of copies; track copy) {
-          <ul class="copy flex shrink-0 items-center" [attr.aria-hidden]="copy === 1 ? 'true' : null">
+          <ul
+            class="copy flex shrink-0 items-center"
+            [attr.aria-hidden]="copy === 1 ? 'true' : null"
+          >
             @for (item of items(); track item.texto) {
-              <li class="flex items-center whitespace-nowrap font-mono text-caption font-medium uppercase tracking-[0.12em]">
+              <li
+                class="flex items-center whitespace-nowrap font-mono text-caption font-medium uppercase tracking-[0.12em]"
+              >
                 @if (item.enlace; as link) {
-                  <a [routerLink]="path(link)" [queryParams]="params(link)" [attr.tabindex]="copy === 1 ? -1 : null"
-                    class="px-6 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:underline">{{ item.texto }}</a>
+                  <a
+                    [routerLink]="path(link)"
+                    [queryParams]="params(link)"
+                    [attr.tabindex]="copy === 1 ? -1 : null"
+                    class="px-6 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:underline"
+                    >{{ item.texto }}</a
+                  >
                 } @else {
                   <span class="px-6">{{ item.texto }}</span>
                 }

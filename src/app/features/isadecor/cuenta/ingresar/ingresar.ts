@@ -4,13 +4,22 @@ import { ClienteAuthForm } from '../components/cliente-auth-form/cliente-auth-fo
 
 const DESTINO_POR_DEFECTO = '/isadecor/mi-cuenta';
 
-@Component({ selector: 'app-isadecor-ingresar', imports: [ClienteAuthForm], templateUrl: './ingresar.html', changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({
+  selector: 'app-isadecor-ingresar',
+  imports: [ClienteAuthForm],
+  templateUrl: './ingresar.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
 export class IsadecorIngresar {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  protected continuar(): void { void this.router.navigateByUrl(this.destino()); }
+  protected continuar(): void {
+    void this.router.navigateByUrl(this.destino());
+  }
   private destino(): string {
     const requested = this.route.snapshot.queryParamMap.get('returnUrl');
-    return requested?.startsWith('/isadecor') && !requested.startsWith('//') ? requested : DESTINO_POR_DEFECTO;
+    return requested?.startsWith('/isadecor') && !requested.startsWith('//')
+      ? requested
+      : DESTINO_POR_DEFECTO;
   }
 }
