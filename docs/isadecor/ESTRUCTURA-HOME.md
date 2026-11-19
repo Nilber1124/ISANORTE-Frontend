@@ -49,8 +49,9 @@ Menú **Home ISADECOR** (`/admin/home-isadecor/*`), con la pantalla genérica de
 | Campaña | Etiqueta, título, descripción, botón, imagen |
 | Bloque de servicio / Puntos del servicio | Texto del bloque y sus viñetas |
 | Secciones de productos | Título, modo, ventana, límite, **fijados y excluidos** |
+| Reseñas del Home | Qué reseñas reales se muestran y en qué orden |
 
-En **Productos** (editar) hay además: modalidad (comprar/cotizar), unidad de venta, plazo de entrega, fácil de instalar, aviso de poco stock, color de cada acabado y el panel de **Inventario** (ajustes con motivo e historial). La casilla «mostrar en Home» de las reseñas existe en la base de datos, pero **aún no tiene pantalla de administración** (hoy se marca por SQL).
+En **Productos** (editar) hay además: modalidad (comprar/cotizar), unidad de venta, plazo de entrega, fácil de instalar, aviso de poco stock, color de cada acabado y el panel de **Inventario** (ajustes con motivo e historial). Las reseñas que salen en la Home se eligen en **Home ISADECOR → Reseñas del Home** (marca «En la Home» y orden; máximo 6).
 
 ## 6. Archivos
 - `src/app/features/isadecor/home/`: `home.ts/html`, `isadecor-home.facade.ts`, `isadecor-home.mapper.ts`, `isadecor-home.model.ts`, `isadecor-home.static.ts`, y los componentes `arma-ambiente/`, `product-tile/`, `promo-banner/`, `ribbon/`, `category-tile/`.
@@ -61,5 +62,4 @@ En **Productos** (editar) hay además: modalidad (comprar/cotizar), unidad de ve
 - El flujo «Comprar» completo (pagos, envíos, comprobantes, correos, reservas de stock) está diferido; hoy la tarjeta lleva a la ficha con la etiqueta Comprar/Cotizar.
 - Las fuentes se cargan desde Google Fonts (pendiente autoalojarlas).
 - Los textos de la franja de confianza y del pie son de muestra hasta confirmarlos con el cliente.
-- Falta la pantalla para marcar reseñas «mostrar en Home».
 - La escena de video y la franja de confianza no son editables desde el administrador.
