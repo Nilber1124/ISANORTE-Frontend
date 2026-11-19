@@ -685,6 +685,14 @@ Estados: la Home hace una sola petición; mientras carga muestra esqueletos, si 
 
 Orden de la Home de tienda: cabecera (buscar, categorías, entrega), escena, cinta y promociones, campaña, elegir (selección filtrable de ocho), fila de fáciles de instalar, franja de confianza, constructoras y arquitectos, reseñas y pie de confianza.
 
+### 26.1 Catálogo y ficha
+
+- **Tarjeta compartida.** Imagen cuadrada y un enlace que ocupa la tarjeta completa. Hasta cinco muestras con nombre y estado, valoración, precio por unidad y plazo de entrega. Comprar usa relleno naranja, Cotizar usa borde y Agotado sustituye la acción.
+- **Catálogo.** Encabezado con búsqueda y conteo anunciado, filtros activos quitables y cuadrícula de 2/3/4 columnas. Los filtros se comparten por URL. Panel lateral pegajoso en escritorio y diálogo modal operable con Tab y Escape en móvil.
+- **Ficha.** Galería con imagen por acabado, bloque de compra pegajoso y barra inferior móvil. Los acabados usan radios nativos con nombre visible y cantidad de stock disponible cuando es baja. Después de la compra van los detalles en acordeón, opiniones y recomendaciones.
+
+Detalles de datos y navegación en [Estructura del catálogo](isadecor/ESTRUCTURA-CATALOGO.md).
+
 ## 27. Dirección visual de ISADECOR: Showroom
 
 Dirección adoptada para ISADECOR tras comparar cinco propuestas. Se activa con la clase `showroom` del layout de ISADECOR (`src/styles/showroom.css`), sin afectar a ISANORTE ni a administración.

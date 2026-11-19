@@ -15,7 +15,8 @@ Descripción de cómo está construido hoy `/isadecor`. Sustituye a la especific
 | 8 | Franja de confianza (envío, instalación, garantía, pago) | **Código** (`HOME_BENEFITS`) |
 | 9 | Constructoras y arquitectos | **BD** (`isadecor_servicios_empresa` + `isadecor_servicio_puntos`) |
 | 10 | Reseñas | **BD**: reseñas reales con «mostrar en Home» |
-| 11 | Pie de confianza | Código + datos de contacto del sitio |
+| 11 | Síguenos (videos de Instagram) | **BD** (`isadecor_publicaciones`): los 4 primeros activos; enlaza a `/isadecor/comunidad` |
+| 12 | Pie de confianza (con iconos de Instagram y TikTok) | Código + contacto y redes del sitio |
 
 Una sección sin contenido activo **se oculta** (nunca se muestran cajas vacías).
 
@@ -50,8 +51,16 @@ Menú **Home ISADECOR** (`/admin/home-isadecor/*`), con la pantalla genérica de
 | Bloque de servicio / Puntos del servicio | Texto del bloque y sus viñetas |
 | Secciones de productos | Título, modo, ventana, límite, **fijados y excluidos** |
 | Reseñas del Home | Qué reseñas reales se muestran y en qué orden |
+| Videos de redes | Videos de Instagram por enlace (título y miniatura automáticos) |
 
 En **Productos** (editar) hay además: modalidad (comprar/cotizar), unidad de venta, plazo de entrega, fácil de instalar, aviso de poco stock, color de cada acabado y el panel de **Inventario** (ajustes con motivo e historial). Las reseñas que salen en la Home se eligen en **Home ISADECOR → Reseñas del Home** (marca «En la Home» y orden; máximo 6).
+
+## 5b. Comunidad (videos de redes sociales)
+- **Carga:** el administrador pega el enlace de un reel o publicación de Instagram en **Home ISADECOR → Videos de redes**. El backend lee el oEmbed público de Meta (sin token), toma el título y la miniatura y copia la miniatura a Cloudinary (las de Instagram caducan). Si la red no responde, se guarda igual y se puede subir la miniatura a mano.
+- **Dónde se ve:** sección «Síguenos» del Home (4 primeros), página `/isadecor/comunidad` (hasta 24) y los iconos de Instagram y TikTok del pie, que salen de las redes de la empresa (**Empresa → Redes sociales**).
+- **Privacidad y velocidad:** solo se carga la miniatura; el reproductor de la red aparece al hacer clic y únicamente si el enlace cumple el patrón exacto de Instagram o TikTok.
+- **Cambiar de cuenta:** editar el enlace de Instagram en Empresa → Redes sociales y reemplazar o borrar los videos de la cuenta anterior.
+- **Preparado para automatizar:** la tabla tiene la columna `origen` (`MANUAL` o `API`) y la red (`INSTAGRAM` o `TIKTOK`). Falta la sincronización automática con la API de cada red (Instagram requiere cuenta profesional y renovar el token cada 60 días; TikTok requiere pasar su revisión de apps).
 
 ## 6. Archivos
 - `src/app/features/isadecor/home/`: `home.ts/html`, `isadecor-home.facade.ts`, `isadecor-home.mapper.ts`, `isadecor-home.model.ts`, `isadecor-home.static.ts`, y los componentes `arma-ambiente/`, `product-tile/`, `promo-banner/`, `ribbon/`, `category-tile/`.
@@ -62,4 +71,5 @@ En **Productos** (editar) hay además: modalidad (comprar/cotizar), unidad de ve
 - El flujo «Comprar» completo (pagos, envíos, comprobantes, correos, reservas de stock) está diferido; hoy la tarjeta lleva a la ficha con la etiqueta Comprar/Cotizar.
 - Las fuentes se cargan desde Google Fonts (pendiente autoalojarlas).
 - Los textos de la franja de confianza y del pie son de muestra hasta confirmarlos con el cliente.
+- TikTok: el modelo lo admite, pero la pantalla de admin solo ofrece Instagram por ahora.
 - La escena de video y la franja de confianza no son editables desde el administrador.
