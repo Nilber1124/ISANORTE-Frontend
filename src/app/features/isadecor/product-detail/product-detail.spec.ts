@@ -13,10 +13,11 @@ import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-
 describe('ProductDetail integration', () => {
   afterEach(() => localStorage.clear());
 
-  it('preserves detail and quote navigation with the product comparators', async () => {
+  it('offers quotation as a secondary link and hides the comparison tools', async () => {
     const product: PublicProductDetailResponse = {
       sku: 'MESA-1',
       slug: 'mesa',
+      modalidad: 'COMPRAR',
       nombre: 'Mesa ISADECOR',
       resumen: null,
       descripcion: 'Descripción de la mesa existente.',
@@ -64,8 +65,10 @@ describe('ProductDetail integration', () => {
             '/isadecor/cotizacion?producto=mesa',
         ),
     ).toBe(true);
-    expect(root.querySelector('app-product-price-comparison')).not.toBeNull();
-    expect(root.querySelector('app-product-competitor-comparison')).not.toBeNull();
+    expect(root.querySelector('app-product-price-comparison')).toBeNull();
+    expect(root.querySelector('app-product-competitor-comparison')).toBeNull();
+    expect(root.querySelector('.purchase-action button')?.textContent?.trim()).toBe('Agregar al carrito');
+    expect(root.textContent).not.toContain('Comprar ahora');
     expect(root.textContent).toContain('Descripción de la mesa existente.');
   });
 
@@ -124,10 +127,11 @@ describe('ProductDetail integration', () => {
     );
   });
 
-  it('adds the selected variant using the quantity produced by the material calculator', async () => {
+  it('preselects the first in-stock finish and quotes the selected variant at the calculated quantity', async () => {
     const product: PublicProductDetailResponse = {
       sku: 'PANEL-1',
       slug: 'panel-acustico',
+      modalidad: 'COTIZAR',
       nombre: 'Panel acústico',
       resumen: null,
       descripcion: 'Panel decorativo acústico.',
@@ -141,6 +145,16 @@ describe('ProductDetail integration', () => {
       categorias: [],
       variantes: [
         {
+          sku: 'PANEL-ROBLE',
+          nombre: 'Roble',
+          descripcion: null,
+          precio: null,
+          disponible: true,
+          agotado: true,
+          imagenUrl: null,
+          orden: 0,
+        },
+        {
           sku: 'PANEL-NOGAL',
           nombre: 'Nogal',
           descripcion: null,
@@ -148,6 +162,15 @@ describe('ProductDetail integration', () => {
           disponible: true,
           imagenUrl: null,
           orden: 0,
+        },
+        {
+          sku: 'PANEL-CENIZA',
+          nombre: 'Ceniza',
+          descripcion: null,
+          precio: 102,
+          disponible: true,
+          imagenUrl: '/ceniza.webp',
+          orden: 2,
         },
       ],
       imagenes: [],
@@ -182,10 +205,15 @@ describe('ProductDetail integration', () => {
     await harness.fixture.whenStable();
     harness.detectChanges();
     const root = harness.routeNativeElement!;
-    const variantButton = [...root.querySelectorAll('button')].find((button) =>
-      button.textContent?.includes('Nogal'),
-    ) as HTMLButtonElement;
-    variantButton.click();
+    expect(root.querySelector<HTMLInputElement>('input[value="PANEL-ROBLE"]')?.disabled).toBe(true);
+    expect(root.querySelector<HTMLInputElement>('input[value="PANEL-NOGAL"]')?.checked).toBe(true);
+    expect(root.textContent).toContain('95.00');
+    root.querySelector<HTMLInputElement>('input[value="PANEL-CENIZA"]')?.click();
+    harness.detectChanges();
+    expect(root.querySelector('app-product-gallery img')?.getAttribute('src')).toBe('/ceniza.webp');
+    expect(root.textContent).toContain('102.00');
+
+    expect(root.textContent).not.toContain('Agregar al carrito');
 
     const measurement = root.querySelector('#product-calculator-measurement') as HTMLInputElement;
     measurement.value = '5';
@@ -193,13 +221,13 @@ describe('ProductDetail integration', () => {
     harness.detectChanges();
 
     const addButton = [...root.querySelectorAll('button')].find((button) =>
-      button.textContent?.includes('Agregar al carrito'),
+      button.textContent?.trim() === 'Cotizar',
     ) as HTMLButtonElement;
     addButton.click();
 
     const cart = TestBed.inject(IsadecorQuoteCartService);
     expect(cart.items()).toHaveLength(1);
-    expect(cart.items()[0].variant?.sku).toBe('PANEL-NOGAL');
+    expect(cart.items()[0].variant?.sku).toBe('PANEL-CENIZA');
     expect(cart.items()[0].quantity).toBe(3);
   });
 });

@@ -1,3 +1,4 @@
+import type { IsadecorHomeProductCardResponse } from '../isadecor-home/isadecor-home-response.model';
 import {
   PublicProductCategoryResponse,
   PublicProductImageResponse,
@@ -11,6 +12,7 @@ export interface RecommendedProductResponse {
   categoria: PublicProductCategoryResponse | null;
   calificacionPromedio: number | null;
   cantidadResenas: number;
+  tarjeta?: IsadecorHomeProductCardResponse;
 }
 
 export interface ProductReviewResponse {

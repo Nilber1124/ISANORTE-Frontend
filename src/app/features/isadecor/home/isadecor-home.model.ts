@@ -1,3 +1,4 @@
+import { IsadecorPublicationResponse } from '../../../data/models/isadecor-home/isadecor-home-response.model';
 import { PublicProductCardResponse } from '../../../data/models/public-content/public-product-catalog.model';
 
 /**
@@ -7,7 +8,7 @@ import { PublicProductCardResponse } from '../../../data/models/public-content/p
 export type ModalidadVenta = 'COMPRAR' | 'COTIZAR';
 export type UnidadVenta = 'M2' | 'UNIDAD' | 'CAJA' | 'ML';
 
-export interface HomeProductCard extends PublicProductCardResponse {
+export interface HomeProductCard extends Omit<PublicProductCardResponse, 'acabados' | 'estadoStock'> {
   modalidad: ModalidadVenta;
   unidadVenta: UnidadVenta;
   /** Promedio de reseñas (1-5) y cantidad; null si aún no tiene. */
@@ -16,7 +17,8 @@ export interface HomeProductCard extends PublicProductCardResponse {
   /** Plazo de entrega resumido, por ejemplo "Llega en 3 a 5 días". */
   entrega?: string | null;
   /** Acabados disponibles (variantes) como muestras: color hexadecimal o imagen. */
-  acabados?: { nombre: string; color: string | null; imagenUrl?: string | null; agotado?: boolean }[] | null;
+  acabados?:
+    { nombre: string; color: string | null; imagenUrl?: string | null; agotado?: boolean }[] | null;
   /** Estado del inventario: con `QUEDAN` se muestra «Quedan N». */
   estadoStock?: 'DISPONIBLE' | 'QUEDAN' | 'AGOTADO' | 'SIN_CONTROL';
   quedan?: number | null;
@@ -138,4 +140,5 @@ export interface IsadecorHomeContent {
   servicios: HomeServices | null;
   beneficios: HomeBenefit[];
   resenas: HomeReview[];
+  comunidad: IsadecorPublicationResponse[];
 }

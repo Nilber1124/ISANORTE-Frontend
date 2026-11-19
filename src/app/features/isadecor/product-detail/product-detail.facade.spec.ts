@@ -34,9 +34,7 @@ const product: PublicProductDetailResponse = {
   categorias: [{ nombre: 'Wall Panels', slug: 'wall-panels' }],
   variantes: [],
   imagenes: [],
-  especificaciones: [
-    { clave: 'Acabado', valor: 'Roble', grupo: 'Características', orden: 1 },
-  ],
+  especificaciones: [{ clave: 'Acabado', valor: 'Roble', grupo: 'Características', orden: 1 }],
   documentos: [],
   configuracionCalculo: null,
 };
@@ -94,7 +92,9 @@ class PublicApiStub {
     return of([]);
   }
 
-  getProductReviews(...args: [...unknown[], ProductReviewOrder]): Observable<ProductReviewResponse[]> {
+  getProductReviews(
+    ...args: [...unknown[], ProductReviewOrder]
+  ): Observable<ProductReviewResponse[]> {
     this.reviewCalls.push(args);
     return of([]);
   }
@@ -160,7 +160,9 @@ describe('ProductDetailFacade', () => {
 
     expect(facade.siteKey).toBe(PUBLIC_SITE_KEY);
     expect(facade.unitSlug).toBe(ISADECOR_UNIT_SLUG);
-    expect(publicApi.productCalls).toEqual([[PUBLIC_SITE_KEY, ISADECOR_UNIT_SLUG, 'wall-panel-roble']]);
+    expect(publicApi.productCalls).toEqual([
+      [PUBLIC_SITE_KEY, ISADECOR_UNIT_SLUG, 'wall-panel-roble'],
+    ]);
     expect(facade.error()).toBeNull();
   });
 
@@ -235,7 +237,9 @@ describe('ProductDetailFacade', () => {
     expect(metaService.getTag('name="description"')?.content).toBe(product.descripcion);
     expect(metaService.getTag('property="og:title"')?.content).toBe('Wall Panel Roble');
     expect(metaService.getTag('property="og:description"')?.content).toBe(product.descripcion);
-    expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.isadecor.pe/mesa.jpg');
+    expect(metaService.getTag('property="og:image"')?.content).toBe(
+      'https://cdn.isadecor.pe/mesa.jpg',
+    );
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
   });
 
@@ -295,12 +299,14 @@ describe('ProductDetailFacade', () => {
 
     facade.submitReview({ calificacion: 5, titulo: null, comentario: 'Excelente acabado' });
 
-    expect(publicApi.createReviewCalls).toEqual([[
-      PUBLIC_SITE_KEY,
-      ISADECOR_UNIT_SLUG,
-      'wall-panel-roble',
-      { calificacion: 5, titulo: null, comentario: 'Excelente acabado' },
-    ]]);
+    expect(publicApi.createReviewCalls).toEqual([
+      [
+        PUBLIC_SITE_KEY,
+        ISADECOR_UNIT_SLUG,
+        'wall-panel-roble',
+        { calificacion: 5, titulo: null, comentario: 'Excelente acabado' },
+      ],
+    ]);
     expect(facade.reviewSubmitted()).toBe(true);
     expect(facade.reviewSubmitting()).toBe(false);
     expect(publicApi.reviewCalls.length).toBe(initialReviewCalls + 1);

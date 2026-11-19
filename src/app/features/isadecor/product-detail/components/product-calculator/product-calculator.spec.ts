@@ -151,7 +151,8 @@ describe('ProductCalculator', () => {
     });
     const element = enterMeasurement('1.44');
 
-    expect(element.textContent).toContain('Área a cubrir');
+    expect(element.querySelector('label')?.textContent).toContain('¿Cuántos m² vas a cubrir?');
+    expect(resultText(element)).toContain('Necesitas 1 caja');
     expect(element.textContent).toContain('m²');
     expect(element.textContent).toContain('caja');
   });

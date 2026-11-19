@@ -39,6 +39,7 @@ describe('IsadecorHomeFacade', () => {
       facil: null,
       servicios: null,
       resenas: [],
+      comunidad: [],
     });
 
     expect(facade.loading()).toBe(false);
@@ -56,18 +57,16 @@ describe('IsadecorHomeFacade', () => {
 
     facade.load();
     expect(facade.error()).toBeNull();
-    http
-      .expectOne(URL)
-      .flush({
-        hero: null,
-        cinta: [],
-        promociones: [],
-        campana: null,
-        tienda: null,
-        facil: null,
-        servicios: null,
-        resenas: [],
-      });
+    http.expectOne(URL).flush({
+      hero: null,
+      cinta: [],
+      promociones: [],
+      campana: null,
+      tienda: null,
+      facil: null,
+      servicios: null,
+      resenas: [],
+    });
     expect(facade.content()).not.toBeNull();
   });
 });

@@ -1,5 +1,13 @@
 import { DOCUMENT, DatePipe, DecimalPipe, isPlatformBrowser } from '@angular/common';
-import { ChangeDetectionStrategy, Component, PLATFORM_ID, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ClienteAuthService } from '../../../core/auth/cliente-auth.service';
@@ -12,27 +20,20 @@ import {
   PublicProductDetailResponse,
   PublicProductVariantResponse,
 } from '../../../data/models/public-content/public-product-detail.model';
-import { Badge, BadgeVariant } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../shared/components/loading/loading';
 import { Modal } from '../../../shared/components/modal/modal';
 import { ClienteAuthForm } from '../cuenta/components/cliente-auth-form/cliente-auth-form';
 import { ProductGallery } from './components/product-gallery/product-gallery';
-import { ProductInfo } from './components/product-info/product-info';
-import { ProductCompetitorComparison } from './components/product-competitor-comparison/product-competitor-comparison';
-import { ProductPriceComparison } from './components/product-price-comparison/product-price-comparison';
+import { ProductCalculator } from './components/product-calculator/product-calculator';
+import { toHomeProductCard } from './recommended-product.mapper';
+import { HomeProductTile, UNIT_LABELS } from '../home/product-tile/product-tile';
 import { ProductDetailFacade } from './product-detail.facade';
-
-interface VariantAvailabilityPresentation {
-  label: string;
-  variant: BadgeVariant;
-}
 
 @Component({
   selector: 'app-isadecor-product-detail',
   imports: [
-    Badge,
     Button,
     DatePipe,
     DecimalPipe,
@@ -41,9 +42,8 @@ interface VariantAvailabilityPresentation {
     Modal,
     ClienteAuthForm,
     ProductGallery,
-    ProductInfo,
-    ProductCompetitorComparison,
-    ProductPriceComparison,
+    ProductCalculator,
+    HomeProductTile,
     RouterLink,
   ],
   providers: [ProductDetailFacade],
@@ -56,16 +56,37 @@ export class ProductDetail {
   readonly cart = inject(IsadecorQuoteCartService);
   readonly quoteQuantity = signal<number | null>(null);
   readonly cartQuantity = signal(1);
-  readonly selectedVariant = signal<PublicProductVariantResponse | null>(null);
+  private readonly selectedVariantSku = signal<string | null>(null);
+  readonly selectedVariant = computed(() => {
+    const available = this.facade.variants().filter((variant) => !this.isSoldOut(variant));
+    return (
+      available.find((variant) => variant.sku === this.selectedVariantSku()) ?? available[0] ?? null
+    );
+  });
+  protected readonly unit = computed(
+    () => UNIT_LABELS[this.facade.product()?.unidadVenta ?? 'UNIDAD'],
+  );
+  protected readonly price = computed(
+    () => this.selectedVariant()?.precio ?? this.facade.product()?.precioBase ?? null,
+  );
+  protected readonly purchaseBlocked = computed(() => {
+    const product = this.facade.product();
+    return (
+      product?.estadoStock === 'AGOTADO' ||
+      product?.disponibilidad === 'AGOTADO' ||
+      (this.facade.variants().length > 0 && this.selectedVariant() === null)
+    );
+  });
+  protected readonly recommendedCards = computed(() =>
+    this.facade.recommendedProducts().map(toHomeProductCard),
+  );
   readonly cartFeedback = signal<string | null>(null);
-  readonly activeTab = signal<'descripcion' | 'especificaciones' | 'recursos'>('descripcion');
   readonly auth = inject(ClienteAuthService);
   readonly authModalOpen = signal(false);
   readonly reviewFormOpen = signal(false);
   readonly reviewRating = signal(0);
   readonly reviewTitle = signal('');
   readonly reviewComment = signal('');
-  readonly failedRecommendationImages = signal<ReadonlySet<string>>(new Set());
   readonly stars = [1, 2, 3, 4, 5] as const;
   private readonly route = inject(ActivatedRoute);
   private readonly document = inject(DOCUMENT);
@@ -75,7 +96,7 @@ export class ProductDetail {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.quoteQuantity.set(null);
       this.cartQuantity.set(1);
-      this.selectedVariant.set(null);
+      this.selectedVariantSku.set(null);
       this.cartFeedback.set(null);
       this.authModalOpen.set(false);
       this.reviewFormOpen.set(false);
@@ -83,7 +104,6 @@ export class ProductDetail {
       this.reviewTitle.set('');
       this.reviewComment.set('');
       this.facade.clearReviewSubmissionState();
-      this.failedRecommendationImages.set(new Set());
       this.facade.load(params.get('slug') ?? '');
     });
     effect(() => {
@@ -98,9 +118,13 @@ export class ProductDetail {
     });
   }
 
-  protected selectVariant(variant: PublicProductVariantResponse | null): void {
-    if (variant?.disponible === false) return;
-    this.selectedVariant.set(variant);
+  protected isSoldOut(variant: PublicProductVariantResponse): boolean {
+    return variant.agotado === true || variant.disponible === false;
+  }
+
+  protected selectVariant(variant: PublicProductVariantResponse): void {
+    if (this.isSoldOut(variant)) return;
+    this.selectedVariantSku.set(variant.sku);
     this.cartFeedback.set(null);
   }
 
@@ -124,24 +148,11 @@ export class ProductDetail {
   }
 
   protected addToCart(product: PublicProductDetailResponse): void {
+    if (this.purchaseBlocked()) return;
     const item = this.cart.addProduct(product, this.selectedVariant(), this.cartQuantity());
     this.cartFeedback.set(
-      `Carrito actualizado: ${item.quantity} ${item.quantity === 1 ? 'unidad' : 'unidades'} de este producto.`,
+      `${product.modalidad === 'COTIZAR' ? 'Cotización' : 'Carrito'} actualizada: cantidad ${item.quantity}.`,
     );
-  }
-
-  protected variantAvailability(
-    variant: PublicProductVariantResponse,
-  ): VariantAvailabilityPresentation {
-    if (variant.disponible === true) {
-      return { label: 'Disponible', variant: 'success' };
-    }
-
-    if (variant.disponible === false) {
-      return { label: 'No disponible', variant: 'error' };
-    }
-
-    return { label: 'Consultar', variant: 'info' };
   }
 
   protected documentTypeLabel(type: ProductDocumentType): string {
@@ -178,18 +189,13 @@ export class ProductDetail {
     return name.trim().charAt(0).toLocaleUpperCase('es') || '?';
   }
 
-  protected recommendationImageAvailable(slug: string): boolean {
-    return !this.failedRecommendationImages().has(slug);
-  }
-
-  protected markRecommendationImageAsFailed(slug: string): void {
-    this.failedRecommendationImages.update((current) => new Set([...current, slug]));
-  }
-
   protected startReview(rating?: number): void {
     if (rating) this.reviewRating.set(rating);
     this.facade.clearReviewSubmissionState();
-    if (!this.auth.token()) { this.authModalOpen.set(true); return; }
+    if (!this.auth.token()) {
+      this.authModalOpen.set(true);
+      return;
+    }
     this.reviewFormOpen.set(true);
     this.scrollToReviews();
   }
@@ -204,14 +210,24 @@ export class ProductDetail {
   protected submitReview(event: Event): void {
     event.preventDefault();
     if (this.reviewRating() < 1 || this.reviewRating() > 5 || !this.reviewComment().trim()) return;
-    this.facade.submitReview({ calificacion: this.reviewRating(), titulo: this.reviewTitle().trim() || null, comentario: this.reviewComment().trim() });
+    this.facade.submitReview({
+      calificacion: this.reviewRating(),
+      titulo: this.reviewTitle().trim() || null,
+      comentario: this.reviewComment().trim(),
+    });
   }
 
-  protected textValue(event: Event): string { return (event.target as HTMLInputElement | HTMLTextAreaElement).value; }
+  protected textValue(event: Event): string {
+    return (event.target as HTMLInputElement | HTMLTextAreaElement).value;
+  }
 
   private scrollToReviews(): void {
     if (!this.browser) return;
-    requestAnimationFrame(() => this.document.getElementById('product-review-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    requestAnimationFrame(() =>
+      this.document
+        .getElementById('product-review-form')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+    );
   }
 
   private formatFileSize(bytes: number): string {

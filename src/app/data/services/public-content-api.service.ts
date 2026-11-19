@@ -18,7 +18,10 @@ import {
   RecommendedProductResponse,
   ReviewSummaryResponse,
 } from '../models/product/product-review.model';
-import { IsadecorHomeResponse } from '../models/isadecor-home/isadecor-home-response.model';
+import {
+  IsadecorHomeResponse,
+  IsadecorPublicationResponse,
+} from '../models/isadecor-home/isadecor-home-response.model';
 import { PublicBusinessUnitResponse } from '../models/public-content/public-business-unit.model';
 import { PublicHomeResponse } from '../models/public-content/public-home.model';
 import {
@@ -28,6 +31,7 @@ import {
 } from '../models/public-content/public-page.model';
 import {
   CatalogBackendOrder,
+  CatalogExtraFilters,
   PublicProductCatalogResponse,
 } from '../models/public-content/public-product-catalog.model';
 import { PublicProductDetailResponse } from '../models/public-content/public-product-detail.model';
@@ -86,7 +90,7 @@ export class PublicContentApiService {
   getProductCatalog(
     siteKey: string,
     unitSlug: string,
-    query: {
+    query: CatalogExtraFilters & {
       page: number;
       size: number;
       categoria?: string | null;
@@ -107,6 +111,11 @@ export class PublicContentApiService {
     if (query.soloDisponible) params['soloDisponible'] = true;
     if (query.soloDestacados) params['soloDestacados'] = true;
     if (query.orden) params['orden'] = query.orden;
+    if (query.modalidad) params['modalidad'] = query.modalidad;
+    if (query.facilInstalacion != null) params['facilInstalacion'] = query.facilInstalacion;
+    if (query.precioMin != null) params['precioMin'] = query.precioMin;
+    if (query.precioMax != null) params['precioMax'] = query.precioMax;
+    if (query.acabado) params['acabado'] = query.acabado;
 
     return this.http.get<PublicProductCatalogResponse>(
       `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/catalogo`,
@@ -117,6 +126,12 @@ export class PublicContentApiService {
   getIsadecorHome(siteKey: string, unitSlug: string): Observable<IsadecorHomeResponse> {
     return this.http.get<IsadecorHomeResponse>(
       `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/home`,
+    );
+  }
+
+  getIsadecorCommunity(siteKey: string, unitSlug: string): Observable<IsadecorPublicationResponse[]> {
+    return this.http.get<IsadecorPublicationResponse[]>(
+      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/comunidad`,
     );
   }
 

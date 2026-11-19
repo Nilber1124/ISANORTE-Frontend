@@ -2,7 +2,7 @@ import {
   IsadecorHomeProductCardResponse,
   IsadecorHomeResponse,
 } from '../../../data/models/isadecor-home/isadecor-home-response.model';
-import { toHomeContent, toProductCard } from './isadecor-home.mapper';
+import { toCatalogProductCard, toHomeContent, toProductCard } from './isadecor-home.mapper';
 
 const card: IsadecorHomeProductCardResponse = {
   slug: 'piso-spc',
@@ -34,6 +34,7 @@ const empty: IsadecorHomeResponse = {
   facil: null,
   servicios: null,
   resenas: [],
+  comunidad: [],
 };
 
 describe('isadecor home mapper', () => {
@@ -49,6 +50,15 @@ describe('isadecor home mapper', () => {
     ]);
     expect(product.estadoStock).toBe('QUEDAN');
     expect(product.quedan).toBe(4);
+  });
+
+  it('maps catalog color, sale mode, stock and delivery to the same tile', () => {
+    const { acabados, ...base } = card;
+    const result = toCatalogProductCard({ ...toProductCard(card), ...base, imagen: null, acabados });
+    expect(result.modalidad).toBe('COTIZAR');
+    expect(result.unidadVenta).toBe('CAJA');
+    expect(result.entrega).toBe(card.plazoEntrega);
+    expect(result.acabados?.[1]).toEqual({ nombre: 'Nogal', color: null, agotado: true });
   });
 
   it('builds store filters from the real categories of the chosen products', () => {
@@ -77,5 +87,17 @@ describe('isadecor home mapper', () => {
     expect(content.facil.productos).toEqual([]);
     expect(content.escena).toBeTruthy();
     expect(content.beneficios.length).toBe(4);
+    expect(content.comunidad).toEqual([]);
+  });
+
+  it('passes the community videos through', () => {
+    const video = {
+      red: 'INSTAGRAM' as const,
+      url: 'https://www.instagram.com/p/A1/',
+      titulo: null,
+      miniaturaUrl: null,
+    };
+
+    expect(toHomeContent({ ...empty, comunidad: [video] }).comunidad).toEqual([video]);
   });
 });

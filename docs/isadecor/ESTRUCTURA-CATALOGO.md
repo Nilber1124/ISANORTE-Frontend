@@ -1,0 +1,42 @@
+# ISADECOR · Catálogo y ficha
+
+## Catálogo público
+
+`/isadecor/productos` lee los filtros de la URL. Conserva `q`, `categoria`,
+`soloDescuento`, `soloDisponible`, `soloDestacados` y `orden`. Añade
+`acabado`, `modalidad`, `facilInstalacion`, `precioMin` y `precioMax`.
+Cada chip limpia su filtro de la URL y «Limpiar todo» los retira en conjunto.
+Los límites de precio se aplican al precio base y las sugerencias del control
+provienen de `precioMinimo` y `precioMaximo` de la unidad publicada.
+
+`Catalog` sincroniza la URL con `CatalogFacade`. El facade coordina paginación,
+carga, error y reintento vía `PublicContentApiService.getProductCatalog`. Cambiar
+los filtros reinicia la paginación. La búsqueda del catálogo se aplica al
+enviar el formulario.
+
+El panel de filtros es lateral en escritorio. En móvil abre un diálogo modal
+con Escape, ciclos de Tab y Shift+Tab y restauración del foco al cerrar.
+La cuadrícula usa dos, tres o cuatro columnas según el ancho. Los productos
+del catálogo, el Home y las recomendaciones usan `HomeProductTile`.
+
+## Ficha pública
+
+`/isadecor/productos/:slug` presenta galería y compra, detalles en acordeón,
+opiniones y recomendaciones. Selecciona el primer acabado disponible y usa
+su imagen y precio cuando existen. Un acabado con stock agotado aparece
+deshabilitado y etiquetado.
+
+`COMPRAR` ofrece «Agregar al carrito» y un enlace secundario para cotizar el
+proyecto. `COTIZAR` añade al carrito de cotización existente. Un producto
+agotado muestra su estado con la acción de compra oculta. En móvil, el precio
+y la acción principal quedan en la barra inferior.
+
+El calculador conserva la fórmula `ceil(medida / coberturaPorUnidad)` con
+las unidades de la configuración. La configuración actual carece de un
+porcentaje de merma independiente.
+
+El backend redondea la valoración a un decimal y devuelve el stock por
+producto y los acabados de la tarjeta. El detalle indica color y agotamiento
+por acabado. Expone la cantidad restante del acabado solo cuando es baja,
+según el umbral de stock configurado para el producto. Las recomendaciones
+incluyen la proyección de tarjeta del Home en `tarjeta`.

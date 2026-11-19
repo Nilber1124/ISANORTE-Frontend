@@ -56,3 +56,14 @@
   text-decoration-color: var(--color-accent);
   text-decoration-thickness: 2px;
 }
+
+@media (width < 64rem) {
+  /* Deja visibles los accesos flotantes y el final del pie en fichas con barra de compra. */
+  .showroom:has(.purchase-action) {
+    --isadecor-purchase-dock: 4.25rem;
+    padding-bottom: calc(var(--isadecor-purchase-dock) + env(safe-area-inset-bottom));
+  }
+  .showroom:has(.purchase-action) :is(app-whatsapp-float a, app-accessibility-widget [data-a11y-widget]) {
+    bottom: calc(var(--isadecor-purchase-dock) + 0.75rem + env(safe-area-inset-bottom));
+  }
+}

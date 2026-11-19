@@ -24,7 +24,13 @@
     <section class="app-container pt-12 sm:pt-16" aria-labelledby="promos-title">
       <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
         <h2 id="promos-title" class="text-heading-1 text-text-primary">Promociones</h2>
-        <button type="button" (click)="showOffers()" class="enlace text-body-sm font-semibold text-accent-strong">Ver todas las ofertas →</button>
+        <button
+          type="button"
+          (click)="showOffers()"
+          class="enlace text-body-sm font-semibold text-accent-strong"
+        >
+          Ver todas las ofertas →
+        </button>
       </div>
       <div class="mt-6 grid gap-6 lg:grid-cols-[1.45fr_1fr]">
         <app-home-promo-banner [promo]="promotions()[0]" [large]="true" />
@@ -40,43 +46,98 @@
   <!-- Campaña editable -->
   @if (content()?.campana; as campaign) {
     <section class="app-container pt-12 sm:pt-16" aria-label="Campaña">
-      <a [routerLink]="campaignPath(campaign.enlace)" [queryParams]="campaignParams(campaign.enlace)"
-        class="filete-l group grid overflow-hidden rounded-panel bg-background-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:grid-cols-[1fr_1.1fr]">
+      <a
+        [routerLink]="campaignPath(campaign.enlace)"
+        [queryParams]="campaignParams(campaign.enlace)"
+        class="filete-l group grid overflow-hidden rounded-panel bg-background-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:grid-cols-[1fr_1.1fr]"
+      >
         <div class="flex flex-col justify-center gap-3 p-6 sm:p-10">
-          <p class="font-mono text-caption uppercase tracking-[0.12em] text-accent-strong">{{ campaign.etiqueta }}</p>
+          <p class="font-mono text-caption uppercase tracking-[0.12em] text-accent-strong">
+            {{ campaign.etiqueta }}
+          </p>
           <h2 class="text-heading-1 text-text-primary">{{ campaign.titulo }}</h2>
           <p class="max-w-md text-body text-text-secondary">{{ campaign.descripcion }}</p>
-          <span class="mt-2 inline-flex w-fit items-center rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast">{{ campaign.textoBoton }}</span>
+          <span
+            class="mt-2 inline-flex w-fit items-center rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast"
+            >{{ campaign.textoBoton }}</span
+          >
         </div>
-        <img [src]="campaign.imagenUrl" alt="" loading="lazy" class="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02] md:h-full md:min-h-[18rem]" />
+        <img
+          [src]="campaign.imagenUrl"
+          alt=""
+          loading="lazy"
+          class="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02] md:h-full md:min-h-[18rem]"
+        />
       </a>
     </section>
   }
 
   <!-- Tienda: cuadrícula con filtro por categoría -->
-  <section id="tienda" class="app-container scroll-mt-40 py-12 sm:py-16" aria-labelledby="store-title" [class.hidden]="content() && !content()!.tienda.productos.length">
+  <section
+    id="tienda"
+    class="app-container scroll-mt-40 py-12 sm:py-16"
+    aria-labelledby="store-title"
+    [class.hidden]="content() && !content()!.tienda.productos.length"
+  >
     @if (content(); as home) {
       <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
         <h2 id="store-title" class="text-heading-1 text-text-primary">{{ home.tienda.titulo }}</h2>
-        <a [routerLink]="catalogUrl" class="enlace text-body-sm font-semibold text-accent-strong">Ver todos los productos →</a>
+        <a [routerLink]="catalogUrl" class="enlace text-body-sm font-semibold text-accent-strong"
+          >Ver todos los productos →</a
+        >
       </div>
-      <div class="sticky top-[7.8rem] lg:top-[8.9rem] z-10 -mx-4 mt-5 bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:px-0">
-        <ul class="flex gap-2 overflow-x-auto px-1 py-1.5 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden" aria-label="Filtrar por categoría">
+      <div
+        class="sticky top-[7.8rem] lg:top-[8.9rem] z-10 -mx-4 mt-5 bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:px-0"
+      >
+        <ul
+          class="flex gap-2 overflow-x-auto px-1 py-1.5 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden"
+          aria-label="Filtrar por categoría"
+        >
           <li class="shrink-0">
-            <button type="button" (click)="selectChip('todos')" [attr.aria-pressed]="chip() === 'todos'"
+            <button
+              type="button"
+              (click)="selectChip('todos')"
+              [attr.aria-pressed]="chip() === 'todos'"
               class="rounded-full border px-4 py-1.5 text-body-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              [class]="chip() === 'todos' ? 'border-accent bg-accent text-accent-contrast' : 'border-border-strong text-text-secondary hover:text-text-primary'">Todos</button>
+              [class]="
+                chip() === 'todos'
+                  ? 'border-accent bg-accent text-accent-contrast'
+                  : 'border-border-strong text-text-secondary hover:text-text-primary'
+              "
+            >
+              Todos
+            </button>
           </li>
           <li class="shrink-0">
-            <button type="button" (click)="selectChip('ofertas')" [attr.aria-pressed]="chip() === 'ofertas'"
+            <button
+              type="button"
+              (click)="selectChip('ofertas')"
+              [attr.aria-pressed]="chip() === 'ofertas'"
               class="rounded-full border px-4 py-1.5 text-body-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              [class]="chip() === 'ofertas' ? 'border-accent bg-accent text-accent-contrast' : 'border-accent text-accent hover:bg-accent/10'">Ofertas</button>
+              [class]="
+                chip() === 'ofertas'
+                  ? 'border-accent bg-accent text-accent-contrast'
+                  : 'border-accent text-accent hover:bg-accent/10'
+              "
+            >
+              Ofertas
+            </button>
           </li>
           @for (c of chips(); track c.slug) {
             <li class="shrink-0">
-              <button type="button" (click)="selectChip(c.slug)" [attr.aria-pressed]="chip() === c.slug"
+              <button
+                type="button"
+                (click)="selectChip(c.slug)"
+                [attr.aria-pressed]="chip() === c.slug"
                 class="rounded-full border px-4 py-1.5 text-body-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                [class]="chip() === c.slug ? 'border-accent bg-accent text-accent-contrast' : 'border-border-strong text-text-secondary hover:text-text-primary'">{{ c.nombre }}</button>
+                [class]="
+                  chip() === c.slug
+                    ? 'border-accent bg-accent text-accent-contrast'
+                    : 'border-border-strong text-text-secondary hover:text-text-primary'
+                "
+              >
+                {{ c.nombre }}
+              </button>
             </li>
           }
         </ul>
@@ -88,16 +149,30 @@
       </ul>
       @if (activeCategory(); as category) {
         <p class="mt-6 text-center">
-          <a [routerLink]="catalogUrl" [queryParams]="{ categoria: category.slug }" class="enlace text-body-sm font-semibold text-accent-strong">Ver todo en {{ category.nombre }} →</a>
+          <a
+            [routerLink]="catalogUrl"
+            [queryParams]="{ categoria: category.slug }"
+            class="enlace text-body-sm font-semibold text-accent-strong"
+            >Ver todo en {{ category.nombre }} →</a
+          >
         </p>
       }
     } @else if (facade.error()) {
       <p class="text-body text-text-secondary">
-        {{ facade.error() }} <button type="button" class="ml-2 font-semibold text-accent underline" (click)="facade.load()">Reintentar</button>
+        {{ facade.error() }}
+        <button
+          type="button"
+          class="ml-2 font-semibold text-accent underline"
+          (click)="facade.load()"
+        >
+          Reintentar
+        </button>
       </p>
     } @else {
       <div class="grid grid-cols-2 gap-3 md:grid-cols-4" aria-hidden="true">
-        @for (s of skeletons; track s) { <div class="aspect-[3/4] animate-pulse rounded-card bg-background-muted"></div> }
+        @for (s of skeletons; track s) {
+          <div class="aspect-[3/4] animate-pulse rounded-card bg-background-muted"></div>
+        }
       </div>
     }
   </section>
@@ -105,33 +180,62 @@
   <!-- Fáciles de instalar -->
   @if (content()?.facil; as row) {
     @if (row.productos.length) {
-    <section class="app-container pb-12 sm:pb-16" [attr.aria-label]="row.titulo">
-      <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
-        <h2 class="text-heading-1 text-text-primary">{{ row.titulo }}</h2>
-        <a [routerLink]="catalogUrl" [queryParams]="row.enlaceCategoria ? { categoria: row.enlaceCategoria } : null" class="enlace text-body-sm font-semibold text-accent-strong">{{ row.enlaceTexto }} →</a>
-      </div>
-      <ul class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        @for (product of row.productos; track product.slug) {
-          <li><app-home-product-tile [product]="product" /></li>
-        }
-      </ul>
-    </section>
+      <section class="app-container pb-12 sm:pb-16" [attr.aria-label]="row.titulo">
+        <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+          <h2 class="text-heading-1 text-text-primary">{{ row.titulo }}</h2>
+          <a
+            [routerLink]="catalogUrl"
+            [queryParams]="row.enlaceCategoria ? { categoria: row.enlaceCategoria } : null"
+            class="enlace text-body-sm font-semibold text-accent-strong"
+            >{{ row.enlaceTexto }} →</a
+          >
+        </div>
+        <ul class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          @for (product of row.productos; track product.slug) {
+            <li><app-home-product-tile [product]="product" /></li>
+          }
+        </ul>
+      </section>
     }
   }
 
   <!-- Franja de confianza -->
   @if (content()?.beneficios?.length) {
-    <section class="border-y border-border bg-background-soft" aria-label="Por qué comprar en ISADECOR">
+    <section
+      class="border-y border-border bg-background-soft"
+      aria-label="Por qué comprar en ISADECOR"
+    >
       <ul class="app-container grid gap-x-6 gap-y-4 py-5 sm:grid-cols-2 lg:grid-cols-4">
         @for (benefit of content()!.beneficios; track benefit.titulo) {
           <li class="flex items-center gap-3">
-            <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent-strong" aria-hidden="true">
-              <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <span
+              class="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent-strong"
+              aria-hidden="true"
+            >
+              <svg
+                class="size-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 @switch (benefit.icono) {
-                  @case ('envio') { <path d="M3 7h11v9H3zM14 10h4l3 3v3h-7M7 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" /> }
-                  @case ('instalacion') { <path d="M14 6l4 4-9 9H5v-4zM12 8l4 4" /> }
-                  @case ('garantia') { <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4" /> }
-                  @default { <path d="M3 6h18v12H3zM3 10h18M7 15h3" /> }
+                  @case ('envio') {
+                    <path
+                      d="M3 7h11v9H3zM14 10h4l3 3v3h-7M7 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
+                    />
+                  }
+                  @case ('instalacion') {
+                    <path d="M14 6l4 4-9 9H5v-4zM12 8l4 4" />
+                  }
+                  @case ('garantia') {
+                    <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4" />
+                  }
+                  @default {
+                    <path d="M3 6h18v12H3zM3 10h18M7 15h3" />
+                  }
                 }
               </svg>
             </span>
@@ -150,10 +254,18 @@
     <section class="app-container py-12 sm:py-16" aria-labelledby="services-title">
       <div class="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
         <div>
-          <p class="font-mono text-caption uppercase tracking-[0.12em] text-accent-strong">{{ services.etiqueta }}</p>
-          <h2 id="services-title" class="mt-3 text-heading-1 text-text-primary">{{ services.titulo }}</h2>
+          <p class="font-mono text-caption uppercase tracking-[0.12em] text-accent-strong">
+            {{ services.etiqueta }}
+          </p>
+          <h2 id="services-title" class="mt-3 text-heading-1 text-text-primary">
+            {{ services.titulo }}
+          </h2>
           <p class="mt-3 max-w-xl text-body-lg text-text-secondary">{{ services.descripcion }}</p>
-          <a [routerLink]="services.enlace" class="mt-6 inline-flex items-center rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast hover:bg-accent-hover">{{ services.textoBoton }}</a>
+          <a
+            [routerLink]="services.enlace"
+            class="mt-6 inline-flex items-center rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast hover:bg-accent-hover"
+            >{{ services.textoBoton }}</a
+          >
         </div>
         <ul class="divide-y divide-border border-y border-border">
           @for (point of services.puntos; track point) {
@@ -168,20 +280,49 @@
 
   <!-- Reseñas -->
   @if (content()?.resenas?.length) {
-    <section class="border-t border-border bg-background-soft py-12 sm:py-16" aria-labelledby="reviews-title">
+    <section
+      class="border-t border-border bg-background-soft py-12 sm:py-16"
+      aria-labelledby="reviews-title"
+    >
       <div class="app-container">
-        <h2 id="reviews-title" class="text-heading-1 text-text-primary">Lo que dicen nuestros clientes</h2>
-        <ul class="-mx-4 mt-8 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0">
+        <h2 id="reviews-title" class="text-heading-1 text-text-primary">
+          Lo que dicen nuestros clientes
+        </h2>
+        <ul
+          class="-mx-4 mt-8 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0"
+        >
           @for (review of content()!.resenas; track review.productoSlug + review.nombreCliente) {
-            <li class="w-[80%] shrink-0 snap-start rounded-card border border-border bg-surface p-5 md:w-auto">
-              <p class="flex gap-0.5 text-accent" [attr.aria-label]="review.calificacion + ' de 5 estrellas'">
+            <li
+              class="w-[80%] shrink-0 snap-start rounded-card border border-border bg-surface p-5 md:w-auto"
+            >
+              <p
+                class="flex gap-0.5 text-accent"
+                [attr.aria-label]="review.calificacion + ' de 5 estrellas'"
+              >
                 @for (on of stars(review.calificacion); track $index) {
-                  <svg class="size-4" viewBox="0 0 24 24" [attr.fill]="on ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3l2.7 5.8 6.3.7-4.7 4.3 1.3 6.2L12 16.9 6.4 20l1.3-6.2L3 9.5l6.3-.7z" /></svg>
+                  <svg
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    [attr.fill]="on ? 'currentColor' : 'none'"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M12 3l2.7 5.8 6.3.7-4.7 4.3 1.3 6.2L12 16.9 6.4 20l1.3-6.2L3 9.5l6.3-.7z"
+                    />
+                  </svg>
                 }
               </p>
               <p class="mt-3 text-body text-text-primary">“{{ review.comentario }}”</p>
-              <p class="mt-4 text-body-sm font-semibold text-text-primary">{{ review.nombreCliente }}</p>
-              <a [routerLink]="['/isadecor/productos', review.productoSlug]" class="text-caption text-text-muted underline-offset-2 hover:underline">{{ review.productoNombre }}</a>
+              <p class="mt-4 text-body-sm font-semibold text-text-primary">
+                {{ review.nombreCliente }}
+              </p>
+              <a
+                [routerLink]="['/isadecor/productos', review.productoSlug]"
+                class="text-caption text-text-muted underline-offset-2 hover:underline"
+                >{{ review.productoNombre }}</a
+              >
             </li>
           }
         </ul>
@@ -189,4 +330,35 @@
     </section>
   }
 
+  <!-- Síguenos: videos de redes -->
+  @if (content()?.comunidad?.length) {
+    <section class="app-container py-12 sm:py-16" aria-labelledby="community-title">
+      <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div>
+          <h2 id="community-title" class="text-heading-1 text-text-primary">Síguenos</h2>
+          <p class="mt-2 text-body text-text-secondary">
+            Instalaciones y novedades en nuestras redes.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          @for (network of networks(); track network.url) {
+            <a
+              [href]="network.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex min-h-11 items-center gap-2 rounded-button border border-border-strong px-4 text-body-sm font-semibold text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <app-social-icon [network]="network.kind" /> {{ network.label }}
+            </a>
+          }
+          <a
+            routerLink="/isadecor/comunidad"
+            class="enlace text-body-sm font-semibold text-accent-strong"
+            >Ver más videos →</a
+          >
+        </div>
+      </div>
+      <div class="mt-6"><app-community-grid [items]="content()!.comunidad" /></div>
+    </section>
+  }
 </main>

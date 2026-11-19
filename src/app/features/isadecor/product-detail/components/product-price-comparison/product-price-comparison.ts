@@ -23,8 +23,8 @@ export class ProductPriceComparison {
   readonly edited = output<void>();
 
   protected readonly externalUrl = signal('');
-  protected readonly inputId = computed(() =>
-    `product-price-url-${this.unitSlug().replace(/[^a-z0-9_-]/gi, '-')}`,
+  protected readonly inputId = computed(
+    () => `product-price-url-${this.unitSlug().replace(/[^a-z0-9_-]/gi, '-')}`,
   );
 
   protected submit(event: Event): void {

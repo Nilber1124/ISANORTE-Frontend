@@ -6,6 +6,7 @@ import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
 import {
   CatalogBackendOrder,
+  CatalogExtraFilters,
   PublicProductCardResponse,
   PublicProductCatalogCategoryResponse,
   PublicProductCatalogPageResponse,
@@ -14,7 +15,7 @@ import {
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { CatalogFacade } from './catalog.facade';
 
-interface CatalogQuery {
+interface CatalogQuery extends CatalogExtraFilters {
   page: number;
   size: number;
   categoria?: string | null;
@@ -39,11 +40,7 @@ function createProduct(name: string, sku: string): PublicProductCardResponse {
   return {
     nombre: name,
     sku,
-    slug: name
-      .toLocaleLowerCase('es')
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '')
-      .replace(/\s+/g, '-'),
+    slug: name.toLocaleLowerCase('es').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '-'),
     resumen: `${name} para interiores`,
     descripcion: `Descripción de ${name}`,
     precioBase: null,
@@ -142,6 +139,24 @@ describe('CatalogFacade', () => {
     expect(facade.error()).toBeNull();
   });
 
+  it('passes numeric zero and false filters and keeps the server price range', async () => {
+    publicApi.response$ = of({
+      unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
+      categorias: [],
+      productos: toPage([]),
+      precioMinimo: 25.5,
+      precioMaximo: 150,
+    });
+    const filters = { modalidad: 'COTIZAR', acabado: 'Nogal', facilInstalacion: false, precioMin: 0, precioMax: 90 } as const;
+    facade.setExtraFilters(filters);
+    facade.load();
+    await flush();
+    expect(publicApi.calls).toHaveLength(1);
+    expect(publicApi.calls[0].query).toMatchObject(filters);
+    expect(facade.priceRange()).toEqual({ min: 25.5, max: 150 });
+    expect(facade.hasActiveFilters()).toBe(true);
+  });
+
   it('treats an empty page as a successful empty catalog', async () => {
     facade.load();
     await flush();
@@ -157,7 +172,10 @@ describe('CatalogFacade', () => {
     publicApi.response$ = of({
       unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
       categorias: categories,
-      productos: toPage([createProduct('Panel A', 'PAN-01')], { totalElementos: 30, totalPaginas: 3 }),
+      productos: toPage([createProduct('Panel A', 'PAN-01')], {
+        totalElementos: 30,
+        totalPaginas: 3,
+      }),
     });
     facade.load();
     await flush();
@@ -192,7 +210,10 @@ describe('CatalogFacade', () => {
     publicApi.response$ = of({
       unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
       categorias: categories,
-      productos: toPage([createProduct('Panel A', 'PAN-01')], { totalElementos: 30, totalPaginas: 3 }),
+      productos: toPage([createProduct('Panel A', 'PAN-01')], {
+        totalElementos: 30,
+        totalPaginas: 3,
+      }),
     });
     facade.load();
     await flush();
@@ -214,7 +235,10 @@ describe('CatalogFacade', () => {
     publicApi.response$ = of({
       unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
       categorias: categories,
-      productos: toPage([createProduct('Panel A', 'PAN-01')], { totalElementos: 30, totalPaginas: 3 }),
+      productos: toPage([createProduct('Panel A', 'PAN-01')], {
+        totalElementos: 30,
+        totalPaginas: 3,
+      }),
     });
     facade.load();
     await flush();
@@ -315,7 +339,10 @@ describe('CatalogFacade', () => {
     publicApi.response$ = of({
       unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
       categorias: categories,
-      productos: toPage([createProduct('Panel A', 'PAN-01')], { totalElementos: 30, totalPaginas: 3 }),
+      productos: toPage([createProduct('Panel A', 'PAN-01')], {
+        totalElementos: 30,
+        totalPaginas: 3,
+      }),
     });
     facade.load();
     await flush();
@@ -333,7 +360,10 @@ describe('CatalogFacade', () => {
     publicApi.response$ = of({
       unidad: { nombre: 'ISADECOR', slug: ISADECOR_UNIT_SLUG },
       categorias: categories,
-      productos: toPage([createProduct('Panel A', 'PAN-01')], { totalElementos: 30, totalPaginas: 3 }),
+      productos: toPage([createProduct('Panel A', 'PAN-01')], {
+        totalElementos: 30,
+        totalPaginas: 3,
+      }),
     });
     facade.load();
     await flush();

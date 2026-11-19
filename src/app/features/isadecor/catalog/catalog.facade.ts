@@ -1,11 +1,12 @@
 import { isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, debounceTime, distinctUntilChanged, map, of, scan, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { catchError, distinctUntilChanged, map, of, Subject, timer, switchMap, tap } from 'rxjs';
 
 import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
 import {
   CatalogBackendOrder,
+  CatalogExtraFilters,
   PublicProductCardResponse,
   PublicProductCatalogCategoryResponse,
 } from '../../../data/models/public-content/public-product-catalog.model';
@@ -23,7 +24,7 @@ const SORT_OPTION_TO_BACKEND_ORDER: Record<CatalogSortOption, CatalogBackendOrde
 const DEFAULT_PAGE_SIZE = 12;
 const SEARCH_DEBOUNCE_MS = 300;
 
-interface CatalogQueryKey {
+interface CatalogQueryKey extends CatalogExtraFilters {
   categoria: string | null;
   q: string;
   orden: CatalogSortOption;
@@ -50,10 +51,18 @@ export class CatalogFacade {
   private readonly _error = signal<string | null>(null);
   private readonly _selectedCategory = signal<string | null>(null);
   private readonly _searchInput = signal('');
+  private readonly _appliedSearch = signal('');
+  private readonly searchChanges = new Subject<{ text: string; immediate: boolean }>();
   private readonly _sortOption = signal<CatalogSortOption>('featured');
   private readonly _onlyDiscount = signal(false);
   private readonly _onlyInStock = signal(false);
   private readonly _onlyFeatured = signal(false);
+  private readonly _extra = signal<CatalogExtraFilters>({});
+  readonly extra = this._extra.asReadonly();
+  readonly priceRange = signal<{ min: number | null; max: number | null }>({
+    min: null,
+    max: null,
+  });
   private readonly _page = signal(0);
   private readonly _pageSize = signal(DEFAULT_PAGE_SIZE);
   private readonly _totalItems = signal(0);
@@ -69,6 +78,7 @@ export class CatalogFacade {
   readonly selectedCategory = this._selectedCategory.asReadonly();
   readonly searchTerm = this._searchInput.asReadonly();
   readonly sortOption = this._sortOption.asReadonly();
+  readonly onlyFeatured = this._onlyFeatured.asReadonly();
   readonly onlyDiscount = this._onlyDiscount.asReadonly();
   readonly onlyInStock = this._onlyInStock.asReadonly();
   readonly currentPage = this._page.asReadonly();
@@ -81,26 +91,20 @@ export class CatalogFacade {
       this.normalizeText(this._searchInput()).length > 0 ||
       this._onlyDiscount() ||
       this._onlyInStock() ||
+      this._onlyFeatured() ||
+      Object.values(this.extra()).some((value) => value != null) ||
       this._sortOption() !== 'featured',
   );
 
-  /** Término de búsqueda aplicado (debounced): el que realmente dispara la petición al backend. */
-  private readonly debouncedSearch = toSignal(
-    toObservable(this._searchInput).pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged()),
-    { initialValue: '' },
-  );
-
-  /**
-   * Combina filtros/orden/paginación en una clave reactiva y dispara el fetch al backend.
-   * El `scan` corrige la página a 0 en el mismo paso en que cambia la búsqueda debounced
-   * (en vez de hacerlo en un efecto aparte), evitando una doble petición: una con la página
-   * vieja y otra con la página corregida. `distinctUntilChanged` descarta además la emisión
-   * redundante que produce el propio ajuste de `_page` dentro del `scan`.
-   */
   private readonly catalog$ = toObservable(
     computed<CatalogQueryKey>(() => ({
+      modalidad: this.extra().modalidad ?? null,
+      acabado: this.extra().acabado ?? null,
+      facilInstalacion: this.extra().facilInstalacion ?? null,
+      precioMin: this.extra().precioMin ?? null,
+      precioMax: this.extra().precioMax ?? null,
       categoria: this._selectedCategory(),
-      q: this.debouncedSearch(),
+      q: this._appliedSearch(),
       orden: this._sortOption(),
       soloDescuento: this._onlyDiscount(),
       soloDisponible: this._onlyInStock(),
@@ -110,16 +114,6 @@ export class CatalogFacade {
       retryTick: this._retryTick(),
     })),
   ).pipe(
-    scan<CatalogQueryKey, CatalogQueryKey>((previous, query) => {
-      const page = query.q !== previous.q ? 0 : query.page;
-      if (page !== this._page()) {
-        this._page.set(page);
-      }
-      return { ...query, page };
-    }, {
-      categoria: null, q: '', orden: 'featured', soloDescuento: false, soloDisponible: false,
-      soloDestacados: false, page: 0, size: DEFAULT_PAGE_SIZE, retryTick: 0,
-    }),
     distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
     tap(() => {
       this._loading.set(true);
@@ -128,6 +122,11 @@ export class CatalogFacade {
     switchMap((query) =>
       this.publicApi
         .getProductCatalog(this.siteKey, this.unitSlug, {
+          ...(query.modalidad && { modalidad: query.modalidad }),
+          ...(query.facilInstalacion != null && { facilInstalacion: query.facilInstalacion }),
+          ...(query.precioMin != null && { precioMin: query.precioMin }),
+          ...(query.precioMax != null && { precioMax: query.precioMax }),
+          ...(query.acabado && { acabado: query.acabado }),
           page: query.page,
           size: query.size,
           categoria: query.categoria,
@@ -143,6 +142,22 @@ export class CatalogFacade {
         ),
     ),
   );
+
+  constructor() {
+    this.searchChanges
+      .pipe(
+        switchMap(({ text, immediate }) =>
+          immediate ? of(text) : timer(SEARCH_DEBOUNCE_MS).pipe(map(() => text)),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((text) => {
+        if (this._appliedSearch() !== text) {
+          this._appliedSearch.set(text);
+          this._page.set(0);
+        }
+      });
+  }
 
   getCategoryCount(categorySlug: string): number {
     return this._categories().find((category) => category.slug === categorySlug)?.cantidad ?? 0;
@@ -162,6 +177,10 @@ export class CatalogFacade {
     this.catalog$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result.ok) {
         this._pageItems.set(result.catalog.productos.contenido);
+        this.priceRange.set({
+          min: result.catalog.precioMinimo ?? null,
+          max: result.catalog.precioMaximo ?? null,
+        });
         this._categories.set(result.catalog.categorias);
         this._totalItems.set(result.catalog.productos.totalElementos);
         this._totalPages.set(result.catalog.productos.totalPaginas);
@@ -190,8 +209,9 @@ export class CatalogFacade {
     this._page.set(0);
   }
 
-  setSearchTerm(searchTerm: string): void {
+  setSearchTerm(searchTerm: string, immediate = false): void {
     this._searchInput.set(searchTerm);
+    this.searchChanges.next({ text: searchTerm.trim(), immediate });
   }
 
   setSortOption(option: CatalogSortOption): void {
@@ -220,9 +240,22 @@ export class CatalogFacade {
     this._page.set(clamped);
   }
 
+  setExtraFilters(filters: CatalogExtraFilters): void {
+    this._extra.set(filters);
+    this._page.set(0);
+  }
+
+  setAvailabilityFilters(discount: boolean, available: boolean): void {
+    this._onlyDiscount.set(discount);
+    this._onlyInStock.set(available);
+    this._page.set(0);
+  }
+
   clearFilters(): void {
+    this._extra.set({});
+    this._onlyFeatured.set(false);
     this._selectedCategory.set(null);
-    this._searchInput.set('');
+    this.setSearchTerm('', true);
     this._onlyDiscount.set(false);
     this._onlyInStock.set(false);
     this._sortOption.set('featured');

@@ -16,7 +16,7 @@ export class ProductCalculator {
   readonly measurement = signal<number | null>(null);
   readonly showResult = signal<boolean>(false);
 
-  protected readonly inputLabel = computed(() => this.config().etiquetaEntrada?.trim() || 'Medida');
+  protected readonly inputLabel = computed(() => this.config().etiquetaEntrada?.trim() || 'Medida a cubrir');
   protected readonly inputUnit = computed(() => this.config().unidadEntrada?.trim() || null);
   protected readonly saleUnit = computed(() => this.config().unidadVenta?.trim() || null);
   protected readonly helperText = computed(() => this.config().textoAyuda?.trim() || null);
@@ -78,6 +78,7 @@ export class ProductCalculator {
 
   protected readonly describedBy = computed(() => {
     const ids = [
+      'product-calculator-example',
       this.helperText() ? 'product-calculator-help' : null,
       this.measurementError() ? 'product-calculator-error' : null,
     ];
@@ -112,8 +113,19 @@ export class ProductCalculator {
     }
   }
 
+  protected resultUnit(quantity: number): string {
+    const unit = this.saleUnit()?.toLocaleLowerCase('es') ?? 'unidad';
+    const forms: Record<string, readonly [string, string]> = {
+      unidad: ['unidad', 'unidades'],
+      caja: ['caja', 'cajas'],
+      panel: ['panel', 'paneles'],
+      paneles: ['panel', 'paneles'],
+      cajas: ['caja', 'cajas'],
+    };
+    return forms[unit]?.[quantity === 1 ? 0 : 1] ?? unit;
+  }
+
   protected applyQuantity(): void {
     this.quantityChange.emit(this.quantity());
   }
 }
-

@@ -1,3 +1,5 @@
+import { ProductAvailability } from "../../../data/models/product/product-availability.enum";
+import type { PublicProductCardResponse } from '../../../data/models/public-content/public-product-catalog.model';
 import {
   IsadecorHomeProductCardResponse,
   IsadecorHomeResponse,
@@ -22,7 +24,7 @@ export function toProductCard(card: IsadecorHomeProductCardResponse): HomeProduc
     precioBase: card.precioBase,
     precioAnterior: card.precioAnterior,
     descuentoPorcentaje: card.descuentoPorcentaje,
-    disponibilidad: card.estadoStock === 'AGOTADO' ? 'AGOTADO' : 'DISPONIBLE',
+    disponibilidad: card.estadoStock === 'AGOTADO' ? ProductAvailability.AGOTADO : ProductAvailability.DISPONIBLE,
     destacado: false,
     ordenDestacado: 0,
     retiroEnTienda: false,
@@ -42,7 +44,18 @@ export function toProductCard(card: IsadecorHomeProductCardResponse): HomeProduc
     })),
     estadoStock: card.estadoStock,
     quedan: card.quedan,
-  } as unknown as HomeProductCard;
+  } satisfies HomeProductCard;
+}
+
+export function toCatalogProductCard(card: PublicProductCardResponse): HomeProductCard {
+  return {
+    ...card,
+    modalidad: card.modalidad ?? 'COTIZAR',
+    unidadVenta: card.unidadVenta ?? 'UNIDAD',
+    entrega: card.plazoEntrega,
+    estadoStock: card.estadoStock ?? (card.disponibilidad === 'AGOTADO' ? 'AGOTADO' : 'SIN_CONTROL'),
+    acabados: card.acabados?.map(({ nombre, colorHex, agotado }) => ({ nombre, color: colorHex, agotado })),
+  };
 }
 
 function toStore(section: IsadecorHomeSectionResponse | null): HomeStore {
@@ -85,5 +98,6 @@ export function toHomeContent(response: IsadecorHomeResponse): IsadecorHomeConte
     servicios: response.servicios,
     beneficios: [...HOME_BENEFITS],
     resenas: response.resenas,
+    comunidad: response.comunidad ?? [],
   };
 }

@@ -3,6 +3,7 @@ import { ProductDocumentType } from '../product/product-document-type.enum';
 import {
   PublicProductCategoryResponse,
   PublicProductImageResponse,
+  PublicProductSaleFields,
 } from './public-product-catalog.model';
 
 export interface PublicProductVariantResponse {
@@ -12,6 +13,9 @@ export interface PublicProductVariantResponse {
   precio: number | null;
   disponible: boolean | null;
   imagenUrl: string | null;
+  colorHex?: string | null;
+  agotado?: boolean;
+  quedan?: number | null;
   orden: number | null;
 }
 
@@ -39,7 +43,7 @@ export interface PublicProductCalculationResponse {
   textoAyuda: string | null;
 }
 
-export interface PublicProductDetailResponse {
+export interface PublicProductDetailResponse extends PublicProductSaleFields {
   nombre: string;
   sku: string;
   slug: string;

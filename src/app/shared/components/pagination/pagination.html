@@ -1,10 +1,10 @@
 @if (totalPages() > 1) {
-  <nav class="flex flex-wrap items-center justify-center gap-1.5" aria-label="Paginación del catálogo">
+  <nav class="mt-4 flex flex-wrap items-center justify-center gap-1.5" aria-label="Paginación del catálogo">
     <button
       type="button"
       (click)="goToPrevious()"
       [disabled]="!hasPrevious()"
-      class="flex h-9 min-w-9 items-center justify-center rounded-control border border-border bg-surface px-2 text-body-sm font-medium text-text-secondary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-surface"
+      class="flex min-h-11 min-w-11 items-center justify-center rounded-control border border-border bg-surface px-2 text-body-sm font-medium text-text-secondary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-surface"
       aria-label="Página anterior"
     >
       <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -22,7 +22,7 @@
           [class]="page === currentPage()
             ? 'bg-accent text-accent-contrast font-bold'
             : 'bg-surface text-text-secondary hover:bg-surface-hover'"
-          class="flex h-9 min-w-9 items-center justify-center rounded-control border border-border px-2 text-body-sm transition-colors"
+          class="flex min-h-11 min-w-11 items-center justify-center rounded-control border border-border px-2 text-body-sm transition-colors"
           [attr.aria-current]="page === currentPage() ? 'page' : null"
           [attr.aria-label]="'Página ' + (page + 1)"
         >
@@ -35,7 +35,7 @@
       type="button"
       (click)="goToNext()"
       [disabled]="!hasNext()"
-      class="flex h-9 min-w-9 items-center justify-center rounded-control border border-border bg-surface px-2 text-body-sm font-medium text-text-secondary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-surface"
+      class="flex min-h-11 min-w-11 items-center justify-center rounded-control border border-border bg-surface px-2 text-body-sm font-medium text-text-secondary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-surface"
       aria-label="Página siguiente"
     >
       <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

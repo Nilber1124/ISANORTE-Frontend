@@ -8,6 +8,9 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
+import { CommunityGrid } from '../community/community-grid';
+import { pickCommunityNetworks } from '../community/community-networks';
+import { SocialIcon } from '../community/social-icon';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { IsadecorHomeFacade } from './isadecor-home.facade';
 import { ArmaAmbiente } from './arma-ambiente/arma-ambiente';
@@ -20,7 +23,15 @@ const HOME_STORE_LIMIT = 8;
 
 @Component({
   selector: 'app-isadecor-home',
-  imports: [ArmaAmbiente, HomeProductTile, HomePromoBanner, HomeRibbon, RouterLink],
+  imports: [
+    ArmaAmbiente,
+    CommunityGrid,
+    HomeProductTile,
+    HomePromoBanner,
+    HomeRibbon,
+    RouterLink,
+    SocialIcon,
+  ],
   providers: [IsadecorHomeFacade],
   templateUrl: './home.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,14 +57,20 @@ export class Home {
   /** Chips con al menos un producto en la selección. */
   readonly chips = computed(() => {
     const store = this.content()?.tienda;
-    return (store?.categorias ?? []).filter((c) => store!.productos.some((p) => p.categorias.some((x) => x.slug === c.slug)));
+    return (store?.categorias ?? []).filter((c) =>
+      store!.productos.some((p) => p.categorias.some((x) => x.slug === c.slug)),
+    );
   });
   /** Categoría activa (si el chip es una categoría) para enlazar a su catálogo. */
-  readonly activeCategory = computed(() => this.chips().find((c) => c.slug === this.chip()) ?? null);
+  readonly activeCategory = computed(
+    () => this.chips().find((c) => c.slug === this.chip()) ?? null,
+  );
   /** Promociones vigentes (las vencidas se ocultan solas); máximo 3: 1 grande y 2 pequeñas. */
   readonly promotions = computed(() => {
     const today = new Date().toISOString().slice(0, 10);
-    return (this.content()?.promociones ?? []).filter((p) => !p.fechaFin || p.fechaFin >= today).slice(0, 3);
+    return (this.content()?.promociones ?? [])
+      .filter((p) => !p.fechaFin || p.fechaFin >= today)
+      .slice(0, 3);
   });
   readonly whatsappUrl = computed(() => {
     const phone = this.publicSite.company()?.whatsapp?.replace(/\D/g, '') ?? '';
@@ -61,6 +78,9 @@ export class Home {
       ? `https://wa.me/${phone}?text=${encodeURIComponent('Hola ISADECOR, quisiera cotizar acabados.')}`
       : null;
   });
+  readonly networks = computed(() =>
+    pickCommunityNetworks(this.publicSite.presentableSocialNetworks()),
+  );
   readonly catalogUrl = '/isadecor/productos';
   readonly skeletons = [0, 1, 2, 3];
 

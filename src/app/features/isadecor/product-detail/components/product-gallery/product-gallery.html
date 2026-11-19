@@ -1,6 +1,6 @@
 <section aria-label="Galería del producto">
   <div
-    class="aspect-[4/3] overflow-hidden rounded-panel border border-border/60 bg-surface-soft/40 shadow-soft"
+    class="aspect-[4/3] overflow-hidden rounded-panel border border-border/60 bg-surface-soft/40"
   >
     @if (mainImage(); as image) {
       <img
@@ -15,7 +15,7 @@
       />
     } @else {
       <div
-        class="flex h-full min-h-64 w-full flex-col items-center justify-center gap-4 bg-surface-soft p-8 text-center text-text-muted sm:min-h-80"
+        class="flex h-full w-full flex-col items-center justify-center gap-4 bg-surface-soft p-8 text-center text-text-muted"
         role="img"
         [attr.aria-label]="'Imagen no disponible para ' + productName()"
       >
@@ -38,7 +38,7 @@
       @for (image of availableImages(); track image.url; let index = $index) {
         <button
           type="button"
-          class="aspect-square min-w-0 overflow-hidden rounded-control border bg-surface transition-[border-color,box-shadow,opacity] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          class="aspect-square min-h-11 min-w-0 overflow-hidden rounded-control border bg-surface transition-[border-color,box-shadow,opacity] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           [class.border-text-primary]="mainImage()?.url === image.url"
           [class.ring-1]="mainImage()?.url === image.url"
           [class.ring-text-primary]="mainImage()?.url === image.url"

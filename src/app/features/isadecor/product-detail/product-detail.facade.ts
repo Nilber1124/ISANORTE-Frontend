@@ -50,7 +50,9 @@ export class ProductDetailFacade {
   readonly comparisonResult = this._comparisonResult.asReadonly();
   readonly comparisonError = this._comparisonError.asReadonly();
   private readonly _competitorComparisonLoading = signal(false);
-  private readonly _competitorComparisonResult = signal<ProductCompetitorComparisonResponse | null>(null);
+  private readonly _competitorComparisonResult = signal<ProductCompetitorComparisonResponse | null>(
+    null,
+  );
   private readonly _competitorComparisonError = signal<string | null>(null);
   readonly competitorComparisonLoading = this._competitorComparisonLoading.asReadonly();
   readonly competitorComparisonResult = this._competitorComparisonResult.asReadonly();
@@ -195,7 +197,8 @@ export class ProductDetailFacade {
           const seoDescription = product.descripcionSeo?.trim();
           const defaultTitle = product.nombre?.trim() || this.seoDefaults.title;
           const defaultDescription = product.descripcion?.trim() || this.seoDefaults.description;
-          const imageUrl = product.imagenes.find((image) => image.esPrincipal)?.url ?? product.imagenes[0]?.url;
+          const imageUrl =
+            product.imagenes.find((image) => image.esPrincipal)?.url ?? product.imagenes[0]?.url;
 
           applyPublicPageSeo(
             this.title,
@@ -250,7 +253,7 @@ export class ProductDetailFacade {
   }
 
   toggleReviewFilter(rating: number): void {
-    this._reviewFilter.update((current) => current === rating ? null : rating);
+    this._reviewFilter.update((current) => (current === rating ? null : rating));
   }
 
   submitReview(request: CreateProductReviewRequest): void {
@@ -259,13 +262,19 @@ export class ProductDetailFacade {
     this._reviewSubmissionError.set(null);
     this._reviewSubmitted.set(false);
     this._reviewAuthenticationRequired.set(false);
-    this.publicApi.createProductReview(this.siteKey, this.unitSlug, this.currentSlug, request)
-      .pipe(takeUntil(this.detailCancelled), takeUntilDestroyed(this.destroyRef), finalize(() => this._reviewSubmitting.set(false)))
+    this.publicApi
+      .createProductReview(this.siteKey, this.unitSlug, this.currentSlug, request)
+      .pipe(
+        takeUntil(this.detailCancelled),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._reviewSubmitting.set(false)),
+      )
       .subscribe({
         next: () => {
           this._reviewSubmitted.set(true);
           this.loadReviews(this.currentSlug!, this.unitSlug);
-          this.publicApi.getProductReviewSummary(this.siteKey, this.unitSlug, this.currentSlug!)
+          this.publicApi
+            .getProductReviewSummary(this.siteKey, this.unitSlug, this.currentSlug!)
             .pipe(takeUntil(this.detailCancelled), takeUntilDestroyed(this.destroyRef))
             .subscribe((summary) => this._reviewSummary.set(summary));
         },
@@ -299,11 +308,14 @@ export class ProductDetailFacade {
   }
 
   markReviewUseful(reviewId: string): void {
-    this.publicApi.markReviewUseful(reviewId)
+    this.publicApi
+      .markReviewUseful(reviewId)
       .pipe(takeUntil(this.detailCancelled), takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (updated) => this._reviews.update((reviews) =>
-          reviews.map((review) => review.id === updated.id ? updated : review)),
+        next: (updated) =>
+          this._reviews.update((reviews) =>
+            reviews.map((review) => (review.id === updated.id ? updated : review)),
+          ),
       });
   }
 
@@ -336,7 +348,8 @@ export class ProductDetailFacade {
 
   compareCompetitors(unitSlug: string = this.unitSlug): void {
     const product = this._product();
-    if (!isPlatformBrowser(this.platformId) || !product || this._competitorComparisonLoading()) return;
+    if (!isPlatformBrowser(this.platformId) || !product || this._competitorComparisonLoading())
+      return;
     this._competitorComparisonResult.set(null);
     this._competitorComparisonError.set(null);
     this._competitorComparisonLoading.set(true);
@@ -367,7 +380,9 @@ export class ProductDetailFacade {
         takeUntilDestroyed(this.destroyRef),
         finalize(() => this._communityLoading.set(false)),
         catchError(() => {
-          this._communityError.set('No pudimos cargar las recomendaciones y opiniones en este momento.');
+          this._communityError.set(
+            'No pudimos cargar las recomendaciones y opiniones en este momento.',
+          );
           return of(null);
         }),
       )
@@ -380,7 +395,8 @@ export class ProductDetailFacade {
   }
 
   private loadReviews(slug: string, unitSlug: string): void {
-    this.publicApi.getProductReviews(this.siteKey, unitSlug, slug, this._reviewOrder())
+    this.publicApi
+      .getProductReviews(this.siteKey, unitSlug, slug, this._reviewOrder())
       .pipe(
         takeUntil(this.detailCancelled),
         takeUntilDestroyed(this.destroyRef),
