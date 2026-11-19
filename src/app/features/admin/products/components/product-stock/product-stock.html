@@ -1,0 +1,141 @@
+<section
+  class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-5"
+  aria-labelledby="section-stock"
+>
+  <div class="pb-3 border-b border-border">
+    <h3
+      id="section-stock"
+      class="text-caption font-bold uppercase tracking-wider text-text-primary"
+    >
+      Inventario
+    </h3>
+    <p class="text-caption text-text-muted mt-0.5">
+      El stock se controla por acabado. Un pedido lo descuenta y su cancelación lo devuelve. Sin
+      cifra = sin control de stock.
+    </p>
+  </div>
+
+  <ul class="m-0 flex list-none flex-col gap-2 p-0">
+    @for (line of lines(); track line.variantId) {
+      <li
+        class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
+      >
+        <div class="min-w-0">
+          <p class="truncate text-body-sm font-semibold text-text-primary">{{ line.label }}</p>
+          <p class="text-caption text-text-secondary">
+            @if (line.stock === null) {
+              Sin control de stock
+            } @else {
+              {{ line.stock }} unidades
+            }
+          </p>
+        </div>
+        <button
+          type="button"
+          class="min-h-10 rounded-button border border-border-strong px-4 text-body-sm font-semibold"
+          (click)="open(line)"
+        >
+          Ajustar
+        </button>
+      </li>
+    }
+  </ul>
+  @if (total() !== null && lines().length > 1) {
+    <p class="text-body-sm text-text-secondary">Total: {{ total() }} unidades</p>
+  }
+
+  @if (target() !== undefined) {
+    <form
+      class="flex flex-col gap-4 rounded-lg border border-border bg-surface-soft p-4"
+      (submit)="$event.preventDefault(); save()"
+      novalidate
+    >
+      <p class="text-body-sm font-semibold text-text-primary">
+        Ajustar: {{ variantLabel(target() ?? null) }}
+      </p>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-body-sm font-semibold" for="stock-type">Tipo</label>
+          <select
+            id="stock-type"
+            class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+            (change)="type.set($any($event.target).value)"
+          >
+            <option value="ENTRADA" [selected]="type() === 'ENTRADA'">Entrada (suma)</option>
+            <option value="SALIDA" [selected]="type() === 'SALIDA'">Salida (resta)</option>
+            <option value="AJUSTE" [selected]="type() === 'AJUSTE'">Ajuste (fija el stock)</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-body-sm font-semibold" for="stock-qty">Cantidad</label>
+          <input
+            id="stock-qty"
+            type="number"
+            min="0"
+            step="1"
+            class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+            [value]="quantity()"
+            (input)="quantity.set($any($event.target).value)"
+          />
+        </div>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-body-sm font-semibold" for="stock-reason">Motivo (opcional)</label>
+        <input
+          id="stock-reason"
+          type="text"
+          maxlength="200"
+          class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+          [value]="reason()"
+          (input)="reason.set($any($event.target).value)"
+        />
+      </div>
+      <div class="flex gap-3">
+        <button
+          type="submit"
+          class="min-h-11 rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast disabled:opacity-50"
+          [disabled]="saving() || !valid()"
+        >
+          {{ saving() ? 'Guardando…' : 'Guardar' }}
+        </button>
+        <button
+          type="button"
+          class="min-h-11 rounded-button border border-border-strong px-5 py-2.5 text-body-sm font-semibold"
+          (click)="close()"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  }
+
+  <div>
+    <h4 class="text-body-sm font-semibold text-text-primary">Historial</h4>
+    @if (movements().length === 0) {
+      <p class="mt-2 text-body-sm text-text-muted">Aún no hay movimientos.</p>
+    } @else {
+      <ul class="m-0 mt-2 flex max-h-72 list-none flex-col gap-1 overflow-y-auto p-0">
+        @for (item of movements(); track item.id) {
+          <li class="flex flex-wrap justify-between gap-2 border-b border-border py-2 text-body-sm">
+            <span>
+              <strong>{{ typeLabel(item.tipo) }}</strong> · {{ variantLabel(item.varianteId) }} ·
+              {{ item.cantidad }}
+              @if (item.stockResultante !== null) {
+                → {{ item.stockResultante }}
+              }
+              @if (item.motivo) {
+                · {{ item.motivo }}
+              }
+            </span>
+            <span class="text-caption text-text-muted">
+              {{ item.fecha | date: 'dd/MM/yyyy HH:mm' }}
+              @if (item.usuario) {
+                · {{ item.usuario }}
+              }
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</section>

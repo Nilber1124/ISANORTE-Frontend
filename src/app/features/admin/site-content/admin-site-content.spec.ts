@@ -6,7 +6,7 @@ import { of } from 'rxjs';
 
 import { API_BASE_URL } from '../../../core/config/api.config';
 import { AdminSiteContent } from './admin-site-content';
-import { SITE_CONTENT_ENTITIES } from './site-content.config';
+import { ISADECOR_HOME_ENTITIES, SITE_CONTENT_ENTITIES } from './site-content.config';
 
 describe('AdminSiteContent', () => {
   let http: HttpTestingController;
@@ -66,5 +66,64 @@ describe('AdminSiteContent', () => {
     for (const entity of SITE_CONTENT_ENTITIES) {
       expect(entity.fields.some((field) => field.key === entity.titleKey)).toBe(true);
     }
+  });
+
+  it('describes every ISADECOR Home entity with a title field and valid refs', () => {
+    for (const entity of ISADECOR_HOME_ENTITIES) {
+      expect(entity.fields.some((field) => field.key === entity.titleKey)).toBe(true);
+      expect(entity.fields.filter((field) => field.type === 'ref').every((f) => f.ref)).toBe(true);
+    }
+  });
+
+  it('sends the business unit and omits the order for single-record entities', () => {
+    const fixture = create('isadecor-hero');
+    http.expectOne('/api/unidades-negocio/activas/slug/isadecor').flush({ id: 'unit-1' });
+    http.expectOne('/api/isadecor/hero').flush([]);
+    const component = fixture.componentInstance;
+
+    component.openNew();
+    component.set('titulo', 'Acabados');
+    component.set('subtitulo', 'Paneles y pisos');
+    component.save();
+
+    const request = http.expectOne('/api/isadecor/hero');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      activo: true,
+      titulo: 'Acabados',
+      subtitulo: 'Paneles y pisos',
+      unidadNegocioId: 'unit-1',
+    });
+    request.flush({});
+    http.expectOne('/api/isadecor/hero').flush([]);
+  });
+
+  it('saves pinned and excluded products of a section', () => {
+    const fixture = create('isadecor-secciones');
+    http.expectOne('/api/unidades-negocio/activas/slug/isadecor').flush({ id: 'unit-1' });
+    http.expectOne('/api/productos').flush([
+      { id: 'a', nombre: 'A' },
+      { id: 'b', nombre: 'B' },
+    ]);
+    http
+      .expectOne('/api/isadecor/secciones')
+      .flush([{ id: 's1', titulo: 'Tienda', modo: 'MIXTO' }]);
+    const component = fixture.componentInstance;
+
+    component.openEdit(component.rows()[0]);
+    http.expectOne('/api/isadecor/secciones/s1/fijados').flush([]);
+    http.expectOne('/api/isadecor/secciones/s1/excluidos').flush([]);
+    component.pin('a');
+    component.toggleExcluded('b', true);
+    expect(component.pinnable()).toEqual([]);
+    component.saveSelection();
+
+    const pinned = http.expectOne('/api/isadecor/secciones/s1/fijados');
+    expect(pinned.request.method).toBe('PUT');
+    expect(pinned.request.body).toEqual({ productoIds: ['a'] });
+    pinned.flush([]);
+    const excluded = http.expectOne('/api/isadecor/secciones/s1/excluidos');
+    expect(excluded.request.body).toEqual({ productoIds: ['b'] });
+    excluded.flush([]);
   });
 });

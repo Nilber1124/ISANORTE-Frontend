@@ -61,7 +61,18 @@ export class AdminSidebar {
         { label: 'Productos', route: '/admin/productos' },
         { label: 'Cotizaciones', route: '/admin/cotizaciones' },
         { label: 'Pedidos', route: '/admin/pedidos' },
-        { label: 'Contenido del Home', route: '/admin/anuncios', badge: 'Nuevo' },
+      ],
+    },
+    {
+      title: 'Home ISADECOR',
+      items: [
+        { label: 'Hero de la Home', route: '/admin/home-isadecor/hero' },
+        { label: 'Cinta de avisos', route: '/admin/home-isadecor/cinta' },
+        { label: 'Promociones', route: '/admin/home-isadecor/promociones' },
+        { label: 'Campaña', route: '/admin/home-isadecor/campana' },
+        { label: 'Bloque de servicio', route: '/admin/home-isadecor/servicio' },
+        { label: 'Puntos del servicio', route: '/admin/home-isadecor/servicio-puntos' },
+        { label: 'Secciones de productos', route: '/admin/home-isadecor/secciones' },
       ],
     },
     {

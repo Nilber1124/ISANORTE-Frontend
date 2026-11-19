@@ -3,6 +3,10 @@ import { ProductAvailability } from './product-availability.enum';
 import { ProductDocumentType } from './product-document-type.enum';
 import { ProductPublicationStatus } from './product-publication-status.enum';
 
+export type ProductSaleMode = 'COMPRAR' | 'COTIZAR';
+export type ProductSaleUnit = 'M2' | 'UNIDAD' | 'CAJA' | 'ML';
+export type ProductStockState = 'DISPONIBLE' | 'QUEDAN' | 'AGOTADO' | 'SIN_CONTROL';
+
 export interface ProductVariantResponse {
   id: string;
   sku: string;
@@ -11,6 +15,8 @@ export interface ProductVariantResponse {
   precio: number | null;
   disponible: boolean | null;
   imagenUrl: string | null;
+  colorHex?: string | null;
+  stockActual?: number | null;
   orden: number | null;
 }
 
@@ -73,6 +79,12 @@ export interface ProductResponse {
   documentos: ProductDocumentResponse[] | null;
   configuracionCalculo: CalculationConfigResponse | null;
   retiroEnTienda?: boolean | null;
+  modalidad?: ProductSaleMode | null;
+  unidadVenta?: ProductSaleUnit | null;
+  plazoEntrega?: string | null;
+  facilInstalacion?: boolean | null;
+  stockMinimo?: number | null;
+  stockActual?: number | null;
   fechaCreacion: string | null;
   fechaActualizacion: string | null;
 }

@@ -73,6 +73,29 @@
                 (input)="setNumber(field.key, $any($event.target).value)"
               />
             }
+            @case ('date') {
+              <input
+                [id]="'f-' + field.key"
+                type="date"
+                class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+                [value]="form()[field.key] ?? ''"
+                (input)="set(field.key, $any($event.target).value)"
+              />
+            }
+            @case ('ref') {
+              <select
+                [id]="'f-' + field.key"
+                class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+                (change)="set(field.key, $any($event.target).value)"
+              >
+                <option value="">Selecciona…</option>
+                @for (option of refOptions()[field.key]; track option.id) {
+                  <option [value]="option.id" [selected]="form()[field.key] === option.id">
+                    {{ option.label }}
+                  </option>
+                }
+              </select>
+            }
             @case ('checkbox') {
               <input
                 [id]="'f-' + field.key"
@@ -119,28 +142,32 @@
       }
 
       <div class="grid gap-5 sm:grid-cols-2">
-        <div class="flex flex-col gap-1.5">
-          <label class="text-body-sm font-semibold text-text-primary" for="f-orden">Orden</label>
-          <input
-            id="f-orden"
-            type="number"
-            min="0"
-            class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
-            [value]="form()['orden'] ?? 0"
-            (input)="setNumber('orden', $any($event.target).value)"
-          />
-        </div>
-        <label
-          class="flex items-center gap-3 self-end pb-2 text-body-sm font-semibold text-text-primary"
-        >
-          <input
-            type="checkbox"
-            class="size-5"
-            [checked]="form()['activo'] === true"
-            (change)="set('activo', $any($event.target).checked)"
-          />
-          Visible en el sitio
-        </label>
+        @if (hasOrder()) {
+          <div class="flex flex-col gap-1.5">
+            <label class="text-body-sm font-semibold text-text-primary" for="f-orden">Orden</label>
+            <input
+              id="f-orden"
+              type="number"
+              min="0"
+              class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+              [value]="form()['orden'] ?? 0"
+              (input)="setNumber('orden', $any($event.target).value)"
+            />
+          </div>
+        }
+        @if (hasActive()) {
+          <label
+            class="flex items-center gap-3 self-end pb-2 text-body-sm font-semibold text-text-primary"
+          >
+            <input
+              type="checkbox"
+              class="size-5"
+              [checked]="form()['activo'] === true"
+              (change)="set('activo', $any($event.target).checked)"
+            />
+            Visible en el sitio
+          </label>
+        }
       </div>
 
       <div class="flex gap-3">
@@ -160,6 +187,104 @@
         </button>
       </div>
     </form>
+
+    @if (config.selection && editing() !== 'new') {
+      <section
+        class="mt-6 flex max-w-3xl flex-col gap-5 rounded-card border border-border bg-surface p-6"
+        aria-labelledby="sel-title"
+      >
+        <div>
+          <h2 id="sel-title" class="text-heading-3 text-text-primary">
+            Productos fijados y excluidos
+          </h2>
+          <p class="mt-1 text-body-sm text-text-secondary">
+            Los fijados salen primero y en este orden (modos manual y mixto). Los excluidos nunca
+            aparecen.
+          </p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <h3 class="text-body-sm font-semibold text-text-primary">Fijados</h3>
+          @if (pinned().length === 0) {
+            <p class="text-body-sm text-text-muted">Ninguno.</p>
+          }
+          <ol class="m-0 flex list-none flex-col gap-2 p-0">
+            @for (id of pinned(); track id; let i = $index) {
+              <li
+                class="flex items-center justify-between gap-2 rounded-control border border-border p-2"
+              >
+                <span class="truncate text-body-sm">{{ i + 1 }}. {{ productName(id) }}</span>
+                <span class="flex gap-1">
+                  <button
+                    type="button"
+                    class="min-h-9 rounded-button border border-border-strong px-3 text-body-sm"
+                    [disabled]="i === 0"
+                    [attr.aria-label]="'Subir ' + productName(id)"
+                    (click)="movePinned(i, -1)"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    class="min-h-9 rounded-button border border-border-strong px-3 text-body-sm"
+                    [disabled]="i === pinned().length - 1"
+                    [attr.aria-label]="'Bajar ' + productName(id)"
+                    (click)="movePinned(i, 1)"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    class="min-h-9 rounded-button border border-border-strong px-3 text-body-sm"
+                    (click)="unpin(id)"
+                  >
+                    Quitar
+                  </button>
+                </span>
+              </li>
+            }
+          </ol>
+          <label class="text-body-sm font-semibold text-text-primary" for="pin-add"
+            >Fijar un producto</label
+          >
+          <select
+            id="pin-add"
+            class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
+            (change)="pin($any($event.target).value); $any($event.target).value = ''"
+          >
+            <option value="">Selecciona…</option>
+            @for (option of pinnable(); track option.id) {
+              <option [value]="option.id">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+        <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend class="mb-2 text-body-sm font-semibold text-text-primary">Excluidos</legend>
+          <div class="grid gap-2 sm:grid-cols-2">
+            @for (option of products(); track option.id) {
+              <label class="flex items-center gap-3 text-body-sm">
+                <input
+                  type="checkbox"
+                  class="size-5"
+                  [checked]="excluded().includes(option.id)"
+                  (change)="toggleExcluded(option.id, $any($event.target).checked)"
+                />
+                {{ option.label }}
+              </label>
+            }
+          </div>
+        </fieldset>
+        <div>
+          <button
+            type="button"
+            class="min-h-11 rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast disabled:opacity-50"
+            [disabled]="savingSelection()"
+            (click)="saveSelection()"
+          >
+            {{ savingSelection() ? 'Guardando…' : 'Guardar selección' }}
+          </button>
+        </div>
+      </section>
+    }
   } @else if (loading()) {
     <p class="mt-8 text-body text-text-secondary" role="status">Cargando…</p>
   } @else if (rows().length === 0) {
@@ -181,9 +306,19 @@
             @if (config.subtitleKey) {
               <p class="text-body-sm text-text-secondary">{{ text(row, config.subtitleKey) }}</p>
             }
-            <p class="text-caption text-text-muted">
-              Orden {{ row.orden }} · {{ row.activo ? 'Visible' : 'Oculto' }}
-            </p>
+            @if (hasOrder() || hasActive()) {
+              <p class="text-caption text-text-muted">
+                @if (hasOrder()) {
+                  Orden {{ row.orden }}
+                }
+                @if (hasOrder() && hasActive()) {
+                  ·
+                }
+                @if (hasActive()) {
+                  {{ row.activo ? 'Visible' : 'Oculto' }}
+                }
+              </p>
+            }
           </div>
           <div class="flex gap-2">
             <button
@@ -193,13 +328,15 @@
             >
               Editar
             </button>
-            <button
-              type="button"
-              class="min-h-10 rounded-button border border-border-strong px-4 text-body-sm font-semibold"
-              (click)="toggle(row)"
-            >
-              {{ row.activo ? 'Ocultar' : 'Mostrar' }}
-            </button>
+            @if (hasActive()) {
+              <button
+                type="button"
+                class="min-h-10 rounded-button border border-border-strong px-4 text-body-sm font-semibold"
+                (click)="toggle(row)"
+              >
+                {{ row.activo ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            }
             <button
               type="button"
               class="min-h-10 rounded-button border border-border-strong px-4 text-body-sm font-semibold"

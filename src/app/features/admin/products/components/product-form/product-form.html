@@ -246,6 +246,52 @@
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
+        <app-select-field
+          inputId="product-sale-mode"
+          label="Cómo se vende"
+          [value]="modalidad()"
+          (valueChange)="modalidad.set($any($event))"
+          [options]="modalidadOptions"
+          required
+        />
+        <app-select-field
+          inputId="product-sale-unit"
+          label="Unidad de venta"
+          [value]="unidadVenta()"
+          (valueChange)="unidadVenta.set($any($event))"
+          [options]="unidadVentaOptions"
+          required
+        />
+        <app-input-field
+          inputId="product-delivery-time"
+          label="Plazo de entrega"
+          [value]="plazoEntrega()"
+          (valueChange)="plazoEntrega.set($event)"
+          placeholder="ej. Llega en 3 a 5 días"
+          helperText="Texto corto que se muestra en la tarjeta del producto."
+        />
+        <app-input-field
+          inputId="product-min-stock"
+          label="Aviso de poco stock (unidades)"
+          type="number"
+          inputMode="numeric"
+          [value]="stockMinimo()"
+          (valueChange)="stockMinimo.set($event)"
+          helperText="Con este stock o menos se muestra «Quedan N». El stock se ajusta en la sección de inventario."
+        />
+        <label class="flex items-center gap-3 text-body-sm font-semibold text-text-primary sm:col-span-2">
+          <input
+            id="product-easy-install"
+            type="checkbox"
+            class="size-5"
+            [checked]="facilInstalacion()"
+            (change)="facilInstalacion.set($any($event.target).checked)"
+          />
+          Es fácil de instalar (puede aparecer en «Fáciles de instalar»)
+        </label>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
         <label
           class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
         >
@@ -496,6 +542,12 @@
         }
       </div>
     </section>
+
+    @if (mode() === 'edit') {
+      @if (product(); as current) {
+        <app-product-stock [product]="current" />
+      }
+    }
 
     <!-- SECCIÓN 5: VARIANTES TÉCNICAS Y COMERCIALES -->
     <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-variants">
@@ -1274,6 +1326,14 @@
           type="number"
           placeholder="Opcional (hereda precio base)"
           helperText="Déjalo vacío para usar el precio base del producto."
+        />
+
+        <app-input-field
+          inputId="variant-color"
+          label="Color del acabado (hex)"
+          [(value)]="variantColorHex"
+          placeholder="#C8A27A"
+          helperText="Opcional. Se muestra como muestra de color en la tienda."
         />
 
         <div class="flex flex-col justify-center">

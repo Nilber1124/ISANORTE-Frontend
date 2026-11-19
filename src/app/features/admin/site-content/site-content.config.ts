@@ -1,5 +1,12 @@
 /** Una pantalla de administración por entidad, descrita como datos: la misma lista y el mismo formulario. */
-export type SiteContentFieldType = 'text' | 'textarea' | 'number' | 'select' | 'image' | 'checkbox';
+export type SiteContentFieldType =
+  'text' | 'textarea' | 'number' | 'select' | 'image' | 'checkbox' | 'date' | 'ref';
+
+/** Lista REST de la que un campo `ref` toma sus opciones (se guarda el `id`). */
+export interface SiteContentRef {
+  readonly endpoint: string;
+  readonly labelKey: string;
+}
 
 export interface SiteContentField {
   readonly key: string;
@@ -9,6 +16,7 @@ export interface SiteContentField {
   readonly maxLength?: number;
   readonly options?: readonly { readonly value: string; readonly label: string }[];
   readonly help?: string;
+  readonly ref?: SiteContentRef;
 }
 
 export interface SiteContentEntity {
@@ -22,6 +30,13 @@ export interface SiteContentEntity {
   /** Campos que se resumen en la fila de la lista. */
   readonly titleKey: string;
   readonly subtitleKey?: string;
+  /** Unidad de negocio a la que pertenece el contenido: se envía como `unidadNegocioId`. */
+  readonly unitSlug?: string;
+  /** La entidad no tiene orden ni visibilidad propios (no se muestran ni se envían). */
+  readonly noOrder?: boolean;
+  readonly noActive?: boolean;
+  /** Permite fijar y excluir productos de la fila (secciones de productos de la Home). */
+  readonly selection?: boolean;
 }
 
 export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
@@ -201,6 +216,229 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
         type: 'textarea',
         required: true,
         help: 'Deja una línea en blanco entre párrafos.',
+      },
+    ],
+  },
+];
+
+const UNIT = 'isadecor';
+const LINK_PATTERN_HELP = 'Ruta interna (/isadecor/...) o dirección https://';
+
+/** Contenido editable de la Home de ISADECOR (reemplaza al antiguo «Contenido del Home»). */
+export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
+  {
+    key: 'isadecor-hero',
+    title: 'Hero de la Home',
+    description:
+      'Titular y subtítulo que se ven al abrir la tienda. Solo se muestra el primero activo.',
+    endpoint: 'isadecor/hero',
+    folder: 'isadecor/hero',
+    unitSlug: UNIT,
+    noOrder: true,
+    titleKey: 'titulo',
+    fields: [
+      { key: 'titulo', label: 'Titular', type: 'text', required: true, maxLength: 160 },
+      { key: 'subtitulo', label: 'Subtítulo', type: 'textarea', required: true, maxLength: 300 },
+    ],
+  },
+  {
+    key: 'isadecor-cinta',
+    title: 'Cinta de avisos',
+    description: 'Frases cortas que rotan sobre el encabezado (envíos, instalación, etc.).',
+    endpoint: 'isadecor/cinta',
+    folder: 'isadecor/cinta',
+    unitSlug: UNIT,
+    titleKey: 'texto',
+    subtitleKey: 'enlace',
+    fields: [
+      { key: 'texto', label: 'Texto', type: 'text', required: true, maxLength: 160 },
+      {
+        key: 'enlace',
+        label: 'Enlace (opcional)',
+        type: 'text',
+        maxLength: 300,
+        help: LINK_PATTERN_HELP,
+      },
+    ],
+  },
+  {
+    key: 'isadecor-promociones',
+    title: 'Promociones',
+    description:
+      'Hasta 3 en la Home: la marcada como principal va grande. Muestran el precio real del producto; vencen solas en su fecha.',
+    endpoint: 'isadecor/promociones',
+    folder: 'isadecor/promo',
+    unitSlug: UNIT,
+    titleKey: 'titulo',
+    subtitleKey: 'tipo',
+    fields: [
+      { key: 'titulo', label: 'Título', type: 'text', required: true, maxLength: 140 },
+      {
+        key: 'productoId',
+        label: 'Producto',
+        type: 'ref',
+        required: true,
+        ref: { endpoint: 'productos', labelKey: 'nombre' },
+      },
+      {
+        key: 'tipo',
+        label: 'Tipo',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'DESCUENTO', label: 'Descuento' },
+          { value: 'NUEVO', label: 'Producto nuevo' },
+        ],
+      },
+      { key: 'imagenUrl', label: 'Imagen', type: 'image', required: true },
+      { key: 'fechaFin', label: 'Vigente hasta (opcional)', type: 'date' },
+      { key: 'principal', label: 'Promoción principal (grande)', type: 'checkbox' },
+    ],
+  },
+  {
+    key: 'isadecor-campana',
+    title: 'Campaña',
+    description: 'Banner de campaña de la Home. Solo se muestra la primera activa.',
+    endpoint: 'isadecor/campanas',
+    folder: 'isadecor/campana',
+    unitSlug: UNIT,
+    noOrder: true,
+    titleKey: 'titulo',
+    subtitleKey: 'etiqueta',
+    fields: [
+      { key: 'etiqueta', label: 'Etiqueta', type: 'text', required: true, maxLength: 60 },
+      { key: 'titulo', label: 'Título', type: 'text', required: true, maxLength: 160 },
+      {
+        key: 'descripcion',
+        label: 'Descripción',
+        type: 'textarea',
+        required: true,
+        maxLength: 400,
+      },
+      { key: 'textoBoton', label: 'Texto del botón', type: 'text', required: true, maxLength: 60 },
+      {
+        key: 'enlace',
+        label: 'Enlace del botón',
+        type: 'text',
+        required: true,
+        maxLength: 300,
+        help: LINK_PATTERN_HELP,
+      },
+      { key: 'imagenUrl', label: 'Imagen', type: 'image', required: true },
+    ],
+  },
+  {
+    key: 'isadecor-servicios',
+    title: 'Bloque de servicio',
+    description:
+      'Bloque «instalación / servicio» de la Home. Sus puntos se editan en «Puntos del servicio».',
+    endpoint: 'isadecor/servicios-empresa',
+    folder: 'isadecor/servicio',
+    unitSlug: UNIT,
+    noOrder: true,
+    titleKey: 'titulo',
+    subtitleKey: 'etiqueta',
+    fields: [
+      { key: 'etiqueta', label: 'Etiqueta', type: 'text', required: true, maxLength: 80 },
+      { key: 'titulo', label: 'Título', type: 'text', required: true, maxLength: 160 },
+      {
+        key: 'descripcion',
+        label: 'Descripción',
+        type: 'textarea',
+        required: true,
+        maxLength: 400,
+      },
+      { key: 'textoBoton', label: 'Texto del botón', type: 'text', required: true, maxLength: 60 },
+      {
+        key: 'enlace',
+        label: 'Enlace del botón',
+        type: 'text',
+        required: true,
+        maxLength: 300,
+        help: LINK_PATTERN_HELP,
+      },
+    ],
+  },
+  {
+    key: 'isadecor-servicio-puntos',
+    title: 'Puntos del servicio',
+    description: 'Viñetas del bloque de servicio, en el orden indicado.',
+    endpoint: 'isadecor/servicio-puntos',
+    folder: 'isadecor/servicio',
+    noActive: true,
+    titleKey: 'texto',
+    fields: [
+      { key: 'texto', label: 'Texto', type: 'text', required: true, maxLength: 160 },
+      {
+        key: 'servicioId',
+        label: 'Bloque de servicio',
+        type: 'ref',
+        required: true,
+        ref: { endpoint: 'isadecor/servicios-empresa', labelKey: 'titulo' },
+      },
+    ],
+  },
+  {
+    key: 'isadecor-secciones',
+    title: 'Secciones de productos',
+    description:
+      '«Elige tu acabado» (tienda) y «Fáciles de instalar»: automáticas por demanda, manuales o mixtas, con productos fijados y excluidos.',
+    endpoint: 'isadecor/secciones',
+    folder: 'isadecor/secciones',
+    unitSlug: UNIT,
+    noOrder: true,
+    selection: true,
+    titleKey: 'titulo',
+    subtitleKey: 'modo',
+    fields: [
+      {
+        key: 'clave',
+        label: 'Sección',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'TIENDA', label: 'Elige tu acabado' },
+          { value: 'FACILES', label: 'Fáciles de instalar' },
+        ],
+      },
+      { key: 'titulo', label: 'Título', type: 'text', required: true, maxLength: 120 },
+      {
+        key: 'textoEnlace',
+        label: 'Texto del enlace «ver todo»',
+        type: 'text',
+        required: true,
+        maxLength: 80,
+      },
+      {
+        key: 'categoriaEnlace',
+        label: 'Categoría del enlace (slug, opcional)',
+        type: 'text',
+        maxLength: 150,
+      },
+      {
+        key: 'modo',
+        label: 'Cómo se eligen los productos',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'AUTOMATICO', label: 'Automático (por demanda)' },
+          { value: 'MANUAL', label: 'Manual (solo los fijados)' },
+          { value: 'MIXTO', label: 'Mixto (fijados y luego por demanda)' },
+        ],
+      },
+      {
+        key: 'ventanaDias',
+        label: 'Ventana de demanda (días)',
+        type: 'number',
+        required: true,
+        help: 'Pedidos y cotizaciones de los últimos N días (1–365).',
+      },
+      {
+        key: 'limite',
+        label: 'Máximo de productos',
+        type: 'number',
+        required: true,
+        help: 'Entre 1 y 24.',
       },
     ],
   },

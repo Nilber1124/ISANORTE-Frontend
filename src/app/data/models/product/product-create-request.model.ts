@@ -1,5 +1,6 @@
 import { ProductAvailability } from './product-availability.enum';
 import { ProductDocumentType } from './product-document-type.enum';
+import { ProductSaleMode, ProductSaleUnit } from './product-response.model';
 import { ProductPublicationStatus } from './product-publication-status.enum';
 
 export interface ProductVariantCreateRequest {
@@ -9,6 +10,7 @@ export interface ProductVariantCreateRequest {
   precio?: number | null;
   disponible?: boolean | null;
   imagenUrl?: string | null;
+  colorHex?: string | null;
   orden?: number | null;
 }
 
@@ -56,6 +58,11 @@ export interface ProductCreateRequest {
   destacado?: boolean | null;
   ordenDestacado?: number | null;
   retiroEnTienda?: boolean | null;
+  modalidad?: ProductSaleMode | null;
+  unidadVenta?: ProductSaleUnit | null;
+  plazoEntrega?: string | null;
+  facilInstalacion?: boolean | null;
+  stockMinimo?: number | null;
   estado: ProductPublicationStatus;
   tituloSeo?: string | null;
   descripcionSeo?: string | null;

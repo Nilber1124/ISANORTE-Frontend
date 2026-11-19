@@ -15,7 +15,21 @@ import { API_BASE_URL } from '../../../core/config/api.config';
 import { ToastService } from '../../../core/services/toast.service';
 import { ArchivoApiService } from '../../../data/services/archivo-api.service';
 import { trimTrailingSlashes } from '../../../shared/utils/text';
-import { SITE_CONTENT_ENTITIES, SiteContentEntity, SiteContentField } from './site-content.config';
+import {
+  ISADECOR_HOME_ENTITIES,
+  SITE_CONTENT_ENTITIES,
+  SiteContentEntity,
+  SiteContentField,
+} from './site-content.config';
+
+interface RefOption {
+  readonly id: string;
+  readonly label: string;
+}
+interface SelectionItem {
+  readonly productoId: string;
+  readonly nombre: string;
+}
 
 type Row = Record<string, unknown> & { id: string; activo: boolean; orden: number };
 type FormValue = Record<string, string | number | boolean | null>;
@@ -41,8 +55,21 @@ export class AdminSiteContent {
   );
 
   readonly entity = computed<SiteContentEntity | null>(
-    () => SITE_CONTENT_ENTITIES.find((item) => item.key === this.entityKey()) ?? null,
+    () =>
+      [...SITE_CONTENT_ENTITIES, ...ISADECOR_HOME_ENTITIES].find(
+        (item) => item.key === this.entityKey(),
+      ) ?? null,
   );
+
+  /** Opciones de los campos `ref`, por clave de campo. */
+  readonly refOptions = signal<Record<string, readonly RefOption[]>>({});
+  private unitId: string | null = null;
+
+  /** Productos disponibles y selección fijada/excluida de la sección en edición. */
+  readonly products = signal<readonly RefOption[]>([]);
+  readonly pinned = signal<readonly string[]>([]);
+  readonly excluded = signal<readonly string[]>([]);
+  readonly savingSelection = signal(false);
 
   readonly rows = signal<readonly Row[]>([]);
   readonly loading = signal(true);
@@ -67,6 +94,7 @@ export class AdminSiteContent {
     this.loading.set(true);
     this.error.set(null);
     this.editing.set(null);
+    this.loadSupport();
     this.http.get<Row[]>(this.url()).subscribe({
       next: (rows) => {
         this.rows.set(rows);
@@ -79,6 +107,39 @@ export class AdminSiteContent {
     });
   }
 
+  /** Carga la unidad de negocio y las listas de los campos `ref` que la entidad necesita. */
+  private loadSupport(): void {
+    const entity = this.entity();
+    if (!entity) return;
+    if (entity.unitSlug && !this.unitId) {
+      this.http
+        .get<{ id: string }>(`${this.base}/api/unidades-negocio/activas/slug/${entity.unitSlug}`)
+        .subscribe({ next: (unit) => (this.unitId = unit.id) });
+    }
+    for (const field of entity.fields) {
+      const ref = field.ref;
+      if (!ref) continue;
+      this.http.get<Record<string, unknown>[]>(`${this.base}/api/${ref.endpoint}`).subscribe({
+        next: (items) =>
+          this.refOptions.update((current) => ({
+            ...current,
+            [field.key]: items.map((item) => ({
+              id: String(item['id']),
+              label: String(item[ref.labelKey] ?? ''),
+            })),
+          })),
+      });
+    }
+    if (entity.selection) {
+      this.http.get<Record<string, unknown>[]>(`${this.base}/api/productos`).subscribe({
+        next: (items) =>
+          this.products.set(
+            items.map((item) => ({ id: String(item['id']), label: String(item['nombre']) })),
+          ),
+      });
+    }
+  }
+
   text(row: Row, key: string | undefined): string {
     return key ? String(row[key] ?? '') : '';
   }
@@ -87,6 +148,8 @@ export class AdminSiteContent {
     const entity = this.entity();
     if (!entity) return;
     const value: FormValue = { activo: true, orden: this.rows().length };
+    this.pinned.set([]);
+    this.excluded.set([]);
     for (const field of entity.fields) {
       value[field.key] = field.type === 'checkbox' ? false : field.type === 'number' ? null : '';
     }
@@ -97,7 +160,8 @@ export class AdminSiteContent {
   openEdit(row: Row): void {
     const entity = this.entity();
     if (!entity) return;
-    const value: FormValue = { activo: row.activo, orden: row.orden };
+    const value: FormValue = { activo: row.activo ?? true, orden: row.orden ?? 0 };
+    if (entity.selection) this.loadSelection(row.id);
     for (const field of entity.fields) {
       const current = row[field.key];
       value[field.key] =
@@ -138,9 +202,19 @@ export class AdminSiteContent {
 
   save(): void {
     if (this.saving() || !this.valid()) return;
+    const entity = this.entity();
     const body: FormValue = {};
     for (const [key, value] of Object.entries(this.form())) {
       body[key] = typeof value === 'string' ? value.trim() || null : value;
+    }
+    if (entity?.noOrder) delete body['orden'];
+    if (entity?.noActive) delete body['activo'];
+    if (entity?.unitSlug) {
+      if (!this.unitId) {
+        this.toast.show('No se pudo identificar la unidad de negocio.', 'error');
+        return;
+      }
+      body['unidadNegocioId'] = this.unitId;
     }
     // Los textos obligatorios nunca viajan vacíos (la validación ya lo impide).
     const id = this.editing();
@@ -193,5 +267,84 @@ export class AdminSiteContent {
       },
     });
     input.value = '';
+  }
+
+  hasOrder(): boolean {
+    return !this.entity()?.noOrder;
+  }
+
+  hasActive(): boolean {
+    return !this.entity()?.noActive;
+  }
+
+  // --- Productos fijados y excluidos de una sección ---------------------------------------
+
+  private loadSelection(sectionId: string): void {
+    const base = `${this.base}/api/isadecor/secciones/${sectionId}`;
+    this.http.get<SelectionItem[]>(`${base}/fijados`).subscribe({
+      next: (items) => this.pinned.set(items.map((item) => item.productoId)),
+    });
+    this.http.get<SelectionItem[]>(`${base}/excluidos`).subscribe({
+      next: (items) => this.excluded.set(items.map((item) => item.productoId)),
+    });
+  }
+
+  productName(id: string): string {
+    return this.products().find((item) => item.id === id)?.label ?? id;
+  }
+
+  /** Productos que aún se pueden fijar (ni fijados ni excluidos). */
+  pinnable(): readonly RefOption[] {
+    return this.products().filter(
+      (item) => !this.pinned().includes(item.id) && !this.excluded().includes(item.id),
+    );
+  }
+
+  pin(id: string): void {
+    if (id) this.pinned.update((current) => [...current, id]);
+  }
+
+  unpin(id: string): void {
+    this.pinned.update((current) => current.filter((item) => item !== id));
+  }
+
+  movePinned(index: number, delta: -1 | 1): void {
+    this.pinned.update((current) => {
+      const target = index + delta;
+      if (target < 0 || target >= current.length) return current;
+      const next = [...current];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  }
+
+  toggleExcluded(id: string, checked: boolean): void {
+    this.excluded.update((current) =>
+      checked ? [...new Set([...current, id])] : current.filter((item) => item !== id),
+    );
+    if (checked) this.unpin(id);
+  }
+
+  saveSelection(): void {
+    const id = this.editing();
+    if (!id || id === 'new' || this.savingSelection()) return;
+    const base = `${this.base}/api/isadecor/secciones/${id}`;
+    this.savingSelection.set(true);
+    this.http.put(`${base}/fijados`, { productoIds: this.pinned() }).subscribe({
+      next: () =>
+        this.http.put(`${base}/excluidos`, { productoIds: this.excluded() }).subscribe({
+          next: () => {
+            this.savingSelection.set(false);
+            this.toast.show('Selección guardada.', 'success');
+          },
+          error: () => this.failSelection(),
+        }),
+      error: () => this.failSelection(),
+    });
+  }
+
+  private failSelection(): void {
+    this.savingSelection.set(false);
+    this.toast.show('No se pudo guardar la selección.', 'error');
   }
 }

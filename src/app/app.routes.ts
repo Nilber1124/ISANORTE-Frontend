@@ -131,6 +131,62 @@ export const routes: Routes = [
         data: { title: 'Anuncios' },
       },
       {
+        path: 'home-isadecor/hero',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'isadecor-hero', title: 'Hero de la Home' },
+      },
+      {
+        path: 'home-isadecor/cinta',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'isadecor-cinta', title: 'Cinta de avisos' },
+      },
+      {
+        path: 'home-isadecor/promociones',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'isadecor-promociones', title: 'Promociones' },
+      },
+      {
+        path: 'home-isadecor/campana',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'isadecor-campana', title: 'Campaña' },
+      },
+      {
+        path: 'home-isadecor/servicio',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'isadecor-servicios', title: 'Bloque de servicio' },
+      },
+      {
+        path: 'home-isadecor/servicio-puntos',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'isadecor-servicio-puntos', title: 'Puntos del servicio' },
+      },
+      {
+        path: 'home-isadecor/secciones',
+        loadComponent: () =>
+          import('./features/admin/site-content/admin-site-content').then(
+            ({ AdminSiteContent }) => AdminSiteContent,
+          ),
+        data: { entity: 'isadecor-secciones', title: 'Secciones de productos' },
+      },
+      {
         path: 'sitio/faqs',
         loadComponent: () =>
           import('./features/admin/site-content/admin-site-content').then(

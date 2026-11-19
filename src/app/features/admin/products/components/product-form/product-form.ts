@@ -15,6 +15,11 @@ import { FormsModule } from '@angular/forms';
 import { UploadResponseDto } from '../../../../../data/models/archivo/upload-response.model';
 import { BusinessUnitResponse } from '../../../../../data/models/business-unit/business-unit-response.model';
 import { CategoryResponse } from '../../../../../data/models/category/category-response.model';
+import {
+  ProductSaleMode,
+  ProductSaleUnit,
+} from '../../../../../data/models/product/product-response.model';
+import { ProductStock } from '../product-stock/product-stock';
 import { ProductAvailability } from '../../../../../data/models/product/product-availability.enum';
 import {
   CalculationConfigCreateRequest,
@@ -60,6 +65,7 @@ export interface ProductVariantItem {
   precio?: number | null;
   disponible: boolean;
   imagenUrl?: string | null;
+  colorHex?: string | null;
   orden?: number;
 }
 
@@ -112,6 +118,7 @@ interface ProductFormErrors {
     FormsModule,
     ImageUploaderComponent,
     InputField,
+    ProductStock,
     Modal,
     SelectField,
     TextareaField,
@@ -143,6 +150,21 @@ export class ProductForm implements OnInit {
   readonly destacado = signal(false);
   readonly ordenDestacado = signal('0');
   readonly retiroEnTienda = signal(false);
+  readonly modalidad = signal<ProductSaleMode>('COTIZAR');
+  readonly unidadVenta = signal<ProductSaleUnit>('UNIDAD');
+  readonly plazoEntrega = signal('');
+  readonly facilInstalacion = signal(false);
+  readonly stockMinimo = signal('');
+  readonly modalidadOptions: readonly SelectOption[] = [
+    { value: 'COMPRAR', label: 'Comprar (carrito)' },
+    { value: 'COTIZAR', label: 'Cotizar' },
+  ];
+  readonly unidadVentaOptions: readonly SelectOption[] = [
+    { value: 'M2', label: 'Metro cuadrado (m²)' },
+    { value: 'UNIDAD', label: 'Unidad' },
+    { value: 'CAJA', label: 'Caja' },
+    { value: 'ML', label: 'Metro lineal (ml)' },
+  ];
   readonly estado = signal<ProductPublicationStatus>(ProductPublicationStatus.BORRADOR);
   readonly tituloSeo = signal('');
   readonly descripcionSeo = signal('');
@@ -257,6 +279,7 @@ export class ProductForm implements OnInit {
         precio: v.precio ?? null,
         disponible: v.disponible !== false,
         imagenUrl: v.imagenUrl ?? null,
+        ...(v.colorHex ? { colorHex: v.colorHex } : {}),
         orden: v.orden ?? idx,
       }));
   });
@@ -271,6 +294,7 @@ export class ProductForm implements OnInit {
   readonly variantPrecio = signal('');
   readonly variantDisponible = signal(true);
   readonly variantImagenUrl = signal<string | null>(null);
+  readonly variantColorHex = signal('');
   readonly variantSubmitted = signal(false);
   readonly variantClientError = signal<string | null>(null);
 
@@ -460,6 +484,11 @@ export class ProductForm implements OnInit {
     this.destacado.set(product.destacado === true);
     this.ordenDestacado.set(String(product.ordenDestacado ?? 0));
     this.retiroEnTienda.set(product.retiroEnTienda === true);
+    this.modalidad.set(product.modalidad ?? 'COTIZAR');
+    this.unidadVenta.set(product.unidadVenta ?? 'UNIDAD');
+    this.plazoEntrega.set(this.cleanString(product.plazoEntrega));
+    this.facilInstalacion.set(product.facilInstalacion === true);
+    this.stockMinimo.set(this.numberValue(product.stockMinimo));
     this.estado.set(product.estado);
     this.tituloSeo.set(this.cleanString(product.tituloSeo));
     this.descripcionSeo.set(this.cleanString(product.descripcionSeo));
@@ -496,6 +525,11 @@ export class ProductForm implements OnInit {
       destacado: this.destacado(),
       ordenDestacado: Number(this.ordenDestacado()) || 0,
       retiroEnTienda: this.retiroEnTienda(),
+      modalidad: this.modalidad(),
+      unidadVenta: this.unidadVenta(),
+      plazoEntrega: this.optionalValue(this.plazoEntrega()),
+      facilInstalacion: this.facilInstalacion(),
+      stockMinimo: this.optionalNumber(this.stockMinimo()),
       estado: this.estado(),
       tituloSeo: this.optionalValue(this.tituloSeo()),
       descripcionSeo: this.optionalValue(this.descripcionSeo()),
@@ -517,23 +551,24 @@ export class ProductForm implements OnInit {
         precio: v.precio != null && v.precio >= 0 ? v.precio : null,
         disponible: v.disponible,
         imagenUrl: v.imagenUrl || null,
+        ...(v.colorHex ? { colorHex: v.colorHex } : {}),
         orden: idx,
       }));
-      const especificaciones: ProductSpecificationCreateRequest[] =
-        this.localSpecifications().map((s, idx) => ({
+      const especificaciones: ProductSpecificationCreateRequest[] = this.localSpecifications().map(
+        (s, idx) => ({
           clave: s.clave.trim(),
           valor: s.valor.trim(),
           grupo: s.grupo?.trim() || null,
           orden: s.orden ?? idx,
-        }));
-      const documentos: ProductDocumentCreateRequest[] =
-        this.localDocuments().map((d) => ({
-          titulo: d.titulo.trim(),
-          url: d.url.trim(),
-          tipo: d.tipo,
-          formato: d.formato?.trim() || null,
-          tamanoBytes: d.tamanoBytes != null && d.tamanoBytes >= 0 ? d.tamanoBytes : null,
-        }));
+        }),
+      );
+      const documentos: ProductDocumentCreateRequest[] = this.localDocuments().map((d) => ({
+        titulo: d.titulo.trim(),
+        url: d.url.trim(),
+        tipo: d.tipo,
+        formato: d.formato?.trim() || null,
+        tamanoBytes: d.tamanoBytes != null && d.tamanoBytes >= 0 ? d.tamanoBytes : null,
+      }));
 
       let configuracionCalculo: CalculationConfigCreateRequest | null = null;
       const cobVal = this.calcCoberturaPorUnidad().trim();
@@ -720,6 +755,7 @@ export class ProductForm implements OnInit {
     this.variantPrecio.set('');
     this.variantDisponible.set(true);
     this.variantImagenUrl.set(null);
+    this.variantColorHex.set('');
     this.variantSubmitted.set(false);
     this.variantClientError.set(null);
     this.variantModalOpen.set(true);
@@ -738,6 +774,7 @@ export class ProductForm implements OnInit {
     this.variantPrecio.set(item.precio != null ? String(item.precio) : '');
     this.variantDisponible.set(item.disponible !== false);
     this.variantImagenUrl.set(item.imagenUrl ?? null);
+    this.variantColorHex.set(item.colorHex ?? '');
     this.variantSubmitted.set(false);
     this.variantClientError.set(null);
     this.variantModalOpen.set(true);
@@ -803,6 +840,7 @@ export class ProductForm implements OnInit {
       precio,
       disponible: this.variantDisponible(),
       imagenUrl: this.variantImagenUrl(),
+      colorHex: this.variantColorHex().trim() || null,
       orden: editingIdx != null && editingIdx >= 0 ? editingIdx : currentList.length,
     };
 
@@ -828,6 +866,7 @@ export class ProductForm implements OnInit {
       precio: item.precio,
       disponible: item.disponible,
       imagenUrl: item.imagenUrl,
+      colorHex: item.colorHex ?? null,
       orden: item.orden ?? 0,
     };
 
@@ -903,9 +942,7 @@ export class ProductForm implements OnInit {
     const orden = Number(this.specOrden()) || 0;
 
     if (!clave) {
-      this.specClientError.set(
-        'La clave (nombre técnico) de la especificación es obligatoria.',
-      );
+      this.specClientError.set('La clave (nombre técnico) de la especificación es obligatoria.');
       return;
     }
     if (clave.length > 100) {
@@ -1068,9 +1105,7 @@ export class ProductForm implements OnInit {
     if (this.mode() === 'create') {
       const editIdx = this.editingDocumentIndex();
       if (editIdx !== null && editIdx >= 0) {
-        this.localDocuments.update((list) =>
-          list.map((d, i) => (i === editIdx ? item : d)),
-        );
+        this.localDocuments.update((list) => list.map((d, i) => (i === editIdx ? item : d)));
       } else {
         this.localDocuments.update((list) => [...list, item]);
       }
@@ -1134,7 +1169,10 @@ export class ProductForm implements OnInit {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
-  protected getDocumentTypeBadge(tipo: ProductDocumentType): { label: string; variant: BadgeVariant } {
+  protected getDocumentTypeBadge(tipo: ProductDocumentType): {
+    label: string;
+    variant: BadgeVariant;
+  } {
     switch (tipo) {
       case ProductDocumentType.FICHA_TECNICA:
         return { label: 'Ficha Técnica', variant: 'accent' };
@@ -1239,7 +1277,8 @@ export class ProductForm implements OnInit {
   }
 
   private numberValue(value: number | null | undefined | string): string {
-    if (value === null || value === undefined || value === 'undefined' || value === 'null') return '';
+    if (value === null || value === undefined || value === 'undefined' || value === 'null')
+      return '';
     const num = Number(value);
     return Number.isFinite(num) ? String(num) : '';
   }
