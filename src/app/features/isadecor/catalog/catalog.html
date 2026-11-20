@@ -23,25 +23,6 @@
         ({{ chips().length }})
       }
     </button>
-    <!-- Atajos rápidos en móvil -->
-    <div class="catalog-quick lg:hidden">
-      <button
-        type="button"
-        class="catalog-chip"
-        [attr.aria-pressed]="facade.onlyDiscount()"
-        (click)="updateFilters({ soloDescuento: facade.onlyDiscount() ? null : true })"
-      >
-        En oferta
-      </button>
-      <button
-        type="button"
-        class="catalog-chip"
-        [attr.aria-pressed]="facade.extra().facilInstalacion === true"
-        (click)="updateFilters({ facilInstalacion: facade.extra().facilInstalacion ? null : true })"
-      >
-        Fácil de instalar
-      </button>
-    </div>
     <label class="flex min-w-0 items-center gap-2 text-body-sm">
       <span class="shrink-0">Ordenar por</span>
       <select
@@ -58,7 +39,10 @@
   </div>
 
   @if (chips().length) {
-    <div class="mb-4 flex flex-wrap items-center gap-2 lg:hidden" aria-label="Filtros activos">
+    <div
+      class="catalog-chips mb-3 flex flex-wrap items-center gap-2 lg:hidden"
+      aria-label="Filtros activos"
+    >
       @for (chip of chips(); track $index) {
         <button
           type="button"
