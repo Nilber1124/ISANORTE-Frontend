@@ -52,7 +52,9 @@ export const UNIT_LABELS: Readonly<Record<string, string>> = {
         <p class="truncate text-body-sm text-text-secondary">
           {{ product().categorias[0]?.nombre }}
         </p>
-        <h3 class="mt-0.5 line-clamp-2 text-body-lg font-semibold text-text-primary">{{ product().nombre }}</h3>
+        <h3 class="mt-0.5 line-clamp-2 text-body-lg font-semibold text-text-primary">
+          {{ product().nombre }}
+        </h3>
         @if (visibleFinishes().length || product().valoracion != null) {
           <div class="my-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
             @if (visibleFinishes().length) {
@@ -115,7 +117,12 @@ export const UNIT_LABELS: Readonly<Record<string, string>> = {
             </div>
           }
           @if (product().estadoStock === 'AGOTADO' || product().disponibilidad === 'AGOTADO') {
-            <p class="mt-1 font-semibold text-text-primary">Agotado</p>
+            <!-- Misma altura que el botón, para que el precio quede alineado con el resto de tarjetas. -->
+            <span
+              class="mt-2.5 inline-flex min-h-11 w-full items-center justify-center rounded-control border border-dashed border-border-strong px-3 text-body font-semibold text-text-secondary"
+            >
+              Agotado
+            </span>
           } @else {
             <span
               class="mt-2.5 inline-flex min-h-11 w-full items-center justify-center rounded-control px-3 text-body font-semibold"
