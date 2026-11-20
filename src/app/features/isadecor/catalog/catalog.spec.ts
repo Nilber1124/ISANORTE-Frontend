@@ -210,4 +210,28 @@ describe('Catalog URL filters', () => {
     await harness.fixture.whenStable();
     expect(TestBed.inject(Router).url).toBe('/isadecor/productos');
   });
+
+  it('offers a helpful empty state with tips, a way to drop the search and collection suggestions', async () => {
+    const { harness, root } = await open('/isadecor/productos?q=zzz');
+
+    const empty = root.querySelector('.catalog-empty');
+    expect(empty?.textContent).toContain('No encontramos resultados para «zzz»');
+    expect(empty?.textContent).toContain('tildes');
+    [...(empty?.querySelectorAll('button') ?? [])]
+      .find((button) => button.textContent?.includes('Quitar búsqueda'))
+      ?.click();
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(Router).url).toBe('/isadecor/productos');
+  });
+
+  it('suggests a collection from the empty state', async () => {
+    const { harness, root } = await open('/isadecor/productos?q=zzz');
+
+    [...root.querySelectorAll('.catalog-empty .catalog-chip')]
+      .find((chip) => chip.textContent?.includes('Techos'))
+      ?.dispatchEvent(new Event('click'));
+    await harness.fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/isadecor/productos?categoria=techos');
+  });
 });

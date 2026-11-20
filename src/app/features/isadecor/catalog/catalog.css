@@ -267,3 +267,16 @@
 .catalog-check > .catalog-finish__count {
   margin-left: auto;
 }
+
+.catalog-empty {
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+}
+.catalog-empty__tips {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+}

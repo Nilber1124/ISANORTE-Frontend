@@ -54,3 +54,9 @@ incluyen la proyección de tarjeta del Home en `tarjeta`.
 - No hay fila de colecciones sobre la grilla (ocupaba espacio y se veía mal con fotos o sin ellas): la elección vive en la sección **Colección** del panel.
 - El panel muestra 8 colecciones y un «Ver más (n)»; desde 12 aparece un buscador interno. Las elegidas siempre se ven, y también como chips en «Seleccionados».
 - Si algún día hay subcategorías, la lista del panel pasaría a árbol; requiere cambio de modelo en el backend.
+
+### Búsqueda
+- Una sola caja de búsqueda (la del encabezado de la tienda). Al buscar, el título pasa a «Resultados para «…»» y aparece un chip quitable.
+- El backend busca por **palabras** (todas deben coincidir) en nombre, SKU, resumen, descripción, colección y **acabado**, sin distinguir tildes, mayúsculas ni singular/plural: «paneles sandwich» encuentra «Panel sándwich».
+- Sin resultados: mensaje con consejos, «Quitar búsqueda», «Limpiar todo» y colecciones sugeridas.
+- Pendiente: tolerancia a errores de tipeo (p. ej. «sanwich»), que requeriría `pg_trgm` o un motor de búsqueda.
