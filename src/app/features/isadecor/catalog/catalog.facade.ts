@@ -39,7 +39,14 @@ interface CatalogQueryKey extends CatalogExtraFilters {
 
 /** Convierte «a,b,c» en una lista sin vacíos ni repetidos. */
 export function splitList(value: string | null | undefined): string[] {
-  return [...new Set((value ?? '').split(',').map((item) => item.trim()).filter(Boolean))];
+  return [
+    ...new Set(
+      (value ?? '')
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  ];
 }
 
 @Injectable()

@@ -78,7 +78,11 @@ describe('Catalog URL filters', () => {
   it('lets the visitor pick several collections and sends them as a list', async () => {
     const { harness, getProductCatalog, root } = await open('/isadecor/productos?categoria=pisos');
 
-    root.querySelectorAll<HTMLButtonElement>('.catalog-collection')[1].click();
+    root
+      .querySelectorAll<HTMLInputElement>(
+        '.catalog-sidebar .catalog-acc--collections input[type=checkbox]',
+      )[1]
+      .click();
     await harness.fixture.whenStable();
 
     expect(TestBed.inject(Router).url).toBe('/isadecor/productos?categoria=pisos,techos');
@@ -128,5 +132,82 @@ describe('Catalog URL filters', () => {
     const { root } = await open('/isadecor/productos?categoria=techos');
 
     expect(root.querySelector('h1')?.textContent?.trim()).toBe('Techos');
+  });
+
+  async function openMany(url: string, total = 14) {
+    const getProductCatalog = vi.fn(() =>
+      of({
+        unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
+        categorias: Array.from({ length: total }, (_, index) => ({
+          nombre: `Colección ${index + 1}`,
+          slug: `c${index + 1}`,
+          cantidad: index + 1,
+          imagenUrl: null,
+        })),
+        productos: { contenido: [], pagina: 0, tamano: 12, totalElementos: 0, totalPaginas: 0 },
+        precioMinimo: 10,
+        precioMaximo: 90,
+        acabados: [],
+      }),
+    );
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([{ path: 'isadecor/productos', component: Catalog }]),
+        { provide: PublicContentApiService, useValue: { getProductCatalog } },
+      ],
+    });
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(url, Catalog);
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+    return { harness, root: harness.routeNativeElement as HTMLElement };
+  }
+
+  it('shows eight collections in the panel, then expands and lets the visitor search them', async () => {
+    const { harness, root } = await openMany('/isadecor/productos');
+    const items = () =>
+      root.querySelectorAll('.catalog-sidebar .catalog-acc--collections .catalog-checklist li')
+        .length;
+
+    expect(items()).toBe(8);
+    const more = root.querySelector<HTMLButtonElement>(
+      '.catalog-sidebar .catalog-acc--collections .enlace',
+    );
+    expect(more?.textContent?.trim()).toBe('Ver más (6)');
+    more?.click();
+    harness.detectChanges();
+    expect(items()).toBe(14);
+
+    const search = root.querySelector<HTMLInputElement>('.catalog-sidebar #collection-search');
+    expect(search).toBeTruthy();
+    search!.value = 'colección 13';
+    search!.dispatchEvent(new Event('input'));
+    harness.detectChanges();
+    expect(items()).toBe(1);
+  });
+
+  it('adds a collection from the panel checklist', async () => {
+    const { harness, root } = await openMany('/isadecor/productos');
+
+    root
+      .querySelectorAll<HTMLInputElement>(
+        '.catalog-sidebar .catalog-acc--collections input[type=checkbox]',
+      )[2]
+      .click();
+    await harness.fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/isadecor/productos?categoria=c3');
+  });
+
+  it('shows the searched term in the heading and as a removable chip (the only search box is the header one)', async () => {
+    const { harness, root } = await open('/isadecor/productos?q=piso');
+
+    expect(root.querySelector('h1')?.textContent?.trim()).toBe('Resultados para «piso»');
+    expect(root.querySelector('input[type=search]')).toBeNull();
+    root
+      .querySelector<HTMLButtonElement>('.catalog-active [aria-label="Quitar filtro piso"]')
+      ?.click();
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(Router).url).toBe('/isadecor/productos');
   });
 });

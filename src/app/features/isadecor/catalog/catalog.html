@@ -8,46 +8,7 @@
         }
       </p>
     </div>
-    <form
-      class="catalog-search"
-      (submit)="$event.preventDefault(); updateFilters({ q: query.value.trim() || null })"
-    >
-      <label class="sr-only" for="catalog-search">Buscar productos</label>
-      <input
-        id="catalog-search"
-        #query
-        class="form-control"
-        type="search"
-        placeholder="Buscar productos"
-        [value]="facade.searchTerm()"
-      />
-      <button type="submit" class="catalog-button">Buscar</button>
-    </form>
   </header>
-
-  <!-- Colecciones: atajos visuales con selección múltiple -->
-  @if (facade.categories().length) {
-    <nav class="catalog-collections" aria-label="Colecciones">
-      <ul>
-        @for (category of facade.categories(); track category.slug) {
-          <li>
-            <button
-              type="button"
-              class="catalog-collection"
-              [attr.aria-pressed]="facade.selectedCategories().includes(category.slug)"
-              (click)="toggleValue('categoria', facade.selectedCategories(), category.slug)"
-            >
-              @if (category.imagenUrl) {
-                <img [src]="category.imagenUrl" alt="" width="64" height="64" loading="lazy" />
-              }
-              <span class="catalog-collection__name">{{ category.nombre }}</span>
-              <span class="catalog-collection__count">{{ category.cantidad }}</span>
-            </button>
-          </li>
-        }
-      </ul>
-    </nav>
-  }
 
   <div class="catalog-controls">
     <button
@@ -229,6 +190,50 @@
 </ng-template>
 
 <ng-template #filters>
+  <!-- Colección: lista completa con cantidades; escala a cualquier número de colecciones -->
+  @if (facade.categories().length) {
+    <details class="catalog-acc catalog-acc--collections" open>
+      <summary>Colección</summary>
+      @if (collectionSearchable()) {
+        <label class="sr-only" for="collection-search">Buscar colección</label>
+        <input
+          id="collection-search"
+          class="form-control mb-2"
+          type="search"
+          placeholder="Buscar colección"
+          [value]="collectionQuery()"
+          (input)="collectionQuery.set($any($event.target).value)"
+        />
+      }
+      <ul class="catalog-checklist">
+        @for (category of panelCollections(); track category.slug) {
+          <li>
+            <label class="catalog-check">
+              <input
+                type="checkbox"
+                [checked]="facade.selectedCategories().includes(category.slug)"
+                (change)="toggleValue('categoria', facade.selectedCategories(), category.slug)"
+              />
+              <span class="min-w-0 flex-1">{{ category.nombre }}</span>
+              <span class="catalog-finish__count">{{ category.cantidad }}</span>
+            </label>
+          </li>
+        } @empty {
+          <li class="py-2 text-body-sm text-text-secondary">No hay colecciones con ese nombre.</li>
+        }
+      </ul>
+      @if (hiddenCollections() > 0) {
+        <button
+          type="button"
+          class="enlace mt-1 min-h-11 text-body-sm"
+          (click)="showAllCollections.set(true)"
+        >
+          Ver más ({{ hiddenCollections() }})
+        </button>
+      }
+    </details>
+  }
+
   <!-- Acabado / color: muestras de los acabados reales, selección múltiple -->
   @if (facade.acabados().length) {
     <details class="catalog-acc" open>

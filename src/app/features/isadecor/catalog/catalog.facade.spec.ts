@@ -147,7 +147,13 @@ describe('CatalogFacade', () => {
       precioMinimo: 25.5,
       precioMaximo: 150,
     });
-    const filters = { modalidad: 'COTIZAR', acabado: 'Nogal', facilInstalacion: false, precioMin: 0, precioMax: 90 } as const;
+    const filters = {
+      modalidad: 'COTIZAR',
+      acabado: 'Nogal',
+      facilInstalacion: false,
+      precioMin: 0,
+      precioMax: 90,
+    } as const;
     facade.setExtraFilters(filters);
     facade.load();
     await flush();

@@ -7,6 +7,7 @@ import {
   computed,
   effect,
   inject,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
@@ -19,6 +20,10 @@ import { CatalogFacade, CatalogSortOption } from './catalog.facade';
 
 /** Cortes de precio (S/) para los rangos rápidos del panel de filtros. */
 const PRICE_STEPS = [0, 50, 100, 250, 500, 1000] as const;
+
+/** Colecciones que muestra el panel antes de «Ver más», y desde cuántas se ofrece buscador. */
+const COLLECTIONS_IN_PANEL = 8;
+const COLLECTIONS_SEARCH_FROM = 12;
 
 export interface PriceBucket {
   min: number | null;
@@ -62,6 +67,31 @@ export class Catalog {
   protected readonly cards = computed(() => this.facade.products().map(toCatalogProductCard));
   private readonly title = inject(Title);
 
+  protected readonly collectionQuery = signal('');
+  protected readonly showAllCollections = signal(false);
+
+  protected readonly collectionSearchable = computed(
+    () => this.facade.categories().length >= COLLECTIONS_SEARCH_FROM,
+  );
+
+  /** Lista del panel: filtrada por el buscador y recortada hasta pulsar «Ver más». */
+  protected readonly panelCollections = computed(() => {
+    const all = this.facade.categories();
+    const query = normalize(this.collectionQuery());
+    if (query) return all.filter((item) => normalize(item.nombre).includes(query));
+    if (this.showAllCollections()) return all;
+    const selected = this.facade.selectedCategories();
+    return all.filter(
+      (item, index) => index < COLLECTIONS_IN_PANEL || selected.includes(item.slug),
+    );
+  });
+
+  protected readonly hiddenCollections = computed(() =>
+    this.collectionQuery().trim() || this.showAllCollections()
+      ? 0
+      : this.facade.categories().length - this.panelCollections().length,
+  );
+
   /** Rangos de precio rápidos que caen dentro del rango real publicado. */
   protected readonly priceBuckets = computed<PriceBucket[]>(() => {
     const { min, max } = this.facade.priceRange();
@@ -80,6 +110,8 @@ export class Catalog {
   });
 
   protected readonly heading = computed(() => {
+    const search = this.facade.searchTerm().trim();
+    if (search) return `Resultados para «${search}»`;
     const selected = this.facade.selectedCategories();
     if (selected.length !== 1) return 'Catálogo de acabados';
     return (
@@ -263,4 +295,12 @@ export class Catalog {
 function remove(list: readonly string[], value: string): string | null {
   const next = list.filter((item) => item !== value);
   return next.length ? next.join(',') : null;
+}
+
+function normalize(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
 }
