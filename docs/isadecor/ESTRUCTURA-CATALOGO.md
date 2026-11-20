@@ -40,3 +40,12 @@ producto y los acabados de la tarjeta. El detalle indica color y agotamiento
 por acabado. Expone la cantidad restante del acabado solo cuando es baja,
 según el umbral de stock configurado para el producto. Las recomendaciones
 incluyen la proyección de tarjeta del Home en `tarjeta`.
+
+
+## Filtros del catálogo (v2, inspirados en Falabella)
+- **Colecciones** como fila visual (foto, nombre y cantidad) sobre la grilla, con **selección múltiple** (`?categoria=pisos,techos`).
+- **Panel con secciones plegables**: Acabado o color (muestras reales con color y cantidad, selección múltiple `?acabado=Blanco,Nogal`), Precio (rangos rápidos generados desde el rango publicado + rango manual que se aplica al salir del campo), Cómo se vende (control segmentado Todos/Comprar/Cotizar) y Características.
+- **Se aplica al instante** (sin botón «Aplicar»). Arriba del panel, el bloque **Seleccionados · N resultados** con chips quitables y «Limpiar todo».
+- **Título dinámico:** con una sola colección elegida, el `h1` y el `<title>` pasan a su nombre.
+- **Móvil:** colecciones en carrusel, chips rápidos «En oferta» y «Fácil de instalar», botón Filtros (n) que abre el panel completo y termina con «Ver N resultados».
+- **Backend:** `GET .../catalogo` acepta listas separadas por coma en `categoria` y `acabado` (máx. 12 valores) y devuelve `acabados` (nombre, `colorHex`, cantidad) y `imagenUrl` en cada colección.

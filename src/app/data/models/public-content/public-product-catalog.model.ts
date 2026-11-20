@@ -55,6 +55,14 @@ export interface PublicProductCatalogCategoryResponse {
   nombre: string;
   slug: string;
   cantidad: number;
+  imagenUrl?: string | null;
+}
+
+/** Acabado (variante) disponible para filtrar por color. */
+export interface PublicProductCatalogAcabadoResponse {
+  nombre: string;
+  colorHex: string | null;
+  cantidad: number;
 }
 
 export interface PublicProductCatalogPageResponse {
@@ -71,6 +79,7 @@ export interface PublicProductCatalogResponse {
   productos: PublicProductCatalogPageResponse;
   precioMinimo?: number | null;
   precioMaximo?: number | null;
+  acabados?: PublicProductCatalogAcabadoResponse[];
 }
 
 export type CatalogBackendOrder = 'DESTACADOS' | 'PRECIO_ASC' | 'PRECIO_DESC' | 'NOMBRE_ASC';

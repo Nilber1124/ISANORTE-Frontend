@@ -1,7 +1,7 @@
 <main class="app-container catalog">
   <header class="filete-b catalog-header">
     <div>
-      <h1 class="text-heading-1 text-text-primary">Catálogo de acabados</h1>
+      <h1 class="text-heading-1 text-text-primary">{{ heading() }}</h1>
       <p class="text-body-sm text-text-secondary" aria-live="polite">
         @if (!facade.loading() && !facade.error()) {
           {{ facade.totalItems() }} {{ facade.totalItems() === 1 ? 'producto' : 'productos' }}
@@ -25,6 +25,30 @@
     </form>
   </header>
 
+  <!-- Colecciones: atajos visuales con selección múltiple -->
+  @if (facade.categories().length) {
+    <nav class="catalog-collections" aria-label="Colecciones">
+      <ul>
+        @for (category of facade.categories(); track category.slug) {
+          <li>
+            <button
+              type="button"
+              class="catalog-collection"
+              [attr.aria-pressed]="facade.selectedCategories().includes(category.slug)"
+              (click)="toggleValue('categoria', facade.selectedCategories(), category.slug)"
+            >
+              @if (category.imagenUrl) {
+                <img [src]="category.imagenUrl" alt="" width="64" height="64" loading="lazy" />
+              }
+              <span class="catalog-collection__name">{{ category.nombre }}</span>
+              <span class="catalog-collection__count">{{ category.cantidad }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    </nav>
+  }
+
   <div class="catalog-controls">
     <button
       type="button"
@@ -38,6 +62,25 @@
         ({{ chips().length }})
       }
     </button>
+    <!-- Atajos rápidos en móvil -->
+    <div class="catalog-quick lg:hidden">
+      <button
+        type="button"
+        class="catalog-chip"
+        [attr.aria-pressed]="facade.onlyDiscount()"
+        (click)="updateFilters({ soloDescuento: facade.onlyDiscount() ? null : true })"
+      >
+        En oferta
+      </button>
+      <button
+        type="button"
+        class="catalog-chip"
+        [attr.aria-pressed]="facade.extra().facilInstalacion === true"
+        (click)="updateFilters({ facilInstalacion: facade.extra().facilInstalacion ? null : true })"
+      >
+        Fácil de instalar
+      </button>
+    </div>
     <label class="flex min-w-0 items-center gap-2 text-body-sm">
       <span class="shrink-0">Ordenar por</span>
       <select
@@ -54,7 +97,7 @@
   </div>
 
   @if (chips().length) {
-    <div class="mb-4 flex flex-wrap items-center gap-2" aria-label="Filtros activos">
+    <div class="mb-4 flex flex-wrap items-center gap-2 lg:hidden" aria-label="Filtros activos">
       @for (chip of chips(); track $index) {
         <button
           type="button"
@@ -73,7 +116,8 @@
 
   <div class="catalog-layout">
     <aside class="catalog-sidebar hidden lg:block" aria-label="Filtros del catálogo">
-      <h2 class="mb-3 text-heading-3">Filtros</h2>
+      <h2 class="mb-2 text-heading-3">Filtros</h2>
+      <ng-container [ngTemplateOutlet]="activeBlock" />
       <ng-container [ngTemplateOutlet]="filters" />
     </aside>
 
@@ -115,7 +159,7 @@
       } @else {
         <div class="catalog-grid">
           @for (product of cards(); track product.slug) {
-            <app-home-product-tile [product]="product" [dense]="true" />
+            <app-home-product-tile [product]="product" />
           }
         </div>
         <app-pagination
@@ -142,66 +186,100 @@
       Cerrar
     </button>
   </div>
+  <ng-container [ngTemplateOutlet]="activeBlock" />
   <ng-container [ngTemplateOutlet]="filters" />
-  <button type="button" class="catalog-button mt-3 w-full" (click)="filtersDialog.close()">
-    Ver productos
+  <button
+    type="button"
+    class="catalog-button catalog-button--primary mt-3 w-full"
+    (click)="filtersDialog.close()"
+  >
+    Ver {{ facade.totalItems() }} {{ facade.totalItems() === 1 ? 'resultado' : 'resultados' }}
   </button>
 </dialog>
 
-<ng-template #filters>
-  <fieldset class="catalog-group">
-    <legend>Colección</legend>
-    <div class="flex flex-wrap gap-2">
-      @for (category of facade.categories(); track category.slug) {
-        <button
-          type="button"
-          class="catalog-chip"
-          [attr.aria-pressed]="facade.selectedCategory() === category.slug"
-          (click)="
-            updateFilters({
-              categoria: facade.selectedCategory() === category.slug ? null : category.slug,
-            })
-          "
-        >
-          {{ category.nombre }}
+<!-- Filtros seleccionados, con el número de resultados y «Limpiar todo» -->
+<ng-template #activeBlock>
+  @if (chips().length) {
+    <section class="catalog-active" aria-label="Filtros seleccionados">
+      <div class="flex items-center justify-between gap-2">
+        <h3 class="text-body-sm font-semibold">
+          Seleccionados · {{ facade.totalItems() }}
+          {{ facade.totalItems() === 1 ? 'resultado' : 'resultados' }}
+        </h3>
+        <button type="button" class="enlace text-body-sm" (click)="clearFilters()">
+          Limpiar todo
         </button>
-      }
-    </div>
-  </fieldset>
+      </div>
+      <ul class="mt-2 flex flex-wrap gap-2">
+        @for (chip of chips(); track $index) {
+          <li>
+            <button
+              type="button"
+              class="catalog-chip"
+              [attr.aria-label]="'Quitar filtro ' + chip.label"
+              (click)="updateFilters(chip.params)"
+            >
+              {{ chip.label }} <span aria-hidden="true">×</span>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</ng-template>
 
-  <label class="catalog-group">
-    <span>Acabado o color</span>
-    <input
-      #finish
-      class="form-control"
-      type="search"
-      placeholder="Ej. nogal"
-      [value]="facade.extra().acabado ?? ''"
-      (change)="updateFilters({ acabado: finish.value.trim() || null })"
-    />
-  </label>
+<ng-template #filters>
+  <!-- Acabado / color: muestras de los acabados reales, selección múltiple -->
+  @if (facade.acabados().length) {
+    <details class="catalog-acc" open>
+      <summary>Acabado o color</summary>
+      <ul class="catalog-finishes">
+        @for (finish of facade.acabados(); track finish.nombre) {
+          <li>
+            <button
+              type="button"
+              class="catalog-finish"
+              [attr.aria-pressed]="facade.selectedAcabados().includes(finish.nombre)"
+              (click)="toggleValue('acabado', facade.selectedAcabados(), finish.nombre)"
+            >
+              <span
+                class="catalog-finish__dot"
+                [style.background]="finish.colorHex || 'transparent'"
+                aria-hidden="true"
+              ></span>
+              <span>{{ finish.nombre }}</span>
+              <span class="catalog-finish__count">{{ finish.cantidad }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    </details>
+  }
 
-  <label class="catalog-group">
-    <span>Modalidad</span>
-    <select
-      #mode
-      class="form-control"
-      [value]="facade.extra().modalidad ?? ''"
-      (change)="updateFilters({ modalidad: mode.value || null })"
-    >
-      <option value="">Todas</option>
-      <option value="COMPRAR">Comprar</option>
-      <option value="COTIZAR">Cotizar</option>
-    </select>
-  </label>
-
-  @let range = facade.priceRange();
-  <form class="catalog-group" (submit)="applyPrice($event, minPrice, maxPrice)">
-    <fieldset>
-      <legend>Precio (S/)</legend>
+  <details class="catalog-acc" open>
+    <summary>Precio (S/)</summary>
+    @if (priceBuckets().length) {
+      <ul class="catalog-prices">
+        @for (bucket of priceBuckets(); track bucket.label) {
+          <li>
+            <label class="catalog-check">
+              <input
+                type="checkbox"
+                [checked]="isBucketActive(bucket)"
+                (change)="toggleBucket(bucket)"
+              />
+              {{ bucket.label }}
+            </label>
+          </li>
+        }
+      </ul>
+    }
+    @let range = facade.priceRange();
+    <fieldset class="mt-2">
+      <legend class="mb-1 text-body-sm text-text-secondary">Otro rango</legend>
       <div class="grid grid-cols-2 gap-2">
-        <label class="min-w-0"
-          >Mínimo
+        <label class="min-w-0 text-body-sm"
+          ><span class="sr-only">Precio mínimo</span>
           <input
             #minPrice
             class="form-control"
@@ -209,13 +287,14 @@
             inputmode="decimal"
             min="0"
             step="any"
-            [placeholder]="range.min ?? ''"
+            placeholder="Mín. {{ range.min ?? '' }}"
             [value]="facade.extra().precioMin ?? ''"
             (input)="maxPrice.setCustomValidity('')"
+            (change)="applyPrice(minPrice, maxPrice)"
           />
         </label>
-        <label class="min-w-0"
-          >Máximo
+        <label class="min-w-0 text-body-sm"
+          ><span class="sr-only">Precio máximo</span>
           <input
             #maxPrice
             class="form-control"
@@ -223,18 +302,33 @@
             inputmode="decimal"
             min="0"
             step="any"
-            [placeholder]="range.max ?? ''"
+            placeholder="Máx. {{ range.max ?? '' }}"
             [value]="facade.extra().precioMax ?? ''"
             (input)="maxPrice.setCustomValidity('')"
+            (change)="applyPrice(minPrice, maxPrice)"
           />
         </label>
       </div>
-      <button type="submit" class="catalog-button mt-2 w-full">Aplicar precio</button>
     </fieldset>
-  </form>
+  </details>
 
-  <fieldset class="catalog-group">
-    <legend>Características</legend>
+  <details class="catalog-acc" open>
+    <summary>Cómo se vende</summary>
+    <div class="catalog-segmented" role="group" aria-label="Modalidad">
+      @for (option of modeOptions; track option.value) {
+        <button
+          type="button"
+          [attr.aria-pressed]="(facade.extra().modalidad ?? '') === option.value"
+          (click)="updateFilters({ modalidad: option.value || null })"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  </details>
+
+  <details class="catalog-acc" open>
+    <summary>Características</summary>
     <label class="catalog-check"
       ><input
         #easy
@@ -262,5 +356,5 @@
       />
       Solo disponibles</label
     >
-  </fieldset>
+  </details>
 </ng-template>

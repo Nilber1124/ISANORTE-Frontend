@@ -8,6 +8,7 @@ import {
   CatalogBackendOrder,
   CatalogExtraFilters,
   PublicProductCardResponse,
+  PublicProductCatalogAcabadoResponse,
   PublicProductCatalogCategoryResponse,
 } from '../../../data/models/public-content/public-product-catalog.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
@@ -36,6 +37,11 @@ interface CatalogQueryKey extends CatalogExtraFilters {
   retryTick: number;
 }
 
+/** Convierte «a,b,c» en una lista sin vacíos ni repetidos. */
+export function splitList(value: string | null | undefined): string[] {
+  return [...new Set((value ?? '').split(',').map((item) => item.trim()).filter(Boolean))];
+}
+
 @Injectable()
 export class CatalogFacade {
   readonly siteKey: string = PUBLIC_SITE_KEY;
@@ -47,6 +53,7 @@ export class CatalogFacade {
 
   private readonly _pageItems = signal<PublicProductCardResponse[]>([]);
   private readonly _categories = signal<PublicProductCatalogCategoryResponse[]>([]);
+  private readonly _acabados = signal<PublicProductCatalogAcabadoResponse[]>([]);
   private readonly _loading = signal(true);
   private readonly _error = signal<string | null>(null);
   private readonly _selectedCategory = signal<string | null>(null);
@@ -73,6 +80,10 @@ export class CatalogFacade {
 
   readonly products = this._pageItems.asReadonly();
   readonly categories = this._categories.asReadonly();
+  readonly acabados = this._acabados.asReadonly();
+  /** Colecciones y acabados elegidos (el filtro admite varios valores separados por coma). */
+  readonly selectedCategories = computed(() => splitList(this._selectedCategory()));
+  readonly selectedAcabados = computed(() => splitList(this._extra().acabado));
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
   readonly selectedCategory = this._selectedCategory.asReadonly();
@@ -182,6 +193,7 @@ export class CatalogFacade {
           max: result.catalog.precioMaximo ?? null,
         });
         this._categories.set(result.catalog.categorias);
+        this._acabados.set(result.catalog.acabados ?? []);
         this._totalItems.set(result.catalog.productos.totalElementos);
         this._totalPages.set(result.catalog.productos.totalPaginas);
       } else {
@@ -200,6 +212,11 @@ export class CatalogFacade {
       return;
     }
     const trimmed = categoryIdOrSlug.trim();
+    if (trimmed.includes(',')) {
+      this._selectedCategory.set(splitList(trimmed).join(','));
+      this._page.set(0);
+      return;
+    }
     const match = this._categories().find(
       (category) =>
         category.slug === trimmed ||
