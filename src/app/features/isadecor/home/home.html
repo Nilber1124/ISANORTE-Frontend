@@ -98,7 +98,7 @@
               type="button"
               (click)="selectChip('todos')"
               [attr.aria-pressed]="chip() === 'todos'"
-              class="rounded-full border px-4 py-1.5 text-body-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              class="rounded-button border px-4 py-1.5 text-body-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               [class]="
                 chip() === 'todos'
                   ? 'border-accent bg-accent text-accent-contrast'
@@ -113,7 +113,7 @@
               type="button"
               (click)="selectChip('ofertas')"
               [attr.aria-pressed]="chip() === 'ofertas'"
-              class="rounded-full border px-4 py-1.5 text-body-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              class="rounded-button border px-4 py-1.5 text-body-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               [class]="
                 chip() === 'ofertas'
                   ? 'border-accent bg-accent text-accent-contrast'
@@ -129,7 +129,7 @@
                 type="button"
                 (click)="selectChip(c.slug)"
                 [attr.aria-pressed]="chip() === c.slug"
-                class="rounded-full border px-4 py-1.5 text-body-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                class="rounded-button border px-4 py-1.5 text-body-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 [class]="
                   chip() === c.slug
                     ? 'border-accent bg-accent text-accent-contrast'
