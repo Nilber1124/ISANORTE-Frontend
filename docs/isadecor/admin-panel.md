@@ -72,6 +72,15 @@ lateral y el título de la barra superior) se agrupa por marca:
     Las listas se aplican al instante (la pantalla lo dice); los textos, al pulsar Guardar.
     Componente: `landing/components/hero-editor/`. Los demás bloques siguen usando el cajón
     `landing-section-form` hasta tener su propio editor.
+  - **Edición «encima» de la página:** en el Hero, al tocar un texto de la vista previa (etiqueta,
+    título, subtítulo) el panel muestra **solo ese campo** (enfocado); al tocar las fotos de fondo
+    muestra solo la lista de fotos, y lo mismo con los botones. «Ver todos los campos» abre el
+    formulario completo del Hero; «Editar la portada» también lo abre completo. Lo que se teclea en el panel se ve al instante en la página (borrador
+    en vivo, sin guardar; al cerrar el editor o volver al texto guardado, la página se restaura).
+    Cómo: los elementos llevan `data-edit-field="…"` en `home.html`; `editor-bridge.ts` envía el
+    campo tocado y aplica los borradores **solo como texto** (nunca HTML). Un campo que la Home no
+    dibuja (p. ej. la etiqueta vacía) no muestra borrador. Para hacerlo en otro bloque: marcar sus
+    elementos con `data-edit-field` y darle su editor (como `hero-editor`).
   - **Título multilínea:** el título de una sección admite saltos de línea (la web del Hero lo parte en
     dos líneas). Antes se editaba en un campo de una línea que los descartaba («casaen»); ahora es un
     campo de varias líneas, en el editor del Hero y en el cajón.
@@ -101,3 +110,20 @@ paletas fijas (`amber-*`, `red-*`). Así, cuando el tema base cambie, el admin c
 
 Edición directa de textos sobre la propia vista previa (hoy el clic abre el formulario del bloque), vista previa de ISADECOR, dashboard con «pendientes» (agotados, cotizaciones sin responder, reseñas por revisar) y
 enlaces «ver en la tienda» desde cada pantalla.
+
+## Botones de la landing: fijos
+
+Los botones de las secciones de la landing (p. ej. «Solicitar cotización», «Ver proyectos», «Ver todos los
+servicios», «Conocer ISADECOR») llevan a otras páginas y **su destino no cambia nunca**, así que no son
+administrables:
+
+- **Backend:** se eliminaron `POST /api/secciones-landing/{id}/acciones` y
+  `PUT|DELETE /api/secciones-landing/{id}/acciones/{accionId}` (y su DTO, servicio y validaciones de
+  enlace). Siguen leyéndose dentro de la sección (`acciones`) y en la Home pública, solo lectura.
+  Las filas existentes están en la base de datos (`acciones_landing`); un botón nuevo solo se añade con
+  una migración o SQL, no desde el admin. Cubierto por `DynamicContentApiIntegrationTest`
+  (`lasAccionesDeLaLandingNoSeAdministran`).
+- **Admin:** desaparecieron «Botones (n)», el gestor de botones, la lista de botones del editor del Hero y la
+  pestaña «Botón principal» del formulario de sección. El panel de bloque muestra los botones de cada
+  sección como «Botones fijos» (texto y destino, solo lectura). Al guardar una sección se conservan los
+  campos `textoBoton`/`enlaceBoton` que ya tuviera.
