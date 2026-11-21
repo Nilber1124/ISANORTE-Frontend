@@ -1,17 +1,149 @@
-.catalogos-hero {
-  background-image:
-    linear-gradient(to right, var(--color-border) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
-  background-size: 2.5rem 2.5rem;
-  background-position: center top;
-  mask-image: linear-gradient(to bottom, black, transparent);
+.catalogos-header {
+  display: grid;
+  gap: 0.25rem;
+  padding-block: 1.5rem 0.75rem;
+}
+.catalogos-header p {
+  min-height: 1.4rem;
+}
+.catalogos-body {
+  padding-block: 1.5rem 4rem;
 }
 
-.store-serif {
-  font-family: var(--font-display);
-  font-weight: 500;
+/* Destacado: portada a la izquierda, datos y acciones a la derecha. */
+.catalogos-lead {
+  display: grid;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: var(--color-background-soft);
+}
+.catalogos-lead__media {
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--color-background-muted);
+}
+.catalogos-lead__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.catalogos-lead__body {
+  display: grid;
+  align-content: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+}
+.catalogos-lead__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+@media (width >= 48rem) {
+  .catalogos-lead {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+  .catalogos-lead__media {
+    aspect-ratio: auto;
+    min-height: 18rem;
+  }
+  .catalogos-lead__body {
+    padding: 2rem;
+  }
+}
+.catalogos-btn {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding-inline: 1.1rem;
+  border: 1px solid var(--color-border-strong, var(--color-border));
+  border-radius: var(--radius-button);
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.catalogos-btn:hover {
+  border-color: var(--color-accent);
+}
+.catalogos-btn--primary {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+.catalogos-btn--primary:hover {
+  background: var(--color-accent-hover);
 }
 
-.store-mono {
-  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+.catalogos-subtitle {
+  margin-block: 2rem 0.75rem;
+}
+
+/* Rejilla compacta de portadas 3:4: 2 columnas en móvil, 3 en tableta y 5 en escritorio. */
+.catalogos-grid {
+  display: grid;
+  gap: 1.25rem 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+@media (width >= 40rem) {
+  .catalogos-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (width >= 64rem) {
+  .catalogos-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+.catalogos-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+}
+.catalogos-card__media {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-bottom: 2px solid var(--color-accent);
+  border-radius: var(--radius-card);
+  background: var(--color-background-muted);
+}
+.catalogos-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.catalogos-card__title {
+  font-size: 1rem;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+}
+/* Toda la tarjeta es clicable: el enlace del título cubre la tarjeta. */
+.catalogos-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.catalogos-card__link:focus-visible {
+  outline: none;
+}
+.catalogos-card:has(.catalogos-card__link:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+  border-radius: var(--radius-card);
+}
+.catalogos-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.catalogos-card__download {
+  position: relative;
+  z-index: 2;
 }

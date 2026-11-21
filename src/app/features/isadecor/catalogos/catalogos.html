@@ -1,29 +1,18 @@
-<main class="min-h-[70vh] bg-background">
-  <!-- Encabezado editorial de catálogos -->
-  <section
-    class="catalogos-hero relative overflow-hidden border-b border-border bg-background-soft"
-    aria-label="Catálogos ISADECOR"
-  >
-    <div class="app-container relative py-14 sm:py-16 lg:py-20">
-      <p class="store-mono text-[12px] uppercase tracking-[0.2em] text-text-muted">
-        ISADECOR · CATÁLOGOS
-      </p>
-      <h1
-        class="store-serif mt-4 max-w-2xl text-[2.1rem] leading-[1.12] tracking-[-0.02em] text-text-primary sm:text-[2.75rem]"
-      >
-        Catálogos en PDF, por línea
-      </h1>
-      <p class="mt-4 max-w-xl text-[1rem] leading-relaxed text-text-secondary">
-        Descarga o visualiza el catálogo completo de cada línea de productos ISADECOR.
-      </p>
-    </div>
-  </section>
+<main class="app-container catalogos">
+  <header class="filete-b catalogos-header">
+    <h1 class="text-heading-1 text-text-primary">Catálogos en PDF</h1>
+    <p class="text-body-sm text-text-secondary" aria-live="polite">
+      @if (!facade.loading() && !facade.error()) {
+        Elige una línea y descarga su catálogo con acabados y precios referenciales.
+      }
+    </p>
+  </header>
 
-  <section class="app-container py-10 sm:py-12 lg:py-16" aria-labelledby="catalogos-results-title">
+  <section class="catalogos-body" aria-labelledby="catalogos-results-title">
     <h2 id="catalogos-results-title" class="sr-only">Catálogos disponibles</h2>
 
     @if (facade.loading()) {
-      <div class="rounded-[12px] border border-border bg-surface py-16 sm:py-20">
+      <div class="rounded-panel border border-border bg-surface py-16 sm:py-20">
         <app-loading label="Cargando catálogos de ISADECOR..." size="large" />
       </div>
     } @else if (facade.error()) {
@@ -44,33 +33,78 @@
         description="Estamos preparando los catálogos en PDF de nuestras líneas de productos. Vuelve pronto."
       />
     } @else {
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        @for (catalogo of facade.catalogos(); track catalogo.titulo) {
-          <article
-            class="group flex flex-col overflow-hidden rounded-[12px] border border-border bg-surface shadow-xs transition-all hover:border-text-muted hover:shadow-card"
+      @if (featured(); as lead) {
+        <article class="catalogos-lead filete-b">
+          <a
+            [href]="lead.archivoUrl"
+            target="_blank"
+            rel="noopener"
+            class="catalogos-lead__media"
+            tabindex="-1"
+            aria-hidden="true"
           >
-            <div class="relative aspect-[3/4] w-full overflow-hidden bg-surface-soft">
-              <img
-                [src]="catalogo.imagenPortadaUrl"
-                [alt]="catalogo.titulo"
-                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
-              />
-            </div>
-            <div class="flex flex-1 flex-col gap-4 p-5">
-              <h3 class="text-[1.05rem] font-semibold text-text-primary">{{ catalogo.titulo }}</h3>
+            <img [src]="lead.imagenPortadaUrl" alt="" loading="eager" />
+          </a>
+          <div class="catalogos-lead__body">
+            <p class="font-mono text-caption uppercase text-text-secondary">Catálogo destacado · PDF</p>
+            <h2 class="text-heading-2 text-text-primary">{{ lead.titulo }}</h2>
+            <p class="text-body-sm text-text-secondary">
+              Descarga el catálogo en PDF con los acabados y los precios referenciales de esta línea.
+            </p>
+            <div class="catalogos-lead__actions">
               <a
-                [href]="catalogo.archivoUrl"
+                [href]="lead.archivoUrl"
                 target="_blank"
                 rel="noopener"
-                class="mt-auto inline-flex items-center justify-center gap-2 rounded-button bg-accent px-4 py-2.5 text-body-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover"
+                class="catalogos-btn catalogos-btn--primary"
+                >Ver catálogo<span class="sr-only"> {{ lead.titulo }} (PDF, se abre en otra pestaña)</span></a
               >
-                Ver catálogo PDF
-              </a>
+              <a [href]="downloadUrl(lead.archivoUrl)" class="catalogos-btn"
+                >Descargar<span class="sr-only"> {{ lead.titulo }}</span></a
+              >
             </div>
-          </article>
-        }
-      </div>
+          </div>
+        </article>
+      }
+
+      @if (others().length) {
+        <h2 class="catalogos-subtitle font-mono text-caption uppercase text-text-secondary">
+          {{ featured() ? 'Más líneas' : 'Catálogos' }}
+        </h2>
+        <ul class="catalogos-grid">
+          @for (catalogo of others(); track catalogo.titulo) {
+            <li class="catalogos-card group">
+              <div class="catalogos-card__media">
+                <img
+                  [src]="catalogo.imagenPortadaUrl"
+                  alt=""
+                  loading="lazy"
+                  class="motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-105"
+                />
+              </div>
+              <h3 class="catalogos-card__title">
+                <a
+                  [href]="catalogo.archivoUrl"
+                  target="_blank"
+                  rel="noopener"
+                  class="catalogos-card__link"
+                  [attr.aria-label]="'Ver el catálogo ' + catalogo.titulo + ' (PDF, se abre en otra pestaña)'"
+                  >{{ catalogo.titulo }}</a
+                >
+              </h3>
+              <div class="catalogos-card__meta">
+                <span class="font-mono text-caption uppercase text-text-secondary">PDF</span>
+                <a
+                  [href]="downloadUrl(catalogo.archivoUrl)"
+                  class="enlace catalogos-card__download text-body-sm"
+                  [attr.aria-label]="'Descargar el catálogo ' + catalogo.titulo"
+                  >Descargar</a
+                >
+              </div>
+            </li>
+          }
+        </ul>
+      }
     }
   </section>
 </main>
