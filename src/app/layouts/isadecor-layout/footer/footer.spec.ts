@@ -75,6 +75,12 @@ describe('Isadecor Footer', () => {
     expect(
       footer.querySelector('a[href^="https://wa.me/51999999999?text="][href*="constructora"]'),
     ).toBeTruthy();
+    const quote = [...footer.querySelectorAll('a')].find((a) =>
+      a.textContent?.includes('Cotizar un proyecto'),
+    );
+    expect(decodeURIComponent(quote?.getAttribute('href') ?? '')).toContain(
+      'quisiera cotizar un proyecto',
+    );
     expect(footer.textContent).toContain('© 2026 ISADECOR. Todos los derechos reservados.');
   });
 

@@ -7,7 +7,9 @@ import { PublicSiteFacade } from '../../public-layout/public-site.facade';
 
 export interface IsadecorFooterLink {
   label: string;
-  url: string;
+  url: string | null;
+  /** Mensaje de WhatsApp: si existe y hay número comercial, el enlace abre el chat. */
+  whatsapp?: string;
 }
 
 @Component({
@@ -25,6 +27,11 @@ export class Footer {
   readonly shop: IsadecorFooterLink[] = [
     { label: 'Productos', url: '/isadecor/productos' },
     { label: 'Catálogos PDF', url: '/isadecor/catalogos' },
+    {
+      label: 'Cotizar un proyecto',
+      url: null,
+      whatsapp: 'Hola ISADECOR, quisiera cotizar un proyecto.',
+    },
     { label: 'Seguimiento de mi pedido', url: '/isadecor/mi-cuenta' },
     { label: 'Comunidad', url: '/isadecor/comunidad' },
   ];
@@ -33,7 +40,7 @@ export class Footer {
    * Ayuda (muestra): confirmar con el cliente y enlazar cada página cuando exista.
    * `url: null` se muestra atenuado hasta contar con el destino.
    */
-  readonly help: readonly { label: string; url: string | null; whatsapp?: string }[] = [
+  readonly help: readonly IsadecorFooterLink[] = [
     { label: 'Cambios y devoluciones', url: null },
     { label: 'Tipos de entrega', url: null },
     { label: 'Garantía de fábrica', url: null },
@@ -43,6 +50,16 @@ export class Footer {
       whatsapp: 'Hola ISADECOR, quisiera una cotización para una constructora.',
     },
   ];
+
+  /** Compra con el enlace de WhatsApp ya resuelto (los que no lo tienen, sin número, se ocultan). */
+  readonly shopLinks = computed(() =>
+    this.shop
+      .map((item) => ({
+        ...item,
+        whatsappHref: item.whatsapp ? this.facade.whatsappHrefFor(item.whatsapp) : null,
+      }))
+      .filter((item) => !item.whatsapp || item.whatsappHref),
+  );
 
   /** Ayuda con el enlace de WhatsApp ya resuelto (null si no hay número comercial configurado). */
   readonly helpLinks = computed(() =>
