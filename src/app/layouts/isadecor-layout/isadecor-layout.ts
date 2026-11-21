@@ -15,7 +15,7 @@ import { BrandService } from '../../core/services/brand.service';
   templateUrl: './isadecor-layout.html',
   styleUrl: './isadecor-layout.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'showroom' },
+  host: { class: 'isadecor-shell' },
 })
 export class IsadecorLayout {
   private readonly publicSite = inject(PublicSiteFacade);
