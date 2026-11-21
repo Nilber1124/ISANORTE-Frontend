@@ -82,13 +82,14 @@ describe('Community', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('No pudimos cargar');
   });
 
-  it('keeps only Instagram and TikTok from the company networks', () => {
+  it('keeps Facebook, Instagram and TikTok from the company networks', () => {
     const picked = pickCommunityNetworks([
       { nombre: 'Facebook', url: 'https://f', icono: 'facebook' },
+      { nombre: 'LinkedIn', url: 'https://l', icono: 'linkedin' },
       { nombre: 'TikTok', url: 'https://t', icono: null },
       { nombre: 'ig', url: 'https://i', icono: null },
     ]);
 
-    expect(picked.map((n) => n.kind)).toEqual(['tiktok', 'instagram']);
+    expect(picked.map((n) => n.kind)).toEqual(['facebook', 'tiktok', 'instagram']);
   });
 });

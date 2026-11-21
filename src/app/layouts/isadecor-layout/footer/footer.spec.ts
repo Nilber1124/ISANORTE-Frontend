@@ -84,10 +84,10 @@ describe('Isadecor Footer', () => {
     expect(footer.textContent).toContain('© 2026 ISADECOR. Todos los derechos reservados.');
   });
 
-  it('shows only the Instagram and TikTok links of the company', () => {
+  it('shows the Facebook and Instagram links of the company but not other networks', () => {
     const footer = fixture.nativeElement as HTMLElement;
     expect(footer.querySelector('a[href="https://instagram.com/isadecor"]')).toBeTruthy();
-    expect(footer.querySelector('a[href="https://facebook.com/isadecor"]')).toBeNull();
+    expect(footer.querySelector('a[href="https://facebook.com/isadecor"]')).toBeTruthy();
     expect(footer.querySelector('a[href="/isadecor/comunidad"]')).toBeTruthy();
   });
 
