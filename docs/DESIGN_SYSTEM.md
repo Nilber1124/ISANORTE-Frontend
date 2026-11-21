@@ -80,7 +80,7 @@ Los colores de estado son funcionales. Se usan en formularios, badges y mensajes
 
 ## 3. Tipografía
 
-La familia base es `Inter, ui-sans-serif, system-ui, ...`. No se descarga ninguna fuente: si Inter está instalada se usa y, si no, el navegador continúa con la fuente del sistema.
+La tipografía base es **Showroom** (§27) para todo el proyecto: `--font-sans` Hanken Grotesk (cuerpo y controles), `--font-display` Outfit (titulares) y `--font-mono` JetBrains Mono (eyebrows y datos), con la pila del sistema como respaldo. Se cargan desde Google Fonts en `index.html`.
 
 | Rol / utilidad                 | Tamaño aproximado | Peso | Uso                                      |
 | ------------------------------ | ----------------- | ---- | ---------------------------------------- |
@@ -141,10 +141,10 @@ Las columnas deben ser fluidas y evitar anchos fijos que generen desbordamiento.
 
 | Token / utilidad              | Valor | Uso                                   |
 | ----------------------------- | ----- | ------------------------------------- |
-| `control` / `rounded-control` | 10 px | Inputs, selects y controles compactos |
-| `button` / `rounded-button`   | 12 px | Botones                               |
-| `card` / `rounded-card`       | 16 px | Cards e imágenes habituales           |
-| `panel` / `rounded-panel`     | 24 px | Paneles amplios o capas especiales    |
+| `control` / `rounded-control` | 4 px  | Inputs, selects y controles compactos |
+| `button` / `rounded-button`   | 6 px  | Botones                               |
+| `card` / `rounded-card`       | 6 px  | Cards e imágenes habituales           |
+| `panel` / `rounded-panel`     | 8 px  | Paneles amplios o capas especiales    |
 
 `rounded-full` se reserva para badges, chips, avatares e indicadores circulares.
 
@@ -693,12 +693,14 @@ Orden de la Home de tienda: cabecera (buscar, categorías, entrega), escena, cin
 
 Detalles de datos y navegación en [Estructura del catálogo](isadecor/ESTRUCTURA-CATALOGO.md).
 
-## 27. Dirección visual de ISADECOR: Showroom
+## 27. Dirección visual base: Showroom
 
-Dirección adoptada para ISADECOR tras comparar cinco propuestas. Se activa con la clase `showroom` del layout de ISADECOR (`src/styles/showroom.css`), sin afectar a ISANORTE ni a administración.
+Dirección adoptada primero para ISADECOR tras comparar cinco propuestas y, por petición del cliente, **base visual de todo el proyecto** (ISANORTE, ISADECOR y administración). Las fuentes y los radios son tokens en `src/styles/theme.css`; las reglas que no son tokens (titulares, etiquetas en mono, filetes, enlaces) están en `src/styles/showroom.css` sin prefijo. La clase `showroom` ya no existe; el layout de ISADECOR usa `isadecor-shell` solo para el ajuste de la barra de compra móvil.
+
+Los titulares que usan la escala (`text-display`, `text-heading-1..3`) llevan siempre Outfit/500/tracking -0.03em; el resto de `h1`–`h3` toma Outfit por defecto pero se puede ajustar con utilidades (`@layer base`). El admin se mantiene en tokens: `npm run lint:tokens`.
 
 - **Tipografía:** Outfit para titulares y nombres de producto (geométrica minimalista; peso 500, tracking -0.03em), Hanken Grotesk para cuerpo y controles, y JetBrains Mono para eyebrows, medidas, unidades y fechas. Se cargan desde Google Fonts en `index.html` (pendiente autoalojarlas).
-- **Forma:** esquinas contenidas (control 4 px, botón y card 6 px, panel 8 px) mediante la sobrescritura de `--radius-*`. `rounded-full` solo en chips.
+- **Forma:** esquinas contenidas (control 4 px, botón y card 6 px, panel 8 px) definidas en los tokens `--radius-*`. `rounded-full` solo en chips.
 - **Color:** los tokens de marca en claro y oscuro; un solo acento naranja. El naranja aparece como filete (`filete-b`, `filete-l`), etiqueta de oferta, botón de acción y separador de la cinta; no como bloque de color.
 - **Composición:** la imagen manda y el texto va en su propia zona (promociones con imagen a un lado y texto al otro). Una ficha destacada y dos secundarias, no tres iguales. Cinta de avisos como filete fino con separadores `/`.
 - **Excepción documentada:** la escena con scroll del Home superpone texto sobre el video; es el único caso y mantiene contraste mediante degradado.
