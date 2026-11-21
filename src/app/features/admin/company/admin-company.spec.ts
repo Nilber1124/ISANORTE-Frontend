@@ -38,7 +38,7 @@ describe('AdminCompany', () => {
   it('debe mostrar la estructura completa de Empresa según la API cuando onlyAbout es false', () => {
     expect(component.onlyAbout()).toBe(false);
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h2')?.textContent).toContain('Empresa');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Empresa');
   });
 
   it('debe mostrar sólo contenido de Nosotros y ocultar datos corporativos cuando onlyAbout es true', () => {
