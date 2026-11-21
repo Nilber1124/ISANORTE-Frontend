@@ -85,3 +85,11 @@ incluyen la proyección de tarjeta del Home en `tarjeta`.
 - **Admin (formulario de producto → Galería):** selector «Acabado de la próxima imagen» y un selector «Acabado» por imagen (General o uno de los acabados con SKU). Un aviso lista los acabados sin foto («Faltan imágenes para: …»); **avisa, no bloquea** el guardado.
 - **Backend:** en `PUT` de imagen, `varianteSku` ausente conserva el acabado actual y `""` la vuelve general; un SKU que no es del producto se rechaza. Al borrar un acabado sus fotos quedan como generales (`ON DELETE SET NULL`).
 - **Datos de ejemplo:** `datos/isadecor-imagenes-acabados.sql` (una foto por acabado de los productos demo, generadas con IA local, a modo de MUESTRA).
+
+### Subcategorías
+- Una categoría puede colgar de otra (`categorias_producto.categoria_padre_id`, migración V8; API `categoriaPadreId` en el admin y `padreSlug` en el catálogo público). **Solo dos niveles**: el padre debe ser una categoría raíz, una categoría no puede ser su propio padre y una con subcategorías no puede colgar de otra (validado en el servicio).
+- **Menú (escritorio):** cada categoría con subcategorías muestra una flecha y un desplegable al pasar el cursor o enfocar con el teclado (`group-hover` / `group-focus-within`, sin estado). En el menú móvil las subcategorías aparecen sangradas bajo su categoría.
+- **Catálogo:** elegir una categoría padre incluye los productos de sus subcategorías; el panel «Colección» muestra las subcategorías sangradas. El conteo del padre cuenta productos distintos del árbol. Un padre aparece aunque no tenga productos propios.
+- **Admin → Categorías:** campo «Categoría padre» (solo categorías raíz); la tabla indica «Subcategoría de …».
+- **Los productos pueden estar en la categoría y en su subcategoría** a la vez; la ficha y la ruta siguen usando la categoría principal.
+- **Datos de ejemplo:** `datos/isadecor-subcategorias.sql` crea 8 subcategorías (Paredes → Wall panel de interior / Piedra y mármol / Planchas de bambú; Pisos → Piso SPC / Piso autoadhesivo; Exterior y estructura → Wall panel de exteriores / Listones y separadores / Panel sándwich). Son de MUESTRA: reemplazar desde el administrador.
