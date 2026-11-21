@@ -234,4 +234,28 @@ describe('Catalog URL filters', () => {
 
     expect(TestBed.inject(Router).url).toBe('/isadecor/productos?categoria=techos');
   });
+
+  it('starts with every filter section collapsed and opens the ones that have a selection', async () => {
+    const { root } = await open('/isadecor/productos');
+    const sections = () =>
+      [...root.querySelectorAll<HTMLDetailsElement>('.catalog-sidebar details')].map((d) => d.open);
+
+    expect(sections().length).toBe(4);
+    expect(sections().every((open) => !open)).toBe(true);
+  });
+
+  it('opens only the sections with active filters', async () => {
+    const { root } = await open('/isadecor/productos?categoria=techos&precioMax=100');
+    const open_ = Object.fromEntries(
+      [...root.querySelectorAll<HTMLDetailsElement>('.catalog-sidebar details')].map((d) => [
+        d.querySelector('summary')?.textContent?.trim(),
+        d.open,
+      ]),
+    );
+
+    expect(open_['Colección']).toBe(true);
+    expect(open_['Precio (S/)']).toBe(true);
+    expect(open_['Acabado o color']).toBe(false);
+    expect(open_['Características']).toBe(false);
+  });
 });

@@ -211,7 +211,10 @@
 <ng-template #filters>
   <!-- Colección: lista completa con cantidades; escala a cualquier número de colecciones -->
   @if (facade.categories().length) {
-    <details class="catalog-acc catalog-acc--collections" open>
+    <details
+      class="catalog-acc catalog-acc--collections"
+      [open]="facade.selectedCategories().length > 0"
+    >
       <summary>Colección</summary>
       @if (collectionSearchable()) {
         <label class="sr-only" for="collection-search">Buscar colección</label>
@@ -255,7 +258,7 @@
 
   <!-- Acabado / color: muestras de los acabados reales, selección múltiple -->
   @if (facade.acabados().length) {
-    <details class="catalog-acc" open>
+    <details class="catalog-acc" [open]="facade.selectedAcabados().length > 0">
       <summary>Acabado o color</summary>
       <ul class="catalog-finishes">
         @for (finish of facade.acabados(); track finish.nombre) {
@@ -280,7 +283,10 @@
     </details>
   }
 
-  <details class="catalog-acc" open>
+  <details
+    class="catalog-acc"
+    [open]="facade.extra().precioMin != null || facade.extra().precioMax != null"
+  >
     <summary>Precio (S/)</summary>
     @if (priceBuckets().length) {
       <ul class="catalog-prices">
@@ -336,7 +342,12 @@
     </fieldset>
   </details>
 
-  <details class="catalog-acc" open>
+  <details
+    class="catalog-acc"
+    [open]="
+      facade.extra().facilInstalacion === true || facade.onlyDiscount() || facade.onlyInStock()
+    "
+  >
     <summary>Características</summary>
     <label class="catalog-check"
       ><input
