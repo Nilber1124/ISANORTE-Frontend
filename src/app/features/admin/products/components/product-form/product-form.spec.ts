@@ -325,7 +325,32 @@ describe('ProductForm', () => {
     expect(submissions).toHaveLength(1);
     expect(submissions[0].mode).toBe('edit');
     expect('variantes' in submissions[0].request).toBe(false);
-    expect(element.textContent).toContain('Contenido avanzado preservado');
+  });
+
+  it('asks before discarding unsaved changes and closes straight away when clean', async () => {
+    const element = await render();
+    const closed: number[] = [];
+    fixture.componentInstance.canceled.subscribe(() => closed.push(1));
+
+    (fixture.componentInstance as unknown as { requestClose(): void }).requestClose();
+    expect(closed).toHaveLength(1);
+
+    const input = element.querySelector('form input') as HTMLInputElement;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    (fixture.componentInstance as unknown as { requestClose(): void }).requestClose();
+    fixture.detectChanges();
+    expect(closed).toHaveLength(1);
+    expect(fixture.componentInstance.confirmDiscard()).toBe(true);
+    expect(element.textContent).toContain('¿Salir sin guardar?');
+
+    (fixture.componentInstance as unknown as { discardChanges(): void }).discardChanges();
+    expect(closed).toHaveLength(2);
+  });
+
+  it('offers a jump link for every section of the form', async () => {
+    const element = await render();
+    const links = element.querySelectorAll('nav[aria-label="Secciones del producto"] button');
+    expect(links).toHaveLength(9);
   });
 
   it('disables submit while a request is in progress', async () => {

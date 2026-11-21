@@ -138,6 +138,45 @@ export class ProductForm implements OnInit {
   readonly serverError = input<string | null>(null);
 
   readonly canceled = output<void>();
+
+  /** Hay cambios sin guardar en los campos del formulario. */
+  readonly dirty = signal(false);
+  readonly confirmDiscard = signal(false);
+
+  protected readonly sections: readonly { id: string; label: string }[] = [
+    { id: 'section-general-info', label: 'General' },
+    { id: 'section-relations', label: 'Categorías' },
+    { id: 'section-pricing', label: 'Precio y estado' },
+    { id: 'section-product-images', label: 'Imágenes' },
+    { id: 'section-variants', label: 'Acabados' },
+    { id: 'section-specs', label: 'Ficha técnica' },
+    { id: 'section-docs', label: 'Documentos' },
+    { id: 'section-calc', label: 'Calculador' },
+    { id: 'section-seo-preview', label: 'SEO' },
+  ];
+
+  protected goToSection(id: string): void {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  protected markDirty(): void {
+    this.dirty.set(true);
+  }
+
+  /** Cierra el formulario; si hay cambios sin guardar, pide confirmar primero. */
+  protected requestClose(): void {
+    if (this.submitting()) return;
+    if (this.dirty()) {
+      this.confirmDiscard.set(true);
+      return;
+    }
+    this.canceled.emit();
+  }
+
+  protected discardChanges(): void {
+    this.confirmDiscard.set(false);
+    this.canceled.emit();
+  }
   readonly saved = output<ProductFormSubmission>();
 
   readonly sku = signal('');

@@ -4,7 +4,7 @@
   description="Gestiona la información comercial, precios, inventario y relaciones del catálogo."
   [open]="true"
   [loading]="submitting()"
-  (closed)="canceled.emit()"
+  (closed)="requestClose()"
 >
   @if (serverError()) {
     <app-alert class="mb-5" variant="error" title="No se guardaron los cambios">
@@ -12,14 +12,29 @@
     </app-alert>
   }
 
-  @if (mode() === 'edit') {
-    <app-alert class="mb-5" variant="info" title="Contenido avanzado preservado">
-      Las variantes técnicas, documentos PDF y galería múltiple se administran de forma independiente
-      y permanecen protegidas sin alteraciones.
-    </app-alert>
-  }
+  <nav
+    aria-label="Secciones del producto"
+    class="sticky -top-6 z-10 -mx-5 mb-6 flex gap-2 overflow-x-auto border-b border-border bg-surface-elevated px-5 py-3 sm:-mx-6 sm:px-6"
+  >
+    @for (section of sections; track section.id) {
+      <button
+        type="button"
+        class="min-h-9 shrink-0 rounded-full border border-border px-3 text-caption font-semibold text-text-secondary transition-colors hover:border-accent hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        (click)="goToSection(section.id)"
+      >
+        {{ section.label }}
+      </button>
+    }
+  </nav>
 
-  <form id="product-form" (submit)="submit()" novalidate class="space-y-6">
+  <form
+    id="product-form"
+    (submit)="submit()"
+    (input)="markDirty()"
+    (change)="markDirty()"
+    novalidate
+    class="space-y-6"
+  >
 
     <!-- SECCIÓN 1: IDENTIFICACIÓN Y CONTENIDO COMERCIAL -->
     <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-5" aria-labelledby="section-general-info">
@@ -1292,7 +1307,7 @@
   </form>
 
   <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="requestClose()">
       Cancelar
     </app-button>
     <app-button
@@ -1306,6 +1321,22 @@
     </app-button>
   </div>
 </app-drawer>
+
+@if (confirmDiscard()) {
+  <app-modal
+    modalId="product-discard-modal"
+    title="¿Salir sin guardar?"
+    description="Hay cambios en el formulario que todavía no se han guardado."
+    size="small"
+    [open]="true"
+    (closed)="confirmDiscard.set(false)"
+  >
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button variant="secondary" (click)="discardChanges()">Descartar cambios</app-button>
+      <app-button variant="primary" (click)="confirmDiscard.set(false)">Seguir editando</app-button>
+    </div>
+  </app-modal>
+}
 
 @if (previewModalUrl(); as previewUrl) {
   <app-modal

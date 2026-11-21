@@ -62,6 +62,10 @@ class FacadeStub {
   create(): void {}
   update(): void {}
   changeStatus(): void {}
+  toggled: ProductResponse[] = [];
+  toggleFeatured(value: ProductResponse): void {
+    this.toggled.push(value);
+  }
   clearFeedback(): void {}
 }
 
@@ -119,5 +123,58 @@ describe('AdminProducts', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
       'no modifica la disponibilidad',
     );
+  });
+
+  it('filters by search text and by stock, and offers to clear the filters', () => {
+    const agotado: ProductResponse = {
+      ...product,
+      id: 'product-2',
+      sku: 'FL-002',
+      nombre: 'Piso Nogal',
+      slug: 'piso-nogal',
+      disponibilidad: ProductAvailability.AGOTADO,
+    };
+    facade.products.set([product, agotado]);
+    const component = fixture.componentInstance;
+    const text = () => (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    component['setFilter']('query', 'nogal');
+    fixture.detectChanges();
+    expect(text()).toContain('Piso Nogal');
+    expect(text()).not.toContain('Wall Panel Roble');
+
+    component['clearFilters']();
+    component['setFilter']('stockFilter', 'agotado');
+    fixture.detectChanges();
+    expect(component.filtered().map((p) => p.sku)).toEqual(['FL-002']);
+
+    component['setFilter']('query', 'no existe');
+    fixture.detectChanges();
+    expect(text()).toContain('Ningún producto coincide');
+  });
+
+  it('computes stock from the finishes and flags low stock', () => {
+    const component = fixture.componentInstance;
+    const withStock = {
+      ...product,
+      stockMinimo: 5,
+      variantes: [
+        { id: 'v1', stockActual: 2 },
+        { id: 'v2', stockActual: 1 },
+      ] as ProductResponse['variantes'],
+    };
+    expect(component['totalStock'](withStock)).toBe(3);
+    expect(component['stockState'](withStock)).toBe('bajo');
+    expect(component['stockState']({ ...withStock, stockMinimo: 0 })).toBe('ok');
+    expect(component['stockState'](product)).toBe('sin-control');
+  });
+
+  it('toggles the featured flag from the row without opening the form', () => {
+    const star = (fixture.nativeElement as HTMLElement).querySelector(
+      'button[aria-pressed]',
+    ) as HTMLButtonElement;
+    star.click();
+    expect(facade.toggled).toEqual([product]);
+    expect(facade.edited).toEqual([]);
   });
 });

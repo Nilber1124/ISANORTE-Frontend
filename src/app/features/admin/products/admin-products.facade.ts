@@ -226,6 +226,32 @@ export class AdminProductsFacade {
       });
   }
 
+  toggleFeatured(product: ProductResponse): void {
+    if (this._changingStatusId() !== null || this._submitting()) return;
+    this._changingStatusId.set(product.id);
+    this._error.set(null);
+
+    this.productApi
+      .changeFeatured(product.id, {
+        destacado: product.destacado !== true,
+        ordenDestacado: product.ordenDestacado ?? 0,
+      })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._changingStatusId.set(null)),
+      )
+      .subscribe({
+        next: (updatedProduct) => {
+          this.upsertProduct(updatedProduct);
+          this.toastService.show(
+            updatedProduct.destacado === true ? 'Producto destacado.' : 'Producto sin destacar.',
+            'success',
+          );
+        },
+        error: (error: unknown) => this._error.set(this.mutationErrorMessage(error)),
+      });
+  }
+
   clearFeedback(): void {
     this._error.set(null);
   }
