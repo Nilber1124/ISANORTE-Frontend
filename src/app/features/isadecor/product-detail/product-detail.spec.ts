@@ -81,7 +81,7 @@ describe('ProductDetail integration', () => {
     expect(root.textContent).toContain('Descripción de la mesa existente.');
   });
 
-  async function render(overrides: Partial<PublicProductDetailResponse>) {
+  async function renderHarness(overrides: Partial<PublicProductDetailResponse>) {
     const product = {
       sku: 'MESA-1',
       slug: 'mesa',
@@ -124,7 +124,11 @@ describe('ProductDetail integration', () => {
     await harness.navigateByUrl('/isadecor/productos/mesa', ProductDetail);
     await harness.fixture.whenStable();
     harness.detectChanges();
-    return harness.routeNativeElement as HTMLElement;
+    return harness;
+  }
+
+  async function render(overrides: Partial<PublicProductDetailResponse>) {
+    return (await renderHarness(overrides)).routeNativeElement as HTMLElement;
   }
 
   const actions = (root: HTMLElement) =>
@@ -159,6 +163,74 @@ describe('ProductDetail integration', () => {
     const soldOut = await render({ disponibilidad: ProductAvailability.AGOTADO });
     expect(actions(soldOut)).toContain('Cotizar reposición por WhatsApp');
     expect(actions(soldOut)).not.toContain('Agregar al carrito');
+  });
+
+  it('shows bullets, the specification table, documents, delivery details and the collection breadcrumb', async () => {
+    const root = await render({
+      descripcion: 'Resumen del producto.\n\n- Primera ventaja\n- Segunda ventaja',
+      categorias: [{ nombre: 'Pisos', slug: 'pisos' }],
+      plazoEntrega: 'Llega en 3 a 5 días',
+      retiroEnTienda: true,
+      especificaciones: [
+        { clave: 'Espesor', valor: '5 mm', grupo: 'Medidas', orden: 0 },
+        { clave: 'Material', valor: 'SPC', grupo: 'Material y uso', orden: 1 },
+      ],
+      documentos: [
+        {
+          titulo: 'Ficha técnica',
+          url: 'https://cdn/ficha.pdf',
+          tipo: 'FICHA_TECNICA',
+          formato: 'pdf',
+          tamanoBytes: 2048,
+        },
+      ],
+    } as Partial<PublicProductDetailResponse>);
+
+    const details = root.querySelector('.product-details') as HTMLElement;
+    expect(
+      [...details.querySelectorAll('ul.list-disc li')].map((li) => li.textContent?.trim()),
+    ).toEqual(['Primera ventaja', 'Segunda ventaja']);
+    expect(details.querySelectorAll('dl > div')).toHaveLength(2);
+    expect(details.textContent).toContain('Espesor');
+    expect(details.querySelector('details')).toBeTruthy();
+    expect(details.querySelector('a[href="https://cdn/ficha.pdf"]')).toBeTruthy();
+    expect(root.querySelector('ul[aria-label="Entrega e instalación"]')?.textContent).toContain(
+      'Llega en 3 a 5 días',
+    );
+    expect(root.querySelector('ul[aria-label="Entrega e instalación"]')?.textContent).toContain(
+      'Retiro en tienda',
+    );
+    expect(root.querySelector('nav[aria-label="Migas de pan"]')?.textContent).toContain('Pisos');
+  });
+
+  it('collapses a long description until «Mostrar más» is pressed', async () => {
+    const harness = await renderHarness({ descripcion: 'Texto largo. '.repeat(80) });
+    const root = harness.routeNativeElement as HTMLElement;
+    const block = root.querySelector('.product-description') as HTMLElement;
+
+    expect(block.classList.contains('is-collapsed')).toBe(true);
+    const toggle = [...root.querySelectorAll('button')].find((b) =>
+      b.textContent?.includes('Mostrar más'),
+    )!;
+    toggle.click();
+    harness.detectChanges();
+    expect(block.classList.contains('is-collapsed')).toBe(false);
+  });
+
+  it('changes the quantity with the − and + buttons and never goes below one', async () => {
+    const harness = await renderHarness({});
+    const root = harness.routeNativeElement as HTMLElement;
+    const input = root.querySelector('#product-quantity') as HTMLInputElement;
+    const plus = root.querySelector('button[aria-label="Aumentar cantidad"]') as HTMLButtonElement;
+    const minus = root.querySelector(
+      'button[aria-label="Disminuir cantidad"]',
+    ) as HTMLButtonElement;
+
+    expect(minus.disabled).toBe(true);
+    plus.click();
+    plus.click();
+    harness.detectChanges();
+    expect(input.value).toBe('3');
   });
 
   it('applies product SEO tags upon route activation', async () => {

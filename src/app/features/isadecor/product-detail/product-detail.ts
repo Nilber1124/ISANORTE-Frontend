@@ -32,6 +32,7 @@ import { HomeProductTile, UNIT_LABELS } from '../home/product-tile/product-tile'
 import { ProductDetailFacade } from './product-detail.facade';
 import { canBuy, canQuote, isQuoteOnly } from '../product-actions';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
+import { LONG_DESCRIPTION_CHARS, parseDescription } from './product-description';
 
 @Component({
   selector: 'app-isadecor-product-detail',
@@ -84,6 +85,13 @@ export class ProductDetail {
       `Hola ISADECOR, quisiera cotizar ${product.nombre}${detail}: ${quantity} ${this.unit()}.`,
     );
   });
+  protected readonly descriptionBlocks = computed(() =>
+    parseDescription(this.facade.product()?.descripcion ?? ''),
+  );
+  protected readonly descriptionLong = computed(
+    () => (this.facade.product()?.descripcion ?? '').length > LONG_DESCRIPTION_CHARS,
+  );
+  protected readonly descriptionExpanded = signal(false);
   protected readonly canBuyNow = computed(() => {
     const product = this.facade.product();
     return canBuy(product?.modalidad, this.price(), this.purchaseBlocked());
@@ -147,6 +155,15 @@ export class ProductDetail {
     if (this.isSoldOut(variant)) return;
     this.selectedVariantSku.set(variant.sku);
     this.cartFeedback.set(null);
+  }
+
+  protected stepQuantity(delta: number): void {
+    this.cartQuantity.update((current) => Math.min(Math.max(current + delta, 1), 999_999));
+    this.cartFeedback.set(null);
+  }
+
+  protected toggleDescription(): void {
+    this.descriptionExpanded.update((expanded) => !expanded);
   }
 
   protected updateCartQuantity(event: Event): void {

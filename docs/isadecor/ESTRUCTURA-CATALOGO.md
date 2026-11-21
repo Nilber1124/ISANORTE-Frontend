@@ -69,3 +69,10 @@ incluyen la proyección de tarjeta del Home en `tarjeta`.
 - **Carrito único** con dos salidas: «Ir a pagar» (checkout, requiere cuenta de cliente) y «Solicitar cotización por WhatsApp».
 - **No hay formulario de cotización enlazado:** el encabezado, el pie, la ficha y el carrito cotizan por WhatsApp. La página `/isadecor/cotizacion` sigue existiendo pero sin enlaces.
 - Se quitó el filtro «Cómo se vende» del panel; el parámetro `modalidad` del backend sigue aceptándose (COMPRAR y COTIZAR incluyen los productos AMBAS).
+
+### Ficha técnica y detalles (v2)
+- **Detalles** ya no usa acordeones: la **descripción** acepta viñetas (líneas que empiezan con «- ») y se pliega con «Mostrar más» si pasa de 700 caracteres; las **especificaciones** son una tabla de dos columnas agrupada por `grupo`; los **documentos** son botones de descarga. Cada bloque se oculta si no tiene datos.
+- **Entrega e instalación** bajo el precio: plazo de entrega, retiro en tienda (si el producto lo permite) e instalación con técnicos en Cajamarca (texto fijo; confirmar con el cliente).
+- **Garantía y cambios** (acordeón): texto genérico y enlace a WhatsApp; las condiciones reales las define el cliente.
+- Ruta con colección (`Catálogo / Pisos / Producto`) y cantidad con botones − / +.
+- **Datos de ejemplo:** `datos/isadecor-fichas.sql` carga descripción con viñetas y especificaciones de los 12 productos de demostración (valores de MUESTRA: reemplazar desde el administrador). No hay documentos (PDF) ni fotos extra de ejemplo.

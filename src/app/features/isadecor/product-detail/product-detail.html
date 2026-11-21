@@ -4,13 +4,22 @@
     <nav aria-label="Migas de pan" class="mb-3">
       <ol class="flex flex-wrap items-center gap-2 text-body-sm text-text-muted">
         <li>
-          <a
-            routerLink="/isadecor/productos"
-            class="enlace inline-flex min-h-11 items-center"
-          >
+          <a routerLink="/isadecor/productos" class="enlace inline-flex min-h-11 items-center">
             Catálogo
           </a>
         </li>
+        @if (facade.product()?.categorias?.[0]; as category) {
+          <li aria-hidden="true" class="text-border-strong">/</li>
+          <li>
+            <a
+              routerLink="/isadecor/productos"
+              [queryParams]="{ categoria: category.slug }"
+              class="enlace inline-flex min-h-11 items-center"
+            >
+              {{ category.nombre }}
+            </a>
+          </li>
+        }
         <li aria-hidden="true" class="text-border-strong">/</li>
         <li class="max-w-full truncate text-text-secondary" aria-current="page">
           {{ facade.product()?.nombre || 'Detalle de producto' }}
@@ -35,22 +44,31 @@
         </app-empty-state>
       </div>
     } @else if (facade.product(); as product) {
-
       @let currentPrice = price();
       <div class="purchase-layout">
         <div class="min-w-0">
-          <app-product-gallery [images]="product.imagenes" [productName]="product.nombre"
-            [preferredImage]="selectedVariant()?.imagenUrl ?? null" />
+          <app-product-gallery
+            [images]="product.imagenes"
+            [productName]="product.nombre"
+            [preferredImage]="selectedVariant()?.imagenUrl ?? null"
+          />
         </div>
 
         <div class="purchase-info min-w-0">
           @if (product.categorias[0]; as category) {
-            <a class="enlace inline-flex min-h-11 items-center text-body-sm text-text-secondary"
-              routerLink="/isadecor/productos" [queryParams]="{ categoria: category.slug }">{{ category.nombre }}</a>
+            <a
+              class="enlace inline-flex min-h-11 items-center text-body-sm text-text-secondary"
+              routerLink="/isadecor/productos"
+              [queryParams]="{ categoria: category.slug }"
+              >{{ category.nombre }}</a
+            >
           }
           <h1 class="text-heading-1 text-text-primary">{{ product.nombre }}</h1>
           @if (product.valoracion != null) {
-            <a class="enlace inline-flex min-h-11 items-center gap-2 text-body-sm" href="#product-reviews-title">
+            <a
+              class="enlace inline-flex min-h-11 items-center gap-2 text-body-sm"
+              href="#product-reviews-title"
+            >
               <span aria-hidden="true" class="text-accent-strong">★</span>
               {{ product.valoracion }} de 5 ({{ product.resenasCantidad }} reseñas)
             </a>
@@ -62,29 +80,98 @@
           <div class="filete-l my-3 space-y-1 bg-background-soft p-3">
             <p class="text-heading-3 text-text-primary">
               @if (currentPrice !== null) {
-                @if (quoteOnly()) { <span class="text-body-sm text-text-secondary">Desde</span> }
-                S/ {{ currentPrice | number:'1.2-2' }} <span class="font-mono text-body-sm text-text-secondary">/ {{ unit() }}</span>
+                @if (quoteOnly()) {
+                  <span class="text-body-sm text-text-secondary">Desde</span>
+                }
+                S/ {{ currentPrice | number: '1.2-2' }}
+                <span class="font-mono text-body-sm text-text-secondary">/ {{ unit() }}</span>
               } @else {
                 Consultar precio
               }
             </p>
             @if (product.precioAnterior && currentPrice === product.precioBase) {
               <p class="text-body-sm text-text-secondary">
-                Antes <del>S/ {{ product.precioAnterior | number:'1.2-2' }}</del>
+                Antes <del>S/ {{ product.precioAnterior | number: '1.2-2' }}</del>
                 @if (product.descuentoPorcentaje) {
-                  <span class="ml-2 font-semibold text-accent-strong">−{{ product.descuentoPorcentaje | number:'1.0-0' }} %</span>
+                  <span class="ml-2 font-semibold text-accent-strong"
+                    >−{{ product.descuentoPorcentaje | number: '1.0-0' }} %</span
+                  >
                 }
               </p>
             }
-            @if (product.plazoEntrega) {
-              <p class="text-body-sm text-text-secondary">{{ product.plazoEntrega }}</p>
-            }
+
             @if (purchaseBlocked()) {
               <p class="font-semibold text-text-primary">Agotado</p>
-            } @else if ((selectedVariant()?.quedan ?? product.quedan); as remaining) {
+            } @else if (selectedVariant()?.quedan ?? product.quedan; as remaining) {
               <p class="text-body-sm font-semibold text-accent-strong">Quedan {{ remaining }}</p>
             }
           </div>
+
+          <ul
+            class="mb-3 space-y-2 text-body-sm text-text-secondary"
+            aria-label="Entrega e instalación"
+          >
+            @if (product.plazoEntrega) {
+              <li class="flex items-start gap-2">
+                <svg
+                  class="mt-0.5 size-4 shrink-0 text-accent-strong"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3 7h11v9H3zM14 10h4l3 3v3h-7M7 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
+                  />
+                </svg>
+                <span
+                  ><strong class="font-semibold text-text-primary">Envío:</strong>
+                  {{ product.plazoEntrega }}</span
+                >
+              </li>
+            }
+            @if (product.retiroEnTienda) {
+              <li class="flex items-start gap-2">
+                <svg
+                  class="mt-0.5 size-4 shrink-0 text-accent-strong"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M4 9l1-5h14l1 5M4 9v11h16V9M4 9h16M9 20v-6h6v6" />
+                </svg>
+                <span
+                  ><strong class="font-semibold text-text-primary">Retiro en tienda</strong>
+                  disponible</span
+                >
+              </li>
+            }
+            <li class="flex items-start gap-2">
+              <svg
+                class="mt-0.5 size-4 shrink-0 text-accent-strong"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M14 6l4 4-9 9H5v-4zM12 8l4 4" />
+              </svg>
+              <span
+                ><strong class="font-semibold text-text-primary">Instalación</strong> con técnicos
+                en Cajamarca (consulta por WhatsApp)</span
+              >
+            </li>
+          </ul>
 
           @if (facade.variants().length > 0) {
             <fieldset class="mb-3 min-w-0">
@@ -92,12 +179,25 @@
               <div class="flex flex-wrap gap-2">
                 @for (variant of facade.variants(); track variant.sku) {
                   <label class="finish-option">
-                    <input type="radio" name="product-finish" [value]="variant.sku"
-                      [checked]="selectedVariant()?.sku === variant.sku" [disabled]="isSoldOut(variant)"
-                      (change)="selectVariant(variant)" />
-                    <span class="size-5 shrink-0 rounded-control border border-text-muted bg-background-muted"
-                      aria-hidden="true" [style.background-color]="variant.colorHex"></span>
-                    <span>{{ variant.nombre }}@if (isSoldOut(variant)) { <span> · agotado</span> }</span>
+                    <input
+                      type="radio"
+                      name="product-finish"
+                      [value]="variant.sku"
+                      [checked]="selectedVariant()?.sku === variant.sku"
+                      [disabled]="isSoldOut(variant)"
+                      (change)="selectVariant(variant)"
+                    />
+                    <span
+                      class="size-5 shrink-0 rounded-control border border-text-muted bg-background-muted"
+                      aria-hidden="true"
+                      [style.background-color]="variant.colorHex"
+                    ></span>
+                    <span
+                      >{{ variant.nombre }}
+                      @if (isSoldOut(variant)) {
+                        <span> · agotado</span>
+                      }
+                    </span>
                   </label>
                 }
               </div>
@@ -105,90 +205,200 @@
           }
 
           @if (product.configuracionCalculo?.habilitada) {
-            <app-product-calculator [config]="product.configuracionCalculo!"
-              (quantityChange)="useCalculatedQuantity($event)" />
+            <app-product-calculator
+              [config]="product.configuracionCalculo!"
+              (quantityChange)="useCalculatedQuantity($event)"
+            />
           }
 
           @if (!purchaseBlocked()) {
-            <label class="my-3 flex flex-wrap items-center gap-2 text-body-sm">
-              Cantidad ({{ unit() }})
-              <input class="form-control min-h-11 max-w-24" type="number" inputmode="numeric" min="1" step="1"
-                [value]="cartQuantity()" (change)="updateCartQuantity($event)" />
-            </label>
+            <div class="my-3 flex flex-wrap items-center gap-3 text-body-sm">
+              <label for="product-quantity">Cantidad ({{ unit() }})</label>
+              <div
+                class="inline-flex items-stretch overflow-hidden rounded-control border border-border-strong"
+              >
+                <button
+                  type="button"
+                  class="min-h-11 min-w-11 text-body-lg hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-focus"
+                  aria-label="Disminuir cantidad"
+                  [disabled]="cartQuantity() <= 1"
+                  (click)="stepQuantity(-1)"
+                >
+                  −
+                </button>
+                <input
+                  id="product-quantity"
+                  class="min-h-11 w-16 border-x border-border-strong bg-transparent text-center"
+                  type="number"
+                  inputmode="numeric"
+                  min="1"
+                  step="1"
+                  [value]="cartQuantity()"
+                  (change)="updateCartQuantity($event)"
+                />
+                <button
+                  type="button"
+                  class="min-h-11 min-w-11 text-body-lg hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-focus"
+                  aria-label="Aumentar cantidad"
+                  (click)="stepQuantity(1)"
+                >
+                  +
+                </button>
+              </div>
+            </div>
           }
           <div class="purchase-action">
             <div class="min-w-0 text-body-sm font-bold lg:hidden">
               @if (currentPrice !== null) {
-                @if (quoteOnly()) { <span class="text-caption">Desde</span> }
-                S/ {{ currentPrice | number:'1.2-2' }} <span class="text-caption">/ {{ unit() }}</span>
-              } @else { Consultar precio }
+                @if (quoteOnly()) {
+                  <span class="text-caption">Desde</span>
+                }
+                S/ {{ currentPrice | number: '1.2-2' }}
+                <span class="text-caption">/ {{ unit() }}</span>
+              } @else {
+                Consultar precio
+              }
             </div>
             @if (canBuyNow()) {
-              <button type="button" class="min-h-11 min-w-0 flex-1 rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
-                (click)="addToCart(product)">Agregar al carrito</button>
+              <button
+                type="button"
+                class="min-h-11 min-w-0 flex-1 rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
+                (click)="addToCart(product)"
+              >
+                Agregar al carrito
+              </button>
             } @else if (quoteAllowed() && quoteHref(); as wa) {
-              <a class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
-                [href]="wa" target="_blank" rel="noopener noreferrer">{{ purchaseBlocked() ? 'Cotizar reposición por WhatsApp' : 'Cotizar por WhatsApp' }}</a>
+              <a
+                class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
+                [href]="wa"
+                target="_blank"
+                rel="noopener noreferrer"
+                >{{
+                  purchaseBlocked() ? 'Cotizar reposición por WhatsApp' : 'Cotizar por WhatsApp'
+                }}</a
+              >
             }
           </div>
           @if (canBuyNow() && quoteAllowed() && quoteHref(); as wa) {
-            <a class="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-button border border-border-strong px-3 py-2 text-body-sm font-semibold text-text-primary hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-focus"
-              [href]="wa" target="_blank" rel="noopener noreferrer">Cotizar por WhatsApp</a>
+            <a
+              class="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-button border border-border-strong px-3 py-2 text-body-sm font-semibold text-text-primary hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-focus"
+              [href]="wa"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Cotizar por WhatsApp</a
+            >
           }
           <div class="text-body-sm text-text-secondary" role="status">
             @if (cartFeedback(); as feedback) {
               {{ feedback }}
-              <a class="enlace inline-flex min-h-11 items-center" routerLink="/isadecor/carrito">Ver carrito</a>
+              <a class="enlace inline-flex min-h-11 items-center" routerLink="/isadecor/carrito"
+                >Ver carrito</a
+              >
             }
           </div>
         </div>
 
-        <section class="product-details min-w-0 border-t border-border pt-5" aria-labelledby="product-details-title">
+        <section
+          class="product-details min-w-0 border-t border-border pt-5"
+          aria-labelledby="product-details-title"
+        >
           <h2 id="product-details-title" class="mb-3 text-heading-2">Detalles</h2>
-          @if (product.descripcion.trim()) {
-            <details class="detail-accordion" open>
-              <summary>Descripción</summary>
-              <p class="product-description max-w-prose pb-3 text-body-sm text-text-secondary">{{ product.descripcion }}</p>
-            </details>
-          }
-          @if (facade.specificationGroups().length) {
-            <details class="detail-accordion">
-              <summary>Especificaciones técnicas</summary>
-              <div class="grid gap-4 pb-3 sm:grid-cols-2">
-                @for (group of facade.specificationGroups(); track group.name) {
-                  <div>
-                    <h3 class="mb-2 text-heading-3">{{ group.name }}</h3>
-                    <dl class="divide-y divide-border">
-                      @for (spec of group.specifications; track spec.clave) {
-                        <div class="grid grid-cols-2 gap-2 py-2 text-body-sm">
-                          <dt class="text-text-secondary">{{ spec.clave }}</dt>
-                          <dd class="wrap-break-word">{{ spec.valor }}</dd>
-                        </div>
-                      }
-                    </dl>
-                  </div>
-                }
-              </div>
-            </details>
-          }
-          @if (facade.documents().length) {
-            <details class="detail-accordion">
-              <summary>Documentos y descargas</summary>
-              <ul class="pb-3">
-                @for (document of facade.documents(); track document.url) {
-                  <li>
-                    <a [href]="document.url" target="_blank" rel="noopener" class="enlace inline-flex min-h-11 items-center">
-                      {{ document.titulo }}
-                      <span class="sr-only"> ({{ documentTypeLabel(document.tipo) }}, abre en una pestaña nueva)</span>
-                    </a>
-                    @if (documentMetadata(document); as metadata) {
-                      <span class="ml-2 text-caption text-text-secondary">{{ metadata }}</span>
+          @if (descriptionBlocks().length) {
+            <div
+              class="product-description max-w-prose space-y-3 text-body-sm text-text-secondary"
+              [class.is-collapsed]="descriptionLong() && !descriptionExpanded()"
+            >
+              @for (block of descriptionBlocks(); track $index) {
+                @if (block.type === 'p') {
+                  <p>{{ block.text }}</p>
+                } @else {
+                  <ul class="list-disc space-y-1 pl-5">
+                    @for (item of block.items; track $index) {
+                      <li>{{ item }}</li>
                     }
-                  </li>
+                  </ul>
                 }
-              </ul>
-            </details>
+              }
+            </div>
+            @if (descriptionLong()) {
+              <button
+                type="button"
+                class="enlace mt-1 min-h-11 text-body-sm font-semibold"
+                [attr.aria-expanded]="descriptionExpanded()"
+                (click)="toggleDescription()"
+              >
+                {{ descriptionExpanded() ? 'Mostrar menos' : 'Mostrar más' }}
+              </button>
+            }
           }
+
+          @if (facade.specificationGroups().length) {
+            <h3 class="mb-2 mt-6 text-heading-3">Especificaciones</h3>
+            <div class="space-y-4">
+              @for (group of facade.specificationGroups(); track group.name) {
+                <div>
+                  @if (facade.specificationGroups().length > 1 && group.name) {
+                    <h4
+                      class="mb-1 font-mono text-caption uppercase tracking-[0.1em] text-text-muted"
+                    >
+                      {{ group.name }}
+                    </h4>
+                  }
+                  <dl class="overflow-hidden rounded-card border border-border">
+                    @for (spec of group.specifications; track spec.clave) {
+                      <div
+                        class="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3 px-3 py-2 text-body-sm odd:bg-background-soft"
+                      >
+                        <dt class="text-text-secondary">{{ spec.clave }}</dt>
+                        <dd class="wrap-break-word text-text-primary">{{ spec.valor }}</dd>
+                      </div>
+                    }
+                  </dl>
+                </div>
+              }
+            </div>
+          }
+
+          @if (facade.documents().length) {
+            <h3 class="mb-2 mt-6 text-heading-3">Documentos</h3>
+            <ul class="m-0 flex list-none flex-wrap gap-2 p-0">
+              @for (document of facade.documents(); track document.url) {
+                <li>
+                  <a
+                    [href]="document.url"
+                    target="_blank"
+                    rel="noopener"
+                    class="inline-flex min-h-11 items-center gap-2 rounded-button border border-border-strong px-4 text-body-sm font-semibold text-text-primary hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-focus"
+                  >
+                    {{ document.titulo }}
+                    @if (documentMetadata(document); as metadata) {
+                      <span class="font-normal text-text-secondary">{{ metadata }}</span>
+                    }
+                    <span class="sr-only">
+                      ({{ documentTypeLabel(document.tipo) }}, abre en una pestaña nueva)</span
+                    >
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+
+          <details class="detail-accordion mt-6">
+            <summary>Garantía y cambios</summary>
+            <p class="pb-3 text-body-sm text-text-secondary">
+              Garantía de fábrica: respaldo escrito en cada producto. Para cambios y devoluciones,
+              escríbenos por WhatsApp y revisamos tu caso.
+              @if (quoteHref(); as wa) {
+                <a
+                  class="enlace ml-1 font-semibold"
+                  [href]="wa"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Escribir por WhatsApp</a
+                >
+              }
+            </p>
+          </details>
         </section>
       </div>
       <section
@@ -476,10 +686,14 @@
         }
       </section>
 
-
       @if (recommendedCards().length) {
-        <section class="mt-8 border-t border-border pt-5" aria-labelledby="recommended-products-title">
-          <h2 id="recommended-products-title" class="mb-4 text-heading-2">También te puede interesar</h2>
+        <section
+          class="mt-8 border-t border-border pt-5"
+          aria-labelledby="recommended-products-title"
+        >
+          <h2 id="recommended-products-title" class="mb-4 text-heading-2">
+            También te puede interesar
+          </h2>
           <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
             @for (recommended of recommendedCards(); track recommended.slug) {
               <app-home-product-tile [product]="recommended" [dense]="true" />

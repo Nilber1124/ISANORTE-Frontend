@@ -1,5 +1,8 @@
-.product-description {
-  white-space: pre-line;
+.product-description.is-collapsed {
+  max-height: 11rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
 }
 
 .purchase-layout {

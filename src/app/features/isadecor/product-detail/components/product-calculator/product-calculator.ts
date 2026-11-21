@@ -16,7 +16,9 @@ export class ProductCalculator {
   readonly measurement = signal<number | null>(null);
   readonly showResult = signal<boolean>(false);
 
-  protected readonly inputLabel = computed(() => this.config().etiquetaEntrada?.trim() || 'Medida a cubrir');
+  protected readonly inputLabel = computed(
+    () => this.config().etiquetaEntrada?.trim() || 'Medida a cubrir',
+  );
   protected readonly inputUnit = computed(() => this.config().unidadEntrada?.trim() || null);
   protected readonly saleUnit = computed(() => this.config().unidadVenta?.trim() || null);
   protected readonly helperText = computed(() => this.config().textoAyuda?.trim() || null);
