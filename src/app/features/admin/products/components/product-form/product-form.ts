@@ -55,6 +55,8 @@ export interface ProductImageItem {
   altText: string;
   esPrincipal: boolean;
   orden: number;
+  /** SKU del acabado al que pertenece ('' = imagen general). */
+  varianteSku: string;
 }
 
 export interface ProductVariantItem {
@@ -231,6 +233,8 @@ export class ProductForm implements OnInit {
 
   readonly localImages = signal<ProductImageItem[]>([]);
   readonly newImageUrl = signal<string | null>(null);
+  /** Acabado al que se asignará la próxima imagen subida ('' = general). */
+  readonly newImageSku = signal('');
   readonly previewModalUrl = signal<string | null>(null);
 
   readonly currentImages = computed<ProductImageItem[]>(() => {
@@ -247,7 +251,28 @@ export class ProductForm implements OnInit {
         altText: img.altText ?? '',
         esPrincipal: img.esPrincipal === true,
         orden: img.orden ?? idx,
+        varianteSku: img.varianteSku ?? '',
       }));
+  });
+
+  /** Acabados con SKU, para elegir a cuál pertenece cada imagen. */
+  readonly finishOptions = computed(() =>
+    this.currentVariants()
+      .filter((variant) => variant.sku?.trim())
+      .map((variant) => ({ sku: variant.sku.trim(), nombre: variant.nombre?.trim() || variant.sku })),
+  );
+
+  /** Acabados sin ninguna foto propia (ni la imagen heredada del acabado). */
+  readonly finishesWithoutImages = computed(() => {
+    const images = this.currentImages();
+    return this.currentVariants()
+      .filter((variant) => {
+        const sku = variant.sku?.trim().toLowerCase();
+        if (!sku) return false;
+        const hasOwn = images.some((img) => img.varianteSku.toLowerCase() === sku);
+        return !hasOwn && !variant.imagenUrl;
+      })
+      .map((variant) => variant.nombre?.trim() || variant.sku);
   });
 
   readonly previewImageUrl = computed<string | null>(() => {
@@ -544,6 +569,7 @@ export class ProductForm implements OnInit {
         altText: img.altText?.trim() || null,
         esPrincipal: img.esPrincipal,
         orden: idx,
+        varianteSku: this.skuValido(img.varianteSku),
       }));
       const variantes: ProductVariantCreateRequest[] = this.localVariants().map((v, idx) => ({
         sku: v.sku.trim(),
@@ -642,6 +668,7 @@ export class ProductForm implements OnInit {
         altText: defaultAlt,
         esPrincipal: isFirst,
         orden: current.length,
+        varianteSku: this.newImageSku(),
       };
       this.localImages.update((imgs) => [...imgs, newImg]);
       this.newImageUrl.set(null);
@@ -656,8 +683,28 @@ export class ProductForm implements OnInit {
       altText: defaultAlt || null,
       esPrincipal: isFirst,
       orden: current.length,
+      varianteSku: this.newImageSku() || null,
     });
     this.newImageUrl.set(null);
+  }
+
+  protected setImageFinish(index: number, sku: string): void {
+    if (this.mode() === 'create') {
+      this.localImages.update((imgs) =>
+        imgs.map((item, idx) => (idx === index ? { ...item, varianteSku: sku } : item)),
+      );
+      return;
+    }
+    const prod = this.facade.selectedProduct() ?? this.product();
+    const target = this.currentImages()[index];
+    if (!prod || !target?.id) return;
+    this.facade.updateImageVariant(prod.id, target.id, sku || null);
+  }
+
+  private skuValido(sku: string): string | null {
+    const wanted = sku.trim().toLowerCase();
+    if (!wanted) return null;
+    return this.finishOptions().find((option) => option.sku.toLowerCase() === wanted)?.sku ?? null;
   }
 
   protected setAsPrincipal(index: number): void {

@@ -246,6 +246,7 @@ export class AdminProductsFacade {
       altText: request.altText?.trim().slice(0, 200) || null,
       esPrincipal: Boolean(request.esPrincipal),
       orden: Number(request.orden ?? 0),
+      varianteSku: request.varianteSku?.trim() || null,
     };
 
     this.productApi
@@ -437,6 +438,43 @@ export class AdminProductsFacade {
         },
         error: () => {
           this._imageError.set('No pudimos guardar el texto alternativo.');
+          this.refreshSelectedProduct(productId);
+        },
+      });
+  }
+
+  /** Asigna la imagen a un acabado (por SKU); `null` la deja como imagen general. */
+  updateImageVariant(productId: string, imageId: string, varianteSku: string | null): void {
+    if (this._imageOperating() || this._submitting()) return;
+
+    const target = (this._selectedProduct()?.imagenes ?? []).find((img) => img.id === imageId);
+    if (!target || (target.varianteSku ?? null) === varianteSku) return;
+
+    this._imageOperating.set(true);
+    this._imageError.set(null);
+    this._imageSuccess.set(null);
+
+    const payload: ProductImageCreateRequest = {
+      url: target.url,
+      altText: target.altText,
+      esPrincipal: target.esPrincipal ?? false,
+      orden: target.orden ?? 0,
+      varianteSku: varianteSku ?? '',
+    };
+
+    this.productApi
+      .updateImage(productId, imageId, payload)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._imageOperating.set(false)),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.updateImageInSelectedProduct(updated);
+          this._imageSuccess.set('Acabado de la imagen actualizado.');
+        },
+        error: () => {
+          this._imageError.set('No pudimos cambiar el acabado de la imagen.');
           this.refreshSelectedProduct(productId);
         },
       });
