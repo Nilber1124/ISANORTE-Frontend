@@ -36,14 +36,18 @@ describe('ProductCalculator', () => {
   }
 
   function resultText(element: HTMLElement): string | null {
-    return element.querySelector('output')?.textContent?.trim() ?? null;
+    const text = element.querySelector('output')?.textContent?.trim() ?? null;
+    return text?.includes('Necesitas') ? text : null;
   }
 
   it('enables the calculator when the configuration is enabled and valid', () => {
     const element = render();
 
     expect(element.querySelector('input[type="number"]')).toBeTruthy();
-    expect(element.textContent).toContain('Calcula cuánto necesitas');
+    expect(element.textContent).toContain('Cubrir');
+    expect(element.querySelector('[role="group"]')?.getAttribute('aria-label')).toBe(
+      'Calcula cuánto necesitas',
+    );
   });
 
   it('calculates 21 units for 4.5 with a coverage of 0.22', () => {
@@ -89,7 +93,6 @@ describe('ProductCalculator', () => {
     const element = enterMeasurement('0');
 
     expect(element.textContent).toContain('Ingresa un valor mayor que 0.');
-    expect(element.textContent).toContain('Ingresa una medida válida para ver el resultado.');
     expect(resultText(element)).toBeNull();
   });
 
@@ -105,7 +108,7 @@ describe('ProductCalculator', () => {
     render();
     const element = enterMeasurement('');
 
-    expect(element.textContent).toContain('Ingresa una medida válida para ver el resultado.');
+    expect(element.textContent).toContain('cuántas necesitas');
     expect(element.querySelector('[aria-invalid="true"]')).toBeNull();
     expect(resultText(element)).toBeNull();
   });
@@ -135,7 +138,8 @@ describe('ProductCalculator', () => {
   });
 
   it('renders optional help only when the contract provides it', () => {
-    expect(render().textContent).toContain(enabledConfig.textoAyuda);
+    render();
+    expect(enterMeasurement('4.5').textContent).toContain(enabledConfig.textoAyuda);
 
     const element = render({ ...enabledConfig, textoAyuda: null });
     expect(element.querySelector('#product-calculator-help')).toBeNull();
@@ -151,9 +155,21 @@ describe('ProductCalculator', () => {
     });
     const element = enterMeasurement('1.44');
 
-    expect(element.querySelector('label')?.textContent).toContain('¿Cuántos m² vas a cubrir?');
+    expect(element.querySelector('label')?.textContent).toContain('Cubrir');
     expect(resultText(element)).toContain('Necesitas 1 caja');
     expect(element.textContent).toContain('m²');
     expect(element.textContent).toContain('caja');
+  });
+
+  it('updates the quantity live while typing, without any button to press', () => {
+    const quantities: Array<number | null> = [];
+    fixture.componentInstance.quantityChange.subscribe((quantity) => quantities.push(quantity));
+    const element = render();
+
+    expect([...element.querySelectorAll('button')]).toHaveLength(0);
+    enterMeasurement('2');
+    enterMeasurement('4.5');
+
+    expect(quantities.at(-1)).toBe(21);
   });
 });

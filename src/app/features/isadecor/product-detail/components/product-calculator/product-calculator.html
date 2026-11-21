@@ -1,63 +1,51 @@
-<section class="rounded-panel border border-border p-3" aria-labelledby="product-calculator-title">
-  <h2 id="product-calculator-title" class="text-heading-3">Calcula cuánto necesitas</h2>
-  @if (calculationAvailable()) {
-    <label class="mt-2 block text-body-sm font-semibold" for="product-calculator-measurement">
-      {{
-        inputUnit() === 'm²'
-          ? '¿Cuántos m² vas a cubrir?'
-          : inputLabel() + (inputUnit() ? ' (' + inputUnit() + ')' : '')
-      }}
+@if (calculationAvailable()) {
+  <div
+    class="calc-row rounded-control border border-border-strong px-3 py-1"
+    role="group"
+    aria-label="Calcula cuánto necesitas"
+  >
+    <label for="product-calculator-measurement" class="font-semibold">
+      Cubrir
+      <span class="sr-only">
+        {{ inputUnit() ? '(' + inputUnit() + ')' : '' }} para calcular cuánto necesitas
+      </span>
     </label>
-    <p id="product-calculator-example" class="mb-2 text-caption text-text-secondary">
-      Escribe la medida total. Por ejemplo, 12{{ inputUnit() ? ' ' + inputUnit() : '' }}.
-    </p>
-    <form class="flex flex-wrap items-center gap-2" (submit)="$event.preventDefault(); calculate()">
-      <input
-        id="product-calculator-measurement"
-        name="product-measurement"
-        class="form-control min-h-11 max-w-40"
-        type="number"
-        inputmode="decimal"
-        autocomplete="off"
-        min="0"
-        step="any"
-        [value]="measurement() ?? ''"
-        [attr.aria-describedby]="describedBy()"
-        [attr.aria-invalid]="measurementError() ? true : null"
-        (input)="updateMeasurement($event)"
-      />
-      <button
-        type="submit"
-        class="min-h-11 rounded-button border border-border-strong px-3 text-body-sm font-semibold"
-      >
-        Calcular
-      </button>
-    </form>
-    @if (helperText(); as help) {
-      <p id="product-calculator-help" class="mt-2 text-caption text-text-secondary">{{ help }}</p>
+    <input
+      id="product-calculator-measurement"
+      name="product-measurement"
+      class="form-control min-h-11 w-24"
+      type="number"
+      inputmode="decimal"
+      autocomplete="off"
+      min="0"
+      step="any"
+      placeholder="Ej. 12"
+      [value]="measurement() ?? ''"
+      [attr.aria-describedby]="describedBy()"
+      [attr.aria-invalid]="measurementError() ? true : null"
+      (input)="updateMeasurement($event)"
+    />
+    @if (inputUnit(); as unit) {
+      <span class="text-text-secondary">{{ unit }}</span>
     }
-    @if (measurementError(); as error) {
-      <p id="product-calculator-error" class="mt-2 text-caption text-error" role="status">
-        {{ error }}
-      </p>
-    }
-    @if (quantity(); as result) {
-      <div class="mt-2 flex flex-wrap items-center gap-2">
-        <output for="product-calculator-measurement" class="text-body-sm font-semibold">
-          Necesitas {{ result | number: '1.0-0' }} {{ resultUnit(result) }}
-        </output>
-        <button type="button" class="enlace min-h-11 px-2 text-body-sm" (click)="applyQuantity()">
-          Aceptar cantidad
-        </button>
-      </div>
-    } @else if (measurement() === null || (measurement() ?? 0) <= 0) {
-      <p class="mt-2 text-caption text-text-secondary">
-        Ingresa una medida válida para ver el resultado.
-      </p>
-    }
-  } @else {
-    <p class="mt-2 text-body-sm text-text-secondary" role="status">
-      El cálculo no está disponible para este producto.
+    <output for="product-calculator-measurement" class="calc-result" aria-live="polite">
+      @if (quantity(); as result) {
+        <strong>Necesitas {{ result | number: '1.0-0' }} {{ resultUnit(result) }}</strong>
+      } @else {
+        <span class="text-text-muted">cuántas necesitas</span>
+      }
+    </output>
+  </div>
+  @if (measurementError(); as error) {
+    <p id="product-calculator-error" class="mt-1 text-caption text-error" role="status">
+      {{ error }}
     </p>
   }
-</section>
+  @if (quantity() && helperText(); as help) {
+    <p id="product-calculator-help" class="mt-1 text-caption text-text-secondary">{{ help }}</p>
+  }
+} @else {
+  <p class="text-body-sm text-text-secondary" role="status">
+    El cálculo no está disponible para este producto.
+  </p>
+}

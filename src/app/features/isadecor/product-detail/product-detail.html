@@ -57,7 +57,7 @@
         <div class="purchase-info min-w-0">
           @if (product.categorias[0]; as category) {
             <a
-              class="enlace inline-flex min-h-11 items-center text-body-sm text-text-secondary"
+              class="enlace inline-flex min-h-11 items-center text-body-sm text-text-secondary lg:hidden"
               routerLink="/isadecor/productos"
               [queryParams]="{ categoria: category.slug }"
               >{{ category.nombre }}</a
@@ -66,7 +66,7 @@
           <h1 class="text-heading-1 text-text-primary">{{ product.nombre }}</h1>
           @if (product.valoracion != null) {
             <a
-              class="enlace inline-flex min-h-11 items-center gap-2 text-body-sm"
+              class="enlace inline-flex min-h-11 items-center gap-2 text-body-sm lg:min-h-8"
               href="#product-reviews-title"
             >
               <span aria-hidden="true" class="text-accent-strong">★</span>
@@ -211,73 +211,76 @@
             />
           }
 
-          @if (!purchaseBlocked()) {
-            <div class="my-3 flex flex-wrap items-center gap-3 text-body-sm">
-              <label for="product-quantity">Cantidad ({{ unit() }})</label>
-              <div
-                class="inline-flex items-stretch overflow-hidden rounded-control border border-border-strong"
-              >
-                <button
-                  type="button"
-                  class="min-h-11 min-w-11 text-body-lg hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-focus"
-                  aria-label="Disminuir cantidad"
-                  [disabled]="cartQuantity() <= 1"
-                  (click)="stepQuantity(-1)"
+          <div class="purchase-row">
+            @if (!purchaseBlocked()) {
+              <div class="inline-flex items-center gap-2 text-body-sm text-text-secondary">
+                <label class="sr-only" for="product-quantity">Cantidad ({{ unit() }})</label>
+                <div
+                  class="inline-flex items-stretch overflow-hidden rounded-control border border-border-strong text-text-primary"
                 >
-                  −
-                </button>
-                <input
-                  id="product-quantity"
-                  class="min-h-11 w-16 border-x border-border-strong bg-transparent text-center"
-                  type="number"
-                  inputmode="numeric"
-                  min="1"
-                  step="1"
-                  [value]="cartQuantity()"
-                  (change)="updateCartQuantity($event)"
-                />
-                <button
-                  type="button"
-                  class="min-h-11 min-w-11 text-body-lg hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-focus"
-                  aria-label="Aumentar cantidad"
-                  (click)="stepQuantity(1)"
-                >
-                  +
-                </button>
+                  <button
+                    type="button"
+                    class="min-h-11 min-w-11 text-body-lg hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-focus"
+                    aria-label="Disminuir cantidad"
+                    [disabled]="cartQuantity() <= 1"
+                    (click)="stepQuantity(-1)"
+                  >
+                    −
+                  </button>
+                  <input
+                    id="product-quantity"
+                    class="min-h-11 w-14 border-x border-border-strong bg-transparent text-center"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    step="1"
+                    [value]="cartQuantity()"
+                    (change)="updateCartQuantity($event)"
+                  />
+                  <button
+                    type="button"
+                    class="min-h-11 min-w-11 text-body-lg hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-focus"
+                    aria-label="Aumentar cantidad"
+                    (click)="stepQuantity(1)"
+                  >
+                    +
+                  </button>
+                </div>
+                <span aria-hidden="true">{{ unit() }}</span>
               </div>
-            </div>
-          }
-          <div class="purchase-action">
-            <div class="min-w-0 text-body-sm font-bold lg:hidden">
-              @if (currentPrice !== null) {
-                @if (quoteOnly()) {
-                  <span class="text-caption">Desde</span>
+            }
+            <div class="purchase-action">
+              <div class="min-w-0 text-body-sm font-bold lg:hidden">
+                @if (currentPrice !== null) {
+                  @if (quoteOnly()) {
+                    <span class="text-caption">Desde</span>
+                  }
+                  S/ {{ currentPrice | number: '1.2-2' }}
+                  <span class="text-caption">/ {{ unit() }}</span>
+                } @else {
+                  Consultar precio
                 }
-                S/ {{ currentPrice | number: '1.2-2' }}
-                <span class="text-caption">/ {{ unit() }}</span>
-              } @else {
-                Consultar precio
+              </div>
+              @if (canBuyNow()) {
+                <button
+                  type="button"
+                  class="min-h-11 min-w-0 flex-1 rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
+                  (click)="addToCart(product)"
+                >
+                  Agregar al carrito
+                </button>
+              } @else if (quoteAllowed() && quoteHref(); as wa) {
+                <a
+                  class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
+                  [href]="wa"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{
+                    purchaseBlocked() ? 'Cotizar reposición por WhatsApp' : 'Cotizar por WhatsApp'
+                  }}</a
+                >
               }
             </div>
-            @if (canBuyNow()) {
-              <button
-                type="button"
-                class="min-h-11 min-w-0 flex-1 rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
-                (click)="addToCart(product)"
-              >
-                Agregar al carrito
-              </button>
-            } @else if (quoteAllowed() && quoteHref(); as wa) {
-              <a
-                class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
-                [href]="wa"
-                target="_blank"
-                rel="noopener noreferrer"
-                >{{
-                  purchaseBlocked() ? 'Cotizar reposición por WhatsApp' : 'Cotizar por WhatsApp'
-                }}</a
-              >
-            }
           </div>
           @if (canBuyNow() && quoteAllowed() && quoteHref(); as wa) {
             <a
