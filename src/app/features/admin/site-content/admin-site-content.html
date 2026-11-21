@@ -6,23 +6,14 @@
       <p class="mt-3 text-body text-text-secondary">{{ config.description }}</p>
     </div>
     @if (!editing()) {
-      <button
-        type="button"
-        class="min-h-11 rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-        (click)="openNew()"
-      >
-        Agregar
-      </button>
+      <app-button variant="primary" (click)="openNew()">Agregar</app-button>
     }
   </header>
 
   @if (error(); as message) {
-    <p
-      class="mt-6 rounded-card border border-border bg-surface p-4 text-body-sm text-text-primary"
-      role="alert"
-    >
+    <app-alert class="mt-6" variant="error" title="No pudimos completar la operación">
       {{ message }}
-    </p>
+    </app-alert>
   }
 
   @if (editing()) {
@@ -32,71 +23,63 @@
       novalidate
     >
       @for (field of config.fields; track field.key) {
-        <div class="flex flex-col gap-1.5">
-          <label class="text-body-sm font-semibold text-text-primary" [for]="'f-' + field.key">
-            {{ field.label }}
-            @if (field.required) {
-              <span aria-hidden="true"> *</span>
-            }
-          </label>
-          @switch (field.type) {
-            @case ('textarea') {
-              <textarea
-                [id]="'f-' + field.key"
-                rows="4"
-                class="rounded-control border border-border bg-background p-3 text-body"
-                [value]="form()[field.key] ?? ''"
-                (input)="set(field.key, $any($event.target).value)"
-              ></textarea>
-            }
-            @case ('select') {
-              <select
-                [id]="'f-' + field.key"
-                class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
-                [value]="form()[field.key] ?? ''"
-                (change)="set(field.key, $any($event.target).value)"
-              >
-                <option value="">Selecciona…</option>
-                @for (option of field.options; track option.value) {
-                  <option [value]="option.value" [selected]="form()[field.key] === option.value">
-                    {{ option.label }}
-                  </option>
-                }
-              </select>
-            }
-            @case ('number') {
-              <input
-                [id]="'f-' + field.key"
-                type="number"
-                class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
-                [value]="form()[field.key] ?? ''"
-                (input)="setNumber(field.key, $any($event.target).value)"
-              />
-            }
-            @case ('date') {
-              <input
-                [id]="'f-' + field.key"
-                type="date"
-                class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
-                [value]="form()[field.key] ?? ''"
-                (input)="set(field.key, $any($event.target).value)"
-              />
-            }
-            @case ('ref') {
-              <select
-                [id]="'f-' + field.key"
-                class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
-                (change)="set(field.key, $any($event.target).value)"
-              >
-                <option value="">Selecciona…</option>
-                @for (option of refOptions()[field.key]; track option.id) {
-                  <option [value]="option.id" [selected]="form()[field.key] === option.id">
-                    {{ option.label }}
-                  </option>
-                }
-              </select>
-            }
-            @case ('checkbox') {
+        @switch (field.type) {
+          @case ('textarea') {
+            <app-textarea-field
+              [inputId]="'f-' + field.key"
+              [label]="field.label"
+              [required]="field.required === true"
+              [helperText]="field.help"
+              [value]="$any(form()[field.key] ?? '')"
+              (valueChange)="set(field.key, $event)"
+            />
+          }
+          @case ('select') {
+            <app-select-field
+              [inputId]="'f-' + field.key"
+              [label]="field.label"
+              [required]="field.required === true"
+              [helperText]="field.help"
+              [options]="selectOptions(field)"
+              [value]="$any(form()[field.key] ?? '')"
+              (valueChange)="set(field.key, $event)"
+            />
+          }
+          @case ('number') {
+            <app-input-field
+              [inputId]="'f-' + field.key"
+              type="number"
+              [label]="field.label"
+              [required]="field.required === true"
+              [helperText]="field.help"
+              [value]="'' + (form()[field.key] ?? '')"
+              (valueChange)="setNumber(field.key, $event)"
+            />
+          }
+          @case ('date') {
+            <app-input-field
+              [inputId]="'f-' + field.key"
+              type="date"
+              [label]="field.label"
+              [required]="field.required === true"
+              [helperText]="field.help"
+              [value]="'' + (form()[field.key] ?? '')"
+              (valueChange)="set(field.key, $event)"
+            />
+          }
+          @case ('ref') {
+            <app-select-field
+              [inputId]="'f-' + field.key"
+              [label]="field.label"
+              [required]="field.required === true"
+              [helperText]="field.help"
+              [options]="refChoices()[field.key] ?? []"
+              [value]="'' + (form()[field.key] ?? '')"
+              (valueChange)="set(field.key, $event)"
+            />
+          }
+          @case ('checkbox') {
+            <label class="flex items-center gap-3 text-body-sm font-semibold text-text-primary">
               <input
                 [id]="'f-' + field.key"
                 type="checkbox"
@@ -104,8 +87,20 @@
                 [checked]="form()[field.key] === true"
                 (change)="set(field.key, $any($event.target).checked)"
               />
+              {{ field.label }}
+            </label>
+            @if (field.help) {
+              <span class="-mt-3 text-caption text-text-muted">{{ field.help }}</span>
             }
-            @case ('image') {
+          }
+          @case ('image') {
+            <div class="flex flex-col gap-1.5">
+              <label class="text-body-sm font-semibold text-text-primary" [for]="'f-' + field.key">
+                {{ field.label }}
+                @if (field.required) {
+                  <span aria-hidden="true"> *</span>
+                }
+              </label>
               @if (form()[field.key]; as current) {
                 <img
                   [src]="current"
@@ -123,37 +118,35 @@
               @if (uploading() === field.key) {
                 <span class="text-caption text-text-muted" role="status">Subiendo imagen…</span>
               }
-            }
-            @default {
-              <input
-                [id]="'f-' + field.key"
-                type="text"
-                class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
-                [attr.maxlength]="field.maxLength"
-                [value]="form()[field.key] ?? ''"
-                (input)="set(field.key, $any($event.target).value)"
-              />
-            }
+              @if (field.help) {
+                <span class="text-caption text-text-muted">{{ field.help }}</span>
+              }
+            </div>
           }
-          @if (field.help) {
-            <span class="text-caption text-text-muted">{{ field.help }}</span>
+          @default {
+            <app-input-field
+              [inputId]="'f-' + field.key"
+              [label]="field.label"
+              [required]="field.required === true"
+              [helperText]="field.help"
+              [maxLength]="field.maxLength"
+              [value]="'' + (form()[field.key] ?? '')"
+              (valueChange)="set(field.key, $event)"
+            />
           }
-        </div>
+        }
       }
 
       <div class="grid gap-5 sm:grid-cols-2">
         @if (hasOrder()) {
-          <div class="flex flex-col gap-1.5">
-            <label class="text-body-sm font-semibold text-text-primary" for="f-orden">Orden</label>
-            <input
-              id="f-orden"
-              type="number"
-              min="0"
-              class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
-              [value]="form()['orden'] ?? 0"
-              (input)="setNumber('orden', $any($event.target).value)"
-            />
-          </div>
+          <app-input-field
+            inputId="f-orden"
+            type="number"
+            label="Orden"
+            helperText="También puedes subir o bajar el registro desde la lista."
+            [value]="'' + (form()['orden'] ?? 0)"
+            (valueChange)="setNumber('orden', $event)"
+          />
         }
         @if (hasActive()) {
           <label
@@ -171,20 +164,10 @@
       </div>
 
       <div class="flex gap-3">
-        <button
-          type="submit"
-          class="min-h-11 rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast disabled:opacity-50"
-          [disabled]="saving() || !valid()"
-        >
-          {{ saving() ? 'Guardando…' : 'Guardar' }}
-        </button>
-        <button
-          type="button"
-          class="min-h-11 rounded-button border border-border-strong px-5 py-2.5 text-body-sm font-semibold text-text-primary"
-          (click)="cancel()"
-        >
-          Cancelar
-        </button>
+        <app-button type="submit" variant="primary" [loading]="saving()" [disabled]="saving() || !valid()">
+          Guardar
+        </app-button>
+        <app-button variant="secondary" (click)="cancel()">Cancelar</app-button>
       </div>
     </form>
 
@@ -214,31 +197,9 @@
               >
                 <span class="truncate text-body-sm">{{ i + 1 }}. {{ productName(id) }}</span>
                 <span class="flex gap-1">
-                  <button
-                    type="button"
-                    class="min-h-9 rounded-button border border-border-strong px-3 text-body-sm"
-                    [disabled]="i === 0"
-                    [attr.aria-label]="'Subir ' + productName(id)"
-                    (click)="movePinned(i, -1)"
-                  >
-                    ↑
-                  </button>
-                  <button
-                    type="button"
-                    class="min-h-9 rounded-button border border-border-strong px-3 text-body-sm"
-                    [disabled]="i === pinned().length - 1"
-                    [attr.aria-label]="'Bajar ' + productName(id)"
-                    (click)="movePinned(i, 1)"
-                  >
-                    ↓
-                  </button>
-                  <button
-                    type="button"
-                    class="min-h-9 rounded-button border border-border-strong px-3 text-body-sm"
-                    (click)="unpin(id)"
-                  >
-                    Quitar
-                  </button>
+                  <app-button size="small" variant="secondary" [disabled]="i === 0" [ariaLabel]="'Subir ' + productName(id)" (click)="movePinned(i, -1)">↑</app-button>
+                  <app-button size="small" variant="secondary" [disabled]="i === pinned().length - 1" [ariaLabel]="'Bajar ' + productName(id)" (click)="movePinned(i, 1)">↓</app-button>
+                  <app-button size="small" variant="ghost" (click)="unpin(id)">Quitar</app-button>
                 </span>
               </li>
             }
@@ -274,28 +235,28 @@
           </div>
         </fieldset>
         <div>
-          <button
-            type="button"
-            class="min-h-11 rounded-button bg-accent px-5 py-2.5 text-body-sm font-semibold text-accent-contrast disabled:opacity-50"
-            [disabled]="savingSelection()"
-            (click)="saveSelection()"
-          >
-            {{ savingSelection() ? 'Guardando…' : 'Guardar selección' }}
-          </button>
+          <app-button variant="primary" [loading]="savingSelection()" [disabled]="savingSelection()" (click)="saveSelection()">
+            Guardar selección
+          </app-button>
         </div>
       </section>
     }
   } @else if (loading()) {
-    <p class="mt-8 text-body text-text-secondary" role="status">Cargando…</p>
+    <div class="mt-8 rounded-card border border-border bg-surface py-14">
+      <app-loading label="Cargando registros" size="large" />
+    </div>
   } @else if (rows().length === 0) {
-    <p
-      class="mt-8 rounded-card border border-border bg-surface p-8 text-center text-body text-text-secondary"
+    <app-empty-state
+      class="mt-8"
+      emptyStateId="admin-site-content-empty"
+      title="Aún no hay registros"
+      description="Crea el primero para que aparezca en el sitio."
     >
-      Aún no hay registros. Usa «Agregar» para crear el primero.
-    </p>
+      <app-button empty-state-actions variant="primary" (click)="openNew()">Agregar</app-button>
+    </app-empty-state>
   } @else {
     <ul class="mt-8 m-0 flex list-none flex-col gap-3 p-0">
-      @for (row of rows(); track row.id) {
+      @for (row of rows(); track row.id; let i = $index; let first = $first; let last = $last) {
         <li
           class="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-surface p-4"
         >
@@ -306,48 +267,43 @@
             @if (config.subtitleKey) {
               <p class="text-body-sm text-text-secondary">{{ text(row, config.subtitleKey) }}</p>
             }
-            @if (hasOrder() || hasActive()) {
-              <p class="text-caption text-text-muted">
-                @if (hasOrder()) {
-                  Orden {{ row.orden }}
-                }
-                @if (hasOrder() && hasActive()) {
-                  ·
-                }
-                @if (hasActive()) {
-                  {{ row.activo ? 'Visible' : 'Oculto' }}
-                }
-              </p>
+            @if (hasActive()) {
+              <p class="mt-1 text-caption text-text-muted">{{ row.activo ? 'Visible' : 'Oculto' }}</p>
             }
           </div>
-          <div class="flex gap-2">
-            <button
-              type="button"
-              class="min-h-10 rounded-button border border-border-strong px-4 text-body-sm font-semibold"
-              (click)="openEdit(row)"
-            >
-              Editar
-            </button>
-            @if (hasActive()) {
-              <button
-                type="button"
-                class="min-h-10 rounded-button border border-border-strong px-4 text-body-sm font-semibold"
-                (click)="toggle(row)"
-              >
-                {{ row.activo ? 'Ocultar' : 'Mostrar' }}
-              </button>
+          <div class="flex flex-wrap items-center gap-2">
+            @if (hasOrder()) {
+              <app-button size="small" variant="secondary" [disabled]="first || reordering()" [ariaLabel]="'Subir ' + text(row, config.titleKey)" (click)="move(row, -1)">↑</app-button>
+              <app-button size="small" variant="secondary" [disabled]="last || reordering()" [ariaLabel]="'Bajar ' + text(row, config.titleKey)" (click)="move(row, 1)">↓</app-button>
             }
-            <button
-              type="button"
-              class="min-h-10 rounded-button border border-border-strong px-4 text-body-sm font-semibold"
-              (click)="remove(row)"
-            >
-              Eliminar
-            </button>
+            <app-button size="small" variant="ghost" (click)="openEdit(row)">Editar</app-button>
+            @if (hasActive()) {
+              <app-button size="small" variant="secondary" (click)="toggle(row)">
+                {{ row.activo ? 'Ocultar' : 'Mostrar' }}
+              </app-button>
+            }
+            <app-button size="small" variant="ghost" (click)="remove(row)">Eliminar</app-button>
           </div>
         </li>
       }
     </ul>
+  }
+
+  @if (deleting(); as row) {
+    <app-modal
+      modalId="site-content-delete-modal"
+      title="¿Eliminar este registro?"
+      [description]="'«' + text(row, config.titleKey) + '» se quitará del sitio. No se puede deshacer.'"
+      size="small"
+      [open]="true"
+      [loading]="deletingBusy()"
+      (closed)="cancelRemove()"
+    >
+      <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <app-button variant="secondary" [disabled]="deletingBusy()" (click)="cancelRemove()">Cancelar</app-button>
+        <app-button variant="primary" [loading]="deletingBusy()" [disabled]="deletingBusy()" (click)="confirmRemove()">Sí, eliminar</app-button>
+      </div>
+    </app-modal>
   }
 } @else {
   <p class="text-body text-text-secondary">Sección no encontrada.</p>

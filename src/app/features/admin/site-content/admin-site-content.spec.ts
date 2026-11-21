@@ -126,4 +126,41 @@ describe('AdminSiteContent', () => {
     expect(excluded.request.body).toEqual({ productoIds: ['b'] });
     excluded.flush([]);
   });
+
+  it('asks for confirmation in a modal before deleting a record', () => {
+    const fixture = create('faqs');
+    http.expectOne('/api/faqs').flush([{ id: '1', pregunta: 'Uno', activo: true, orden: 0 }]);
+    const component = fixture.componentInstance;
+
+    component.remove(component.rows()[0]);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('¿Eliminar este registro?');
+    http.expectNone('/api/faqs/1');
+
+    component.confirmRemove();
+    const request = http.expectOne('/api/faqs/1');
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null);
+    http.expectOne('/api/faqs').flush([]);
+  });
+
+  it('moves a record up by swapping its order with the previous one', () => {
+    const fixture = create('pasos-proceso');
+    http.expectOne('/api/pasos-proceso').flush([
+      { id: 'a', titulo: 'Primero', texto: 'x', activo: true, orden: 0 },
+      { id: 'b', titulo: 'Segundo', texto: 'y', activo: true, orden: 1 },
+    ]);
+    const component = fixture.componentInstance;
+
+    component.move(component.rows()[1], -1);
+
+    const moved = http.expectOne('/api/pasos-proceso/b');
+    const neighbor = http.expectOne('/api/pasos-proceso/a');
+    expect(moved.request.method).toBe('PUT');
+    expect(moved.request.body.orden).toBe(0);
+    expect(neighbor.request.body.orden).toBe(1);
+    moved.flush({});
+    neighbor.flush({});
+    http.expectOne('/api/pasos-proceso').flush([]);
+  });
 });

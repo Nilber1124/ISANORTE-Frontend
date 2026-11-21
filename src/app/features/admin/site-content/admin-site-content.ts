@@ -9,11 +9,19 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs';
+import { forkJoin, map } from 'rxjs';
 
 import { API_BASE_URL } from '../../../core/config/api.config';
 import { ToastService } from '../../../core/services/toast.service';
 import { ArchivoApiService } from '../../../data/services/archivo-api.service';
+import { Alert } from '../../../shared/components/alert/alert';
+import { Button } from '../../../shared/components/button/button';
+import { EmptyState } from '../../../shared/components/empty-state/empty-state';
+import { InputField } from '../../../shared/components/input-field/input-field';
+import { Loading } from '../../../shared/components/loading/loading';
+import { Modal } from '../../../shared/components/modal/modal';
+import { SelectField, SelectOption } from '../../../shared/components/select-field/select-field';
+import { TextareaField } from '../../../shared/components/textarea-field/textarea-field';
 import { trimTrailingSlashes } from '../../../shared/utils/text';
 import {
   ISADECOR_HOME_ENTITIES,
@@ -40,6 +48,7 @@ type FormValue = Record<string, string | number | boolean | null>;
  */
 @Component({
   selector: 'app-admin-site-content',
+  imports: [Alert, Button, EmptyState, InputField, Loading, Modal, SelectField, TextareaField],
   templateUrl: './admin-site-content.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -61,6 +70,16 @@ export class AdminSiteContent {
       ) ?? null,
   );
 
+  /** Las mismas opciones de `refOptions`, en el formato del selector compartido. */
+  readonly refChoices = computed<Record<string, readonly SelectOption[]>>(() =>
+    Object.fromEntries(
+      Object.entries(this.refOptions()).map(([key, list]) => [
+        key,
+        [{ value: '', label: 'Selecciona…' }, ...list.map((o) => ({ value: o.id, label: o.label }))],
+      ]),
+    ),
+  );
+
   /** Opciones de los campos `ref`, por clave de campo. */
   readonly refOptions = signal<Record<string, readonly RefOption[]>>({});
   private unitId: string | null = null;
@@ -75,6 +94,7 @@ export class AdminSiteContent {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly saving = signal(false);
+  readonly reordering = signal(false);
   readonly uploading = signal<string | null>(null);
   /** `null` = cerrado; `'new'` = alta; si no, el id en edición. */
   readonly editing = signal<string | null>(null);
@@ -140,6 +160,10 @@ export class AdminSiteContent {
     }
   }
 
+  selectOptions(field: SiteContentField): readonly SelectOption[] {
+    return [{ value: '', label: 'Selecciona…' }, ...(field.options ?? [])];
+  }
+
   text(row: Row, key: string | undefined): string {
     return key ? String(row[key] ?? '') : '';
   }
@@ -162,11 +186,8 @@ export class AdminSiteContent {
     this.editing.set('new');
   }
 
-  openEdit(row: Row): void {
-    const entity = this.entity();
-    if (!entity) return;
+  private formFromRow(row: Row, entity: SiteContentEntity): FormValue {
     const value: FormValue = { activo: row.activo ?? true, orden: row.orden ?? 0 };
-    if (entity.selection) this.loadSelection(row.id);
     for (const field of entity.fields) {
       const current = row[field.key];
       value[field.key] =
@@ -176,7 +197,14 @@ export class AdminSiteContent {
             ? ((current as number | null) ?? null)
             : String(current ?? '');
     }
-    this.form.set(value);
+    return value;
+  }
+
+  openEdit(row: Row): void {
+    const entity = this.entity();
+    if (!entity) return;
+    if (entity.selection) this.loadSelection(row.id);
+    this.form.set(this.formFromRow(row, entity));
     this.editing.set(row.id);
   }
 
@@ -205,22 +233,30 @@ export class AdminSiteContent {
     );
   }
 
-  save(): void {
-    if (this.saving() || !this.valid()) return;
-    const entity = this.entity();
+  /** Cuerpo de la petición a partir de los valores del formulario; `null` si falta la unidad. */
+  private toBody(form: FormValue, entity: SiteContentEntity): FormValue | null {
     const body: FormValue = {};
-    for (const [key, value] of Object.entries(this.form())) {
+    for (const [key, value] of Object.entries(form)) {
       body[key] = typeof value === 'string' ? value.trim() || null : value;
     }
-    if (entity?.noOrder) delete body['orden'];
-    if (entity?.noActive) delete body['activo'];
-    if (entity?.unitSlug) {
+    if (entity.noOrder) delete body['orden'];
+    if (entity.noActive) delete body['activo'];
+    if (entity.unitSlug) {
       if (!this.unitId) {
         this.toast.show('No se pudo identificar la unidad de negocio.', 'error');
-        return;
+        return null;
       }
       body['unidadNegocioId'] = this.unitId;
     }
+    return body;
+  }
+
+  save(): void {
+    if (this.saving() || !this.valid()) return;
+    const entity = this.entity();
+    if (!entity) return;
+    const body = this.toBody(this.form(), entity);
+    if (!body) return;
     // Los textos obligatorios nunca viajan vacíos (la validación ya lo impide).
     const id = this.editing();
     this.saving.set(true);
@@ -239,6 +275,41 @@ export class AdminSiteContent {
     });
   }
 
+  /** Sube o baja un registro intercambiando su orden con el vecino. */
+  move(row: Row, direction: -1 | 1): void {
+    const entity = this.entity();
+    const rows = this.rows();
+    const index = rows.findIndex((item) => item.id === row.id);
+    const neighbor = rows[index + direction];
+    if (!entity || !neighbor || this.reordering()) return;
+    const rowOrder = row.orden ?? 0;
+    const neighborOrder = neighbor.orden ?? 0;
+    // Con órdenes iguales no hay nada que intercambiar: se separa el movido.
+    const [nextRow, nextNeighbor] =
+      rowOrder === neighborOrder
+        ? [neighborOrder + direction, neighborOrder]
+        : [neighborOrder, rowOrder];
+    const put = (item: Row, orden: number) => {
+      const body = this.toBody({ ...this.formFromRow(item, entity), orden }, entity);
+      return body ? this.http.put(this.url(`/${item.id}`), body) : null;
+    };
+    const first = put(row, nextRow);
+    const second = put(neighbor, nextNeighbor);
+    if (!first || !second) return;
+    this.reordering.set(true);
+    forkJoin([first, second]).subscribe({
+      next: () => {
+        this.reordering.set(false);
+        this.load();
+      },
+      error: () => {
+        this.reordering.set(false);
+        this.toast.show('No se pudo cambiar el orden.', 'error');
+        this.load();
+      },
+    });
+  }
+
   toggle(row: Row): void {
     this.http.patch(this.url(`/${row.id}/activo`), { activo: !row.activo }).subscribe({
       next: () => this.load(),
@@ -246,12 +317,34 @@ export class AdminSiteContent {
     });
   }
 
+  /** Registro pendiente de confirmar su eliminación. */
+  readonly deleting = signal<Row | null>(null);
+  readonly deletingBusy = signal(false);
+
   remove(row: Row): void {
-    const entity = this.entity();
-    if (!entity || !window.confirm('¿Eliminar este registro? No se puede deshacer.')) return;
+    this.deleting.set(row);
+  }
+
+  cancelRemove(): void {
+    if (!this.deletingBusy()) this.deleting.set(null);
+  }
+
+  confirmRemove(): void {
+    const row = this.deleting();
+    if (!row || this.deletingBusy()) return;
+    this.deletingBusy.set(true);
     this.http.delete(this.url(`/${row.id}`)).subscribe({
-      next: () => this.load(),
-      error: () => this.toast.show('No se pudo eliminar.', 'error'),
+      next: () => {
+        this.deletingBusy.set(false);
+        this.deleting.set(null);
+        this.toast.show('Registro eliminado.', 'success');
+        this.load();
+      },
+      error: () => {
+        this.deletingBusy.set(false);
+        this.deleting.set(null);
+        this.toast.show('No se pudo eliminar.', 'error');
+      },
     });
   }
 
