@@ -117,4 +117,17 @@ describe('Isadecor Cart', () => {
     ) as HTMLButtonElement;
     expect(action.disabled).toBe(true);
   });
+
+  it('offers only paying online and quoting by WhatsApp (no quotation form link)', () => {
+    const fixture = TestBed.createComponent(Cart);
+    TestBed.inject(IsadecorQuoteCartService).addProduct(product, null, 1);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const links = [...root.querySelectorAll('a')].map((link) => link.getAttribute('href'));
+    expect(links).toContain('/isadecor/checkout');
+    expect(links).not.toContain('/isadecor/cotizacion');
+    expect(root.textContent).toContain('Ir a pagar');
+    expect(root.textContent).toContain('Solicitar cotización por WhatsApp');
+  });
 });

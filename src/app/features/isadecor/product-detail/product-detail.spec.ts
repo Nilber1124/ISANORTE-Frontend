@@ -1,23 +1,28 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { provideRouter, RouterLink } from '@angular/router';
-import { By, Meta, Title } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { of } from 'rxjs';
 import { ProductDetail } from './product-detail';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
-import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
+import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
+
+const siteStub = {
+  whatsappHrefFor: (message: string) =>
+    `https://wa.me/51999888777?text=${encodeURIComponent(message)}`,
+};
 
 describe('ProductDetail integration', () => {
   afterEach(() => localStorage.clear());
 
-  it('offers quotation as a secondary link and hides the comparison tools', async () => {
+  it('offers buying and quotation together and hides the comparison tools', async () => {
     const product: PublicProductDetailResponse = {
       sku: 'MESA-1',
       slug: 'mesa',
-      modalidad: 'COMPRAR',
+      modalidad: 'AMBAS',
       nombre: 'Mesa ISADECOR',
       resumen: null,
       descripcion: 'Descripción de la mesa existente.',
@@ -38,6 +43,7 @@ describe('ProductDetail integration', () => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
+        { provide: PublicSiteFacade, useValue: siteStub },
         provideRouter([{ path: 'isadecor/productos/:slug', component: ProductDetail }]),
         {
           provide: PublicContentApiService,
@@ -56,20 +62,103 @@ describe('ProductDetail integration', () => {
     harness.detectChanges();
     const root = harness.routeNativeElement!;
     expect(root.textContent).toContain('Descripción de la mesa existente.');
+    const quote = [...root.querySelectorAll('a')].find((link) =>
+      link.textContent?.includes('Cotizar por WhatsApp'),
+    );
+    expect(quote?.getAttribute('href')).toContain('https://wa.me/51999888777?text=');
+    expect(decodeURIComponent(quote?.getAttribute('href') ?? '')).toContain('Mesa ISADECOR');
     expect(
-      harness.fixture.debugElement
-        .queryAll(By.directive(RouterLink))
-        .some(
-          (link) =>
-            link.injector.get(RouterLink).urlTree?.toString() ===
-            '/isadecor/cotizacion?producto=mesa',
-        ),
-    ).toBe(true);
+      [...root.querySelectorAll('a')].some((link) =>
+        link.getAttribute('href')?.includes('/isadecor/cotizacion'),
+      ),
+    ).toBe(false);
     expect(root.querySelector('app-product-price-comparison')).toBeNull();
     expect(root.querySelector('app-product-competitor-comparison')).toBeNull();
-    expect(root.querySelector('.purchase-action button')?.textContent?.trim()).toBe('Agregar al carrito');
+    expect(root.querySelector('.purchase-action button')?.textContent?.trim()).toBe(
+      'Agregar al carrito',
+    );
     expect(root.textContent).not.toContain('Comprar ahora');
     expect(root.textContent).toContain('Descripción de la mesa existente.');
+  });
+
+  async function render(overrides: Partial<PublicProductDetailResponse>) {
+    const product = {
+      sku: 'MESA-1',
+      slug: 'mesa',
+      modalidad: 'AMBAS',
+      nombre: 'Mesa ISADECOR',
+      resumen: null,
+      descripcion: 'Descripción',
+      tituloSeo: null,
+      descripcionSeo: null,
+      precioBase: 850,
+      precioAnterior: null,
+      descuentoPorcentaje: null,
+      disponibilidad: ProductAvailability.DISPONIBLE,
+      retiroEnTienda: true,
+      categorias: [],
+      variantes: [],
+      imagenes: [],
+      especificaciones: [],
+      documentos: [],
+      configuracionCalculo: null,
+      ...overrides,
+    } as PublicProductDetailResponse;
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        { provide: PublicSiteFacade, useValue: siteStub },
+        provideRouter([{ path: 'isadecor/productos/:slug', component: ProductDetail }]),
+        {
+          provide: PublicContentApiService,
+          useValue: {
+            getProductDetail: () => of(product),
+            getRecommendedProducts: () => of([]),
+            getProductReviews: () => of([]),
+            getProductReviewSummary: () => of({ promedio: 0, total: 0, distribucion: [] }),
+          },
+        },
+      ],
+    });
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/isadecor/productos/mesa', ProductDetail);
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+    return harness.routeNativeElement as HTMLElement;
+  }
+
+  const actions = (root: HTMLElement) =>
+    [...root.querySelectorAll('.purchase-action button, .purchase-action a, a')]
+      .map((el) => el.textContent?.trim())
+      .filter((text) => /Agregar al carrito|Cotizar/.test(text ?? ''));
+
+  it('lets a product with both modes be bought or quoted', async () => {
+    const root = await render({ modalidad: 'AMBAS' });
+
+    expect(actions(root)).toContain('Agregar al carrito');
+    expect(actions(root)).toContain('Cotizar por WhatsApp');
+    expect(root.textContent).not.toContain('Desde');
+  });
+
+  it('hides quotation for a product restricted to direct purchase', async () => {
+    const root = await render({ modalidad: 'COMPRAR' });
+
+    expect(actions(root)).toContain('Agregar al carrito');
+    expect(actions(root)).not.toContain('Cotizar por WhatsApp');
+  });
+
+  it('offers only «Cotizar por WhatsApp» (with a «Desde» price) for a quote-only product', async () => {
+    const root = await render({ modalidad: 'COTIZAR' });
+
+    expect(actions(root)).toContain('Cotizar por WhatsApp');
+    expect(actions(root)).not.toContain('Agregar al carrito');
+    expect(root.textContent).toContain('Desde');
+  });
+
+  it('keeps quotation available when the product is sold out or has no price', async () => {
+    const soldOut = await render({ disponibilidad: ProductAvailability.AGOTADO });
+    expect(actions(soldOut)).toContain('Cotizar reposición por WhatsApp');
+    expect(actions(soldOut)).not.toContain('Agregar al carrito');
   });
 
   it('applies product SEO tags upon route activation', async () => {
@@ -98,6 +187,7 @@ describe('ProductDetail integration', () => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
+        { provide: PublicSiteFacade, useValue: siteStub },
         provideRouter([{ path: 'isadecor/productos/:slug', component: ProductDetail }]),
         {
           provide: PublicContentApiService,
@@ -127,7 +217,7 @@ describe('ProductDetail integration', () => {
     );
   });
 
-  it('preselects the first in-stock finish and quotes the selected variant at the calculated quantity', async () => {
+  it('preselects the first in-stock finish and quotes the selected variant by WhatsApp at the calculated quantity', async () => {
     const product: PublicProductDetailResponse = {
       sku: 'PANEL-1',
       slug: 'panel-acustico',
@@ -188,6 +278,7 @@ describe('ProductDetail integration', () => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
+        { provide: PublicSiteFacade, useValue: siteStub },
         provideRouter([{ path: 'isadecor/productos/:slug', component: ProductDetail }]),
         {
           provide: PublicContentApiService,
@@ -220,14 +311,10 @@ describe('ProductDetail integration', () => {
     measurement.dispatchEvent(new Event('input'));
     harness.detectChanges();
 
-    const addButton = [...root.querySelectorAll('button')].find((button) =>
-      button.textContent?.trim() === 'Cotizar',
-    ) as HTMLButtonElement;
-    addButton.click();
-
-    const cart = TestBed.inject(IsadecorQuoteCartService);
-    expect(cart.items()).toHaveLength(1);
-    expect(cart.items()[0].variant?.sku).toBe('PANEL-CENIZA');
-    expect(cart.items()[0].quantity).toBe(3);
+    const quote = [...root.querySelectorAll('a')].find((link) =>
+      link.textContent?.includes('Cotizar por WhatsApp'),
+    );
+    const message = decodeURIComponent(quote?.getAttribute('href') ?? '');
+    expect(message).toContain('Panel acústico (Ceniza): 3');
   });
 });

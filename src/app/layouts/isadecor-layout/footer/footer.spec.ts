@@ -14,6 +14,7 @@ describe('Isadecor Footer', () => {
     address: ReturnType<typeof signal<string | null>>;
     city: ReturnType<typeof signal<string | null>>;
     whatsappHref: ReturnType<typeof signal<string | null>>;
+    whatsappHrefFor: (message: string) => string | null;
     presentableSocialNetworks: ReturnType<
       typeof signal<readonly { nombre: string; url: string; icono: string | null; orden: number }[]>
     >;
@@ -27,6 +28,10 @@ describe('Isadecor Footer', () => {
       address: signal<string | null>('Av. República del Salvador 100'),
       city: signal<string | null>('Quito'),
       whatsappHref: signal<string | null>('https://wa.me/51999999999'),
+      whatsappHrefFor: (message: string) =>
+        facade.whatsappHref()
+          ? `https://wa.me/51999999999?text=${encodeURIComponent(message)}`
+          : null,
       presentableSocialNetworks: signal([
         {
           nombre: 'Instagram',
@@ -66,7 +71,10 @@ describe('Isadecor Footer', () => {
     expect(footer.textContent).toContain('Paneles WPC, planchas SPC, pisos y cielos rasos');
     expect(footer.querySelector('a[href="/isadecor/productos"]')).toBeTruthy();
     expect(footer.querySelector('a[href="/isadecor/catalogos"]')).toBeTruthy();
-    expect(footer.querySelector('a[href="/isadecor/cotizacion"]')).toBeTruthy();
+    expect(footer.querySelector('a[href="/isadecor/cotizacion"]')).toBeNull();
+    expect(
+      footer.querySelector('a[href^="https://wa.me/51999999999?text="][href*="constructora"]'),
+    ).toBeTruthy();
     expect(footer.textContent).toContain('© 2026 ISADECOR. Todos los derechos reservados.');
   });
 

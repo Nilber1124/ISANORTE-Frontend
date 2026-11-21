@@ -30,6 +30,8 @@ import { ProductCalculator } from './components/product-calculator/product-calcu
 import { toHomeProductCard } from './recommended-product.mapper';
 import { HomeProductTile, UNIT_LABELS } from '../home/product-tile/product-tile';
 import { ProductDetailFacade } from './product-detail.facade';
+import { canBuy, canQuote, isQuoteOnly } from '../product-actions';
+import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 
 @Component({
   selector: 'app-isadecor-product-detail',
@@ -69,6 +71,25 @@ export class ProductDetail {
   protected readonly price = computed(
     () => this.selectedVariant()?.precio ?? this.facade.product()?.precioBase ?? null,
   );
+  private readonly site = inject(PublicSiteFacade);
+
+  /** WhatsApp con el producto, el acabado y la cantidad ya escritos; null si no hay número comercial. */
+  protected readonly quoteHref = computed(() => {
+    const product = this.facade.product();
+    if (!product) return null;
+    const variant = this.selectedVariant();
+    const quantity = this.cartQuantity();
+    const detail = variant ? ` (${variant.nombre})` : '';
+    return this.site.whatsappHrefFor(
+      `Hola ISADECOR, quisiera cotizar ${product.nombre}${detail}: ${quantity} ${this.unit()}.`,
+    );
+  });
+  protected readonly canBuyNow = computed(() => {
+    const product = this.facade.product();
+    return canBuy(product?.modalidad, this.price(), this.purchaseBlocked());
+  });
+  protected readonly quoteAllowed = computed(() => canQuote(this.facade.product()?.modalidad));
+  protected readonly quoteOnly = computed(() => isQuoteOnly(this.facade.product()?.modalidad));
   protected readonly purchaseBlocked = computed(() => {
     const product = this.facade.product();
     return (
@@ -151,7 +172,7 @@ export class ProductDetail {
     if (this.purchaseBlocked()) return;
     const item = this.cart.addProduct(product, this.selectedVariant(), this.cartQuantity());
     this.cartFeedback.set(
-      `${product.modalidad === 'COTIZAR' ? 'Cotización' : 'Carrito'} actualizada: cantidad ${item.quantity}.`,
+      `${isQuoteOnly(product.modalidad) ? 'Cotización' : 'Carrito'} actualizado: cantidad ${item.quantity}.`,
     );
   }
 
@@ -174,11 +195,6 @@ export class ProductDetail {
     }
 
     return metadata.filter(Boolean).join(' · ');
-  }
-
-  protected quoteQueryParams(slug: string): { producto: string; cantidad?: number } {
-    const quantity = this.quoteQuantity();
-    return quantity === null ? { producto: slug } : { producto: slug, cantidad: quantity };
   }
 
   protected changeReviewOrder(event: Event): void {

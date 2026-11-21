@@ -1,3 +1,4 @@
+import { PublicSiteFacade } from '../../public-layout/public-site.facade';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -45,6 +46,12 @@ export class Navbar {
   readonly cart = inject(IsadecorQuoteCartService);
   readonly cliente = inject(ClienteAuthService);
   private readonly router = inject(Router);
+  private readonly site = inject(PublicSiteFacade, { optional: true });
+
+  /** Enlace de WhatsApp para cotizar un proyecto; null si no hay número comercial. */
+  readonly quoteHref = computed(
+    () => this.site?.whatsappHrefFor('Hola ISADECOR, quisiera cotizar un proyecto.') ?? null,
+  );
   private readonly cuentaContenedor = viewChild<ElementRef<HTMLElement>>('cuentaContenedor');
 
   /** false durante SSR y la primera hidratación: el estado de sesión solo existe en el navegador. */

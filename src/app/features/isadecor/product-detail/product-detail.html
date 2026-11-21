@@ -37,7 +37,6 @@
     } @else if (facade.product(); as product) {
 
       @let currentPrice = price();
-      @let quote = product.modalidad === 'COTIZAR';
       <div class="purchase-layout">
         <div class="min-w-0">
           <app-product-gallery [images]="product.imagenes" [productName]="product.nombre"
@@ -63,7 +62,7 @@
           <div class="filete-l my-3 space-y-1 bg-background-soft p-3">
             <p class="text-heading-3 text-text-primary">
               @if (currentPrice !== null) {
-                @if (quote) { <span class="text-body-sm text-text-secondary">Desde</span> }
+                @if (quoteOnly()) { <span class="text-body-sm text-text-secondary">Desde</span> }
                 S/ {{ currentPrice | number:'1.2-2' }} <span class="font-mono text-body-sm text-text-secondary">/ {{ unit() }}</span>
               } @else {
                 Consultar precio
@@ -116,29 +115,32 @@
               <input class="form-control min-h-11 max-w-24" type="number" inputmode="numeric" min="1" step="1"
                 [value]="cartQuantity()" (change)="updateCartQuantity($event)" />
             </label>
-            <div class="purchase-action">
-              <div class="min-w-0 text-body-sm font-bold lg:hidden">
-                @if (currentPrice !== null) {
-                  @if (quote) { <span class="text-caption">Desde</span> }
-                  S/ {{ currentPrice | number:'1.2-2' }} <span class="text-caption">/ {{ unit() }}</span>
-                } @else { Consultar precio }
-              </div>
-              <button type="button" class="min-h-11 min-w-0 flex-1 rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
-                (click)="addToCart(product)">{{ quote ? 'Cotizar' : 'Agregar al carrito' }}</button>
-            </div>
-            @if (!quote) {
-              <a class="enlace inline-flex min-h-11 items-center text-body-sm"
-                routerLink="/isadecor/cotizacion" [queryParams]="quoteQueryParams(product.slug)">Cotizar este proyecto</a>
-            }
-            <div class="text-body-sm text-text-secondary" role="status">
-              @if (cartFeedback(); as feedback) {
-                {{ feedback }}
-                <a class="enlace inline-flex min-h-11 items-center" [routerLink]="quote ? '/isadecor/cotizacion' : '/isadecor/carrito'">
-                  {{ quote ? 'Ver cotización' : 'Ver carrito' }}
-                </a>
-              }
-            </div>
           }
+          <div class="purchase-action">
+            <div class="min-w-0 text-body-sm font-bold lg:hidden">
+              @if (currentPrice !== null) {
+                @if (quoteOnly()) { <span class="text-caption">Desde</span> }
+                S/ {{ currentPrice | number:'1.2-2' }} <span class="text-caption">/ {{ unit() }}</span>
+              } @else { Consultar precio }
+            </div>
+            @if (canBuyNow()) {
+              <button type="button" class="min-h-11 min-w-0 flex-1 rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
+                (click)="addToCart(product)">Agregar al carrito</button>
+            } @else if (quoteAllowed() && quoteHref(); as wa) {
+              <a class="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-button bg-accent px-3 py-2 text-body-sm font-bold text-accent-contrast hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-focus"
+                [href]="wa" target="_blank" rel="noopener noreferrer">{{ purchaseBlocked() ? 'Cotizar reposición por WhatsApp' : 'Cotizar por WhatsApp' }}</a>
+            }
+          </div>
+          @if (canBuyNow() && quoteAllowed() && quoteHref(); as wa) {
+            <a class="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-button border border-border-strong px-3 py-2 text-body-sm font-semibold text-text-primary hover:bg-surface-hover focus-visible:ring-2 focus-visible:ring-focus"
+              [href]="wa" target="_blank" rel="noopener noreferrer">Cotizar por WhatsApp</a>
+          }
+          <div class="text-body-sm text-text-secondary" role="status">
+            @if (cartFeedback(); as feedback) {
+              {{ feedback }}
+              <a class="enlace inline-flex min-h-11 items-center" routerLink="/isadecor/carrito">Ver carrito</a>
+            }
+          </div>
         </div>
 
         <section class="product-details min-w-0 border-t border-border pt-5" aria-labelledby="product-details-title">

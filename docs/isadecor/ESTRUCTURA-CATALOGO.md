@@ -60,3 +60,12 @@ incluyen la proyección de tarjeta del Home en `tarjeta`.
 - El backend busca por **palabras** (todas deben coincidir) en nombre, SKU, resumen, descripción, colección y **acabado**, sin distinguir tildes, mayúsculas ni singular/plural: «paneles sandwich» encuentra «Panel sándwich».
 - Sin resultados: mensaje con consejos, «Quitar búsqueda», «Limpiar todo» y colecciones sugeridas.
 - Pendiente: tolerancia a errores de tipeo (p. ej. «sanwich»), que requeriría `pg_trgm` o un motor de búsqueda.
+
+### Comprar y cotizar a la vez
+- Todo producto puede **comprarse y cotizarse**: la modalidad por defecto es `AMBAS` (migración `V6`). `COMPRAR` y `COTIZAR` siguen existiendo para restringir un producto a una sola vía desde el administrador («Cómo se puede adquirir»).
+- Reglas (`features/isadecor/product-actions.ts`): se **compra** si la modalidad lo permite, tiene precio y hay existencias; se **cotiza** salvo que sea «solo comprar». Sin precio: «Consultar precio» y solo cotización. Agotado: la compra se bloquea y se ofrece «Cotizar reposición».
+- **Ficha:** botón principal «Agregar al carrito» y secundario «Cotizar por WhatsApp» (mensaje con producto, acabado y cantidad ya escritos; el calculador de m² alimenta la cantidad). Solo se muestra «Desde» en productos exclusivamente de cotización, cuyo precio es referencial.
+- **Tarjeta:** un único botón «Ver producto» (o «Cotizar» si es solo cotización); la elección de acabado y de la vía se hace en la ficha.
+- **Carrito único** con dos salidas: «Ir a pagar» (checkout, requiere cuenta de cliente) y «Solicitar cotización por WhatsApp».
+- **No hay formulario de cotización enlazado:** el encabezado, el pie, la ficha y el carrito cotizan por WhatsApp. La página `/isadecor/cotizacion` sigue existiendo pero sin enlaces.
+- Se quitó el filtro «Cómo se vende» del panel; el parámetro `modalidad` del backend sigue aceptándose (COMPRAR y COTIZAR incluyen los productos AMBAS).

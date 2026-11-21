@@ -8,9 +8,11 @@
       class="app-container flex items-center justify-between gap-4 py-1.5 font-mono text-caption uppercase tracking-[0.12em] text-text-secondary"
     >
       <p>Envíos a todo el Perú / Instalación con técnicos en Cajamarca</p>
-      <a routerLink="/isadecor/cotizacion" class="enlace hover:text-text-primary"
-        >Cotizar un proyecto →</a
-      >
+      @if (quoteHref(); as wa) {
+        <a [href]="wa" target="_blank" rel="noopener noreferrer" class="enlace hover:text-text-primary"
+          >Cotizar un proyecto →</a
+        >
+      }
     </div>
   </div>
 
@@ -350,13 +352,17 @@
           </li>
         }
         <li class="pt-2">
+          @if (quoteHref(); as wa) {
           <a
-            routerLink="/isadecor/cotizacion"
+            [href]="wa"
+            target="_blank"
+            rel="noopener noreferrer"
             (click)="closeMenu()"
             class="block rounded-button bg-accent px-3 py-2.5 text-center text-body-sm font-semibold text-accent-contrast transition-colors duration-normal hover:bg-accent-hover"
           >
             Cotizar ahora
           </a>
+          }
         </li>
         <li class="mt-3 border-t border-border pt-3">
           @if (hidratado() && cliente.authenticated()) {
