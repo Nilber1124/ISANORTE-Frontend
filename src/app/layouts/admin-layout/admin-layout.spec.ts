@@ -25,10 +25,37 @@ describe('AdminLayout', () => {
 
     expect(element.querySelector('app-admin-topbar')).toBeTruthy();
     expect(element.querySelector('app-admin-sidebar')).toBeTruthy();
-    expect(element.querySelector('h1')?.textContent).toContain('Panel administrativo');
-    expect(element.querySelectorAll('nav[aria-label="Navegación administrativa"] a')).toHaveLength(
-      10,
-    );
+    expect(element.querySelector('h1')?.textContent).toContain('ISANORTE Admin');
+  });
+
+  it('groups the navigation by brand and folds the groups away from the current page', async () => {
+    const harness = await RouterTestingHarness.create('/admin');
+    const element = harness.fixture.nativeElement as HTMLElement;
+    const nav = element.querySelector('nav[aria-label="Navegación administrativa"]') as HTMLElement;
+    const groupButton = (text: string) =>
+      Array.from(nav.querySelectorAll('button')).find((b) => b.textContent?.includes(text));
+
+    expect(groupButton('ISADECOR')).toBeTruthy();
+    expect(groupButton('ISANORTE')).toBeTruthy();
+    // El grupo de Home está plegado al inicio; abrirlo muestra sus enlaces.
+    expect(nav.querySelector('a[href="/admin/home-isadecor/hero"]')).toBeNull();
+    groupButton('Home')?.click();
+    harness.detectChanges();
+    expect(nav.querySelector('a[href="/admin/home-isadecor/hero"]')).toBeTruthy();
+  });
+
+  it('opens the group of the current page and filters the menu with the search box', async () => {
+    const harness = await RouterTestingHarness.create('/admin/sitio/equipo');
+    const element = harness.fixture.nativeElement as HTMLElement;
+    const nav = element.querySelector('nav[aria-label="Navegación administrativa"]') as HTMLElement;
+    expect(nav.querySelector('a[href="/admin/sitio/equipo"]')).toBeTruthy();
+
+    const search = element.querySelector('#admin-nav-search') as HTMLInputElement;
+    search.value = 'reseñas';
+    search.dispatchEvent(new Event('input'));
+    harness.detectChanges();
+    const links = Array.from(nav.querySelectorAll('a')).map((a) => a.textContent?.trim());
+    expect(links).toEqual(['Reseñas del Home']);
   });
 
   it('marks Dashboard active only at the exact /admin route', async () => {

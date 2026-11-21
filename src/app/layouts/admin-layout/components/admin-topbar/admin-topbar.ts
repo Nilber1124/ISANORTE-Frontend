@@ -5,23 +5,8 @@ import { filter, map, startWith } from 'rxjs';
 
 import { ThemeService } from '../../../../core/services/theme.service';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { findNavigationItem } from '../admin-navigation';
 import { AccessibilityWidget } from '../../../../shared/components/accessibility-widget/accessibility-widget';
-
-const SECTION_LABELS: Record<string, string> = {
-  '': 'Dashboard',
-  landing: 'Landing',
-  proyectos: 'Proyectos',
-  servicios: 'Servicios',
-  contacto: 'Contacto',
-  contenido: 'Páginas y SEO',
-  categorias: 'Categorías',
-  productos: 'Productos',
-  cotizaciones: 'Cotizaciones',
-  'isadecor-landing': 'Accesos Rápidos ISADECOR',
-  empresa: 'Empresa',
-  'unidades-negocio': 'Unidades de negocio',
-  configuracion: 'Configuración del sitio',
-};
 
 @Component({
   selector: 'app-admin-topbar',
@@ -44,10 +29,9 @@ export class AdminTopbar {
     ),
   );
 
-  readonly currentSection = computed(() => {
-    const segment = (this.currentUrl() ?? '').split('/')[2] ?? '';
-    return SECTION_LABELS[segment] ?? 'Administración';
-  });
+  readonly currentSection = computed(
+    () => findNavigationItem(this.currentUrl() ?? '')?.label ?? 'Administración',
+  );
 
   protected logout(): void {
     this.auth.logout();

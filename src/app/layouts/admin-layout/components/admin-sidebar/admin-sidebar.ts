@@ -1,19 +1,26 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map, startWith } from 'rxjs';
 
 import { PendingQuotesBadgeService } from '../../../../core/services/pending-quotes-badge.service';
+import {
+  ADMIN_NAVIGATION,
+  AdminNavigationGroup,
+  AdminNavigationItem,
+  findNavigationGroup,
+} from '../admin-navigation';
 
-export interface AdminNavigationItem {
-  label: string;
-  route: string;
-  exact?: boolean;
-  badge?: string;
-}
-
-export interface AdminNavigationGroup {
-  title: string;
-  items: readonly AdminNavigationItem[];
-}
+export type { AdminNavigationGroup, AdminNavigationItem };
 
 @Component({
   selector: 'app-admin-sidebar',
@@ -25,69 +32,84 @@ export class AdminSidebar {
   readonly open = input(false);
   readonly navigationSelected = output<void>();
   readonly quoteBadge = inject(PendingQuotesBadgeService);
+  private readonly router = inject(Router);
 
-  readonly navigationGroups: readonly AdminNavigationGroup[] = [
-    {
-      title: 'Principal',
-      items: [{ label: 'Dashboard', route: '/admin', exact: true }],
-    },
-    {
-      title: 'Web ISANORTE',
-      items: [
-        { label: 'Landing', route: '/admin/landing', badge: 'Hub' },
-        { label: 'Proyectos', route: '/admin/proyectos' },
-        { label: 'Servicios', route: '/admin/servicios' },
-        { label: 'Contacto', route: '/admin/contacto' },
-      ],
-    },
-    {
-      title: 'Contenido',
-      items: [
-        { label: 'Páginas y SEO', route: '/admin/contenido' },
-        { label: 'Preguntas frecuentes', route: '/admin/sitio/faqs' },
-        { label: 'Equipo', route: '/admin/sitio/equipo' },
-        { label: 'Credenciales', route: '/admin/sitio/credenciales' },
-        { label: 'Testimonios', route: '/admin/sitio/testimonios' },
-        { label: 'Garantías', route: '/admin/sitio/garantias' },
-        { label: 'Pasos del proceso', route: '/admin/sitio/pasos-proceso' },
-        { label: 'Políticas', route: '/admin/sitio/politicas' },
-        { label: 'Galería de proyectos', route: '/admin/sitio/proyecto-galeria' },
-      ],
-    },
-    {
-      title: 'Tienda ISADECOR',
-      items: [
-        { label: 'Categorías', route: '/admin/categorias' },
-        { label: 'Productos', route: '/admin/productos' },
-        { label: 'Cotizaciones', route: '/admin/cotizaciones' },
-        { label: 'Pedidos', route: '/admin/pedidos' },
-      ],
-    },
-    {
-      title: 'Home ISADECOR',
-      items: [
-        { label: 'Hero de la Home', route: '/admin/home-isadecor/hero' },
-        { label: 'Reseñas del Home', route: '/admin/home-isadecor/resenas' },
-        { label: 'Videos de redes', route: '/admin/home-isadecor/publicaciones' },
-        { label: 'Cinta de avisos', route: '/admin/home-isadecor/cinta' },
-        { label: 'Promociones', route: '/admin/home-isadecor/promociones' },
-        { label: 'Campaña', route: '/admin/home-isadecor/campana' },
-        { label: 'Bloque de servicio', route: '/admin/home-isadecor/servicio' },
-        { label: 'Puntos del servicio', route: '/admin/home-isadecor/servicio-puntos' },
-        { label: 'Secciones de productos', route: '/admin/home-isadecor/secciones' },
-      ],
-    },
-    {
-      title: 'Configuración',
-      items: [
-        { label: 'Empresa', route: '/admin/empresa' },
-        { label: 'Unidades de negocio', route: '/admin/unidades-negocio' },
-        { label: 'Configuración del sitio', route: '/admin/configuracion' },
-      ],
-    },
-  ];
-
-  readonly navigationItems: readonly AdminNavigationItem[] = this.navigationGroups.flatMap(
+  readonly navigationGroups = ADMIN_NAVIGATION;
+  readonly navigationItems: readonly AdminNavigationItem[] = ADMIN_NAVIGATION.flatMap(
     (group) => group.items,
   );
+
+  readonly query = signal('');
+  /** Grupos abiertos por el usuario (además del que contiene la página actual). */
+  private readonly opened = signal<ReadonlySet<string>>(new Set(['isadecor-tienda']));
+  private readonly closed = signal<ReadonlySet<string>>(new Set());
+
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map((e) => e.urlAfterRedirects),
+      startWith(this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+  private readonly activeGroupId = computed(() => findNavigationGroup(this.currentUrl())?.id);
+
+  /** Grupos con sus ítems ya filtrados por la búsqueda; los que quedan vacíos se ocultan. */
+  readonly visibleGroups = computed(() => {
+    const term = this.normalize(this.query());
+    return this.navigationGroups
+      .map((group) => ({
+        group,
+        items: term
+          ? group.items.filter((item) =>
+              this.normalize(`${item.label} ${group.brand ?? ''} ${group.title}`).includes(term),
+            )
+          : group.items,
+      }))
+      .filter((entry) => entry.items.length > 0);
+  });
+
+  constructor() {
+    // Al navegar, el grupo de la página actual se vuelve a abrir.
+    effect(() => {
+      const id = this.activeGroupId();
+      if (!id) return;
+      this.closed.update((set) => {
+        if (!set.has(id)) return set;
+        const next = new Set(set);
+        next.delete(id);
+        return next;
+      });
+    });
+  }
+
+  isExpanded(group: AdminNavigationGroup): boolean {
+    if (group.id === 'principal' || this.query().trim()) return true;
+    if (this.closed().has(group.id)) return false;
+    return this.opened().has(group.id) || this.activeGroupId() === group.id;
+  }
+
+  toggle(group: AdminNavigationGroup): void {
+    const expanded = this.isExpanded(group);
+    const flip = (set: ReadonlySet<string>, on: boolean) => {
+      const next = new Set(set);
+      if (on) next.add(group.id);
+      else next.delete(group.id);
+      return next;
+    };
+    this.opened.update((set) => flip(set, !expanded));
+    this.closed.update((set) => flip(set, expanded));
+  }
+
+  setQuery(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
+
+  private normalize(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toLowerCase()
+      .trim();
+  }
 }
