@@ -1,0 +1,88 @@
+# Panel de administración (`/admin`)
+
+Guía de cómo está organizado el admin y cómo cargar contenido. Cambios de la mejora de
+noviembre 2026 (navegación, listado de productos, formulario, contenido del sitio).
+
+## Menú
+
+El menú (`layouts/admin-layout/components/admin-navigation.ts`, única fuente: lo usan la barra
+lateral y el título de la barra superior) se agrupa por marca:
+
+| Grupo | Pantallas |
+| --- | --- |
+| Principal | Dashboard |
+| ISADECOR · Tienda | Productos, Categorías, Cotizaciones, Pedidos |
+| ISADECOR · Home | Hero, Cinta, Promociones, Campaña, Secciones, Bloque de servicio, Puntos, Reseñas, Videos |
+| ISANORTE · Web | Landing, Proyectos, Servicios, Contacto |
+| ISANORTE · Confianza y contenido | FAQs, Equipo, Credenciales, Testimonios, Garantías, Pasos, Políticas, Galería |
+| Sitio y empresa | Páginas y SEO, Empresa, Unidades de negocio, Configuración |
+
+- Los grupos se pliegan; el de la página actual se abre solo (y se vuelve a abrir al navegar a él).
+- El buscador «Buscar pantalla…» filtra por nombre, ignora acentos y abre los grupos con coincidencias.
+- Para añadir una pantalla: editar solo `ADMIN_NAVIGATION`.
+
+## Productos
+
+**Listado**
+- Búsqueda (nombre, SKU, slug) y filtros de categoría, estado y stock (agotados / stock bajo).
+  Los filtros se combinan; «Quitar filtros» los limpia.
+- Miniatura (foto principal), stock total y estado. Stock total = suma de los acabados con
+  control; si no hay acabados, el stock del propio producto. «Bajo» = igual o menor que el aviso
+  de poco stock del producto.
+- La estrella destaca / quita destacado sin abrir el formulario.
+- 20 por página. En móvil (<768 px) la tabla pasa a tarjetas.
+- El stock del listado es solo de lectura: se ajusta en el formulario, sección «Inventario»,
+  porque cada ajuste queda en el historial de movimientos.
+
+**Formulario**
+- Barra de chips arriba para saltar a cada una de las 9 secciones.
+- Si hay cambios sin guardar en los campos, cerrar (Cancelar, ✕ o clic fuera) pide confirmar.
+  Las subidas de imágenes/variantes/documentos se guardan al instante y no cuentan como pendientes.
+
+## Contenido del sitio (`/admin/sitio/*`, `/admin/home-isadecor/*`)
+
+- Formularios con los componentes compartidos (campos, botones, alertas, estado vacío).
+- Eliminar abre un modal de confirmación (ya no `window.confirm`).
+- Orden: flechas ↑/↓ en cada fila intercambian el orden con el vecino (dos `PUT`); el campo
+  «Orden» del formulario sigue disponible.
+
+## Landing, Empresa y Configuración
+
+- **Landing** (`/admin/landing`): la tabla de secciones ya no se desborda (la columna «Contenido» pasó
+  a una línea de resumen bajo el título). El estado es un botón: clic para mostrar u ocultar.
+  Cada fila tiene «Diapositivas (n)» (solo el hero), «Botones (n)» y «Editar».
+- **Vista previa** (pestaña por defecto): la web pública real (`/?editor=1`) dentro de un iframe del
+  mismo origen, reducida para caber, con selector Escritorio / Móvil (en pantallas estrechas arranca
+  en Móvil). Al tocar un bloque de la página, o elegirlo de la lista, el panel lateral ofrece:
+  editar textos/imagen/botón (el mismo formulario de la sección), diapositivas y botones (hero),
+  mostrar/ocultar, o ir a la pantalla donde se edita su contenido (servicios, proyectos, pasos,
+  garantías, testimonios, FAQs, unidad de negocio). Al guardar, la vista previa se recarga y
+  conserva el bloque marcado.
+  - Cómo funciona: `shared/utils/editor-bridge.ts` activa en la página pública, solo dentro de un
+    iframe con `?editor=1`, el resaltado de `<section id>` y un `postMessage` (mismo origen) con el
+    bloque tocado; el admin responde con otro mensaje para marcar/desplazar. La Home lo inicia en
+    `features/isanorte/home/home.ts`. El mapa bloque → editor está en `PREVIEW_BLOCKS`
+    (`admin-landing.ts`).
+  - Para añadir un bloque nuevo: darle `id` a su `<section>` en la Home y una entrada en `PREVIEW_BLOCKS`.
+  - **Editor del Hero en el panel lateral** («Editar la portada»; sustituye al cajón con 4 pestañas
+    para ese bloque): una columna con interruptor «Visible en la web», textos (frase pequeña,
+    título de 2 líneas, subtítulo — con su botón «Guardar textos» y aviso de cambios sin guardar),
+    lista de **botones** (↑↓, editar, ocultar, quitar con confirmación, añadir con enlaces
+    sugeridos) y lista de **fotos de fondo** (miniatura, descripción, ↑↓, ocultar, quitar, subir).
+    Las listas se aplican al instante (la pantalla lo dice); los textos, al pulsar Guardar.
+    Componente: `landing/components/hero-editor/`. Los demás bloques siguen usando el cajón
+    `landing-section-form` hasta tener su propio editor.
+  - **Título multilínea:** el título de una sección admite saltos de línea (la web del Hero lo parte en
+    dos líneas). Antes se editaba en un campo de una línea que los descartaba («casaen»); ahora es un
+    campo de varias líneas, en el editor del Hero y en el cajón.
+  - Alcance actual: solo la Home de ISANORTE. ISADECOR puede reutilizar el mismo puente.
+- Quedan además las pestañas «Secciones & Hero» (la tabla) y «Nosotros». Servicios, Proyectos, Contacto y
+  Páginas y SEO ya no se incrustan: se enlazan en «También se edita en:». Los enlaces antiguos
+  `?tab=servicios|proyectos|contenido|contacto` redirigen a su pantalla.
+- **Empresa** y **Configuración del sitio** comparten encabezado con el resto (eyebrow
+  «Sitio y empresa» + `h1`).
+
+## Pendiente (opción C, no implementada)
+
+Edición directa de textos sobre la propia vista previa (hoy el clic abre el formulario del bloque), vista previa de ISADECOR, dashboard con «pendientes» (agotados, cotizaciones sin responder, reseñas por revisar) y
+enlaces «ver en la tienda» desde cada pantalla.
