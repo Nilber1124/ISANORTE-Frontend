@@ -89,6 +89,7 @@ describe('CategoryForm', () => {
           activo: false,
           orden: 3,
           unidadNegocioId: unit.id,
+          categoriaPadreId: null,
         },
       },
     ]);
@@ -99,5 +100,57 @@ describe('CategoryForm', () => {
     fixture.componentRef.setInput('submitting', true);
     fixture.detectChanges();
     expect(saveButton(element).disabled).toBe(true);
+  });
+
+  describe('subcategorías', () => {
+    const root = (id: string, nombre: string): CategoryResponse => ({
+      ...category,
+      id,
+      nombre,
+      slug: nombre.toLowerCase(),
+      categoriaPadre: null,
+    });
+    const child = (id: string, padre: CategoryResponse): CategoryResponse => ({
+      ...category,
+      id,
+      nombre: 'Hija',
+      slug: 'hija',
+      categoriaPadre: { id: padre.id, nombre: padre.nombre, slug: padre.slug },
+    });
+
+    it('ofrece solo categorías raíz como padre y envía el elegido', async () => {
+      const pisos = root('pisos-id', 'Pisos');
+      const paredes = root('paredes-id', 'Paredes');
+      const hija = child('hija-id', pisos);
+      const element = await render('create');
+      fixture.componentRef.setInput('allCategories', [pisos, paredes, hija]);
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.parentCategoryOptions().map((option) => option.value)).toEqual([
+        '',
+        'pisos-id',
+        'paredes-id',
+      ]);
+
+      const submissions: CategoryFormSubmission[] = [];
+      fixture.componentInstance.saved.subscribe((submission) => submissions.push(submission));
+      fixture.componentInstance.nombre.set('Nueva');
+      fixture.componentInstance.slug.set('nueva');
+      fixture.componentInstance.categoriaPadreId.set('pisos-id');
+      saveButton(element).click();
+
+      expect(submissions[0].request.categoriaPadreId).toBe('pisos-id');
+    });
+
+    it('no deja colgar de otra una categoría que ya tiene subcategorías', async () => {
+      const pisos = root('pisos-id', 'Pisos');
+      const hija = child('hija-id', pisos);
+      await render('edit', pisos);
+      fixture.componentRef.setInput('allCategories', [pisos, hija]);
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.hasSubcategories()).toBe(true);
+      expect(fixture.nativeElement.textContent).toContain('tiene subcategorías');
+    });
   });
 });

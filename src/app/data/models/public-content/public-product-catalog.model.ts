@@ -57,6 +57,8 @@ export interface PublicProductCatalogCategoryResponse {
   slug: string;
   cantidad: number;
   imagenUrl?: string | null;
+  /** Slug de la categoría de la que cuelga; ausente/null en las categorías principales. */
+  padreSlug?: string | null;
 }
 
 /** Acabado (variante) disponible para filtrar por color. */

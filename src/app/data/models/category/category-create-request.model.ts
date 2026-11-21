@@ -6,4 +6,6 @@ export interface CategoryCreateRequest {
   activo?: boolean | null;
   orden?: number | null;
   unidadNegocioId?: string | null;
+  /** Categoría de la que cuelga (solo dos niveles); null = categoría raíz. */
+  categoriaPadreId?: string | null;
 }

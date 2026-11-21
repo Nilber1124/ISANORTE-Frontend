@@ -230,7 +230,7 @@
       <ul class="catalog-checklist">
         @for (category of panelCollections(); track category.slug) {
           <li>
-            <label class="catalog-check">
+            <label class="catalog-check" [class.catalog-check--child]="!!category.padreSlug">
               <input
                 type="checkbox"
                 [checked]="facade.selectedCategories().includes(category.slug)"

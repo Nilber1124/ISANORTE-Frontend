@@ -9,6 +9,7 @@ export interface CategoryResponse {
   activo: boolean | null;
   orden: number | null;
   unidadNegocio: NamedSlugSummary | null;
+  categoriaPadre?: NamedSlugSummary | null;
   fechaCreacion: string | null;
   fechaActualizacion: string | null;
 }

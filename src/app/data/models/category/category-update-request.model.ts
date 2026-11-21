@@ -6,4 +6,5 @@ export interface CategoryUpdateRequest {
   activo: boolean;
   orden: number;
   unidadNegocioId?: string | null;
+  categoriaPadreId?: string | null;
 }

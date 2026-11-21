@@ -58,6 +58,22 @@
           helperText="Si se deja 'Sin unidad', la categoría estará disponible para todas las marcas del catálogo."
         />
 
+        @if (!hasSubcategories()) {
+          <app-select-field
+            class="sm:col-span-2"
+            inputId="category-parent"
+            label="Categoría padre"
+            [(value)]="categoriaPadreId"
+            [options]="parentCategoryOptions()"
+            [disabled]="submitting()"
+            helperText="Para crear una subcategoría, elige de qué categoría cuelga (por ejemplo Pisos → Piso SPC). Solo hay dos niveles."
+          />
+        } @else {
+          <p class="sm:col-span-2 text-caption text-text-muted">
+            Esta categoría tiene subcategorías, por eso no puede colgar de otra.
+          </p>
+        }
+
         <app-textarea-field
           class="sm:col-span-2"
           inputId="category-description"

@@ -46,6 +46,8 @@ export class CategoryForm implements OnInit {
   readonly mode = input.required<CategoryFormMode>();
   readonly category = input<CategoryResponse | null>(null);
   readonly businessUnits = input.required<readonly BusinessUnitResponse[]>();
+  /** Todas las categorías: de ahí salen las posibles categorías padre. */
+  readonly allCategories = input<readonly CategoryResponse[]>([]);
   readonly loadingFormData = input(false);
   readonly submitting = input(false);
   readonly serverError = input<string | null>(null);
@@ -58,6 +60,7 @@ export class CategoryForm implements OnInit {
   readonly descripcion = signal('');
   readonly imagenUrl = signal('');
   readonly unidadNegocioId = signal('');
+  readonly categoriaPadreId = signal('');
   readonly orden = signal('0');
   readonly activo = signal(true);
   readonly previewFailed = signal(false);
@@ -67,6 +70,22 @@ export class CategoryForm implements OnInit {
     { value: '', label: 'Sin unidad (Categoría global)' },
     ...this.businessUnits().map((unit) => ({ value: unit.id, label: unit.nombre })),
   ]);
+  /** Solo dos niveles: padres posibles = categorías raíz distintas de la actual; si la actual ya tiene hijas no puede colgar de otra. */
+  readonly parentCategoryOptions = computed<readonly SelectOption[]>(() => {
+    const current = this.category();
+    const all = this.allCategories();
+    const roots = all.filter(
+      (item) => !item.categoriaPadre && item.id !== current?.id,
+    );
+    return [
+      { value: '', label: 'Ninguna (categoría principal)' },
+      ...roots.map((item) => ({ value: item.id, label: item.nombre })),
+    ];
+  });
+  readonly hasSubcategories = computed(() => {
+    const current = this.category();
+    return !!current && this.allCategories().some((item) => item.categoriaPadre?.id === current.id);
+  });
   readonly errors = computed<CategoryFormErrors>(() => this.validationErrors());
 
   protected updateNombre(value: string): void {
@@ -101,6 +120,7 @@ export class CategoryForm implements OnInit {
     this.descripcion.set(category.descripcion ?? '');
     this.imagenUrl.set(category.imagenUrl ?? '');
     this.unidadNegocioId.set(category.unidadNegocio?.id ?? '');
+    this.categoriaPadreId.set(category.categoriaPadre?.id ?? '');
     this.orden.set(String(category.orden ?? 0));
     this.activo.set(category.activo === true);
   }
@@ -117,6 +137,7 @@ export class CategoryForm implements OnInit {
       activo: this.activo(),
       orden: Number(this.orden()),
       unidadNegocioId: this.optionalValue(this.unidadNegocioId()),
+      categoriaPadreId: this.hasSubcategories() ? null : this.optionalValue(this.categoriaPadreId()),
     };
 
     if (this.mode() === 'create') {

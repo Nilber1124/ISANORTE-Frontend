@@ -99,6 +99,11 @@
             <tr class="transition-colors duration-fast hover:bg-surface-hover">
               <th scope="row" class="px-5 py-4 text-body-sm font-semibold text-text-primary">
                 {{ category.nombre }}
+                @if (category.categoriaPadre; as parent) {
+                  <span class="block text-caption font-normal text-text-muted">
+                    Subcategoría de {{ parent.nombre }}
+                  </span>
+                }
               </th>
               <td class="px-5 py-4 font-mono text-body-sm text-text-secondary">
                 {{ category.slug }}
@@ -150,6 +155,7 @@
     [mode]="facade.formMode()"
     [category]="facade.selectedCategory()"
     [businessUnits]="facade.businessUnits()"
+    [allCategories]="facade.categories()"
     [loadingFormData]="facade.loadingFormData()"
     [submitting]="facade.submitting()"
     [serverError]="facade.error()"

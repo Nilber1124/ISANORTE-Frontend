@@ -19,11 +19,14 @@ import { finalize } from 'rxjs';
 import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
 import { ClienteAuthService } from '../../../core/auth/cliente-auth.service';
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
+import { PublicProductCatalogCategoryResponse } from '../../../data/models/public-content/public-product-catalog.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 
 export interface IsadecorSubCategory {
   label: string;
   queryParams: Record<string, string>;
+  /** Subcategorías (un solo nivel). */
+  children?: readonly IsadecorSubCategory[];
 }
 
 export interface IsadecorNavLink {
@@ -31,6 +34,25 @@ export interface IsadecorNavLink {
   url: string;
   exact?: boolean;
   children?: readonly IsadecorSubCategory[];
+}
+
+/** Convierte la lista plana del catálogo (con `padreSlug`) en categorías con sus subcategorías. */
+export function buildCategoryTree(
+  categories: readonly PublicProductCatalogCategoryResponse[],
+): IsadecorSubCategory[] {
+  const slugs = new Set(categories.map((category) => category.slug));
+  const toNode = (category: PublicProductCatalogCategoryResponse): IsadecorSubCategory => ({
+    label: category.nombre,
+    queryParams: { categoria: category.slug },
+  });
+  return categories
+    .filter((category) => !category.padreSlug || !slugs.has(category.padreSlug))
+    .map((root) => {
+      const children = categories
+        .filter((category) => category.padreSlug === root.slug)
+        .map(toNode);
+      return children.length > 0 ? { ...toNode(root), children } : toNode(root);
+    });
 }
 
 @Component({
@@ -137,12 +159,7 @@ export class Navbar {
       )
       .subscribe({
         next: (catalog) => {
-          const isadecorCategories = (catalog.categorias ?? []).map((cat) => ({
-            label: cat.nombre,
-            queryParams: { categoria: cat.slug },
-          }));
-
-          this.dynamicCategories.set(isadecorCategories);
+          this.dynamicCategories.set(buildCategoryTree(catalog.categorias ?? []));
         },
         error: () => {
           this.dynamicCategories.set([]);
