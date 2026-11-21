@@ -1,0 +1,38 @@
+<div class="flex flex-col gap-3">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <div role="group" aria-label="Tamaño de la vista previa" class="inline-flex rounded-control border border-border p-0.5">
+      @for (option of [{ id: 'desktop', label: 'Escritorio' }, { id: 'mobile', label: 'Móvil' }]; track option.id) {
+        <button
+          type="button"
+          class="min-h-9 rounded-control px-3 text-body-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          [class.bg-accent]="device() === option.id"
+          [class.text-accent-contrast]="device() === option.id"
+          [class.text-text-secondary]="device() !== option.id"
+          [attr.aria-pressed]="device() === option.id"
+          (click)="setDevice($any(option.id))"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+    <p class="text-caption text-text-muted">Toca un bloque de la página para editarlo.</p>
+  </div>
+
+  <div
+    #container
+    class="relative overflow-hidden rounded-card border border-border bg-background-soft"
+    [style.height.px]="viewportHeight"
+  >
+    <iframe
+      #frame
+      title="Vista previa de la landing ISANORTE"
+      class="absolute top-0 border-0 bg-white"
+      [src]="src"
+      [style.width.px]="frameWidth()"
+      [style.height.px]="viewportHeight / scale()"
+      [style.left.px]="offsetLeft()"
+      [style.transform]="'scale(' + scale() + ')'"
+      style="transform-origin: top left"
+    ></iframe>
+  </div>
+</div>

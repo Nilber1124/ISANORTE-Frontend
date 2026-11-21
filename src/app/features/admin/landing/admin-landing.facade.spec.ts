@@ -70,6 +70,11 @@ class LandingApiStub {
     this.updateRequests.push({ id, request });
     return this.updateResponse$;
   }
+  actionUpdates: Array<{ sectionId: string; id: string; request: { orden: number } }> = [];
+  updateAction(sectionId: string, id: string, request: { orden: number; texto: string; enlace: string; activo: boolean }) {
+    this.actionUpdates.push({ sectionId, id, request });
+    return of({ id, ...request });
+  }
   changeVisibility(id: string, request: VisibilityRequest) {
     this.visibilityRequests.push({ id, request });
     return this.visibilityResponse$;
@@ -243,6 +248,43 @@ describe('AdminLandingFacade', () => {
         visible: true,
       });
       expect(facade.error()).toBe('No se pudo guardar porque existe un conflicto de integridad.');
+    });
+  });
+
+  describe('Orden de botones y edición integrada', () => {
+    const a1 = { id: 'a1', texto: 'Uno', enlace: '/uno', orden: 0, activo: true };
+    const a2 = { id: 'a2', texto: 'Dos', enlace: '/dos', orden: 1, activo: true };
+    const withActions = { ...mockSection, acciones: [a1, a2] };
+
+    it('intercambia el orden de dos botones y actualiza la sección sin abrir el cajón', () => {
+      facade.sections.set([withActions]);
+      facade.swapChildOrder('action', a1, a2, withActions);
+
+      expect(landingApi.actionUpdates.map((u) => [u.id, u.request.orden])).toEqual([
+        ['a1', 1],
+        ['a2', 0],
+      ]);
+      expect(facade.sections()[0].acciones.map((a) => [a.id, a.orden])).toEqual([
+        ['a2', 0],
+        ['a1', 1],
+      ]);
+      expect(facade.managedSection()).toBeNull();
+    });
+
+    it('separa dos botones con el mismo orden', () => {
+      const dup = { ...a2, orden: 0 };
+      facade.swapChildOrder('action', a1, dup, { ...withActions, acciones: [a1, dup] });
+      expect(landingApi.actionUpdates.map((u) => u.request.orden)).toEqual([0, 1]);
+    });
+
+    it('actualiza una sección indicada sin cerrar un cajón que no estaba abierto', () => {
+      facade.sections.set([withActions]);
+      facade.update(
+        { configuracionSitioId: 'site-1', tipo: LandingSectionType.PERSONALIZADA, titulo: 'a\nb', orden: 1, visible: true },
+        withActions,
+      );
+      expect(landingApi.updateRequests[0].id).toBe('sec-1');
+      expect(landingApi.updateRequests[0].request.titulo).toBe('a\nb');
     });
   });
 });

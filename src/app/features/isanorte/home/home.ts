@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  afterNextRender,
+  computed,
+  inject,
+} from '@angular/core';
+import { initEditorBridge } from '../../../shared/utils/editor-bridge';
 import { SmoothDetails } from '../../../shared/directives/smooth-details.directive';
 import { CommonModule } from '@angular/common';
 
@@ -209,6 +218,15 @@ export class Home {
   constructor() {
     this.facade.load();
     this.trust.load();
+
+    // Dentro de la vista previa del admin (?editor=1) los bloques se pueden señalar para editarlos.
+    const document = inject(DOCUMENT);
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const win = document.defaultView;
+      const stop = win ? initEditorBridge(document, win) : null;
+      if (stop) destroyRef.onDestroy(stop);
+    });
   }
 
   /** Reconoce el PDF de catálogo aún no cargado (ancla `#catalogo`) y lo oculta. */

@@ -36,7 +36,156 @@
     </div>
   </div>
 
+  <nav aria-label="Otras pantallas de la web" class="flex flex-wrap items-center gap-x-5 gap-y-2 text-body-sm">
+    <span class="text-text-muted">También se edita en:</span>
+    @for (item of relatedScreens; track item.route) {
+      <a
+        [routerLink]="item.route"
+        [title]="item.hint"
+        class="font-semibold text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      >
+        {{ item.label }} <span aria-hidden="true">→</span>
+      </a>
+    }
+  </nav>
+
   @switch (activeTab()) {
+    @case ('vista') {
+      <div id="panel-vista" role="tabpanel" aria-labelledby="tab-vista" class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_26rem]">
+        <app-landing-preview
+          [selected]="selectedBlockId()"
+          [reloadKey]="previewKey()"
+          (blockSelected)="selectBlock($event)"
+        />
+
+        <aside aria-label="Bloque seleccionado" class="space-y-5">
+          @if (facade.error()) {
+            <app-alert variant="error">{{ facade.error() }}</app-alert>
+          }
+          @if (editingInPanel() && selectedBlock()?.type === 'HERO' && selectedSection(); as heroSection) {
+            <app-hero-editor
+              [section]="heroSection"
+              [busy]="heroBusy()"
+              [visibilityBusy]="facade.changingVisibilityId() !== null"
+              (closed)="editingInPanel.set(false)"
+              (textsSaved)="saveHeroTexts($event)"
+              (visibilityChanged)="setHeroVisibility($event)"
+              (actionSaved)="saveHeroAction($event)"
+              (actionDeleted)="deleteHeroAction($event)"
+              (sceneSaved)="saveHeroScene($event)"
+              (sceneDeleted)="deleteHeroScene($event)"
+              (swapped)="swapHeroChildren($event)"
+            />
+          } @else if (selectedBlock(); as block) {
+            <section class="rounded-card border border-border bg-surface p-5 shadow-card">
+              <p class="text-eyebrow uppercase text-text-muted">Bloque seleccionado</p>
+              <h2 class="mt-2 text-heading-3 text-text-primary">{{ block.label }}</h2>
+
+              <div class="mt-4 flex flex-col gap-2">
+                @if (selectedSection(); as section) {
+                  @if (section.tipo === 'HERO') {
+                    <app-button variant="primary" (click)="editingInPanel.set(true)">
+                      Editar la portada
+                    </app-button>
+                  } @else {
+                    <app-button variant="primary" (click)="facade.openEdit(section)">
+                      Editar textos, imagen y botón
+                    </app-button>
+                    <app-button variant="secondary" (click)="facade.openChildren(section, 'action')">
+                      Botones ({{ section.acciones.length }})
+                    </app-button>
+                  }
+                  <div class="flex items-center justify-between gap-3 rounded-control border border-border px-4 py-2.5">
+                    <span class="text-body-sm font-semibold text-text-primary">Visible en la web</span>
+                    <button
+                      type="button"
+                      role="switch"
+                      [attr.aria-checked]="section.visible"
+                      aria-label="Visible en la web"
+                      class="relative h-7 w-12 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
+                      [class.bg-accent]="section.visible"
+                      [class.bg-border]="!section.visible"
+                      [disabled]="facade.changingVisibilityId() !== null"
+                      (click)="facade.changeVisibility(section, !section.visible)"
+                    >
+                      <span
+                        class="absolute top-0.5 size-6 rounded-full bg-white shadow transition-all"
+                        [class.left-5]="section.visible"
+                        [class.left-0.5]="!section.visible"
+                      ></span>
+                    </button>
+                  </div>
+                } @else if (block.type) {
+                  <p class="text-body-sm text-text-secondary">
+                    Este bloque aún no está registrado como sección. Créalo en la pestaña «Secciones &amp; Hero».
+                  </p>
+                }
+                @if (block.screen; as screen) {
+                  <a
+                    [routerLink]="screen.route"
+                    class="inline-flex min-h-11 items-center justify-between rounded-control border border-border px-4 text-body-sm font-semibold text-text-primary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                  >
+                    {{ screen.label }} <span aria-hidden="true">→</span>
+                  </a>
+                }
+              </div>
+            </section>
+          } @else {
+            <p class="rounded-card border border-dashed border-border p-5 text-body-sm text-text-secondary">
+              Toca un bloque en la vista previa, o elígelo de la lista, para ver cómo editarlo.
+            </p>
+          }
+
+          <section aria-labelledby="blocks-title">
+            <h2 id="blocks-title" class="mb-2 text-body-sm font-semibold text-text-primary">Bloques de la página</h2>
+            <ul class="m-0 flex list-none flex-col gap-1 p-0">
+              @for (block of previewBlocks; track block.id) {
+                <li>
+                  <button
+                    type="button"
+                    class="flex min-h-10 w-full items-center rounded-control border-l-2 px-3 text-left text-body-sm font-medium transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                    [class.border-accent]="selectedBlockId() === block.id"
+                    [class.bg-surface-hover]="selectedBlockId() === block.id"
+                    [class.border-transparent]="selectedBlockId() !== block.id"
+                    [attr.aria-pressed]="selectedBlockId() === block.id"
+                    (click)="selectBlock(block.id)"
+                  >
+                    {{ block.label }}
+                  </button>
+                </li>
+              }
+            </ul>
+          </section>
+        </aside>
+      </div>
+
+      <app-landing-section-form
+        [open]="facade.formOpen()"
+        [mode]="facade.formMode()"
+        [initialData]="facade.selectedSection()"
+        [siteConfigurations]="facade.siteConfigurations()"
+        [submitting]="facade.submitting()"
+        (closed)="facade.closeForm()"
+        (created)="facade.create($event)"
+        (updated)="facade.update($event)"
+      />
+      @if (facade.managedSection(); as section) {
+        <app-dynamic-child-manager
+          [kind]="facade.childKind()"
+          [parentName]="section.titulo || section.tipo"
+          [parentType]="section.tipo"
+          [items]="facade.childKind() === 'scene' ? section.escenas : section.acciones"
+          [saving]="facade.childSaving()"
+          [error]="facade.error()"
+          (closed)="facade.closeChildren()"
+          (saved)="saveChild($event)"
+          (deleted)="
+            facade.childKind() === 'scene' ? facade.deleteScene($event) : facade.deleteAction($event)
+          "
+        />
+      }
+    }
+
     @case ('secciones') {
       <div id="panel-secciones" role="tabpanel" aria-labelledby="tab-secciones" class="space-y-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -119,125 +268,67 @@
           } @else {
             <div class="flow-root">
               <div class="overflow-x-auto rounded-card border border-border bg-surface shadow-card">
-                <table class="min-w-full divide-y divide-border text-left">
+                <table class="w-full text-left">
+                  <caption class="sr-only">Secciones de la landing ISANORTE</caption>
                   <thead class="border-b border-border bg-background-soft">
                     <tr>
-                      <th scope="col" class="py-3.5 pl-4 pr-3 text-body-sm font-semibold text-text-primary sm:pl-6">
-                        Sección en la Web
-                      </th>
-                      <th scope="col" class="px-3 py-3.5 text-body-sm font-semibold text-text-primary">
-                        Posición
-                      </th>
-                      <th scope="col" class="px-3 py-3.5 text-body-sm font-semibold text-text-primary">
-                        Estado
-                      </th>
-                      <th scope="col" class="px-3 py-3.5 text-body-sm font-semibold text-text-primary">
-                        Contenido
-                      </th>
-                      <th scope="col" class="relative py-3.5 pl-3 pr-4 text-right sm:pr-6">
-                        <span class="sr-only">Acciones</span>
-                      </th>
+                      <th scope="col" class="py-3.5 pl-4 pr-3 text-body-sm font-semibold text-text-primary sm:pl-6">Sección en la web</th>
+                      <th scope="col" class="px-3 py-3.5 text-body-sm font-semibold text-text-primary">Posición</th>
+                      <th scope="col" class="px-3 py-3.5 text-body-sm font-semibold text-text-primary">Estado</th>
+                      <th scope="col" class="py-3.5 pl-3 pr-4 text-right text-body-sm font-semibold text-text-primary sm:pr-6">Editar</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-border bg-surface">
                     @for (section of facade.sections(); track section.id) {
                       <tr class="transition-colors duration-fast hover:bg-surface-hover">
-                        <td class="py-4 pl-4 pr-3 text-body-sm sm:pl-6 max-w-xs">
-                          <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-semibold text-text-primary">
-                              {{ sectionMeta(section.tipo).label }}
-                            </span>
-                            <span class="inline-flex items-center rounded-badge px-2 py-0.5 text-caption font-medium bg-surface-soft border border-border text-text-secondary">
+                        <td class="max-w-md py-4 pl-4 pr-3 text-body-sm sm:pl-6">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <span class="font-semibold text-text-primary">{{ sectionMeta(section.tipo).label }}</span>
+                            <span class="inline-flex items-center rounded-badge border border-border bg-surface-soft px-2 py-0.5 text-caption font-medium text-text-secondary">
                               {{ sectionMeta(section.tipo).badge }}
                             </span>
                           </div>
                           @if (section.titulo) {
-                            <p class="mt-1 text-body-sm text-text-secondary truncate">"{{ section.titulo }}"</p>
+                            <p class="mt-1 truncate text-body-sm text-text-secondary">"{{ section.titulo }}"</p>
                           }
+                          <p class="mt-1.5 text-caption text-text-muted">
+                            {{ contentSummary(section) }}
+                          </p>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-body-sm text-text-secondary">
                           <span class="font-mono font-semibold text-text-primary">{{ section.orden }}</span>
                           <span class="block text-caption text-text-muted">{{ sectionOrderLabel(section.orden) }}</span>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4">
-                          @if (facade.changingVisibilityId() === section.id) {
-                            <span class="inline-flex items-center gap-1.5 text-body-sm text-text-muted">
-                              <svg aria-hidden="true" class="animate-spin size-4 text-accent" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              Actualizando...
-                            </span>
-                          } @else {
-                            <app-badge [variant]="section.visible ? 'success' : 'neutral'" dot>
-                              {{ section.visible ? 'Visible' : 'Oculta' }}
-                            </app-badge>
-                          }
+                          <button
+                            type="button"
+                            class="rounded-badge focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-60"
+                            [disabled]="facade.changingVisibilityId() !== null"
+                            [attr.aria-label]="(section.visible ? 'Ocultar la sección ' : 'Mostrar la sección ') + sectionMeta(section.tipo).label"
+                            [title]="section.visible ? 'Clic para ocultarla' : 'Clic para mostrarla'"
+                            (click)="facade.changeVisibility(section, !section.visible)"
+                          >
+                            @if (facade.changingVisibilityId() === section.id) {
+                              <app-badge variant="neutral">Actualizando…</app-badge>
+                            } @else {
+                              <app-badge [variant]="section.visible ? 'success' : 'neutral'" dot>
+                                {{ section.visible ? 'Visible' : 'Oculta' }}
+                              </app-badge>
+                            }
+                          </button>
                         </td>
-                        <td class="px-3 py-4">
-                          <div class="flex flex-wrap gap-1.5">
-                            @if (section.titulo) {
-                              <span class="inline-flex items-center gap-1 rounded-badge border border-border bg-surface-soft px-2 py-0.5 text-caption text-text-secondary">
-                                <svg class="size-3 text-success" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                Título
-                              </span>
-                            }
-                            @if (section.imagenUrl) {
-                              <span class="inline-flex items-center gap-1 rounded-badge border border-border bg-surface-soft px-2 py-0.5 text-caption text-text-secondary">
-                                <svg class="size-3 text-success" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                Imagen
-                              </span>
-                            }
-                            @if (section.textoBoton) {
-                              <span class="inline-flex items-center gap-1 rounded-badge border border-border bg-surface-soft px-2 py-0.5 text-caption text-text-secondary">
-                                <svg class="size-3 text-success" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                CTA
-                              </span>
-                            }
-                            @if (section.tipo === 'HERO' && section.escenas.length > 0) {
-                              <span class="inline-flex items-center gap-1 rounded-badge border border-border bg-surface-soft px-2 py-0.5 text-caption text-text-secondary">
-                                {{ section.escenas.length }} diap.
-                              </span>
-                            }
-                            @if (section.acciones.length > 0) {
-                              <span class="inline-flex items-center gap-1 rounded-badge border border-border bg-surface-soft px-2 py-0.5 text-caption text-text-secondary">
-                                {{ section.acciones.length }} acc.
-                              </span>
-                            }
-                          </div>
-                        </td>
-                        <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-body-sm font-medium sm:pr-6">
+                        <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right sm:pr-6">
                           <div class="flex items-center justify-end gap-2">
-                            <app-button
-                              size="small"
-                              variant="ghost"
-                              (click)="facade.openEdit(section)"
-                            >
-                              Editar
-                            </app-button>
                             @if (section.tipo === 'HERO') {
-                              <app-button
-                                size="small"
-                                variant="secondary"
-                                (click)="facade.openChildren(section, 'scene')"
-                              >
-                                Diapositivas
+                              <app-button size="small" variant="ghost" (click)="facade.openChildren(section, 'scene')">
+                                Diapositivas ({{ section.escenas.length }})
                               </app-button>
                             }
-                            <app-button
-                              size="small"
-                              variant="secondary"
-                              (click)="facade.openChildren(section, 'action')"
-                            >
-                              Acciones
+                            <app-button size="small" variant="ghost" (click)="facade.openChildren(section, 'action')">
+                              Botones ({{ section.acciones.length }})
                             </app-button>
-                            <app-button
-                              size="small"
-                              variant="ghost"
-                              [disabled]="facade.changingVisibilityId() !== null"
-                              (click)="facade.changeVisibility(section, !section.visible)"
-                            >
-                              {{ section.visible ? 'Ocultar' : 'Mostrar' }}
+                            <app-button size="small" variant="secondary" (click)="facade.openEdit(section)">
+                              Editar
                             </app-button>
                           </div>
                         </td>
@@ -281,30 +372,6 @@
     @case ('nosotros') {
       <div id="panel-nosotros" role="tabpanel" aria-labelledby="tab-nosotros">
         <app-admin-company [onlyAbout]="true" />
-      </div>
-    }
-
-    @case ('servicios') {
-      <div id="panel-servicios" role="tabpanel" aria-labelledby="tab-servicios">
-        <app-admin-services />
-      </div>
-    }
-
-    @case ('proyectos') {
-      <div id="panel-proyectos" role="tabpanel" aria-labelledby="tab-proyectos">
-        <app-admin-projects />
-      </div>
-    }
-
-    @case ('contenido') {
-      <div id="panel-contenido" role="tabpanel" aria-labelledby="tab-contenido">
-        <app-admin-content />
-      </div>
-    }
-
-    @case ('contacto') {
-      <div id="panel-contacto" role="tabpanel" aria-labelledby="tab-contacto">
-        <app-admin-contact />
       </div>
     }
   }

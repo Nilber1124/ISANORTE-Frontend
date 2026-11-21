@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { Alert } from '../../../shared/components/alert/alert';
@@ -6,6 +15,8 @@ import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { AdminLandingFacade } from './admin-landing.facade';
+import { HeroEditor, HeroChildSave, HeroSwap, HeroTextsSave } from './components/hero-editor/hero-editor';
+import { LandingPreview } from './components/landing-preview/landing-preview';
 import { LandingSectionForm } from './components/landing-section-form/landing-section-form';
 import { HeroSceneRequest } from '../../../data/models/landing-section/hero-scene.model';
 import { LandingActionRequest } from '../../../data/models/landing-section/landing-action.model';
@@ -14,10 +25,6 @@ import {
   DynamicChildSave,
 } from '../shared/dynamic-child-manager/dynamic-child-manager';
 import { AdminCompany } from '../company/admin-company';
-import { AdminServices } from '../services/admin-services';
-import { AdminProjects } from '../projects/admin-projects';
-import { AdminContent } from '../content/admin-content';
-import { AdminContact } from '../contact/admin-contact';
 
 import { LandingSectionType } from '../../../data/models/landing-section/landing-section-type.enum';
 
@@ -27,13 +34,29 @@ export interface SectionMeta {
   description: string;
 }
 
-export type LandingTab =
-  | 'secciones'
-  | 'nosotros'
-  | 'servicios'
-  | 'proyectos'
-  | 'contenido'
-  | 'contacto';
+export type LandingTab = 'vista' | 'secciones' | 'nosotros';
+
+/** Bloque de la web pública (ancla `id` de su `<section>`) y dónde se edita. */
+export interface PreviewBlock {
+  readonly id: string;
+  readonly label: string;
+  /** Tipo de sección de la landing que lo alimenta (se edita aquí mismo). */
+  readonly type?: LandingSectionType;
+  /** Pantalla del admin donde se edita su contenido, si no es una sección de la landing. */
+  readonly screen?: { readonly route: string; readonly label: string };
+}
+
+export const PREVIEW_BLOCKS: readonly PreviewBlock[] = [
+  { id: 'inicio', label: 'Portada (Hero)', type: LandingSectionType.HERO },
+  { id: 'servicios', label: 'Servicios', type: LandingSectionType.SERVICIOS, screen: { route: '/admin/servicios', label: 'Editar los servicios' } },
+  { id: 'proyectos', label: 'Proyectos destacados', type: LandingSectionType.PROYECTOS, screen: { route: '/admin/proyectos', label: 'Editar los proyectos' } },
+  { id: 'proceso', label: 'Cómo trabajamos', screen: { route: '/admin/sitio/pasos-proceso', label: 'Editar los pasos' } },
+  { id: 'garantias', label: 'Por qué ISANORTE', screen: { route: '/admin/sitio/garantias', label: 'Editar las garantías' } },
+  { id: 'testimonios', label: 'Testimonios', screen: { route: '/admin/sitio/testimonios', label: 'Editar los testimonios' } },
+  { id: 'isadecor', label: 'Unidad ISADECOR', type: LandingSectionType.UNIDAD_NEGOCIO, screen: { route: '/admin/unidades-negocio', label: 'Editar la unidad de negocio' } },
+  { id: 'preguntas', label: 'Preguntas frecuentes', screen: { route: '/admin/sitio/faqs', label: 'Editar las preguntas' } },
+  { id: 'cotizar', label: 'Llamado a cotizar', type: LandingSectionType.CTA },
+];
 
 export interface LandingTabItem {
   id: LandingTab;
@@ -49,13 +72,11 @@ export interface LandingTabItem {
     Button,
     DynamicChildManager,
     EmptyState,
+    HeroEditor,
+    LandingPreview,
     LandingSectionForm,
     RouterLink,
     AdminCompany,
-    AdminServices,
-    AdminProjects,
-    AdminContent,
-    AdminContact,
   ],
   templateUrl: './admin-landing.html',
   styleUrls: ['./admin-landing.css'],
@@ -69,6 +90,11 @@ export class AdminLanding {
 
   readonly tabs: readonly LandingTabItem[] = [
     {
+      id: 'vista',
+      label: 'Vista previa',
+      description: 'La web tal como se ve; toca un bloque para editarlo.',
+    },
+    {
       id: 'secciones',
       label: 'Secciones & Hero',
       description: 'Estructura principal, orden, visibilidad y escenas dinámicas.',
@@ -78,38 +104,65 @@ export class AdminLanding {
       label: 'Nosotros',
       description: 'Presentación de la empresa, misión, visión, valores y estadísticas.',
     },
-    {
-      id: 'servicios',
-      label: 'Servicios',
-      description: 'Servicios destacados y beneficios mostrados en la web.',
-    },
-    {
-      id: 'proyectos',
-      label: 'Proyectos',
-      description: 'Obras y casos de éxito que se presentan en la landing.',
-    },
-    {
-      id: 'contenido',
-      label: 'Contenido & SEO',
-      description: 'Textos editoriales y configuración de posicionamiento.',
-    },
-    {
-      id: 'contacto',
-      label: 'Contacto',
-      description: 'Mensajes y solicitudes comerciales recibidas de clientes.',
-    },
   ];
 
-  readonly activeTab = signal<LandingTab>('secciones');
+  readonly activeTab = signal<LandingTab>('vista');
+
+  readonly previewBlocks = PREVIEW_BLOCKS;
+  readonly selectedBlockId = signal<string | null>(null);
+  /** El bloque elegido se está editando en el panel (hoy solo el Hero tiene editor propio). */
+  readonly editingInPanel = signal(false);
+  /** Sube cuando cambian las secciones: la vista previa se recarga con lo guardado. */
+  readonly previewKey = signal(0);
+
+  readonly selectedBlock = computed(
+    () => PREVIEW_BLOCKS.find((block) => block.id === this.selectedBlockId()) ?? null,
+  );
+  /** Sección de la landing que alimenta el bloque elegido (si la hay y está registrada). */
+  readonly selectedSection = computed(() => {
+    const type = this.selectedBlock()?.type;
+    return type ? (this.facade.sections().find((section) => section.tipo === type) ?? null) : null;
+  });
+
+  private lastSections: unknown = null;
+
+  /** Pantallas que antes eran pestañas de esta página y ahora tienen su propia ruta. */
+  private readonly legacyTabRoutes: Record<string, string> = {
+    servicios: '/admin/servicios',
+    proyectos: '/admin/proyectos',
+    contenido: '/admin/contenido',
+    contacto: '/admin/contacto',
+  };
+
+  /** Atajos a las demás pantallas que alimentan la landing. */
+  readonly relatedScreens: readonly { label: string; route: string; hint: string }[] = [
+    { label: 'Servicios', route: '/admin/servicios', hint: 'Servicios que se muestran en la portada' },
+    { label: 'Proyectos', route: '/admin/proyectos', hint: 'Obras y casos de éxito' },
+    { label: 'Contacto', route: '/admin/contacto', hint: 'Mensajes recibidos' },
+    { label: 'Páginas y SEO', route: '/admin/contenido', hint: 'Textos y posicionamiento' },
+  ];
 
   constructor() {
     afterNextRender(() => {
       this.facade.load();
     });
 
+    effect(() => {
+      const sections = this.facade.sections();
+      untracked(() => {
+        if (this.lastSections !== null && sections !== this.lastSections) {
+          this.previewKey.update((key) => key + 1);
+        }
+        this.lastSections = sections;
+      });
+    });
+
     const tabParam = this.route?.snapshot?.queryParamMap?.get('tab');
     if (tabParam && this.isValidTab(tabParam)) {
       this.activeTab.set(tabParam);
+    } else if (tabParam && this.legacyTabRoutes[tabParam]) {
+      // Enlaces antiguos (?tab=servicios…): esas pantallas ya viven en su propia ruta.
+      void this.router?.navigateByUrl(this.legacyTabRoutes[tabParam]);
     }
   }
 
@@ -118,10 +171,44 @@ export class AdminLanding {
     if (this.router && this.route) {
       this.router.navigate([], {
         relativeTo: this.route,
-        queryParams: { tab: tabId === 'secciones' ? null : tabId },
+        queryParams: { tab: tabId === 'vista' ? null : tabId },
         queryParamsHandling: 'merge',
       });
     }
+  }
+
+  protected selectBlock(id: string): void {
+    this.selectedBlockId.set(id);
+    this.editingInPanel.set(false);
+  }
+
+  protected readonly heroBusy = computed(
+    () => this.facade.submitting() || this.facade.childSaving(),
+  );
+
+  // Eventos del editor del Hero: se aplican siempre sobre la sección vigente.
+  protected saveHeroTexts(event: HeroTextsSave): void {
+    this.facade.update(event.request, this.selectedSection());
+  }
+  protected saveHeroAction(event: HeroChildSave<LandingActionRequest>): void {
+    this.facade.saveAction(event.request, event.id, this.selectedSection());
+  }
+  protected saveHeroScene(event: HeroChildSave<HeroSceneRequest>): void {
+    this.facade.saveScene(event.request, event.id, this.selectedSection());
+  }
+  protected deleteHeroAction(id: string): void {
+    this.facade.deleteAction(id, this.selectedSection());
+  }
+  protected deleteHeroScene(id: string): void {
+    this.facade.deleteScene(id, this.selectedSection());
+  }
+  protected swapHeroChildren(event: HeroSwap): void {
+    const section = this.selectedSection();
+    if (section) this.facade.swapChildOrder(event.kind, event.first, event.second, section);
+  }
+  protected setHeroVisibility(visible: boolean): void {
+    const section = this.selectedSection();
+    if (section) this.facade.changeVisibility(section, visible);
   }
 
   protected sectionMeta(type: string): SectionMeta {
@@ -177,6 +264,22 @@ export class AdminLanding {
     }
   }
 
+  /** Qué trae la sección, en una línea (título, imagen, botón, escenas y botones adicionales). */
+  protected contentSummary(section: {
+    titulo?: string | null;
+    imagenUrl?: string | null;
+    textoBoton?: string | null;
+    escenas: readonly unknown[];
+    acciones: readonly unknown[];
+  }): string {
+    const parts = [
+      section.titulo ? 'Título' : null,
+      section.imagenUrl ? 'Imagen' : null,
+      section.textoBoton ? 'Botón principal' : null,
+    ].filter((part): part is string => part !== null);
+    return parts.length > 0 ? parts.join(' · ') : 'Sin contenido propio';
+  }
+
   protected sectionOrderLabel(order: number | null | undefined): string {
     const val = order ?? 0;
     if (val === 0) return '1ª en la web (Portada)';
@@ -187,9 +290,7 @@ export class AdminLanding {
   }
 
   private isValidTab(tab: string): tab is LandingTab {
-    return ['secciones', 'nosotros', 'servicios', 'proyectos', 'contenido', 'contacto'].includes(
-      tab,
-    );
+    return ['vista', 'secciones', 'nosotros'].includes(tab);
   }
 
   protected saveChild(event: DynamicChildSave): void {

@@ -1,0 +1,185 @@
+<section class="rounded-card border border-border bg-surface shadow-card" aria-labelledby="hero-editor-title">
+  <header class="flex items-start justify-between gap-3 border-b border-border p-5">
+    <div>
+      <p class="text-eyebrow uppercase text-text-muted">Editando</p>
+      <h2 id="hero-editor-title" class="mt-1 text-heading-3 text-text-primary">Portada (Hero)</h2>
+    </div>
+    <app-button size="small" variant="ghost" (click)="closed.emit()">← Volver</app-button>
+  </header>
+
+  <!-- Visibilidad -->
+  <div class="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+    <div>
+      <p class="text-body-sm font-semibold text-text-primary">Visible en la web</p>
+      <p class="text-caption text-text-muted">Si lo apagas, la portada deja de mostrarse (queda guardada).</p>
+    </div>
+    <button
+      type="button"
+      role="switch"
+      [attr.aria-checked]="section().visible"
+      aria-label="Visible en la web"
+      class="relative h-7 w-12 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:opacity-50"
+      [class.bg-accent]="section().visible"
+      [class.bg-border]="!section().visible"
+      [disabled]="visibilityBusy()"
+      (click)="visibilityChanged.emit(!section().visible)"
+    >
+      <span
+        class="absolute top-0.5 size-6 rounded-full bg-white shadow transition-all"
+        [class.left-5]="section().visible"
+        [class.left-0.5]="!section().visible"
+      ></span>
+    </button>
+  </div>
+
+  <!-- Textos -->
+  <div class="space-y-4 border-b border-border p-5">
+    <h3 class="text-body-sm font-semibold uppercase tracking-wider text-text-primary">Textos</h3>
+    <app-input-field
+      inputId="hero-etiqueta"
+      label="Frase pequeña sobre el título"
+      [(value)]="etiqueta"
+      placeholder="Ej: Constructora en Cajamarca"
+      [disabled]="busy()"
+    />
+    <app-textarea-field
+      inputId="hero-titulo"
+      label="Título"
+      [(value)]="titulo"
+      [rows]="2"
+      helperText="Pulsa Enter para partirlo en dos líneas, igual que en la web."
+      [disabled]="busy()"
+    />
+    <app-textarea-field
+      inputId="hero-subtitulo"
+      label="Subtítulo"
+      [(value)]="subtitulo"
+      [rows]="3"
+      [disabled]="busy()"
+    />
+    <div class="flex items-center gap-3">
+      <app-button variant="primary" [disabled]="!textsDirty() || busy()" [loading]="busy()" (click)="saveTexts()">
+        Guardar textos
+      </app-button>
+      @if (textsDirty()) {
+        <span class="text-caption text-text-muted" role="status">Cambios sin guardar</span>
+      }
+    </div>
+  </div>
+
+  <!-- Botones -->
+  <div class="space-y-3 border-b border-border p-5">
+    <div>
+      <h3 class="text-body-sm font-semibold uppercase tracking-wider text-text-primary">Botones</h3>
+      <p class="text-caption text-text-muted">El primero es el principal. Cada cambio se aplica al instante.</p>
+    </div>
+
+    <ul class="m-0 flex list-none flex-col gap-2 p-0">
+      @for (action of actions(); track action.id; let i = $index; let first = $first; let last = $last) {
+        <li class="rounded-control border border-border p-3" [class.opacity-60]="!action.activo">
+          <div class="flex items-center gap-2">
+            <span class="grid size-6 shrink-0 place-items-center rounded-full bg-surface-hover text-caption font-bold text-text-secondary">{{ i + 1 }}</span>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-body-sm font-semibold text-text-primary">{{ action.texto }}</p>
+              <p class="truncate font-mono text-caption text-text-muted">{{ action.enlace }}</p>
+            </div>
+          </div>
+          <div class="mt-2 flex flex-wrap items-center gap-1.5">
+            <app-button size="small" variant="ghost" [disabled]="first || busy()" [ariaLabel]="'Subir ' + action.texto" (click)="move('action', i, -1)">↑</app-button>
+            <app-button size="small" variant="ghost" [disabled]="last || busy()" [ariaLabel]="'Bajar ' + action.texto" (click)="move('action', i, 1)">↓</app-button>
+            <app-button size="small" variant="secondary" [disabled]="busy()" (click)="startAction(action)">Editar</app-button>
+            <app-button size="small" variant="ghost" [disabled]="busy()" (click)="toggleAction(action)">{{ action.activo ? 'Ocultar' : 'Mostrar' }}</app-button>
+            @if (confirmDelete() === action.id) {
+              <app-button size="small" variant="primary" [disabled]="busy()" (click)="deleteAction(action.id)">Sí, quitar</app-button>
+              <app-button size="small" variant="ghost" (click)="confirmDelete.set(null)">No</app-button>
+            } @else {
+              <app-button size="small" variant="ghost" [disabled]="busy()" (click)="askDelete(action.id)">Quitar</app-button>
+            }
+          </div>
+          @if (editingAction() === action.id) {
+            <ng-container *ngTemplateOutlet="actionForm" />
+          }
+        </li>
+      } @empty {
+        <li class="text-body-sm text-text-muted">Aún no hay botones.</li>
+      }
+    </ul>
+
+    @if (editingAction() === 'new') {
+      <div class="rounded-control border border-dashed border-border p-3">
+        <ng-container *ngTemplateOutlet="actionForm" />
+      </div>
+    } @else {
+      <app-button size="small" variant="secondary" [disabled]="busy()" (click)="startAction(null)">+ Añadir botón</app-button>
+    }
+
+    <ng-template #actionForm>
+      <div class="mt-3 space-y-3">
+        <app-input-field inputId="hero-action-text" label="Texto del botón" [(value)]="draftText" placeholder="Ej: Solicitar cotización" />
+        <app-input-field inputId="hero-action-link" label="A dónde lleva" [(value)]="draftLink" placeholder="/contacto o https://…" />
+        <div class="flex flex-wrap gap-1.5" aria-label="Enlaces sugeridos">
+          @for (link of quickLinks; track link) {
+            <button type="button" class="rounded-badge border border-border px-2 py-1 font-mono text-caption text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus" (click)="draftLink.set(link)">{{ link }}</button>
+          }
+        </div>
+        <div class="flex gap-2">
+          <app-button size="small" variant="primary" [disabled]="!draftValid() || busy()" (click)="saveAction()">Guardar botón</app-button>
+          <app-button size="small" variant="ghost" (click)="cancelAction()">Cancelar</app-button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Diapositivas -->
+  <div class="space-y-3 p-5">
+    <div>
+      <h3 class="text-body-sm font-semibold uppercase tracking-wider text-text-primary">Fotos de fondo ({{ scenes().length }})</h3>
+      <p class="text-caption text-text-muted">Se muestran en este orden. Cada cambio se aplica al instante.</p>
+    </div>
+
+    <ul class="m-0 flex list-none flex-col gap-2 p-0">
+      @for (scene of scenes(); track scene.id; let i = $index; let first = $first; let last = $last) {
+        <li class="rounded-control border border-border p-3" [class.opacity-60]="!scene.activo">
+          <div class="flex gap-3">
+            <img [src]="scene.imagenUrl" [alt]="scene.alt || 'Foto ' + (i + 1)" loading="lazy" class="h-16 w-24 shrink-0 rounded-control border border-border object-cover" />
+            <div class="min-w-0 flex-1">
+              <label class="text-caption font-semibold text-text-secondary" [for]="'scene-alt-' + scene.id">Descripción de la foto</label>
+              <input
+                [id]="'scene-alt-' + scene.id"
+                type="text"
+                class="mt-1 min-h-9 w-full rounded-control border border-border bg-background px-2 text-body-sm"
+                [value]="scene.alt ?? ''"
+                placeholder="Ej: Casa terminada en Cajamarca"
+                [disabled]="busy()"
+                (change)="saveSceneAlt(scene, $any($event.target).value)"
+              />
+            </div>
+          </div>
+          <div class="mt-2 flex flex-wrap items-center gap-1.5">
+            <app-button size="small" variant="ghost" [disabled]="first || busy()" [ariaLabel]="'Subir foto ' + (i + 1)" (click)="move('scene', i, -1)">↑</app-button>
+            <app-button size="small" variant="ghost" [disabled]="last || busy()" [ariaLabel]="'Bajar foto ' + (i + 1)" (click)="move('scene', i, 1)">↓</app-button>
+            <app-button size="small" variant="ghost" [disabled]="busy()" (click)="toggleScene(scene)">{{ scene.activo ? 'Ocultar' : 'Mostrar' }}</app-button>
+            @if (confirmDelete() === scene.id) {
+              <app-button size="small" variant="primary" [disabled]="busy()" (click)="deleteScene(scene.id)">Sí, quitar</app-button>
+              <app-button size="small" variant="ghost" (click)="confirmDelete.set(null)">No</app-button>
+            } @else {
+              <app-button size="small" variant="ghost" [disabled]="busy()" (click)="askDelete(scene.id)">Quitar</app-button>
+            }
+          </div>
+        </li>
+      } @empty {
+        <li class="text-body-sm text-text-muted">Aún no hay fotos.</li>
+      }
+    </ul>
+
+    <div>
+      <p class="mb-1 text-caption font-semibold text-text-secondary">Añadir una foto</p>
+      <app-image-uploader
+        [ngModel]="newSceneUrl()"
+        (ngModelChange)="addScene($event)"
+        name="heroNewScene"
+        folder="isanorte/landing"
+      />
+    </div>
+  </div>
+</section>

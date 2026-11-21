@@ -146,12 +146,13 @@
             [disabled]="submitting()"
           />
 
-          <app-input-field
+          <app-textarea-field
             inputId="titulo"
             label="Título principal de la sección"
             [(value)]="titulo"
+            [rows]="2"
             placeholder="Ej: Transformamos espacios en experiencias"
-            helperText="El encabezado más importante y llamativo de la sección."
+            helperText="El encabezado más importante. Un salto de línea parte el título en dos líneas en la web."
             [disabled]="submitting()"
           />
 

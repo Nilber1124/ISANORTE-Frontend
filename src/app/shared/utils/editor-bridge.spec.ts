@@ -1,0 +1,66 @@
+import { ADMIN_MESSAGE_SOURCE, EDITOR_MESSAGE_SOURCE, initEditorBridge, isEditorFrame } from './editor-bridge';
+
+function fakeWindow(search: string, embedded: boolean) {
+  const posted: unknown[] = [];
+  const listeners: Record<string, (e: unknown) => void> = {};
+  const win = {
+    location: { search, origin: 'http://localhost' },
+    parent: embedded ? { postMessage: (m: unknown) => posted.push(m) } : undefined,
+    addEventListener: (type: string, fn: (e: unknown) => void) => (listeners[type] = fn),
+    removeEventListener: () => undefined,
+  } as unknown as Window;
+  if (!embedded) (win as unknown as { parent: Window }).parent = win;
+  return { win, posted, listeners };
+}
+
+describe('editor bridge', () => {
+  afterEach(() => {
+    document.body.className = '';
+    document.body.innerHTML = '';
+  });
+
+  it('stays off outside an editor iframe', () => {
+    expect(isEditorFrame(fakeWindow('?editor=1', false).win)).toBe(false);
+    expect(isEditorFrame(fakeWindow('', true).win)).toBe(false);
+    expect(initEditorBridge(document, fakeWindow('', false).win)).toBeNull();
+  });
+
+  it('reports the clicked block and focuses the one the admin asks for', () => {
+    document.body.innerHTML = '<section id="inicio"><a id="x">Hola</a></section><section id="proceso"></section>';
+    const { win, posted, listeners } = fakeWindow('?editor=1', true);
+    const stop = initEditorBridge(document, win);
+
+    expect(document.body.classList.contains('editor-mode')).toBe(true);
+    expect(posted).toContainEqual({ source: EDITOR_MESSAGE_SOURCE, type: 'ready' });
+
+    document.getElementById('x')!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(posted).toContainEqual({ source: EDITOR_MESSAGE_SOURCE, type: 'select', block: 'inicio' });
+
+    document.getElementById('proceso')!.scrollIntoView = () => undefined;
+    listeners['message']({ origin: 'http://localhost', data: { source: ADMIN_MESSAGE_SOURCE, type: 'focus', block: 'proceso' } });
+    expect(document.getElementById('proceso')!.classList.contains('editor-selected')).toBe(true);
+
+    stop?.();
+    expect(document.body.classList.contains('editor-mode')).toBe(false);
+  });
+
+  it('ignores messages from another origin', () => {
+    document.body.innerHTML = '<section id="inicio"></section>';
+    const { win, listeners } = fakeWindow('?editor=1', true);
+    initEditorBridge(document, win);
+    listeners['message']({ origin: 'https://evil.example', data: { source: ADMIN_MESSAGE_SOURCE, type: 'focus', block: 'inicio' } });
+    expect(document.getElementById('inicio')!.classList.contains('editor-selected')).toBe(false);
+  });
+
+  it('re-applies the mark when the block is replaced (skeleton → real content)', async () => {
+    document.body.innerHTML = '<main><section id="servicios"></section></main>';
+    const { win, listeners } = fakeWindow('?editor=1', true);
+    Element.prototype.scrollIntoView = () => undefined;
+    initEditorBridge(document, win);
+    listeners['message']({ origin: 'http://localhost', data: { source: ADMIN_MESSAGE_SOURCE, type: 'focus', block: 'servicios' } });
+
+    document.body.innerHTML = '<main><section id="servicios"></section></main>';
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(document.getElementById('servicios')!.classList.contains('editor-selected')).toBe(true);
+  });
+});
