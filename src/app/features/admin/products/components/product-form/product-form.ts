@@ -150,14 +150,15 @@ export class ProductForm implements OnInit {
   readonly destacado = signal(false);
   readonly ordenDestacado = signal('0');
   readonly retiroEnTienda = signal(false);
-  readonly modalidad = signal<ProductSaleMode>('COTIZAR');
+  readonly modalidad = signal<ProductSaleMode>('AMBAS');
   readonly unidadVenta = signal<ProductSaleUnit>('UNIDAD');
   readonly plazoEntrega = signal('');
   readonly facilInstalacion = signal(false);
   readonly stockMinimo = signal('');
   readonly modalidadOptions: readonly SelectOption[] = [
-    { value: 'COMPRAR', label: 'Comprar (carrito)' },
-    { value: 'COTIZAR', label: 'Cotizar' },
+    { value: 'AMBAS', label: 'Comprar y cotizar (recomendado)' },
+    { value: 'COMPRAR', label: 'Solo comprar' },
+    { value: 'COTIZAR', label: 'Solo cotizar' },
   ];
   readonly unidadVentaOptions: readonly SelectOption[] = [
     { value: 'M2', label: 'Metro cuadrado (m²)' },
@@ -484,7 +485,7 @@ export class ProductForm implements OnInit {
     this.destacado.set(product.destacado === true);
     this.ordenDestacado.set(String(product.ordenDestacado ?? 0));
     this.retiroEnTienda.set(product.retiroEnTienda === true);
-    this.modalidad.set(product.modalidad ?? 'COTIZAR');
+    this.modalidad.set(product.modalidad ?? 'AMBAS');
     this.unidadVenta.set(product.unidadVenta ?? 'UNIDAD');
     this.plazoEntrega.set(this.cleanString(product.plazoEntrega));
     this.facilInstalacion.set(product.facilInstalacion === true);

@@ -5,7 +5,7 @@ import { PublicProductCardResponse } from '../../../data/models/public-content/p
  * Modelo de vista del Home de ISADECOR. `IsadecorHomeApiMapper` lo arma con la respuesta del backend
  * (`GET .../unidades/isadecor/home`) y el contenido fijo de `isadecor-home.static.ts`.
  */
-export type ModalidadVenta = 'COMPRAR' | 'COTIZAR';
+export type ModalidadVenta = 'COMPRAR' | 'COTIZAR' | 'AMBAS';
 export type UnidadVenta = 'M2' | 'UNIDAD' | 'CAJA' | 'ML';
 
 export interface HomeProductCard extends Omit<PublicProductCardResponse, 'acabados' | 'estadoStock'> {

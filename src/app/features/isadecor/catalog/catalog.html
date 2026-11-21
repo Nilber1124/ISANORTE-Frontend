@@ -337,21 +337,6 @@
   </details>
 
   <details class="catalog-acc" open>
-    <summary>Cómo se vende</summary>
-    <div class="catalog-segmented" role="group" aria-label="Modalidad">
-      @for (option of modeOptions; track option.value) {
-        <button
-          type="button"
-          [attr.aria-pressed]="(facade.extra().modalidad ?? '') === option.value"
-          (click)="updateFilters({ modalidad: option.value || null })"
-        >
-          {{ option.label }}
-        </button>
-      }
-    </div>
-  </details>
-
-  <details class="catalog-acc" open>
     <summary>Características</summary>
     <label class="catalog-check"
       ><input

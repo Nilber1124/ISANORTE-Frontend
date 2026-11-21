@@ -50,7 +50,7 @@ export function toProductCard(card: IsadecorHomeProductCardResponse): HomeProduc
 export function toCatalogProductCard(card: PublicProductCardResponse): HomeProductCard {
   return {
     ...card,
-    modalidad: card.modalidad ?? 'COTIZAR',
+    modalidad: card.modalidad ?? 'AMBAS',
     unidadVenta: card.unidadVenta ?? 'UNIDAD',
     entrega: card.plazoEntrega,
     estadoStock: card.estadoStock ?? (card.disponibilidad === 'AGOTADO' ? 'AGOTADO' : 'SIN_CONTROL'),

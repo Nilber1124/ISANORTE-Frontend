@@ -58,11 +58,6 @@ export class Catalog {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly sortOptions = SORT_OPTIONS;
-  protected readonly modeOptions = [
-    { value: '', label: 'Todos' },
-    { value: 'COMPRAR', label: 'Comprar' },
-    { value: 'COTIZAR', label: 'Cotizar' },
-  ] as const;
   protected readonly skeletons = [0, 1, 2, 3, 4, 5, 6, 7];
   protected readonly cards = computed(() => this.facade.products().map(toCatalogProductCard));
   private readonly title = inject(Title);

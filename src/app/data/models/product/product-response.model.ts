@@ -3,7 +3,7 @@ import { ProductAvailability } from './product-availability.enum';
 import { ProductDocumentType } from './product-document-type.enum';
 import { ProductPublicationStatus } from './product-publication-status.enum';
 
-export type ProductSaleMode = 'COMPRAR' | 'COTIZAR';
+export type ProductSaleMode = 'COMPRAR' | 'COTIZAR' | 'AMBAS';
 export type ProductSaleUnit = 'M2' | 'UNIDAD' | 'CAJA' | 'ML';
 export type ProductStockState = 'DISPONIBLE' | 'QUEDAN' | 'AGOTADO' | 'SIN_CONTROL';
 

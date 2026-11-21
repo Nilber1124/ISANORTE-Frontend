@@ -1,5 +1,5 @@
 /** Contrato de `GET /api/publico/sitios/{clave}/unidades/{unidad}/home` (ver docs/openapi.yaml del backend). */
-export type HomeSaleMode = 'COMPRAR' | 'COTIZAR';
+export type HomeSaleMode = 'COMPRAR' | 'COTIZAR' | 'AMBAS';
 export type HomeSaleUnit = 'M2' | 'UNIDAD' | 'CAJA' | 'ML';
 export type HomeStockState = 'DISPONIBLE' | 'QUEDAN' | 'AGOTADO' | 'SIN_CONTROL';
 

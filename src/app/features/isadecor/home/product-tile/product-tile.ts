@@ -127,12 +127,12 @@ export const UNIT_LABELS: Readonly<Record<string, string>> = {
             <span
               class="mt-2.5 inline-flex min-h-11 w-full items-center justify-center rounded-control px-3 text-body font-semibold"
               [class]="
-                product().modalidad === 'COMPRAR'
-                  ? 'bg-accent text-accent-contrast'
-                  : 'border border-border-strong text-text-primary'
+                product().modalidad === 'COTIZAR'
+                  ? 'border border-border-strong text-text-primary'
+                  : 'bg-accent text-accent-contrast'
               "
             >
-              {{ product().modalidad === 'COMPRAR' ? 'Comprar' : 'Cotizar' }}
+              {{ product().modalidad === 'COTIZAR' ? 'Cotizar' : 'Ver producto' }}
             </span>
           }
         </div>
