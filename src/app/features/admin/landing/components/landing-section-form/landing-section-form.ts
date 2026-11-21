@@ -27,7 +27,7 @@ import { TextareaField } from '../../../../../shared/components/textarea-field/t
 import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { LandingFormMode } from '../../admin-landing.facade';
 
-export type LandingSectionTab = 'textos' | 'imagen' | 'boton' | 'ajustes';
+export type LandingSectionTab = 'textos' | 'imagen' | 'ajustes';
 
 @Component({
   selector: 'app-landing-section-form',
@@ -54,8 +54,6 @@ export class LandingSectionForm {
   readonly contenido = signal<string>('');
   readonly imagenUrl = signal<string>('');
   readonly imagenAlt = signal<string>('');
-  readonly textoBoton = signal<string>('');
-  readonly enlaceBoton = signal<string>('');
   readonly orden = signal<string>('0');
   readonly visible = signal<boolean>(true);
   readonly configuracionSitioId = signal<string>('');
@@ -63,14 +61,6 @@ export class LandingSectionForm {
   readonly hasMultipleConfigs = computed(() => this.siteConfigurations().length > 1);
 
   readonly previewFailed = signal(false);
-
-  readonly quickLinks: readonly string[] = [
-    '/servicios',
-    '/proyectos',
-    '/nosotros',
-    '/contacto',
-    'https://wa.me/51987654321',
-  ];
 
   readonly sectionMeta = computed(() => {
     const t = this.tipo();
@@ -164,8 +154,8 @@ export class LandingSectionForm {
         contenido: this.contenido().trim() || null,
         imagenUrl: this.imagenUrl().trim() || null,
         imagenAlt: this.imagenAlt().trim() || null,
-        textoBoton: this.textoBoton().trim() || null,
-        enlaceBoton: this.enlaceBoton().trim() || null,
+        textoBoton: null,
+        enlaceBoton: null,
         orden: this.orden() ? Number.parseInt(this.orden(), 10) : 0,
         visible: this.visible(),
       };
@@ -180,17 +170,14 @@ export class LandingSectionForm {
         contenido: this.contenido().trim() || null,
         imagenUrl: this.imagenUrl().trim() || null,
         imagenAlt: this.imagenAlt().trim() || null,
-        textoBoton: this.textoBoton().trim() || null,
-        enlaceBoton: this.enlaceBoton().trim() || null,
+        // El botón de la sección ya no se administra: se conserva lo que tuviera guardado.
+        textoBoton: this.initialData()!.textoBoton ?? null,
+        enlaceBoton: this.initialData()!.enlaceBoton ?? null,
         orden: this.orden() ? Number.parseInt(this.orden(), 10) : 0,
         visible: this.visible(),
       };
       this.updated.emit(updateReq);
     }
-  }
-
-  protected setQuickLink(link: string): void {
-    this.enlaceBoton.set(link);
   }
 
   protected handleVisibilityChange(event: Event): void {
@@ -210,8 +197,6 @@ export class LandingSectionForm {
       this.imagenUrl.set(data.imagenUrl || '');
       this.imagenAlt.set(data.imagenAlt || '');
       this.previewFailed.set(false);
-      this.textoBoton.set(data.textoBoton || '');
-      this.enlaceBoton.set(data.enlaceBoton || '');
       this.orden.set(data.orden != null ? data.orden.toString() : '0');
       this.visible.set(data.visible ?? true);
       this.configuracionSitioId.set(data.configuracionSitioId);
@@ -224,8 +209,6 @@ export class LandingSectionForm {
       this.imagenUrl.set('');
       this.imagenAlt.set('');
       this.previewFailed.set(false);
-      this.textoBoton.set('');
-      this.enlaceBoton.set('');
       this.orden.set('0');
       this.visible.set(true);
 

@@ -63,4 +63,38 @@ describe('editor bridge', () => {
     await new Promise((resolve) => setTimeout(resolve, 20));
     expect(document.getElementById('servicios')!.classList.contains('editor-selected')).toBe(true);
   });
+
+  it('reports the clicked field and shows a live draft without touching anything else', () => {
+    document.body.innerHTML =
+      '<section id="inicio"><h1 data-edit-field="titulo">Hola</h1><p data-edit-field="etiqueta"><span></span>Etiqueta</p></section>';
+    const { win, posted, listeners } = fakeWindow('?editor=1', true);
+    initEditorBridge(document, win);
+
+    document.querySelector('h1')!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(posted).toContainEqual({ source: EDITOR_MESSAGE_SOURCE, type: 'select', block: 'inicio', field: 'titulo' });
+
+    const send = (values: Record<string, unknown> | null) =>
+      listeners['message']({ origin: 'http://localhost', data: { source: ADMIN_MESSAGE_SOURCE, type: 'draft', block: 'inicio', values } });
+    send({ titulo: 'Nuevo\ntítulo', etiqueta: 'Otra', ignorado: 5 });
+    expect(document.querySelector('h1')!.textContent).toBe('Nuevo\ntítulo');
+    // Solo cambia el último texto: el punto (span) de la etiqueta se conserva.
+    expect(document.querySelector('p')!.querySelector('span')).toBeTruthy();
+    expect(document.querySelector('p')!.textContent).toBe('Otra');
+
+    send(null);
+    expect(document.querySelector('h1')!.textContent).toBe('Hola');
+    expect(document.querySelector('p')!.textContent).toBe('Etiqueta');
+  });
+
+  it('never injects markup from a draft', () => {
+    document.body.innerHTML = '<section id="inicio"><h1 data-edit-field="titulo">Hola</h1></section>';
+    const { win, listeners } = fakeWindow('?editor=1', true);
+    initEditorBridge(document, win);
+    listeners['message']({
+      origin: 'http://localhost',
+      data: { source: ADMIN_MESSAGE_SOURCE, type: 'draft', block: 'inicio', values: { titulo: '<img src=x onerror=alert(1)>' } },
+    });
+    expect(document.querySelector('h1 img')).toBeNull();
+    expect(document.querySelector('h1')!.textContent).toBe('<img src=x onerror=alert(1)>');
+  });
 });

@@ -8,17 +8,24 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { HeroSceneRequest, HeroSceneResponse } from '../../../../../data/models/landing-section/hero-scene.model';
-import { LandingActionRequest, LandingActionResponse } from '../../../../../data/models/landing-section/landing-action.model';
 import { LandingSectionResponse } from '../../../../../data/models/landing-section/landing-section-response.model';
 import { LandingSectionUpdateRequest } from '../../../../../data/models/landing-section/landing-section-update-request.model';
 import { Button } from '../../../../../shared/components/button/button';
 import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
+
+/** Texto que se está escribiendo (se muestra ya en la vista previa) o `null` si no hay cambios. */
+export type HeroDraft = Readonly<Record<'etiqueta' | 'titulo' | 'subtitulo', string>> | null;
+
+/** Campo que se tocó en la vista previa; `n` cambia en cada toque para volver a enfocarlo. */
+export interface HeroFocusRequest {
+  readonly field: string;
+  readonly n: number;
+}
 
 export interface HeroTextsSave {
   readonly request: LandingSectionUpdateRequest;
@@ -28,19 +35,18 @@ export interface HeroChildSave<T> {
   readonly request: T;
 }
 export interface HeroSwap {
-  readonly kind: 'scene' | 'action';
-  readonly first: HeroSceneResponse | LandingActionResponse;
-  readonly second: HeroSceneResponse | LandingActionResponse;
+  readonly first: HeroSceneResponse;
+  readonly second: HeroSceneResponse;
 }
 
 /**
  * Editor del bloque «Portada (Hero)» para el panel lateral de la vista previa. Un solo formulario
- * en una columna: textos (se guardan con su botón) y listas de botones y diapositivas (cada cambio
+ * en una columna: textos (se guardan con su botón) y la lista de fotos de fondo (cada cambio
  * se aplica al instante, y así se dice en pantalla).
  */
 @Component({
   selector: 'app-hero-editor',
-  imports: [Button, FormsModule, NgTemplateOutlet, ImageUploaderComponent, InputField, TextareaField],
+  imports: [Button, FormsModule, ImageUploaderComponent, InputField, TextareaField],
   templateUrl: './hero-editor.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -49,23 +55,44 @@ export class HeroEditor {
   /** Un texto o una lista se está guardando. */
   readonly busy = input(false);
   readonly visibilityBusy = input(false);
+  /** Campo tocado en la vista previa: se enfoca aquí. */
+  readonly focusRequest = input<HeroFocusRequest | null>(null);
+  /** Si se indica, se muestra solo ese campo o lista (etiqueta, titulo, subtitulo, fotos). */
+  readonly only = input<string | null>(null);
 
   readonly closed = output<void>();
   readonly textsSaved = output<HeroTextsSave>();
   readonly visibilityChanged = output<boolean>();
-  readonly actionSaved = output<HeroChildSave<LandingActionRequest>>();
-  readonly actionDeleted = output<string>();
   readonly sceneSaved = output<HeroChildSave<HeroSceneRequest>>();
   readonly sceneDeleted = output<string>();
   readonly swapped = output<HeroSwap>();
+  readonly draftChanged = output<HeroDraft>();
+  /** Pide pasar del campo suelto al formulario completo del Hero. */
+  readonly showAll = output<void>();
+
+  private static readonly LABELS: Readonly<Record<string, string>> = {
+    etiqueta: 'Frase pequeña sobre el título',
+    titulo: 'Título',
+    subtitulo: 'Subtítulo',
+    fotos: 'Fotos de fondo',
+  };
+
+  protected readonly onlyLabel = computed(() => HeroEditor.LABELS[this.only() ?? ''] ?? null);
+
+  /** ¿Se muestra este campo o lista? (todos, salvo que se haya tocado uno concreto) */
+  protected shows(key: string): boolean {
+    const only = this.only();
+    return !only || only === key;
+  }
+
+  protected showsTexts(): boolean {
+    return this.shows('etiqueta') || this.shows('titulo') || this.shows('subtitulo');
+  }
 
   protected readonly etiqueta = signal('');
   protected readonly titulo = signal('');
   protected readonly subtitulo = signal('');
 
-  protected readonly actions = computed(() =>
-    [...this.section().acciones].sort((a, b) => a.orden - b.orden),
-  );
   protected readonly scenes = computed(() =>
     [...this.section().escenas].sort((a, b) => a.orden - b.orden),
   );
@@ -79,18 +106,45 @@ export class HeroEditor {
     );
   });
 
-  /** Botón en edición: id, `'new'` o nada. */
-  protected readonly editingAction = signal<string | null>(null);
-  protected readonly draftText = signal('');
-  protected readonly draftLink = signal('');
   protected readonly confirmDelete = signal<string | null>(null);
   protected readonly newSceneUrl = signal('');
 
-  protected readonly quickLinks: readonly string[] = ['/proyectos', '/servicios', '/nosotros', '/contacto'];
 
   private loadedId: string | null = null;
 
+  private static readonly FOCUS_TARGETS: Readonly<Record<string, string>> = {
+    etiqueta: 'hero-etiqueta',
+    titulo: 'hero-titulo',
+    subtitulo: 'hero-subtitulo',
+    fotos: 'hero-fotos',
+  };
+
   constructor() {
+    // Escritura en vivo: lo tecleado se ve ya en la vista previa (sin guardar).
+    effect(() => {
+      const values = {
+        etiqueta: this.etiqueta(),
+        titulo: this.titulo(),
+        subtitulo: this.subtitulo(),
+      };
+      const dirty = this.textsDirty();
+      untracked(() => this.draftChanged.emit(dirty ? values : null));
+    });
+
+    // Al tocar un texto de la página se enfoca su campo (o se muestra su lista).
+    effect(() => {
+      const request = this.focusRequest();
+      if (!request) return;
+      const id = HeroEditor.FOCUS_TARGETS[request.field];
+      if (!id) return;
+      setTimeout(() => {
+        const target = document.getElementById(id);
+        if (!target) return;
+        target.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+        target.focus({ preventScroll: true });
+      }, 50);
+    });
+
     // Los textos se cargan al abrir el bloque (no se pisan cuando solo cambian las listas).
     effect(() => {
       const s = this.section();
@@ -100,7 +154,6 @@ export class HeroEditor {
           this.etiqueta.set(s.etiqueta ?? '');
           this.titulo.set(s.titulo ?? '');
           this.subtitulo.set(s.subtitulo ?? '');
-          this.editingAction.set(null);
           this.confirmDelete.set(null);
         }
       });
@@ -128,43 +181,6 @@ export class HeroEditor {
     });
   }
 
-  // ── Botones ──────────────────────────────────────────────────────────────
-  protected startAction(action: LandingActionResponse | null): void {
-    this.editingAction.set(action?.id ?? 'new');
-    this.draftText.set(action?.texto ?? '');
-    this.draftLink.set(action?.enlace ?? '');
-  }
-
-  protected cancelAction(): void {
-    this.editingAction.set(null);
-  }
-
-  protected readonly draftValid = computed(
-    () => this.draftText().trim() !== '' && this.draftLink().trim() !== '',
-  );
-
-  protected saveAction(): void {
-    const id = this.editingAction();
-    if (!id || !this.draftValid()) return;
-    const existing = this.actions().find((a) => a.id === id);
-    const nextOrder = this.actions().reduce((max, a) => Math.max(max, a.orden), -1) + 1;
-    this.actionSaved.emit({
-      id: existing ? existing.id : null,
-      request: {
-        texto: this.draftText().trim(),
-        enlace: this.draftLink().trim(),
-        orden: existing?.orden ?? nextOrder,
-        activo: existing?.activo ?? true,
-      },
-    });
-    this.editingAction.set(null);
-  }
-
-  protected toggleAction(action: LandingActionResponse): void {
-    const { id, ...rest } = action;
-    this.actionSaved.emit({ id, request: { ...rest, activo: !action.activo } });
-  }
-
   // ── Diapositivas ─────────────────────────────────────────────────────────
   protected addScene(url: string): void {
     if (!url) return;
@@ -186,20 +202,15 @@ export class HeroEditor {
   }
 
   // ── Comunes ──────────────────────────────────────────────────────────────
-  protected move(kind: 'scene' | 'action', index: number, direction: -1 | 1): void {
-    const list = kind === 'scene' ? this.scenes() : this.actions();
+  protected move(index: number, direction: -1 | 1): void {
+    const list = this.scenes();
     const first = list[index];
     const second = list[index + direction];
-    if (first && second) this.swapped.emit({ kind, first, second });
+    if (first && second) this.swapped.emit({ first, second });
   }
 
   protected askDelete(id: string): void {
     this.confirmDelete.set(id);
-  }
-
-  protected deleteAction(id: string): void {
-    this.confirmDelete.set(null);
-    this.actionDeleted.emit(id);
   }
 
   protected deleteScene(id: string): void {

@@ -65,35 +65,83 @@ describe('HeroEditor', () => {
     expect(button('Guardar textos').disabled).toBe(true);
   });
 
-  it('lists buttons and photos in order and swaps neighbours', () => {
+  it('lists the photos in order, swaps neighbours and has no button management', () => {
     const photos = Array.from(el().querySelectorAll('img')).map((i) => i.getAttribute('src'));
     expect(photos).toEqual(['a.jpg', 'b.jpg']);
 
-    const swaps: { kind: string; first: { id: string }; second: { id: string } }[] = [];
+    const swaps: { first: { id: string }; second: { id: string } }[] = [];
     component.swapped.subscribe((e) => swaps.push(e as never));
-    (el().querySelector('button[aria-label="Bajar Solicitar cotización"]') as HTMLButtonElement).click();
+    (el().querySelector('button[aria-label="Bajar foto 1"]') as HTMLButtonElement).click();
     expect(swaps).toEqual([
-      expect.objectContaining({ kind: 'action', first: expect.objectContaining({ id: 'a1' }), second: expect.objectContaining({ id: 'a2' }) }),
+      expect.objectContaining({ first: expect.objectContaining({ id: 's1' }), second: expect.objectContaining({ id: 's2' }) }),
     ]);
+
+    // Los botones de la portada son fijos: no se listan ni se editan aquí.
+    expect(el().querySelector('#hero-botones')).toBeNull();
+    expect(el().textContent).not.toContain('Añadir botón');
+    expect(el().textContent).not.toContain('Solicitar cotización');
   });
 
-  it('adds a button with the next order and asks before removing one', () => {
-    const saved: { id: string | null; request: { orden: number; texto: string } }[] = [];
-    component.actionSaved.subscribe((e) => saved.push(e as never));
-    button('+ Añadir botón').click();
-    fixture.detectChanges();
-    (component as unknown as { draftText: { set(v: string): void }; draftLink: { set(v: string): void } }).draftText.set('Contáctanos');
-    (component as unknown as { draftLink: { set(v: string): void } }).draftLink.set('/contacto');
-    fixture.detectChanges();
-    button('Guardar botón').click();
-    expect(saved[0]).toEqual({ id: null, request: { texto: 'Contáctanos', enlace: '/contacto', orden: 2, activo: true } });
-
+  it('asks before removing a photo', () => {
     const removed: string[] = [];
-    component.actionDeleted.subscribe((id) => removed.push(id));
+    component.sceneDeleted.subscribe((id) => removed.push(id));
     button('Quitar').click();
     fixture.detectChanges();
     expect(removed).toEqual([]);
     button('Sí, quitar').click();
-    expect(removed).toEqual(['a1']);
+    expect(removed).toEqual(['s1']);
+  });
+
+  it('emits what is being typed as a live draft and null when nothing changed', () => {
+    const drafts: unknown[] = [];
+    component.draftChanged.subscribe((d) => drafts.push(d));
+    const c = component as unknown as { titulo: { set(v: string): void } };
+    fixture.detectChanges();
+    c.titulo.set('Otro título');
+    fixture.detectChanges();
+    expect(drafts.at(-1)).toEqual({
+      etiqueta: 'Constructora en Cajamarca',
+      titulo: 'Otro título',
+      subtitulo: 'Del terreno a la llave en mano',
+    });
+    c.titulo.set(hero.titulo as string);
+    fixture.detectChanges();
+    expect(drafts.at(-1)).toBeNull();
+  });
+
+  it('focuses the field that was tapped in the preview', async () => {
+    document.body.appendChild(el());
+    fixture.componentRef.setInput('focusRequest', { field: 'subtitulo', n: 1 });
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 80));
+    expect(document.activeElement?.id).toBe('hero-subtitulo');
+    el().remove();
+  });
+
+  it('shows only the tapped field, or only the photos, and can switch to the full form', () => {
+    fixture.componentRef.setInput('only', 'subtitulo');
+    fixture.detectChanges();
+    expect(el().querySelector('#hero-subtitulo')).toBeTruthy();
+    expect(el().querySelector('#hero-titulo')).toBeNull();
+    expect(el().querySelector('#hero-etiqueta')).toBeNull();
+    expect(el().querySelector('[role="switch"]')).toBeNull();
+    expect(el().querySelector('h2')?.textContent).toContain('Subtítulo');
+
+    fixture.componentRef.setInput('only', 'fotos');
+    fixture.detectChanges();
+    expect(el().querySelector('#hero-fotos')).toBeTruthy();
+    expect(el().querySelectorAll('img')).toHaveLength(2);
+    expect(el().querySelector('#hero-subtitulo')).toBeNull();
+
+    let all = 0;
+    component.showAll.subscribe(() => all++);
+    button('Ver todos los campos').click();
+    expect(all).toBe(1);
+
+    fixture.componentRef.setInput('only', null);
+    fixture.detectChanges();
+    expect(el().querySelector('#hero-titulo')).toBeTruthy();
+    expect(el().querySelector('#hero-fotos')).toBeTruthy();
+    expect(el().querySelector('[role="switch"]')).toBeTruthy();
   });
 });

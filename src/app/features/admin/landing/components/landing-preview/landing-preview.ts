@@ -22,6 +22,18 @@ import {
 
 export type PreviewDevice = 'desktop' | 'mobile';
 
+/** Texto que se está escribiendo en el panel, por campo, para mostrarlo ya en la página. */
+export interface PreviewDraft {
+  readonly block: string;
+  readonly values: Readonly<Record<string, string>>;
+}
+
+/** Campo (texto o imagen) de un bloque que se tocó en la página. */
+export interface PreviewFieldSelection {
+  readonly block: string;
+  readonly field: string;
+}
+
 const FRAME_WIDTH: Record<PreviewDevice, number> = { desktop: 1280, mobile: 390 };
 /** Alto visible de la vista previa (px); el iframe se agranda para compensar la reducción. */
 const VIEWPORT_HEIGHT = 640;
@@ -40,7 +52,10 @@ export class LandingPreview {
   readonly selected = input<string | null>(null);
   /** Cada cambio recarga la web (p. ej. tras guardar). */
   readonly reloadKey = input(0);
+  /** Borrador en vivo del bloque abierto en el panel; `null` = lo guardado. */
+  readonly draft = input<PreviewDraft | null>(null);
   readonly blockSelected = output<string>();
+  readonly fieldSelected = output<PreviewFieldSelection>();
 
   protected readonly device = signal<PreviewDevice>('desktop');
   protected readonly src = inject(DomSanitizer).bypassSecurityTrustResourceUrl('/?editor=1');
@@ -89,6 +104,11 @@ export class LandingPreview {
     });
 
     effect(() => {
+      const draft = this.draft();
+      untracked(() => this.sendDraft(draft));
+    });
+
+    effect(() => {
       if (this.reloadKey() > 0) {
         untracked(() => {
           this.ready = false;
@@ -105,15 +125,31 @@ export class LandingPreview {
   private onMessage(event: MessageEvent): void {
     const frameWindow = this.frame()?.nativeElement.contentWindow;
     if (event.origin !== window.location.origin || event.source !== frameWindow) return;
-    const data = event.data as { source?: string; type?: string; block?: string } | null;
+    const data = event.data as {
+      source?: string;
+      type?: string;
+      block?: string;
+      field?: string;
+    } | null;
     if (data?.source !== EDITOR_MESSAGE_SOURCE) return;
     if (data.type === 'ready') {
       this.ready = true;
       const block = this.selected();
       if (block) this.focus(block);
+      this.sendDraft(this.draft());
     } else if (data.type === 'select' && data.block) {
       this.blockSelected.emit(data.block);
+      if (data.field) this.fieldSelected.emit({ block: data.block, field: data.field });
     }
+  }
+
+  private sendDraft(draft: PreviewDraft | null): void {
+    const frameWindow = this.frame()?.nativeElement.contentWindow;
+    if (!frameWindow || !this.ready) return;
+    frameWindow.postMessage(
+      { source: ADMIN_MESSAGE_SOURCE, type: 'draft', block: draft?.block ?? this.selected() ?? '', values: draft?.values ?? null },
+      window.location.origin,
+    );
   }
 
   private focus(block: string): void {

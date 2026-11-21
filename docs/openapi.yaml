@@ -1346,32 +1346,6 @@ paths:
         - {name: seccionId, in: path, required: true, schema: {type: string, format: uuid}}
         - {name: escenaId, in: path, required: true, schema: {type: string, format: uuid}}
       responses: {'204': {description: Escena eliminada}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
-  /api/secciones-landing/{seccionId}/acciones:
-    post:
-      tags: [Secciones landing]
-      operationId: crearAccionLanding
-      x-access-intent: ADMINISTRATIVO
-      parameters: [{name: seccionId, in: path, required: true, schema: {type: string, format: uuid}}]
-      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AccionLandingRequest'}}}}
-      responses: {'201': {description: Acción creada, content: {application/json: {schema: {$ref: '#/components/schemas/AccionLandingResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
-  /api/secciones-landing/{seccionId}/acciones/{accionId}:
-    put:
-      tags: [Secciones landing]
-      operationId: actualizarAccionLanding
-      x-access-intent: ADMINISTRATIVO
-      parameters:
-        - {name: seccionId, in: path, required: true, schema: {type: string, format: uuid}}
-        - {name: accionId, in: path, required: true, schema: {type: string, format: uuid}}
-      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AccionLandingRequest'}}}}
-      responses: {'200': {description: Acción actualizada, content: {application/json: {schema: {$ref: '#/components/schemas/AccionLandingResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
-    delete:
-      tags: [Secciones landing]
-      operationId: eliminarAccionLanding
-      x-access-intent: ADMINISTRATIVO
-      parameters:
-        - {name: seccionId, in: path, required: true, schema: {type: string, format: uuid}}
-        - {name: accionId, in: path, required: true, schema: {type: string, format: uuid}}
-      responses: {'204': {description: Acción eliminada}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
   /api/servicios/{servicioId}/beneficios:
     post:
       tags: [Servicios]
@@ -3208,18 +3182,16 @@ components:
       allOf:
         - {$ref: '#/components/schemas/HeroSceneRequest'}
         - {type: object, required: [id], properties: {id: {type: string, format: uuid}}}
-    AccionLandingRequest:
+    AccionLandingResponse:
       type: object
-      required: [texto, enlace, orden, activo]
+      description: 'Botón fijo de una sección de la landing. Solo lectura: no hay endpoints para crearlo, editarlo ni borrarlo (su destino no cambia).'
+      required: [id, texto, enlace, orden, activo]
       properties:
+        id: {type: string, format: uuid}
         texto: {type: string, maxLength: 80}
-        enlace: {type: string, maxLength: 500, description: 'Ruta interna / (no //), fragmento #, URL HTTPS válida, mailto o tel.'}
+        enlace: {type: string, maxLength: 500}
         orden: {type: integer, minimum: 0}
         activo: {type: boolean}
-    AccionLandingResponse:
-      allOf:
-        - {$ref: '#/components/schemas/AccionLandingRequest'}
-        - {type: object, required: [id], properties: {id: {type: string, format: uuid}}}
     BeneficioServicioRequest:
       type: object
       required: [texto, orden, activo]

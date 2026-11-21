@@ -4,14 +4,19 @@
  * cuál se tocó. Fuera de ese caso no hace nada.
  *
  * Mensajes (siempre del mismo origen):
- *  - página → admin: `{ source: 'isanorte-editor', type: 'select' | 'ready', block? }`
- *  - admin → página: `{ source: 'isanorte-admin', type: 'focus', block }`
+ *  - página → admin: `{ source: 'isanorte-editor', type: 'select' | 'ready', block?, field? }`
+ *    (`field` es el `data-edit-field` del texto o imagen tocado, si lo hay)
+ *  - admin → página: `{ source: 'isanorte-admin', type: 'focus', block }` y
+ *    `{ source: 'isanorte-admin', type: 'draft', block, values }` (`values: null` restaura lo guardado):
+ *    muestra al instante el texto que se está escribiendo, sin guardar nada.
  */
 export const EDITOR_MESSAGE_SOURCE = 'isanorte-editor';
 export const ADMIN_MESSAGE_SOURCE = 'isanorte-admin';
 
 const EDITOR_STYLE = `
 body.editor-mode section[id]{cursor:pointer;transition:outline-color .15s}
+body.editor-mode [data-edit-field]{cursor:text}
+body.editor-mode [data-edit-field]:hover{outline:2px solid #f97316;outline-offset:3px}
 body.editor-mode section[id]:hover{outline:2px dashed #f97316;outline-offset:-2px}
 body.editor-mode section[id].editor-selected{outline:3px solid #f97316;outline-offset:-3px}
 body.editor-mode a,body.editor-mode button{pointer-events:none}
@@ -35,21 +40,69 @@ export function initEditorBridge(doc: Document, win: Window): (() => void) | nul
   doc.head.appendChild(style);
 
   const onClick = (event: Event): void => {
-    const section = (event.target as Element | null)?.closest?.('section[id]');
+    const target = event.target as Element | null;
+    const section = target?.closest?.('section[id]');
     if (!section) return;
     event.preventDefault();
     event.stopPropagation();
+    const field = target?.closest?.('[data-edit-field]')?.getAttribute('data-edit-field') ?? undefined;
     win.parent.postMessage(
-      { source: EDITOR_MESSAGE_SOURCE, type: 'select', block: section.id },
+      { source: EDITOR_MESSAGE_SOURCE, type: 'select', block: section.id, field },
       win.location.origin,
     );
   };
 
   const onMessage = (event: MessageEvent): void => {
     if (event.origin !== win.location.origin) return;
-    const data = event.data as { source?: string; type?: string; block?: string } | null;
-    if (data?.source !== ADMIN_MESSAGE_SOURCE || data.type !== 'focus' || !data.block) return;
-    focusBlock(data.block);
+    const data = event.data as {
+      source?: string;
+      type?: string;
+      block?: string;
+      values?: Record<string, unknown> | null;
+    } | null;
+    if (data?.source !== ADMIN_MESSAGE_SOURCE) return;
+    if (data.type === 'focus' && data.block) focusBlock(data.block);
+    else if (data.type === 'draft') setDraft(data.block ?? '', data.values ?? null);
+  };
+
+  // Borrador en vivo: cambia solo el texto mostrado (nunca el HTML) y recuerda el original.
+  let draft: { block: string; values: Record<string, string> } | null = null;
+  const originals = new Map<Element, string>();
+  const lastTextNode = (el: Element): Text => {
+    for (let i = el.childNodes.length - 1; i >= 0; i--) {
+      if (el.childNodes[i].nodeType === 3) return el.childNodes[i] as Text;
+    }
+    return el.appendChild(doc.createTextNode(''));
+  };
+  const applyDraft = (): void => {
+    const section = draft ? doc.getElementById(draft.block) : null;
+    if (!draft || !section) return;
+    section.querySelectorAll('[data-edit-field]').forEach((el) => {
+      const key = el.getAttribute('data-edit-field') ?? '';
+      if (!(key in draft!.values)) return;
+      const node = lastTextNode(el);
+      if (!originals.has(el)) originals.set(el, node.data);
+      node.data = draft!.values[key];
+    });
+  };
+  const restoreDraft = (): void => {
+    originals.forEach((text, el) => {
+      if (el.isConnected) lastTextNode(el).data = text;
+    });
+    originals.clear();
+  };
+  const setDraft = (block: string, values: Record<string, unknown> | null): void => {
+    if (!values) {
+      draft = null;
+      restoreDraft();
+      return;
+    }
+    const clean: Record<string, string> = {};
+    for (const [key, value] of Object.entries(values)) {
+      if (typeof value === 'string') clean[key] = value.slice(0, 2000);
+    }
+    draft = { block, values: clean };
+    applyDraft();
   };
 
   // El contenido llega de la API después de montar la página y Angular reemplaza el esqueleto de
@@ -75,6 +128,7 @@ export function initEditorBridge(doc: Document, win: Window): (() => void) | nul
       ? null
       : new MutationObserver(() => {
           if (current && (!marked || !marked.isConnected)) applyFocus(false);
+          if (draft) applyDraft();
         });
   observer?.observe(doc.body, { childList: true, subtree: true });
 
@@ -84,6 +138,7 @@ export function initEditorBridge(doc: Document, win: Window): (() => void) | nul
 
   return () => {
     observer?.disconnect();
+    restoreDraft();
     doc.removeEventListener('click', onClick, true);
     win.removeEventListener('message', onMessage);
     doc.body.classList.remove('editor-mode');

@@ -15,11 +15,14 @@ import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { AdminLandingFacade } from './admin-landing.facade';
-import { HeroEditor, HeroChildSave, HeroSwap, HeroTextsSave } from './components/hero-editor/hero-editor';
-import { LandingPreview } from './components/landing-preview/landing-preview';
+import { HeroDraft, HeroEditor, HeroChildSave, HeroFocusRequest, HeroSwap, HeroTextsSave } from './components/hero-editor/hero-editor';
+import {
+  LandingPreview,
+  PreviewDraft,
+  PreviewFieldSelection,
+} from './components/landing-preview/landing-preview';
 import { LandingSectionForm } from './components/landing-section-form/landing-section-form';
 import { HeroSceneRequest } from '../../../data/models/landing-section/hero-scene.model';
-import { LandingActionRequest } from '../../../data/models/landing-section/landing-action.model';
 import {
   DynamicChildManager,
   DynamicChildSave,
@@ -112,6 +115,11 @@ export class AdminLanding {
   readonly selectedBlockId = signal<string | null>(null);
   /** El bloque elegido se está editando en el panel (hoy solo el Hero tiene editor propio). */
   readonly editingInPanel = signal(false);
+  /** Campo o lista tocado en la página: el editor muestra solo eso (`null` = todo el Hero). */
+  readonly heroOnly = signal<string | null>(null);
+  /** Borrador en vivo del Hero (lo que se teclea en el panel) y campo tocado en la página. */
+  readonly previewDraft = signal<PreviewDraft | null>(null);
+  readonly focusRequest = signal<HeroFocusRequest | null>(null);
   /** Sube cuando cambian las secciones: la vista previa se recarga con lo guardado. */
   readonly previewKey = signal(0);
 
@@ -180,6 +188,26 @@ export class AdminLanding {
   protected selectBlock(id: string): void {
     this.selectedBlockId.set(id);
     this.editingInPanel.set(false);
+    this.heroOnly.set(null);
+    this.previewDraft.set(null);
+  }
+
+  /** Se tocó un texto o una foto del Hero en la página: se abre su editor con ese campo enfocado. */
+  protected selectField(selection: PreviewFieldSelection): void {
+    if (selection.block !== 'inicio' || !this.selectedSection()) return;
+    this.heroOnly.set(selection.field);
+    this.editingInPanel.set(true);
+    this.focusRequest.set({ field: selection.field, n: Date.now() });
+  }
+
+  protected closeHeroEditor(): void {
+    this.editingInPanel.set(false);
+    this.heroOnly.set(null);
+    this.previewDraft.set(null);
+  }
+
+  protected setHeroDraft(draft: HeroDraft): void {
+    this.previewDraft.set(draft ? { block: 'inicio', values: draft } : null);
   }
 
   protected readonly heroBusy = computed(
@@ -190,21 +218,15 @@ export class AdminLanding {
   protected saveHeroTexts(event: HeroTextsSave): void {
     this.facade.update(event.request, this.selectedSection());
   }
-  protected saveHeroAction(event: HeroChildSave<LandingActionRequest>): void {
-    this.facade.saveAction(event.request, event.id, this.selectedSection());
-  }
   protected saveHeroScene(event: HeroChildSave<HeroSceneRequest>): void {
     this.facade.saveScene(event.request, event.id, this.selectedSection());
-  }
-  protected deleteHeroAction(id: string): void {
-    this.facade.deleteAction(id, this.selectedSection());
   }
   protected deleteHeroScene(id: string): void {
     this.facade.deleteScene(id, this.selectedSection());
   }
   protected swapHeroChildren(event: HeroSwap): void {
     const section = this.selectedSection();
-    if (section) this.facade.swapChildOrder(event.kind, event.first, event.second, section);
+    if (section) this.facade.swapSceneOrder(event.first, event.second, section);
   }
   protected setHeroVisibility(visible: boolean): void {
     const section = this.selectedSection();
@@ -264,19 +286,9 @@ export class AdminLanding {
     }
   }
 
-  /** Qué trae la sección, en una línea (título, imagen, botón, escenas y botones adicionales). */
-  protected contentSummary(section: {
-    titulo?: string | null;
-    imagenUrl?: string | null;
-    textoBoton?: string | null;
-    escenas: readonly unknown[];
-    acciones: readonly unknown[];
-  }): string {
-    const parts = [
-      section.titulo ? 'Título' : null,
-      section.imagenUrl ? 'Imagen' : null,
-      section.textoBoton ? 'Botón principal' : null,
-    ].filter((part): part is string => part !== null);
+  /** Qué trae la sección, en una línea (título e imagen). Los botones son fijos y no se editan. */
+  protected contentSummary(section: { titulo?: string | null; imagenUrl?: string | null }): string {
+    const parts = [section.titulo ? 'Título' : null, section.imagenUrl ? 'Imagen' : null].filter((part): part is string => part !== null);
     return parts.length > 0 ? parts.join(' · ') : 'Sin contenido propio';
   }
 
@@ -294,8 +306,6 @@ export class AdminLanding {
   }
 
   protected saveChild(event: DynamicChildSave): void {
-    if (this.facade.childKind() === 'scene')
-      this.facade.saveScene(event.request as HeroSceneRequest, event.id);
-    else this.facade.saveAction(event.request as LandingActionRequest, event.id);
+    this.facade.saveScene(event.request as HeroSceneRequest, event.id);
   }
 }

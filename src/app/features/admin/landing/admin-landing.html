@@ -55,7 +55,9 @@
         <app-landing-preview
           [selected]="selectedBlockId()"
           [reloadKey]="previewKey()"
+          [draft]="previewDraft()"
           (blockSelected)="selectBlock($event)"
+          (fieldSelected)="selectField($event)"
         />
 
         <aside aria-label="Bloque seleccionado" class="space-y-5">
@@ -67,11 +69,13 @@
               [section]="heroSection"
               [busy]="heroBusy()"
               [visibilityBusy]="facade.changingVisibilityId() !== null"
-              (closed)="editingInPanel.set(false)"
+              [focusRequest]="focusRequest()"
+              [only]="heroOnly()"
+              (showAll)="heroOnly.set(null)"
+              (closed)="closeHeroEditor()"
+              (draftChanged)="setHeroDraft($event)"
               (textsSaved)="saveHeroTexts($event)"
               (visibilityChanged)="setHeroVisibility($event)"
-              (actionSaved)="saveHeroAction($event)"
-              (actionDeleted)="deleteHeroAction($event)"
               (sceneSaved)="saveHeroScene($event)"
               (sceneDeleted)="deleteHeroScene($event)"
               (swapped)="swapHeroChildren($event)"
@@ -84,15 +88,12 @@
               <div class="mt-4 flex flex-col gap-2">
                 @if (selectedSection(); as section) {
                   @if (section.tipo === 'HERO') {
-                    <app-button variant="primary" (click)="editingInPanel.set(true)">
+                    <app-button variant="primary" (click)="heroOnly.set(null); editingInPanel.set(true)">
                       Editar la portada
                     </app-button>
                   } @else {
                     <app-button variant="primary" (click)="facade.openEdit(section)">
-                      Editar textos, imagen y botón
-                    </app-button>
-                    <app-button variant="secondary" (click)="facade.openChildren(section, 'action')">
-                      Botones ({{ section.acciones.length }})
+                      Editar textos e imagen
                     </app-button>
                   }
                   <div class="flex items-center justify-between gap-3 rounded-control border border-border px-4 py-2.5">
@@ -115,6 +116,20 @@
                       ></span>
                     </button>
                   </div>
+                  @if (section.acciones.length > 0) {
+                    <div class="rounded-control border border-border p-3">
+                      <p class="text-body-sm font-semibold text-text-primary">Botones fijos</p>
+                      <p class="text-caption text-text-muted">Llevan a otras páginas y no se editan.</p>
+                      <ul class="m-0 mt-2 flex list-none flex-col gap-1 p-0">
+                        @for (action of section.acciones; track action.id) {
+                          <li class="flex items-baseline justify-between gap-2 text-body-sm">
+                            <span class="truncate text-text-secondary">{{ action.texto }}</span>
+                            <span class="shrink-0 font-mono text-caption text-text-muted">{{ action.enlace }}</span>
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  }
                 } @else if (block.type) {
                   <p class="text-body-sm text-text-secondary">
                     Este bloque aún no está registrado como sección. Créalo en la pestaña «Secciones &amp; Hero».
@@ -174,14 +189,12 @@
           [kind]="facade.childKind()"
           [parentName]="section.titulo || section.tipo"
           [parentType]="section.tipo"
-          [items]="facade.childKind() === 'scene' ? section.escenas : section.acciones"
+          [items]="section.escenas"
           [saving]="facade.childSaving()"
           [error]="facade.error()"
           (closed)="facade.closeChildren()"
           (saved)="saveChild($event)"
-          (deleted)="
-            facade.childKind() === 'scene' ? facade.deleteScene($event) : facade.deleteAction($event)
-          "
+          (deleted)="facade.deleteScene($event)"
         />
       }
     }
@@ -324,9 +337,6 @@
                                 Diapositivas ({{ section.escenas.length }})
                               </app-button>
                             }
-                            <app-button size="small" variant="ghost" (click)="facade.openChildren(section, 'action')">
-                              Botones ({{ section.acciones.length }})
-                            </app-button>
                             <app-button size="small" variant="secondary" (click)="facade.openEdit(section)">
                               Editar
                             </app-button>
@@ -356,14 +366,12 @@
             [kind]="facade.childKind()"
             [parentName]="section.titulo || section.tipo"
             [parentType]="section.tipo"
-            [items]="facade.childKind() === 'scene' ? section.escenas : section.acciones"
+            [items]="section.escenas"
             [saving]="facade.childSaving()"
             [error]="facade.error()"
             (closed)="facade.closeChildren()"
             (saved)="saveChild($event)"
-            (deleted)="
-              facade.childKind() === 'scene' ? facade.deleteScene($event) : facade.deleteAction($event)
-            "
+            (deleted)="facade.deleteScene($event)"
           />
         }
       </div>

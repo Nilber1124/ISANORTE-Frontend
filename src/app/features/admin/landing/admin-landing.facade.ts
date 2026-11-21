@@ -9,10 +9,6 @@ import {
   HeroSceneRequest,
   HeroSceneResponse,
 } from '../../../data/models/landing-section/hero-scene.model';
-import {
-  LandingActionRequest,
-  LandingActionResponse,
-} from '../../../data/models/landing-section/landing-action.model';
 import { SiteConfigResponse } from '../../../data/models/site-config/site-config-response.model';
 import { LandingSectionApiService } from '../../../data/services/landing-section-api.service';
 import { SiteConfigApiService } from '../../../data/services/site-config-api.service';
@@ -39,7 +35,7 @@ export class AdminLandingFacade {
   readonly formMode = signal<LandingFormMode>('create');
   readonly formOpen = signal<boolean>(false);
   readonly managedSection = signal<LandingSectionResponse | null>(null);
-  readonly childKind = signal<'scene' | 'action'>('action');
+  readonly childKind = signal<'scene'>('scene');
   readonly childSaving = signal(false);
 
   load(): void {
@@ -171,7 +167,7 @@ export class AdminLandingFacade {
       .subscribe();
   }
 
-  openChildren(section: LandingSectionResponse, kind: 'scene' | 'action'): void {
+  openChildren(section: LandingSectionResponse, kind: 'scene'): void {
     this.clearMessages();
     this.managedSection.set(section);
     this.childKind.set(kind);
@@ -228,58 +224,10 @@ export class AdminLandingFacade {
       );
   }
 
-  saveAction(
-    request: LandingActionRequest,
-    actionId: string | null,
-    target: LandingSectionResponse | null = this.managedSection(),
-  ): void {
-    const section = target;
-    if (!section || this.childSaving()) return;
-    this.childSaving.set(true);
-    this.clearMessages();
-    const operation = actionId
-      ? this.landingApi.updateAction(section.id, actionId, request)
-      : this.landingApi.createAction(section.id, request);
-    operation
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          this.handleError(err);
-          return EMPTY;
-        }),
-        finalize(() => this.childSaving.set(false)),
-      )
-      .subscribe((action) =>
-        this.updateManaged(section, 'acciones', this.upsert(section.acciones, action)),
-      );
-  }
-
-  deleteAction(actionId: string, target: LandingSectionResponse | null = this.managedSection()): void {
-    const section = target;
-    if (!section || this.childSaving()) return;
-    this.childSaving.set(true);
-    this.landingApi
-      .deleteAction(section.id, actionId)
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          this.handleError(err);
-          return EMPTY;
-        }),
-        finalize(() => this.childSaving.set(false)),
-      )
-      .subscribe(() =>
-        this.updateManaged(
-          section,
-          'acciones',
-          section.acciones.filter((item) => item.id !== actionId),
-        ),
-      );
-  }
-
-  /** Intercambia el orden de dos diapositivas o botones con dos peticiones en paralelo. */
-  swapChildOrder(
-    kind: 'scene' | 'action',
-    first: HeroSceneResponse | LandingActionResponse,
-    second: HeroSceneResponse | LandingActionResponse,
+  /** Intercambia el orden de dos diapositivas con dos peticiones en paralelo. */
+  swapSceneOrder(
+    first: HeroSceneResponse,
+    second: HeroSceneResponse,
     section: LandingSectionResponse,
   ): void {
     if (this.childSaving()) return;
@@ -287,11 +235,9 @@ export class AdminLandingFacade {
     this.clearMessages();
     const firstOrder = second.orden;
     const secondOrder = first.orden === second.orden ? second.orden + 1 : first.orden;
-    const send = (item: HeroSceneResponse | LandingActionResponse, orden: number) => {
+    const send = (item: HeroSceneResponse, orden: number) => {
       const { id, ...rest } = item;
-      return kind === 'scene'
-        ? this.landingApi.updateScene(section.id, id, { ...(rest as HeroSceneRequest), orden })
-        : this.landingApi.updateAction(section.id, id, { ...(rest as LandingActionRequest), orden });
+      return this.landingApi.updateScene(section.id, id, { ...(rest as HeroSceneRequest), orden });
     };
     forkJoin([send(first, firstOrder), send(second, secondOrder)])
       .pipe(
@@ -302,16 +248,11 @@ export class AdminLandingFacade {
         finalize(() => this.childSaving.set(false)),
       )
       .subscribe(([a, b]) => {
-        const key = kind === 'scene' ? 'escenas' : 'acciones';
-        const items = this.upsert(
-          this.upsert(section[key] as (HeroSceneResponse | LandingActionResponse)[], a),
-          b,
-        );
-        this.updateManaged(section, key, items as never);
+        this.updateManaged(section, 'escenas', this.upsert(this.upsert(section.escenas, a), b));
       });
   }
 
-  private upsert<T extends HeroSceneResponse | LandingActionResponse>(
+  private upsert<T extends HeroSceneResponse>(
     items: readonly T[],
     item: T,
   ): T[] {
@@ -322,10 +263,10 @@ export class AdminLandingFacade {
     ].sort((a, b) => a.orden - b.orden);
   }
 
-  private updateManaged<K extends 'escenas' | 'acciones'>(
+  private updateManaged(
     section: LandingSectionResponse,
-    key: K,
-    items: LandingSectionResponse[K],
+    key: 'escenas',
+    items: LandingSectionResponse['escenas'],
   ): void {
     const updated = { ...section, [key]: items };
     this.sections.update((all) => all.map((item) => (item.id === updated.id ? updated : item)));

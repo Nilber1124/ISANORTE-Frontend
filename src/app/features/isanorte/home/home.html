@@ -30,7 +30,7 @@
       data-home-hero
       class="relative isolate flex min-h-[calc(100svh-4rem)] flex-col overflow-hidden bg-background text-text-primary"
     >
-      <app-cinematic-tour [scenes]="facade.heroScenes()"></app-cinematic-tour>
+      <app-cinematic-tour data-edit-field="fotos" [scenes]="facade.heroScenes()"></app-cinematic-tour>
       <!-- Velo solo donde hay texto: lateral en escritorio, inferior en móvil. -->
       <div
         class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/10 md:bg-gradient-to-r md:from-black/80 md:via-black/50 md:to-transparent"
@@ -71,13 +71,14 @@
         <div class="max-w-3xl">
           @if (hero.tag) {
             <p
+              data-edit-field="etiqueta"
               class="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/30 px-4 py-1.5 text-caption font-semibold uppercase tracking-wider text-white"
             >
               <span class="size-1.5 rounded-full bg-accent"></span>{{ hero.tag }}
             </p>
           }
-          <h1 class="mb-6 whitespace-pre-line text-display-xl text-white">{{ hero.title }}</h1>
-          <p class="mb-10 max-w-2xl text-body-lg text-white/85">{{ hero.subtitle }}</p>
+          <h1 data-edit-field="titulo" class="mb-6 whitespace-pre-line text-display-xl text-white">{{ hero.title }}</h1>
+          <p data-edit-field="subtitulo" class="mb-10 max-w-2xl text-body-lg text-white/85">{{ hero.subtitle }}</p>
           <div class="flex flex-wrap gap-3">
             @if (heroPrimary(); as primaryAction) {
               <app-button variant="accent" [href]="primaryAction.url" size="large">{{

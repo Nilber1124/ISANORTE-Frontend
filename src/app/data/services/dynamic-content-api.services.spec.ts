@@ -26,7 +26,7 @@ describe('dynamic content ApiServices', () => {
 
   afterEach(() => http.verify());
 
-  it('uses exact Landing scene and action child paths and payloads', () => {
+  it('uses exact Landing scene child paths and payloads', () => {
     const api = TestBed.inject(LandingSectionApiService);
     const scene = {
       imagenUrl: 'https://example.com/hero.jpg',
@@ -39,12 +39,13 @@ describe('dynamic content ApiServices', () => {
     expect(sceneCall.request.method).toBe('POST');
     expect(sceneCall.request.body).toEqual(scene);
     sceneCall.flush({ id: 'scene-1', ...scene });
-    const action = { texto: 'Cotiza', enlace: '/contacto', orden: 0, activo: true };
-    api.updateAction('section 1', 'action 1', action).subscribe();
-    const actionCall = http.expectOne('/api/secciones-landing/section%201/acciones/action%201');
-    expect(actionCall.request.method).toBe('PUT');
-    expect(actionCall.request.body).toEqual(action);
-    actionCall.flush({ id: 'action-1', ...action });
+  });
+
+  it('does not expose write operations for the fixed Landing buttons', () => {
+    const api = TestBed.inject(LandingSectionApiService) as unknown as Record<string, unknown>;
+    expect(api['createAction']).toBeUndefined();
+    expect(api['updateAction']).toBeUndefined();
+    expect(api['deleteAction']).toBeUndefined();
   });
 
   it('uses exact benefit CRUD paths', () => {

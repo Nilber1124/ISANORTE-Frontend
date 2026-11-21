@@ -17,10 +17,6 @@ import {
   HeroSceneResponse,
 } from '../../../../data/models/landing-section/hero-scene.model';
 import {
-  LandingActionRequest,
-  LandingActionResponse,
-} from '../../../../data/models/landing-section/landing-action.model';
-import {
   ServiceBenefitRequest,
   ServiceBenefitResponse,
 } from '../../../../data/models/service/service-benefit.model';
@@ -33,17 +29,15 @@ import { InputField } from '../../../../shared/components/input-field/input-fiel
 import { Drawer } from '../../../../shared/components/drawer/drawer';
 import { FormsModule } from '@angular/forms';
 
-export type DynamicChildKind = 'scene' | 'action' | 'benefit' | 'resource' | 'catalogo' | 'statistic';
+export type DynamicChildKind = 'scene' | 'benefit' | 'resource' | 'catalogo' | 'statistic';
 export type DynamicChild =
   | HeroSceneResponse
-  | LandingActionResponse
   | ServiceBenefitResponse
   | BusinessUnitResourceResponse
   | CatalogoResponse
   | CompanyStatisticResponse;
 export type DynamicChildRequest =
   | HeroSceneRequest
-  | LandingActionRequest
   | ServiceBenefitRequest
   | BusinessUnitResourceRequest
   | CatalogoRequest
@@ -94,22 +88,9 @@ export class DynamicChildManager {
   readonly resourceUrlMode = signal<'subir' | 'enlace'>('subir');
   readonly coverImageUrl = signal('');
 
-  protected readonly quickLinks: readonly string[] = [
-    '/servicios',
-    '/proyectos',
-    '/nosotros',
-    '/contacto',
-    'https://wa.me/51987654321',
-  ];
-
-  protected setQuickLink(link: string): void {
-    this.url.set(link);
-  }
-
   protected title(): string {
     return {
       scene: 'Diapositivas de la Portada Principal (Hero)',
-      action: 'Botones y Enlaces de la Sección',
       benefit: 'Beneficios del Servicio',
       resource: 'Recursos de la Unidad de Negocio',
       catalogo: 'Catálogos',
@@ -120,7 +101,6 @@ export class DynamicChildManager {
   protected emptyDescription(): string {
     return {
       scene: 'Este Hero todavía no tiene diapositivas configuradas.',
-      action: 'Esta sección todavía no tiene botones adicionales configurados.',
       benefit: 'Este servicio todavía no tiene beneficios registrados.',
       resource: 'Esta unidad todavía no tiene recursos registrados.',
       catalogo: 'Esta unidad todavía no tiene catálogos registrados.',
@@ -130,10 +110,6 @@ export class DynamicChildManager {
 
   protected asScene(item: DynamicChild): HeroSceneResponse {
     return item as HeroSceneResponse;
-  }
-
-  protected asAction(item: DynamicChild): LandingActionResponse {
-    return item as LandingActionResponse;
   }
 
   protected updateUrl(val: string): void {
@@ -175,10 +151,6 @@ export class DynamicChildManager {
       const value = item as HeroSceneResponse;
       this.url.set(value.imagenUrl);
       this.alt.set(value.alt ?? '');
-    } else if (this.kind() === 'action') {
-      const value = item as LandingActionResponse;
-      this.text.set(value.texto);
-      this.url.set(value.enlace);
     } else if (this.kind() === 'benefit') this.text.set((item as ServiceBenefitResponse).texto);
     else if (this.kind() === 'resource') {
       const value = item as BusinessUnitResourceResponse;
@@ -204,7 +176,6 @@ export class DynamicChildManager {
   protected itemLabel(item: DynamicChild): string {
     if (this.kind() === 'scene')
       return (item as HeroSceneResponse).alt || (item as HeroSceneResponse).imagenUrl;
-    if (this.kind() === 'action') return (item as LandingActionResponse).texto;
     if (this.kind() === 'benefit') return (item as ServiceBenefitResponse).texto;
     if (this.kind() === 'resource')
       return (
@@ -224,13 +195,6 @@ export class DynamicChildManager {
       request = {
         imagenUrl: this.url().trim(),
         alt: this.alt().trim(),
-        orden,
-        activo: this.active(),
-      };
-    else if (this.kind() === 'action')
-      request = {
-        texto: this.text().trim(),
-        enlace: this.url().trim(),
         orden,
         activo: this.active(),
       };
@@ -264,24 +228,9 @@ export class DynamicChildManager {
       };
     this.saved.emit({ id: this.editingId(), request });
   }
-  private activeLimit(): number | null {
-    if (this.kind() !== 'action') return null;
-    if (this.parentType() === 'HERO') return 2;
-    if (this.parentType() === 'CTA') return 1;
-    return null;
-  }
-  protected activeLimitReached(): boolean {
-    const limit = this.activeLimit();
-    if (limit === null || !this.active()) return false;
-    return (
-      this.items().filter((item) => item.activo && item.id !== this.editingId()).length >= limit
-    );
-  }
   protected invalid(): boolean {
     if (!Number.isInteger(Number(this.order()))) return true;
     if (this.kind() === 'scene') return !this.url().trim();
-    if (this.kind() === 'action')
-      return !this.text().trim() || !this.url().trim() || this.activeLimitReached();
     if (this.kind() === 'benefit') return !this.text().trim();
     if (this.kind() === 'resource')
       return (

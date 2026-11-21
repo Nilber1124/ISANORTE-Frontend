@@ -28,42 +28,15 @@
         </div>
       </div>
     }
-    @if (kind() === 'action' && parentType() === 'HERO') {
-      <div class="mb-4 flex items-start gap-3 rounded-card border border-border bg-surface-soft p-3.5 text-body-sm text-text-secondary">
-        <div class="flex size-7 shrink-0 items-center justify-center rounded-control bg-accent/15 text-accent mt-0.5">
-          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-          </svg>
-        </div>
-        <div>
-          <span class="font-semibold text-text-primary">Límite en la portada:</span>
-          La portada principal (Hero) admite como máximo <strong class="text-text-primary">2 botones activos</strong> simultáneamente (ej: "Solicitar cotización" y "Ver servicios").
-        </div>
-      </div>
-    }
-    @if (kind() === 'action' && parentType() === 'CTA') {
-      <div class="mb-4 flex items-start gap-3 rounded-card border border-border bg-surface-soft p-3.5 text-body-sm text-text-secondary">
-        <div class="flex size-7 shrink-0 items-center justify-center rounded-control bg-accent/15 text-accent mt-0.5">
-          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-          </svg>
-        </div>
-        <div>
-          <span class="font-semibold text-text-primary">Límite en el banner:</span>
-          La sección de llamado a la acción (CTA) admite como máximo <strong class="text-text-primary">1 botón activo principal</strong>.
-        </div>
-      </div>
-    }
-
     <!-- Barra de acciones superior -->
     <div class="mb-4 flex items-center justify-between gap-2 border-b border-border pb-3">
       <div>
         <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
-          {{ items().length }} {{ kind() === 'scene' ? 'diapositivas' : kind() === 'action' ? 'botones' : 'registros' }} en total
+          {{ items().length }} {{ kind() === 'scene' ? 'diapositivas' : 'registros' }} en total
         </span>
       </div>
       <app-button size="small" variant="primary" (click)="openCreate()">
-        {{ kind() === 'scene' ? '+ Nueva diapositiva' : kind() === 'action' ? '+ Nuevo botón' : '+ Agregar nuevo' }}
+        {{ kind() === 'scene' ? '+ Nueva diapositiva' : '+ Agregar nuevo' }}
       </app-button>
     </div>
 
@@ -134,58 +107,6 @@
         </div>
       }
 
-      <!-- Tarjetas de Botones / Acciones -->
-      @else if (kind() === 'action') {
-        <div class="space-y-3">
-          @for (item of items(); track item.id) {
-            <div class="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-surface p-4 shadow-xs transition-all hover:bg-surface-hover">
-              <div class="flex items-center gap-3.5 min-w-0">
-                <span class="flex size-8 shrink-0 items-center justify-center rounded-control bg-surface-soft font-mono font-bold text-caption text-text-secondary border border-border">
-                  #{{ item.orden }}
-                </span>
-
-                <div class="space-y-1 min-w-0">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="inline-flex items-center gap-1.5 rounded-button bg-action-primary px-3 py-1 text-body-sm font-semibold text-action-primary-text shadow-xs">
-                      <svg class="size-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-                      </svg>
-                      <span>{{ asAction(item).texto }}</span>
-                    </span>
-                    <app-badge [variant]="item.activo ? 'success' : 'neutral'" dot>
-                      {{ item.activo ? 'Activo en web' : 'Inactivo' }}
-                    </app-badge>
-                  </div>
-
-                  <p class="text-caption font-mono text-text-muted truncate flex items-center gap-1">
-                    <span>Destino:</span>
-                    <svg class="size-3 shrink-0 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
-                    </svg>
-                    <span class="text-text-primary font-medium">{{ asAction(item).enlace }}</span>
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2 shrink-0">
-                <app-button size="small" variant="ghost" (click)="openEdit(item)">
-                  Editar
-                </app-button>
-                <app-button
-                  size="small"
-                  variant="ghost"
-                  [disabled]="saving()"
-                  (click)="deleted.emit(item.id)"
-                >
-                  Eliminar
-                </app-button>
-              </div>
-            </div>
-          }
-        </div>
-      }
-
-      <!-- Otros tipos de elementos (beneficios, recursos, estadísticas) -->
       @else {
         <div class="space-y-2.5">
           @for (item of items(); track item.id) {
@@ -235,7 +156,7 @@
         </button>
 
         <h4 class="text-body-sm font-semibold text-text-primary">
-          {{ editingId() ? 'Editar ' + (kind() === 'scene' ? 'diapositiva' : kind() === 'action' ? 'botón' : 'elemento') : 'Nueva ' + (kind() === 'scene' ? 'diapositiva' : kind() === 'action' ? 'botón' : 'elemento') }}
+          {{ editingId() ? 'Editar ' + (kind() === 'scene' ? 'diapositiva' : 'elemento') : 'Nueva ' + (kind() === 'scene' ? 'diapositiva' : 'elemento') }}
         </h4>
       </div>
 
@@ -285,67 +206,6 @@
           }
         }
 
-        <!-- Campos específicos para Botón / Acción -->
-        @if (kind() === 'action') {
-          <app-input-field
-            inputId="child-text"
-            label="Texto visible del botón"
-            [(value)]="text"
-            placeholder="Ej: Solicitar cotización o Ver catálogo"
-            required
-          />
-
-          <app-input-field
-            inputId="child-link"
-            label="Enlace de destino"
-            [(value)]="url"
-            placeholder="Ej: /servicios, /contacto o https://wa.me/..."
-            helperText="Ruta interna de la web o enlace externo a WhatsApp."
-            required
-          />
-
-          <div>
-            <p class="text-caption font-semibold uppercase tracking-wider text-text-muted mb-2">
-              Atajos rápidos (Haz clic para aplicar):
-            </p>
-            <div class="flex flex-wrap gap-2">
-              @for (link of quickLinks; track link) {
-                <button
-                  type="button"
-                  (click)="setQuickLink(link)"
-                  class="inline-flex items-center gap-1.5 rounded-button border border-border bg-surface-soft px-3 py-1.5 text-caption font-mono font-medium text-text-secondary transition-all hover:bg-surface-hover hover:text-text-primary hover:border-text-muted cursor-pointer"
-                >
-                  <svg class="size-3 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
-                  </svg>
-                  <span>{{ link }}</span>
-                </button>
-              }
-            </div>
-          </div>
-
-          <!-- Previsualización del botón -->
-          @if (text().trim()) {
-            <div class="space-y-1.5 pt-2">
-              <span class="text-caption font-semibold uppercase tracking-wider text-text-muted">
-                Previsualización del botón:
-              </span>
-              <div>
-                <span class="inline-flex items-center gap-2 rounded-button bg-action-primary px-4 py-2 text-body-sm font-semibold text-action-primary-text shadow-sm">
-                  <span>{{ text() }}</span>
-                  @if (url().trim()) {
-                    <span class="inline-flex items-center gap-1 text-caption font-mono opacity-80">
-                      <svg class="size-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
-                      </svg>
-                      {{ url() }}
-                    </span>
-                  }
-                </span>
-              </div>
-            </div>
-          }
-        }
 
         <!-- Beneficios del servicio -->
         @if (kind() === 'benefit') {
@@ -518,15 +378,6 @@
             </label>
           </div>
         </div>
-
-        @if (activeLimitReached()) {
-          <div class="flex items-center gap-2 rounded-card border border-error/40 bg-error/10 p-3 text-body-sm text-error">
-            <svg class="size-4 shrink-0 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-            </svg>
-            <span>Has alcanzado el límite de botones activos permitidos en esta sección. Desactiva otro botón antes de activar este.</span>
-          </div>
-        }
       </div>
 
       <!-- Botones del formulario -->

@@ -70,9 +70,9 @@ class LandingApiStub {
     this.updateRequests.push({ id, request });
     return this.updateResponse$;
   }
-  actionUpdates: Array<{ sectionId: string; id: string; request: { orden: number } }> = [];
-  updateAction(sectionId: string, id: string, request: { orden: number; texto: string; enlace: string; activo: boolean }) {
-    this.actionUpdates.push({ sectionId, id, request });
+  sceneUpdates: Array<{ sectionId: string; id: string; request: { orden: number } }> = [];
+  updateScene(sectionId: string, id: string, request: { orden: number; imagenUrl: string; alt?: string | null; activo: boolean }) {
+    this.sceneUpdates.push({ sectionId, id, request });
     return of({ id, ...request });
   }
   changeVisibility(id: string, request: VisibilityRequest) {
@@ -251,37 +251,43 @@ describe('AdminLandingFacade', () => {
     });
   });
 
-  describe('Orden de botones y edición integrada', () => {
-    const a1 = { id: 'a1', texto: 'Uno', enlace: '/uno', orden: 0, activo: true };
-    const a2 = { id: 'a2', texto: 'Dos', enlace: '/dos', orden: 1, activo: true };
-    const withActions = { ...mockSection, acciones: [a1, a2] };
+  describe('Orden de fotos y edición integrada', () => {
+    const s1 = { id: 's1', imagenUrl: 'a.jpg', alt: null, orden: 0, activo: true };
+    const s2 = { id: 's2', imagenUrl: 'b.jpg', alt: null, orden: 1, activo: true };
+    const withScenes = { ...mockSection, escenas: [s1, s2] };
 
-    it('intercambia el orden de dos botones y actualiza la sección sin abrir el cajón', () => {
-      facade.sections.set([withActions]);
-      facade.swapChildOrder('action', a1, a2, withActions);
+    it('intercambia el orden de dos fotos y actualiza la sección sin abrir el cajón', () => {
+      facade.sections.set([withScenes]);
+      facade.swapSceneOrder(s1, s2, withScenes);
 
-      expect(landingApi.actionUpdates.map((u) => [u.id, u.request.orden])).toEqual([
-        ['a1', 1],
-        ['a2', 0],
+      expect(landingApi.sceneUpdates.map((u) => [u.id, u.request.orden])).toEqual([
+        ['s1', 1],
+        ['s2', 0],
       ]);
-      expect(facade.sections()[0].acciones.map((a) => [a.id, a.orden])).toEqual([
-        ['a2', 0],
-        ['a1', 1],
+      expect(facade.sections()[0].escenas.map((a) => [a.id, a.orden])).toEqual([
+        ['s2', 0],
+        ['s1', 1],
       ]);
       expect(facade.managedSection()).toBeNull();
     });
 
-    it('separa dos botones con el mismo orden', () => {
-      const dup = { ...a2, orden: 0 };
-      facade.swapChildOrder('action', a1, dup, { ...withActions, acciones: [a1, dup] });
-      expect(landingApi.actionUpdates.map((u) => u.request.orden)).toEqual([0, 1]);
+    it('separa dos fotos con el mismo orden', () => {
+      const dup = { ...s2, orden: 0 };
+      facade.swapSceneOrder(s1, dup, { ...withScenes, escenas: [s1, dup] });
+      expect(landingApi.sceneUpdates.map((u) => u.request.orden)).toEqual([0, 1]);
+    });
+
+    it('no ofrece operaciones de escritura para los botones fijos', () => {
+      const api = facade as unknown as Record<string, unknown>;
+      expect(api['saveAction']).toBeUndefined();
+      expect(api['deleteAction']).toBeUndefined();
     });
 
     it('actualiza una sección indicada sin cerrar un cajón que no estaba abierto', () => {
-      facade.sections.set([withActions]);
+      facade.sections.set([withScenes]);
       facade.update(
         { configuracionSitioId: 'site-1', tipo: LandingSectionType.PERSONALIZADA, titulo: 'a\nb', orden: 1, visible: true },
-        withActions,
+        withScenes,
       );
       expect(landingApi.updateRequests[0].id).toBe('sec-1');
       expect(landingApi.updateRequests[0].request.titulo).toBe('a\nb');

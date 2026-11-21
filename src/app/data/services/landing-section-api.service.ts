@@ -8,10 +8,6 @@ import { LandingSectionResponse } from '../models/landing-section/landing-sectio
 import { LandingSectionUpdateRequest } from '../models/landing-section/landing-section-update-request.model';
 import { VisibilityRequest } from '../models/landing-section/visibility-request.model';
 import { HeroSceneRequest, HeroSceneResponse } from '../models/landing-section/hero-scene.model';
-import {
-  LandingActionRequest,
-  LandingActionResponse,
-} from '../models/landing-section/landing-action.model';
 import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
@@ -67,30 +63,6 @@ export class LandingSectionApiService {
   deleteScene(sectionId: string, sceneId: string): Observable<void> {
     return this.http.delete<void>(
       `${this.sectionUrl(sectionId)}/escenas/${encodeURIComponent(sceneId)}`,
-    );
-  }
-
-  createAction(
-    sectionId: string,
-    request: LandingActionRequest,
-  ): Observable<LandingActionResponse> {
-    return this.http.post<LandingActionResponse>(`${this.sectionUrl(sectionId)}/acciones`, request);
-  }
-
-  updateAction(
-    sectionId: string,
-    actionId: string,
-    request: LandingActionRequest,
-  ): Observable<LandingActionResponse> {
-    return this.http.put<LandingActionResponse>(
-      `${this.sectionUrl(sectionId)}/acciones/${encodeURIComponent(actionId)}`,
-      request,
-    );
-  }
-
-  deleteAction(sectionId: string, actionId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.sectionUrl(sectionId)}/acciones/${encodeURIComponent(actionId)}`,
     );
   }
 

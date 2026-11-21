@@ -64,7 +64,7 @@ describe('AdminLanding', () => {
       formMode: signal<'create' | 'edit'>('create'),
       formOpen: signal<boolean>(false),
       managedSection: signal<LandingSectionResponse | null>(null),
-      childKind: signal<'scene' | 'action'>('action'),
+      childKind: signal<'scene'>('scene'),
       childSaving: signal(false),
       load: vi.fn(),
       openCreate: vi.fn(),
@@ -77,8 +77,6 @@ describe('AdminLanding', () => {
       closeChildren: vi.fn(),
       saveScene: vi.fn(),
       deleteScene: vi.fn(),
-      saveAction: vi.fn(),
-      deleteAction: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -177,7 +175,7 @@ describe('AdminLanding', () => {
     expect(links).toEqual(['/admin/servicios', '/admin/proyectos', '/admin/contacto', '/admin/contenido']);
   });
 
-  it('muestra la visibilidad como botón y los conteos de diapositivas y botones', () => {
+  it('muestra la visibilidad como botón y no permite administrar los botones', () => {
     component.activeTab.set('secciones');
     facadeMock.siteConfigurations.set([mockSiteConfig]);
     facadeMock.sections.set([mockSection]);
@@ -186,7 +184,7 @@ describe('AdminLanding', () => {
       'td button[aria-label^="Mostrar la sección"]',
     );
     expect(toggle).toBeTruthy();
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Botones (0)');
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Botones (');
   });
 
   it('al elegir un bloque de la vista previa ofrece editar su sección o ir a su pantalla', () => {
@@ -199,12 +197,31 @@ describe('AdminLanding', () => {
 
     component['selectBlock']('proyectos');
     fixture.detectChanges();
-    expect(element.textContent).toContain('Editar textos, imagen y botón');
+    expect(element.textContent).toContain('Editar textos e imagen');
     expect(element.querySelector('a[href="/admin/proyectos"]')).toBeTruthy();
 
     component['selectBlock']('proceso');
     fixture.detectChanges();
-    expect(element.textContent).not.toContain('Editar textos, imagen y botón');
+    expect(element.textContent).not.toContain('Editar textos e imagen');
     expect(element.querySelector('a[href="/admin/sitio/pasos-proceso"]')).toBeTruthy();
+  });
+
+  it('al tocar un texto del Hero en la página abre el editor con ese campo y borra el borrador al cambiar de bloque', () => {
+    facadeMock.siteConfigurations.set([mockSiteConfig]);
+    facadeMock.sections.set([{ ...mockSection, tipo: 'HERO' } as never]);
+    fixture.detectChanges();
+
+    component['selectBlock']('inicio');
+    component['selectField']({ block: 'inicio', field: 'titulo' });
+    fixture.detectChanges();
+    expect(component.editingInPanel()).toBe(true);
+    expect(component.focusRequest()?.field).toBe('titulo');
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-hero-editor')).toBeTruthy();
+
+    component['setHeroDraft']({ etiqueta: 'a', titulo: 'b', subtitulo: 'c' });
+    expect(component.previewDraft()).toEqual({ block: 'inicio', values: { etiqueta: 'a', titulo: 'b', subtitulo: 'c' } });
+    component['selectBlock']('servicios');
+    expect(component.previewDraft()).toBeNull();
+    expect(component.editingInPanel()).toBe(false);
   });
 });
