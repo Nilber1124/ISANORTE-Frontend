@@ -26,6 +26,7 @@ export interface ProductImageResponse {
   altText: string | null;
   esPrincipal: boolean | null;
   orden: number | null;
+  varianteSku?: string | null;
 }
 
 export interface ProductSpecificationResponse {

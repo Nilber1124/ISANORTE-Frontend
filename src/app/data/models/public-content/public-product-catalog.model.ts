@@ -15,6 +15,7 @@ export interface PublicProductImageResponse {
   alt: string | null;
   esPrincipal: boolean | null;
   orden: number | null;
+  varianteSku?: string | null;
 }
 
 export interface PublicProductSaleFields {

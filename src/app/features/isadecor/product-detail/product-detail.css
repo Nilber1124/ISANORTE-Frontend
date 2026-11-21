@@ -86,8 +86,9 @@
     display: flex;
   }
   .purchase-layout {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    gap: clamp(1.5rem, 4vw, 4rem);
+    /* La columna se ajusta a la galería: miniaturas (8 rem) + separación + imagen cuadrada (mismo tope que product-gallery). */
+    grid-template-columns: minmax(0, min(58%, calc(8.75rem + min(70vh, 44rem)))) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
   }
   .purchase-info {
     position: sticky;

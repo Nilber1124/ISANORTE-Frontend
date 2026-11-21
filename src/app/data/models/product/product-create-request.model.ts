@@ -19,6 +19,8 @@ export interface ProductImageCreateRequest {
   altText?: string | null;
   esPrincipal?: boolean | null;
   orden?: number | null;
+  /** SKU del acabado al que pertenece; null/omitido = general; "" = quitar el acabado. */
+  varianteSku?: string | null;
 }
 
 export interface ProductSpecificationCreateRequest {

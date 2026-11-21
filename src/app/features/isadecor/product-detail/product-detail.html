@@ -51,6 +51,8 @@
             [images]="product.imagenes"
             [productName]="product.nombre"
             [preferredImage]="selectedVariant()?.imagenUrl ?? null"
+            [variantSku]="selectedVariant()?.sku ?? null"
+            (finishPicked)="selectVariantBySku($event)"
           />
         </div>
 

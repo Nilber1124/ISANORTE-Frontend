@@ -1,8 +1,43 @@
-<section aria-label="Galería del producto">
-  <div
-    class="aspect-[4/3] overflow-hidden rounded-panel border border-border/60 bg-surface-soft/40"
-  >
-    @if (mainImage(); as image) {
+<section aria-label="Galería del producto" class="flex flex-col gap-3 lg:flex-row">
+  @if (availableImages().length > 1) {
+    <div
+      class="order-2 flex gap-2 overflow-x-auto pb-1 lg:order-1 lg:max-h-[min(70vh,44rem)] lg:w-32 lg:shrink-0 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pb-0"
+      role="group"
+      aria-label="Seleccionar imagen"
+    >
+      @for (image of availableImages(); track image.url; let index = $index) {
+        <button
+          type="button"
+          class="size-[4.5rem] shrink-0 overflow-hidden rounded-control border bg-surface transition-[border-color,box-shadow,opacity] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:size-32"
+          [class.border-text-primary]="mainImage()?.url === image.url"
+          [class.ring-1]="mainImage()?.url === image.url"
+          [class.ring-text-primary]="mainImage()?.url === image.url"
+          [class.border-border/60]="mainImage()?.url !== image.url"
+          [class.opacity-70]="mainImage()?.url !== image.url"
+          [class.hover:opacity-100]="mainImage()?.url !== image.url"
+          [attr.aria-label]="'Ver imagen ' + (index + 1) + ' de ' + productName()"
+          [attr.aria-pressed]="mainImage()?.url === image.url"
+          (click)="selectImage(image)"
+        >
+          <img
+            class="h-full w-full object-cover"
+            [src]="image.url"
+            alt=""
+            width="160"
+            height="160"
+            loading="lazy"
+            (error)="markImageAsFailed(image.url)"
+          />
+        </button>
+      }
+    </div>
+  }
+
+  <div class="relative order-1 min-w-0 flex-1 lg:order-2 lg:max-w-[min(70vh,44rem)]">
+    <div
+      class="mx-auto aspect-square w-full max-w-[min(70vh,44rem)] overflow-hidden rounded-panel border border-border/60 bg-surface-soft/40"
+    >
+@if (mainImage(); as image) {
       <img
         class="h-full w-full object-cover transition-transform duration-entry hover:scale-[1.02]"
         [src]="image.url"
@@ -31,35 +66,24 @@
         <span class="text-body-sm font-semibold">Imagen no disponible</span>
       </div>
     }
-  </div>
-
-  @if (availableImages().length > 1) {
-    <div class="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5" aria-label="Seleccionar imagen">
-      @for (image of availableImages(); track image.url; let index = $index) {
-        <button
-          type="button"
-          class="aspect-square min-h-11 min-w-0 overflow-hidden rounded-control border bg-surface transition-[border-color,box-shadow,opacity] duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          [class.border-text-primary]="mainImage()?.url === image.url"
-          [class.ring-1]="mainImage()?.url === image.url"
-          [class.ring-text-primary]="mainImage()?.url === image.url"
-          [class.border-border/60]="mainImage()?.url !== image.url"
-          [class.opacity-70]="mainImage()?.url !== image.url"
-          [class.hover:opacity-100]="mainImage()?.url !== image.url"
-          [attr.aria-label]="'Ver imagen ' + (index + 1) + ' de ' + productName()"
-          [attr.aria-pressed]="mainImage()?.url === image.url"
-          (click)="selectImage(image.url)"
-        >
-          <img
-            class="h-full w-full object-cover"
-            [src]="image.url"
-            alt=""
-            width="160"
-            height="160"
-            loading="lazy"
-            (error)="markImageAsFailed(image.url)"
-          />
-        </button>
-      }
     </div>
-  }
+    @if (availableImages().length > 1) {
+      <button
+        type="button"
+        class="absolute left-3 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-background/80 text-text-primary shadow transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        aria-label="Imagen anterior"
+        (click)="step(-1)"
+      >
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+      </button>
+      <button
+        type="button"
+        class="absolute right-3 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-background/80 text-text-primary shadow transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        aria-label="Imagen siguiente"
+        (click)="step(1)"
+      >
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+      </button>
+    }
+  </div>
 </section>

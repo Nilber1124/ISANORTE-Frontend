@@ -157,6 +157,11 @@ export class ProductDetail {
     this.cartFeedback.set(null);
   }
 
+  protected selectVariantBySku(sku: string): void {
+    const variant = this.facade.variants().find((item) => item.sku === sku);
+    if (variant) this.selectVariant(variant);
+  }
+
   protected stepQuantity(delta: number): void {
     this.cartQuantity.update((current) => Math.min(Math.max(current + delta, 1), 999_999));
     this.cartFeedback.set(null);
