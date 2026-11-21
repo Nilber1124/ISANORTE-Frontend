@@ -8,7 +8,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:ISANORTE-FRONTEND": "node dist/ISANORTE-FRONTEND/server/server.mjs"
+    "serve:ssr:ISANORTE-FRONTEND": "node dist/ISANORTE-FRONTEND/server/server.mjs",
+    "lint:tokens": "node scripts/check-design-tokens.mjs"
   },
   "private": true,
   "packageManager": "npm@12.0.2",

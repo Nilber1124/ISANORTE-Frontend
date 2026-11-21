@@ -46,7 +46,7 @@
           @if (mode() === 'create') {
             @if (slug()) {
               <p
-                class="mt-1.5 inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-md border border-border"
+                class="mt-1.5 inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-control border border-border"
               >
                 <span class="text-text-secondary font-medium">Ruta automática:</span>
                 <code class="text-accent font-semibold font-mono">/{{ slug() }}</code>
@@ -59,7 +59,7 @@
             @if (slugLocked()) {
               <div class="mt-1.5 flex flex-wrap items-center gap-2">
                 <p
-                  class="inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-md border border-border"
+                  class="inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-control border border-border"
                 >
                   <span class="text-text-secondary font-medium">Slug actual:</span>
                   <code class="text-accent font-semibold font-mono">/{{ slug() }}</code>
@@ -286,7 +286,7 @@
 
       <!-- Switch: Publicado en la web -->
       <label
-        class="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
+        class="flex cursor-pointer items-center justify-between gap-4 rounded-card border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
       >
         <div>
           <span class="font-medium text-body-sm text-text-primary">Publicado en la web</span>
@@ -314,7 +314,7 @@
 
       <!-- Switch: Destacar en la portada -->
       <label
-        class="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors"
+        class="flex cursor-pointer items-center justify-between gap-4 rounded-card border border-border bg-surface-soft p-4 transition-colors"
         [class.opacity-50]="!activo()"
         [class.pointer-events-none]="!activo() || submitting()"
         [class.hover:bg-surface-hover]="activo()"

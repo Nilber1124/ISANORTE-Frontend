@@ -95,19 +95,19 @@
     </div>
 
     @if (facade.visibleItems().length > 0) {
-      <div class="overflow-hidden rounded-panel border border-border bg-[#0d1117] p-4 sm:p-6 shadow-floating">
+      <!-- design-tokens-ignore: maqueta oscura que imita la web --><div class="overflow-hidden rounded-panel border border-border bg-[#0d1117] p-4 sm:p-6 shadow-floating">
         <div class="border border-white/15 bg-black/60 backdrop-blur-md rounded-panel overflow-hidden">
           <div class="grid grid-cols-1 divide-y divide-white/15 sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-flow-col lg:auto-cols-fr">
             @for (item of facade.visibleItems(); track item.id; let idx = $index) {
               <div class="group relative flex flex-col justify-between p-5 transition-colors duration-normal hover:bg-white/5">
                 <div>
                   <div class="flex items-center justify-between gap-2">
-                    <span class="text-[11px] font-mono font-semibold tracking-wider text-accent uppercase">
+                    <span class="text-caption font-mono font-semibold tracking-wider text-accent uppercase">
                       {{ item.index }} · {{ item.tag }}
                     </span>
                     <button
                       type="button"
-                      class="rounded bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/80 transition-colors hover:bg-accent hover:text-accent-contrast focus:outline-none focus:ring-1 focus:ring-accent"
+                      class="rounded bg-white/10 px-2 py-0.5 text-caption font-medium text-white/80 transition-colors hover:bg-accent hover:text-accent-contrast focus:outline-none focus:ring-1 focus:ring-accent"
                       (click)="handleOpenEdit(item)"
                     >
                       Editar
@@ -124,7 +124,7 @@
                   </div>
                 </div>
 
-                <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40">
+                <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-caption text-white/40">
                   <span class="truncate max-w-[180px]">{{ getParamLabel(item) }}</span>
                   <svg class="size-3.5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -205,19 +205,19 @@
             <tr class="transition-colors duration-fast hover:bg-background-soft">
               <td class="py-4 px-4">
                 @if (item.visible !== false) {
-                  <span class="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-2.5 py-1 text-[11px] font-bold text-success">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-2.5 py-1 text-caption font-bold text-success">
                     <span class="size-1.5 rounded-full bg-success"></span>
                     Visible
                   </span>
                 } @else {
-                  <span class="inline-flex items-center gap-1.5 rounded-full bg-surface-soft px-2.5 py-1 text-[11px] font-semibold text-text-muted">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-surface-soft px-2.5 py-1 text-caption font-semibold text-text-muted">
                     <span class="size-1.5 rounded-full bg-text-muted"></span>
                     Oculta
                   </span>
                 }
               </td>
               <td class="py-4 px-4">
-                <span class="inline-flex size-8 items-center justify-center rounded-lg bg-surface-soft font-mono font-bold text-accent">
+                <span class="inline-flex size-8 items-center justify-center rounded-control bg-surface-soft font-mono font-bold text-accent">
                   {{ item.index }}
                 </span>
               </td>
@@ -330,7 +330,7 @@
               <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/15"></div>
 
               <div class="absolute top-4 left-4 z-10">
-                <span class="inline-flex items-center rounded-md bg-accent px-3 py-1 text-[11px] font-bold tracking-widest uppercase text-accent-contrast shadow-sm">
+                <span class="inline-flex items-center rounded-control bg-accent px-3 py-1 text-caption font-bold tracking-widest uppercase text-accent-contrast shadow-sm">
                   {{ col.badge || 'COLECCIÓN' }}
                 </span>
               </div>
@@ -338,7 +338,7 @@
               <div class="absolute top-4 right-4 z-10">
                 <button
                   type="button"
-                  class="rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-xs hover:bg-accent hover:text-accent-contrast focus:outline-none transition-colors"
+                  class="rounded-full bg-black/60 px-3 py-1 text-caption font-semibold text-white backdrop-blur-xs hover:bg-accent hover:text-accent-contrast focus:outline-none transition-colors"
                   (click)="handleOpenEditCollection(col)"
                 >
                   Editar
@@ -347,7 +347,7 @@
 
               @if (col.tagline) {
                 <div class="absolute bottom-3.5 left-4 right-4 z-10">
-                  <span class="inline-block rounded-full bg-black/65 px-3 py-1 text-[11px] font-medium text-white/95 backdrop-blur-xs">
+                  <span class="inline-block rounded-full bg-black/65 px-3 py-1 text-caption font-medium text-white/95 backdrop-blur-xs">
                     {{ col.tagline }}
                   </span>
                 </div>
@@ -355,7 +355,7 @@
             </div>
 
             <div class="flex flex-1 flex-col p-5">
-              <span class="text-[11px] font-semibold uppercase tracking-widest text-accent">
+              <span class="text-caption font-semibold uppercase tracking-widest text-accent">
                 {{ col.eyebrow || 'Línea de acabados' }}
               </span>
               <h3 class="mt-1 text-heading-3 font-bold text-text-primary">
@@ -439,12 +439,12 @@
             <tr class="transition-colors duration-fast hover:bg-background-soft">
               <td class="py-4 px-4">
                 @if (col.visible !== false) {
-                  <span class="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-2.5 py-1 text-[11px] font-bold text-success">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-2.5 py-1 text-caption font-bold text-success">
                     <span class="size-1.5 rounded-full bg-success"></span>
                     Visible
                   </span>
                 } @else {
-                  <span class="inline-flex items-center gap-1.5 rounded-full bg-surface-soft px-2.5 py-1 text-[11px] font-semibold text-text-muted">
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-surface-soft px-2.5 py-1 text-caption font-semibold text-text-muted">
                     <span class="size-1.5 rounded-full bg-text-muted"></span>
                     Oculta
                   </span>

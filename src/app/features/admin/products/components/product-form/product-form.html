@@ -37,7 +37,7 @@
   >
 
     <!-- SECCIÓN 1: IDENTIFICACIÓN Y CONTENIDO COMERCIAL -->
-    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-5" aria-labelledby="section-general-info">
+    <section class="rounded-card border border-border bg-surface-card p-5 sm:p-6 space-y-5" aria-labelledby="section-general-info">
       <div class="flex items-center gap-2 pb-3 border-b border-border">
         <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -67,7 +67,7 @@
             required
           />
           @if (slug()) {
-            <p class="mt-1.5 inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-md border border-border">
+            <p class="mt-1.5 inline-flex items-center gap-1.5 text-caption text-text-muted bg-surface-soft px-2.5 py-0.5 rounded-control border border-border">
               <span class="text-text-secondary font-medium">Ruta automática:</span>
               <code class="text-accent font-semibold">/{{ slug() }}</code>
             </p>
@@ -100,7 +100,7 @@
     </section>
 
     <!-- SECCIÓN 2: UNIDAD DE NEGOCIO Y CATEGORÍAS -->
-    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-5" aria-labelledby="section-relations">
+    <section class="rounded-card border border-border bg-surface-card p-5 sm:p-6 space-y-5" aria-labelledby="section-relations">
       <div class="flex items-center justify-between pb-3 border-b border-border">
         <div class="flex items-center gap-2">
           <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -151,7 +151,7 @@
             Cargando categorías disponibles…
           </div>
         } @else if (!unidadNegocioId()) {
-          <div class="rounded-xl border border-dashed border-border bg-surface-soft p-4 text-center text-body-sm text-text-muted">
+          <div class="rounded-card border border-dashed border-border bg-surface-soft p-4 text-center text-body-sm text-text-muted">
             <svg aria-hidden="true" class="size-5 mx-auto mb-1.5 text-accent/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
             </svg>
@@ -161,17 +161,17 @@
             </p>
           </div>
         } @else if (availableCategories().length === 0) {
-          <div class="rounded-xl border border-border bg-surface-soft p-4 text-center text-body-sm text-text-muted">
+          <div class="rounded-card border border-border bg-surface-soft p-4 text-center text-body-sm text-text-muted">
             No hay categorías registradas para esta unidad de negocio.
           </div>
         } @else {
           <div
-            class="grid gap-2 sm:grid-cols-2 max-h-56 overflow-y-auto rounded-xl border border-border bg-surface-soft p-3"
+            class="grid gap-2 sm:grid-cols-2 max-h-56 overflow-y-auto rounded-card border border-border bg-surface-soft p-3"
             aria-describedby="product-categories-help"
           >
             @for (cat of availableCategories(); track cat.id) {
               <label
-                class="flex cursor-pointer items-center gap-3 rounded-lg p-2.5 text-body-sm transition-colors hover:bg-surface-hover"
+                class="flex cursor-pointer items-center gap-3 rounded-control p-2.5 text-body-sm transition-colors hover:bg-surface-hover"
                 [class.bg-surface-elevated]="categorySelected(cat.id)"
                 [class.text-accent]="categorySelected(cat.id)"
                 [class.font-semibold]="categorySelected(cat.id)"
@@ -193,7 +193,7 @@
     </section>
 
     <!-- SECCIÓN 3: PRECIOS, DISPONIBILIDAD Y PUBLICACIÓN -->
-    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-5" aria-labelledby="section-pricing">
+    <section class="rounded-card border border-border bg-surface-card p-5 sm:p-6 space-y-5" aria-labelledby="section-pricing">
       <div class="flex items-center gap-2 pb-3 border-b border-border">
         <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -308,12 +308,12 @@
 
       <div class="grid gap-4 sm:grid-cols-2">
         <label
-          class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
+          class="flex cursor-pointer items-start justify-between gap-4 rounded-card border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
         >
           <div class="space-y-1">
             <div class="flex items-center gap-2">
               <span class="text-body-sm font-semibold text-text-primary">Destacar en portada</span>
-              <span class="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">Vitrina Home</span>
+              <span class="rounded-full bg-accent/15 px-2 py-0.5 text-caption font-semibold text-accent">Vitrina Home</span>
             </div>
             <p class="text-caption text-text-secondary leading-relaxed">
               Al activar esta opción, el producto aparecerá en la sección de <strong>"Productos destacados"</strong> de la portada/landing de ISADECOR, tendrá prioridad en el orden predeterminado del catálogo y lucirá una insignia visual dorada.
@@ -330,12 +330,12 @@
         </label>
 
         <label
-          class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
+          class="flex cursor-pointer items-start justify-between gap-4 rounded-card border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
         >
           <div class="space-y-1">
             <div class="flex items-center gap-2">
               <span class="text-body-sm font-semibold text-text-primary">Retiro en tienda</span>
-              <span class="rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-semibold text-success">Logística y Entrega</span>
+              <span class="rounded-full bg-success/15 px-2 py-0.5 text-caption font-semibold text-success">Logística y Entrega</span>
             </div>
             <p class="text-caption text-text-secondary leading-relaxed">
               Habilita la opción de retiro inmediato en tienda física o almacén para este producto, informando la disponibilidad en la ficha pública.
@@ -359,7 +359,7 @@
     </section>
 
     <!-- SECCIÓN 4: GALERÍA E IMÁGENES DEL PRODUCTO -->
-    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-product-images">
+    <section class="rounded-card border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-product-images">
       <div class="flex items-center justify-between pb-3 border-b border-border">
         <div class="flex items-center gap-2">
           <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -416,13 +416,13 @@
       </div>
 
       @if (finishOptions().length > 0) {
-        <div class="space-y-2 rounded-xl border border-border bg-surface-soft p-3">
+        <div class="space-y-2 rounded-card border border-border bg-surface-soft p-3">
           <label for="new-image-finish" class="block text-caption font-bold text-text-primary">
             Acabado de la próxima imagen
           </label>
           <select
             id="new-image-finish"
-            class="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-body-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            class="w-full rounded-control border border-border bg-surface px-3 py-1.5 text-body-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             [value]="newImageSku()"
             (change)="newImageSku.set($any($event.target).value)"
           >
@@ -431,14 +431,14 @@
               <option [value]="option.sku">{{ option.nombre }}</option>
             }
           </select>
-          <p class="text-[11px] text-text-muted">
+          <p class="text-caption text-text-muted">
             Al elegir un acabado en la tienda se muestran las fotos de ese acabado. Sube al menos una por acabado.
           </p>
         </div>
       }
 
       @if (finishesWithoutImages().length > 0) {
-        <div role="status" class="rounded-xl border border-amber-400/60 bg-amber-50 px-3 py-2 text-caption text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+        <div role="status" class="rounded-card border border-warning/40 bg-warning/10 px-3 py-2 text-caption text-warning">
           Faltan imágenes para: <strong>{{ finishesWithoutImages().join(', ') }}</strong>. Se mostrarán las fotos generales hasta que las subas.
         </div>
       }
@@ -450,14 +450,14 @@
             Imágenes de la galería ({{ currentImages().length }})
           </span>
           @if (mode() === 'create' && currentImages().length > 0) {
-            <span class="text-[11px] text-text-muted">
+            <span class="text-caption text-text-muted">
               Se guardarán automáticamente junto con el producto
             </span>
           }
         </div>
 
         @if (currentImages().length === 0) {
-          <div class="flex flex-col items-center justify-center p-8 rounded-xl border border-dashed border-border bg-surface-soft text-center">
+          <div class="flex flex-col items-center justify-center p-8 rounded-card border border-dashed border-border bg-surface-soft text-center">
             <svg aria-hidden="true" class="size-10 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
             </svg>
@@ -470,12 +470,12 @@
           <div class="space-y-3">
             @for (img of currentImages(); track (img.id || img.url); let idx = $index; let total = $count) {
               <div
-                class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-3 sm:p-4 rounded-xl border bg-surface-soft transition-colors"
+                class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-3 sm:p-4 rounded-card border bg-surface-soft transition-colors"
                 [class.border-accent]="img.esPrincipal"
                 [class.border-border]="!img.esPrincipal"
               >
                 <!-- Miniatura con botón de zoom -->
-                <div class="relative size-20 sm:size-24 shrink-0 rounded-lg overflow-hidden border border-border bg-black/10 group/thumb">
+                <div class="relative size-20 sm:size-24 shrink-0 rounded-control overflow-hidden border border-border bg-black/10 group/thumb">
                   <img
                     [src]="img.url"
                     [alt]="img.altText || 'Miniatura'"
@@ -500,7 +500,7 @@
                     <div class="flex items-center gap-2">
                       <span class="text-caption font-bold text-text-muted">#{{ idx + 1 }}</span>
                       @if (img.esPrincipal) {
-                        <span class="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-0.5 text-[11px] font-bold text-accent">
+                        <span class="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-0.5 text-caption font-bold text-accent">
                           ★ Imagen principal (portada)
                         </span>
                       } @else {
@@ -543,7 +543,7 @@
                       </button>
                       <button
                         type="button"
-                        class="p-1 rounded text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-30 disabled:pointer-events-none transition-colors ml-1 cursor-pointer"
+                        class="p-1 rounded text-error hover:text-error hover:bg-error/10 disabled:opacity-30 disabled:pointer-events-none transition-colors ml-1 cursor-pointer"
                         title="Eliminar de la galería"
                         aria-label="Eliminar de la galería"
                         [disabled]="facade.imageOperating()"
@@ -561,7 +561,7 @@
                       <label [for]="'image-finish-' + idx" class="sr-only">Acabado de la fotografía {{ idx + 1 }}</label>
                       <select
                         [id]="'image-finish-' + idx"
-                        class="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-body-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                        class="w-full rounded-control border border-border bg-surface px-3 py-1.5 text-body-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                         [value]="img.varianteSku"
                         [disabled]="facade.imageOperating()"
                         (change)="setImageFinish(idx, $any($event.target).value)"
@@ -580,7 +580,7 @@
                     <input
                       [id]="'image-alt-' + idx"
                       type="text"
-                      class="w-full rounded-lg border border-border bg-surface px-3 py-1.5 text-body-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      class="w-full rounded-control border border-border bg-surface px-3 py-1.5 text-body-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                       [value]="img.altText"
                       (input)="updateImageAlt(idx, $any($event.target).value)"
                       (blur)="saveImageAlt(idx, $any($event.target).value)"
@@ -588,10 +588,10 @@
                       maxlength="200"
                     />
                     <div class="flex items-center justify-between mt-1">
-                      <span class="text-[11px] text-text-muted">
+                      <span class="text-caption text-text-muted">
                         {{ mode() === 'edit' ? 'Guardado automático al salir del campo' : 'Para SEO y lectores de pantalla' }}
                       </span>
-                      <span class="text-[11px] text-text-muted">
+                      <span class="text-caption text-text-muted">
                         {{ img.altText?.length || 0 }}/200
                       </span>
                     </div>
@@ -611,7 +611,7 @@
     }
 
     <!-- SECCIÓN 5: VARIANTES TÉCNICAS Y COMERCIALES -->
-    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-variants">
+    <section class="rounded-card border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-variants">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border">
         <div class="flex items-center gap-2">
           <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -659,7 +659,7 @@
       <!-- Lista de variantes -->
       <div>
         @if (currentVariants().length === 0) {
-          <div class="rounded-xl border border-dashed border-border bg-surface-soft p-6 text-center text-body-sm text-text-muted">
+          <div class="rounded-card border border-dashed border-border bg-surface-soft p-6 text-center text-body-sm text-text-muted">
             <svg aria-hidden="true" class="size-8 mx-auto mb-2 text-text-muted/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0120.25 9v.878m0 0a2.246 2.246 0 00-.75-.128H4.5c-.263 0-.515.045-.75.128m16.5 0A2.25 2.25 0 0121.75 12v6.75a2.25 2.25 0 01-2.25 2.25H4.5a2.25 2.25 0 01-2.25-2.25V12a2.25 2.25 0 011.5-2.122" />
             </svg>
@@ -669,7 +669,7 @@
             </p>
           </div>
         } @else {
-          <div class="overflow-x-auto rounded-xl border border-border bg-surface">
+          <div class="overflow-x-auto rounded-card border border-border bg-surface">
             <table class="min-w-full divide-y divide-border text-left text-body-sm">
               <thead class="bg-surface-soft text-caption font-semibold uppercase tracking-wider text-text-muted">
                 <tr>
@@ -689,10 +689,10 @@
                           <img
                             [src]="v.imagenUrl"
                             [alt]="v.nombre"
-                            class="size-10 rounded-lg object-cover border border-border shrink-0"
+                            class="size-10 rounded-control object-cover border border-border shrink-0"
                           />
                         } @else {
-                          <div class="size-10 rounded-lg bg-surface-soft border border-border flex items-center justify-center text-text-muted shrink-0">
+                          <div class="size-10 rounded-control bg-surface-soft border border-border flex items-center justify-center text-text-muted shrink-0">
                             <svg aria-hidden="true" class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                             </svg>
@@ -723,7 +723,7 @@
                       <div class="flex items-center justify-end gap-1">
                         <button
                           type="button"
-                          class="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-soft transition-colors cursor-pointer"
+                          class="p-1.5 rounded-control text-text-muted hover:text-text-primary hover:bg-surface-soft transition-colors cursor-pointer"
                           title="Editar variante"
                           aria-label="Editar variante"
                           [disabled]="facade.variantOperating()"
@@ -735,7 +735,7 @@
                         </button>
                         <button
                           type="button"
-                          class="p-1.5 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                          class="p-1.5 rounded-control text-error hover:text-error hover:bg-error/10 transition-colors cursor-pointer"
                           title="Eliminar variante"
                           aria-label="Eliminar variante"
                           [disabled]="facade.variantOperating()"
@@ -757,7 +757,7 @@
     </section>
 
     <!-- SECCIÓN 6: ESPECIFICACIONES TÉCNICAS -->
-    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-specs">
+    <section class="rounded-card border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-specs">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border">
         <div class="flex items-center gap-2">
           <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -796,7 +796,7 @@
         }
 
         @if (groupedSpecifications().length === 0) {
-          <div class="rounded-lg border border-dashed border-border p-6 text-center">
+          <div class="rounded-control border border-dashed border-border p-6 text-center">
             <svg aria-hidden="true" class="mx-auto size-9 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
@@ -818,7 +818,7 @@
         } @else {
           <div class="space-y-4">
             @for (group of groupedSpecifications(); track group.name) {
-              <div class="rounded-lg border border-border bg-surface overflow-hidden">
+              <div class="rounded-control border border-border bg-surface overflow-hidden">
                 <!-- Header del Grupo -->
                 <div class="flex items-center justify-between px-4 py-2.5 bg-surface-soft/60 border-b border-border">
                   <div class="flex items-center gap-2">
@@ -846,7 +846,7 @@
                 <div class="overflow-x-auto">
                   <table class="w-full text-left text-body-sm">
                     <thead>
-                      <tr class="border-b border-border bg-surface-soft/30 text-[11px] font-bold uppercase tracking-wider text-text-muted">
+                      <tr class="border-b border-border bg-surface-soft/30 text-caption font-bold uppercase tracking-wider text-text-muted">
                         <th scope="col" class="py-2 px-4 w-16">Orden</th>
                         <th scope="col" class="py-2 px-4">Parámetro (Clave)</th>
                         <th scope="col" class="py-2 px-4">Valor</th>
@@ -904,7 +904,7 @@
     </section>
 
     <!-- SECCIÓN 7: DOCUMENTACIÓN Y FICHAS TÉCNICAS -->
-    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-docs">
+    <section class="rounded-card border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-docs">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border">
         <div class="flex items-center gap-2">
           <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -943,7 +943,7 @@
         }
 
         @if (currentDocuments().length === 0) {
-          <div class="rounded-lg border border-dashed border-border p-6 text-center">
+          <div class="rounded-control border border-dashed border-border p-6 text-center">
             <svg aria-hidden="true" class="mx-auto size-9 text-text-muted opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
@@ -963,11 +963,11 @@
             </div>
           </div>
         } @else {
-          <div class="rounded-lg border border-border bg-surface overflow-hidden">
+          <div class="rounded-control border border-border bg-surface overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-body-sm">
                 <thead>
-                  <tr class="border-b border-border bg-surface-soft/30 text-[11px] font-bold uppercase tracking-wider text-text-muted">
+                  <tr class="border-b border-border bg-surface-soft/30 text-caption font-bold uppercase tracking-wider text-text-muted">
                     <th scope="col" class="py-2.5 px-4">Documento / Título</th>
                     <th scope="col" class="py-2.5 px-4 w-36">Tipo</th>
                     <th scope="col" class="py-2.5 px-4 w-24">Formato</th>
@@ -1056,7 +1056,7 @@
     </section>
 
     <!-- SECCIÓN 8: CALCULADORA DE MATERIALES Y RENDIMIENTO -->
-    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-calc">
+    <section class="rounded-card border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-calc">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border">
         <div class="flex items-center gap-2">
           <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -1101,7 +1101,7 @@
         }
 
         <!-- Checkbox Habilitar Calculadora -->
-        <label class="flex items-start gap-3 rounded-lg border border-border p-4 transition-colors hover:bg-surface-soft/40 cursor-pointer">
+        <label class="flex items-start gap-3 rounded-control border border-border p-4 transition-colors hover:bg-surface-soft/40 cursor-pointer">
           <input
             id="product-calc-enabled"
             type="checkbox"
@@ -1169,7 +1169,7 @@
     </section>
 
     <!-- SECCIÓN 9: SEO Y VISTA PREVIA EN EL CATÁLOGO -->
-    <section class="rounded-xl border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-seo-preview">
+    <section class="rounded-card border border-border bg-surface-card p-5 sm:p-6 space-y-6" aria-labelledby="section-seo-preview">
       <div class="flex items-center gap-2 pb-3 border-b border-border">
         <svg class="h-4.5 w-4.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
@@ -1210,12 +1210,12 @@
               Representación visual en tiempo real de la tarjeta tal como la verá el cliente.
             </p>
           </div>
-          <span class="hidden sm:inline-flex text-[11px] font-semibold text-text-muted bg-surface-soft px-2.5 py-1 rounded-full border border-border">
+          <span class="hidden sm:inline-flex text-caption font-semibold text-text-muted bg-surface-soft px-2.5 py-1 rounded-full border border-border">
             Simulación interactiva
           </span>
         </div>
 
-        <div class="mx-auto max-w-sm rounded-xl border border-border bg-surface shadow-soft overflow-hidden">
+        <div class="mx-auto max-w-sm rounded-card border border-border bg-surface shadow-soft overflow-hidden">
           <!-- Imagen de la tarjeta -->
           <div class="relative aspect-[4/3] bg-surface-soft overflow-hidden border-b border-border flex items-center justify-center">
             @if (previewImageUrl(); as imgUrl) {
@@ -1240,7 +1240,7 @@
             </div>
 
             <div class="absolute right-3 top-3">
-              <span class="rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white uppercase backdrop-blur-xs">
+              <span class="rounded-full bg-black/60 px-2 py-0.5 text-caption font-bold text-white uppercase backdrop-blur-xs">
                 {{ estado() }}
               </span>
             </div>
@@ -1261,7 +1261,7 @@
 
             <!-- SKU y Nombre -->
             <div>
-              <p class="text-[11px] font-bold uppercase tracking-wider text-text-muted">
+              <p class="text-caption font-bold uppercase tracking-wider text-text-muted">
                 SKU {{ sku() || 'SKU-000' }}
               </p>
               <h4 class="mt-0.5 text-body-lg font-bold text-text-primary line-clamp-1">
@@ -1277,7 +1277,7 @@
             <!-- Precios y disponibilidad -->
             <div class="mt-1 pt-3 border-t border-border flex items-end justify-between gap-2">
               <div>
-                <p class="text-[11px] font-medium text-text-muted">Precio</p>
+                <p class="text-caption font-medium text-text-muted">Precio</p>
                 @if (numericBasePrice(); as price) {
                   <div class="flex items-baseline gap-2">
                     <span class="text-heading-3 font-bold text-text-primary">
@@ -1350,7 +1350,7 @@
       <img
         [src]="previewUrl"
         alt="Vista previa ampliada"
-        class="max-h-[70vh] w-auto max-w-full rounded-lg object-contain shadow-soft"
+        class="max-h-[70vh] w-auto max-w-full rounded-control object-contain shadow-soft"
       />
     </div>
     <div modal-actions class="flex justify-end w-full">
@@ -1439,8 +1439,8 @@
       <div class="space-y-2 pt-2 border-t border-border">
         <p class="form-label mb-0">Fotografía específica de la variante (opcional)</p>
         @if (variantImagenUrl(); as vImgUrl) {
-          <div class="flex items-center gap-3 p-3 rounded-lg border border-border bg-surface-soft">
-            <img [src]="vImgUrl" alt="Vista previa de la variante" class="size-14 rounded-lg object-cover border border-border shrink-0" />
+          <div class="flex items-center gap-3 p-3 rounded-control border border-border bg-surface-soft">
+            <img [src]="vImgUrl" alt="Vista previa de la variante" class="size-14 rounded-control object-cover border border-border shrink-0" />
             <div class="flex-1 min-w-0">
               <p class="text-caption font-mono text-text-muted truncate">{{ vImgUrl }}</p>
             </div>
@@ -1662,7 +1662,7 @@
             helperText="Opcional (1048576 = 1 MB)."
           />
         } @else if (docUrl().trim()) {
-          <div class="sm:col-span-2 flex flex-col justify-center gap-0.5 rounded-lg border border-border bg-surface-soft/40 px-3.5 py-2.5">
+          <div class="sm:col-span-2 flex flex-col justify-center gap-0.5 rounded-control border border-border bg-surface-soft/40 px-3.5 py-2.5">
             <span class="text-caption font-medium text-text-muted">Formato y tamaño detectados</span>
             <span class="text-body-sm font-semibold text-text-primary">
               {{ docFormato() || 'PDF' }} · {{ formatDocumentSize(docTamanoBytes() ? +docTamanoBytes() : null) }}

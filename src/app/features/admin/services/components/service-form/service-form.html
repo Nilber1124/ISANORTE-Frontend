@@ -99,7 +99,7 @@
                 </button>
               </div>
               <p class="text-caption text-text-muted">
-                <span class="font-medium text-amber-600 dark:text-amber-400">Atención:</span>
+                <span class="font-medium text-warning">Atención:</span>
                 cambiar la ruta romperá los enlaces y referencias existentes.
               </p>
             </div>
@@ -162,7 +162,7 @@
               <!-- URL preview -->
               @if (slug() && slugState() !== 'taken') {
                 <p
-                  class="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-soft px-2.5 py-0.5 text-caption text-text-muted"
+                  class="mt-1.5 inline-flex items-center gap-1.5 rounded-control border border-border bg-surface-soft px-2.5 py-0.5 text-caption text-text-muted"
                 >
                   <span class="font-medium text-text-secondary">URL:</span>
                   <code class="font-semibold text-accent">isanorte.com/servicios/{{ slug() }}</code>
@@ -181,7 +181,7 @@
               }
 
               @if (mode() === 'edit') {
-                <p class="mt-1 text-caption text-amber-600 dark:text-amber-400">
+                <p class="mt-1 text-caption text-warning">
                   Cambiar la ruta romperá los enlaces existentes.
                 </p>
               }

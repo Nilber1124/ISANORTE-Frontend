@@ -82,6 +82,21 @@ lateral y el título de la barra superior) se agrupa por marca:
 - **Empresa** y **Configuración del sitio** comparten encabezado con el resto (eyebrow
   «Sitio y empresa» + `h1`).
 
+## Estilo: solo tokens
+
+El admin usa únicamente los tokens del sistema de diseño (base de la unificación con Showroom):
+radios `rounded-control` / `rounded-button` / `rounded-card` / `rounded-panel` (no `rounded-xl|lg|md`),
+tamaños `text-caption` / `text-body-sm` / `text-body` / `text-heading-*` (no `text-xs|sm|base` ni
+`text-[11px]`) y colores semánticos (`warning`, `error`, `success`, `info`, `accent`) en lugar de
+paletas fijas (`amber-*`, `red-*`). Así, cuando el tema base cambie, el admin cambia con él.
+
+- `npm run lint:tokens` (`scripts/check-design-tokens.mjs`) falla si aparece un valor fijo en
+  `features/admin` o `layouts/admin-layout`. Una línea con `design-tokens-ignore` se salta (hoy
+  solo la maqueta oscura de `admin-isadecor-landing`, que imita la web).
+- `rounded-full` se mantiene para píldoras, puntos e interruptores (es forma, no un radio de tema).
+- Pendiente fuera del admin: mover `showroom.css` a `theme.css` como base (a coordinar con la
+  sesión de rediseño de la landing).
+
 ## Pendiente (opción C, no implementada)
 
 Edición directa de textos sobre la propia vista previa (hoy el clic abre el formulario del bloque), vista previa de ISADECOR, dashboard con «pendientes» (agotados, cotizaciones sin responder, reseñas por revisar) y
