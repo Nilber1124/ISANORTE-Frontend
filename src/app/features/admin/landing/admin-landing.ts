@@ -11,9 +11,7 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { Alert } from '../../../shared/components/alert/alert';
-import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
-import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { AdminLandingFacade } from './admin-landing.facade';
 import { FieldEditor } from './components/field-editor/field-editor';
 import { ProjectFullEditor } from './components/project-full-editor/project-full-editor';
@@ -40,17 +38,8 @@ import {
   DynamicChildManager,
   DynamicChildSave,
 } from '../shared/dynamic-child-manager/dynamic-child-manager';
-import { AdminCompany } from '../company/admin-company';
 
 import { LandingSectionType } from '../../../data/models/landing-section/landing-section-type.enum';
-
-export interface SectionMeta {
-  label: string;
-  badge: string;
-  description: string;
-}
-
-export type LandingTab = 'vista' | 'secciones' | 'nosotros';
 
 /** Campos de texto de una sección de la landing que se pueden tocar en la página. */
 export type SectionTextField = 'etiqueta' | 'titulo' | 'subtitulo' | 'contenido';
@@ -148,20 +137,12 @@ export const PREVIEW_BLOCKS: readonly PreviewBlock[] = [
   { id: 'cotizar', label: 'Llamado a cotizar', type: LandingSectionType.CTA },
 ];
 
-export interface LandingTabItem {
-  id: LandingTab;
-  label: string;
-  description: string;
-}
-
 @Component({
   selector: 'app-admin-landing',
   imports: [
     Alert,
-    Badge,
     Button,
     DynamicChildManager,
-    EmptyState,
     FieldEditor,
     HeroEditor,
     ContentItemEditor,
@@ -177,7 +158,6 @@ export interface LandingTabItem {
     LandingPreview,
     LandingSectionForm,
     RouterLink,
-    AdminCompany,
   ],
   templateUrl: './admin-landing.html',
   styleUrls: ['./admin-landing.css'],
@@ -188,26 +168,6 @@ export class AdminLanding {
   readonly facade = inject(AdminLandingFacade);
   private readonly route = inject(ActivatedRoute, { optional: true });
   private readonly router = inject(Router, { optional: true });
-
-  readonly tabs: readonly LandingTabItem[] = [
-    {
-      id: 'vista',
-      label: 'Vista previa',
-      description: 'La web tal como se ve; toca un bloque para editarlo.',
-    },
-    {
-      id: 'secciones',
-      label: 'Secciones & Hero',
-      description: 'Estructura principal, orden, visibilidad y escenas dinámicas.',
-    },
-    {
-      id: 'nosotros',
-      label: 'Nosotros',
-      description: 'Presentación de la empresa, misión, visión, valores y estadísticas.',
-    },
-  ];
-
-  readonly activeTab = signal<LandingTab>('vista');
 
   /** Página que se previsualiza y sus bloques. */
   readonly previewPage = signal<PreviewPage>('inicio');
@@ -250,14 +210,12 @@ export class AdminLanding {
     servicios: '/admin/servicios',
     proyectos: '/admin/proyectos',
     contenido: '/admin/contenido',
-    contacto: '/admin/contacto',
   };
 
   /** Atajos a las demás pantallas que alimentan la landing. */
   readonly relatedScreens: readonly { label: string; route: string; hint: string }[] = [
     { label: 'Servicios', route: '/admin/servicios', hint: 'Servicios que se muestran en la portada' },
     { label: 'Proyectos', route: '/admin/proyectos', hint: 'Obras y casos de éxito' },
-    { label: 'Contacto', route: '/admin/contacto', hint: 'Mensajes recibidos' },
     { label: 'Páginas y SEO', route: '/admin/contenido', hint: 'Textos y posicionamiento' },
   ];
 
@@ -277,22 +235,12 @@ export class AdminLanding {
     });
 
     const tabParam = this.route?.snapshot?.queryParamMap?.get('tab');
-    if (tabParam && this.isValidTab(tabParam)) {
-      this.activeTab.set(tabParam);
+    if (tabParam === 'nosotros') {
+      // Enlace antiguo: los textos de Nosotros ahora se editan en la vista previa de esa página.
+      this.previewPage.set('nosotros');
     } else if (tabParam && this.legacyTabRoutes[tabParam]) {
       // Enlaces antiguos (?tab=servicios…): esas pantallas ya viven en su propia ruta.
       void this.router?.navigateByUrl(this.legacyTabRoutes[tabParam]);
-    }
-  }
-
-  protected selectTab(tabId: LandingTab): void {
-    this.activeTab.set(tabId);
-    if (this.router && this.route) {
-      this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { tab: tabId === 'vista' ? null : tabId },
-        queryParamsHandling: 'merge',
-      });
     }
   }
 
@@ -576,78 +524,6 @@ export class AdminLanding {
   protected setHeroVisibility(visible: boolean): void {
     const section = this.selectedSection();
     if (section) this.facade.changeVisibility(section, visible);
-  }
-
-  protected sectionMeta(type: string): SectionMeta {
-    switch (type) {
-      case LandingSectionType.HERO:
-        return {
-          label: 'Portada Principal (Hero)',
-          badge: 'Portada',
-          description: 'Carrusel de cabecera con fotografías de bienvenida y mensaje central.',
-        };
-      case LandingSectionType.SERVICIOS:
-        return {
-          label: 'Nuestros Servicios',
-          badge: 'Servicios',
-          description: 'Vitrina de soluciones y especialidades técnicas destacadas.',
-        };
-      case LandingSectionType.UNIDAD_NEGOCIO:
-        return {
-          label: 'Unidad de Negocio (ISADECOR)',
-          badge: 'ISADECOR',
-          description: 'Promoción de la división de acabados y diseño de interiores.',
-        };
-      case LandingSectionType.PROYECTOS:
-        return {
-          label: 'Proyectos Destacados',
-          badge: 'Proyectos',
-          description: 'Portafolio de obras y casos de éxito en la portada.',
-        };
-      case LandingSectionType.CTA:
-        return {
-          label: 'Llamado a la Acción (CTA)',
-          badge: 'Conversión',
-          description: 'Franja de cierre para invitar a cotizaciones o asesoría directa.',
-        };
-      case LandingSectionType.EMPRESA:
-        return {
-          label: 'Acerca de la Empresa',
-          badge: 'Empresa',
-          description: 'Presentación institucional, historia y trayectoria de ISANORTE.',
-        };
-      case LandingSectionType.CONTACTO:
-        return {
-          label: 'Formulario de Contacto',
-          badge: 'Contacto',
-          description: 'Bloque de contacto directo y canales de atención.',
-        };
-      default:
-        return {
-          label: 'Sección Personalizada',
-          badge: 'Personalizada',
-          description: 'Bloque con contenido libre y enlaces a medida.',
-        };
-    }
-  }
-
-  /** Qué trae la sección, en una línea (título e imagen). Los botones son fijos y no se editan. */
-  protected contentSummary(section: { titulo?: string | null; imagenUrl?: string | null }): string {
-    const parts = [section.titulo ? 'Título' : null, section.imagenUrl ? 'Imagen' : null].filter((part): part is string => part !== null);
-    return parts.length > 0 ? parts.join(' · ') : 'Sin contenido propio';
-  }
-
-  protected sectionOrderLabel(order: number | null | undefined): string {
-    const val = order ?? 0;
-    if (val === 0) return '1ª en la web (Portada)';
-    if (val === 1) return '2ª posición';
-    if (val === 2) return '3ª posición';
-    if (val === 3) return '4ª posición';
-    return `${val + 1}ª posición`;
-  }
-
-  private isValidTab(tab: string): tab is LandingTab {
-    return ['vista', 'secciones', 'nosotros'].includes(tab);
   }
 
   protected saveChild(event: DynamicChildSave): void {

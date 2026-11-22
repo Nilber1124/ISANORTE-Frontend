@@ -113,58 +113,14 @@ describe('AdminLanding', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debe tener la pestaña de vista previa activa por defecto y mostrar solo las pestañas propias', () => {
+  it('muestra directamente la vista previa, sin barra de pestañas', () => {
     fixture.detectChanges();
-    expect(component.activeTab()).toBe('vista');
-    const tabs = fixture.nativeElement.querySelectorAll('button[role="tab"]');
-    expect(tabs.length).toBe(3);
-  });
-
-  it('debe mostrar mensaje de falta de configuración', () => {
-    component.activeTab.set('secciones');
-    facadeMock.siteConfigurations.set([]);
-    facadeMock.sections.set([]);
-    fixture.detectChanges();
-
-    const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Falta configuración inicial');
-  });
-
-  it('debe mostrar mensaje de sin secciones cuando hay config pero 0 secciones', () => {
-    component.activeTab.set('secciones');
-    facadeMock.siteConfigurations.set([mockSiteConfig]);
-    facadeMock.sections.set([]);
-    fixture.detectChanges();
-
-    const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Sin secciones');
-    expect(text).toContain('Agrega la primera sección');
-  });
-
-  it('debe mostrar la tabla con datos', () => {
-    component.activeTab.set('secciones');
-    facadeMock.siteConfigurations.set([mockSiteConfig]);
-    facadeMock.sections.set([mockSection]);
-    fixture.detectChanges();
-
-    const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Hero Principal');
-    expect(text).toContain('Personalizada');
-    expect(text).toContain('Oculta');
-  });
-
-  it('debe permitir cambiar de pestaña', () => {
-    fixture.detectChanges();
-    const tabs = fixture.nativeElement.querySelectorAll('button[role="tab"]');
-    tabs[2].click();
-    fixture.detectChanges();
-
-    expect(component.activeTab()).toBe('nosotros');
-    expect(fixture.nativeElement.querySelector('#panel-nosotros')).toBeTruthy();
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('app-landing-preview')).toBeTruthy();
+    expect(element.querySelectorAll('button[role="tab"]')).toHaveLength(0);
   });
 
   it('ya no incrusta las pantallas que tienen su propia ruta y las enlaza', () => {
-    component.activeTab.set('secciones');
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('app-admin-services')).toBeNull();
@@ -172,19 +128,7 @@ describe('AdminLanding', () => {
     const links = Array.from(
       element.querySelectorAll('nav[aria-label="Otras pantallas de la web"] a'),
     ).map((a) => a.getAttribute('href'));
-    expect(links).toEqual(['/admin/servicios', '/admin/proyectos', '/admin/contacto', '/admin/contenido']);
-  });
-
-  it('muestra la visibilidad como botón y no permite administrar los botones', () => {
-    component.activeTab.set('secciones');
-    facadeMock.siteConfigurations.set([mockSiteConfig]);
-    facadeMock.sections.set([mockSection]);
-    fixture.detectChanges();
-    const toggle = (fixture.nativeElement as HTMLElement).querySelector(
-      'td button[aria-label^="Mostrar la sección"]',
-    );
-    expect(toggle).toBeTruthy();
-    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Botones (');
+    expect(links).toEqual(['/admin/servicios', '/admin/proyectos', '/admin/contenido']);
   });
 
   it('al elegir un bloque de la vista previa ofrece editar su sección o ir a su pantalla', () => {
