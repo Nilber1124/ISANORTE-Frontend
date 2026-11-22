@@ -202,10 +202,10 @@ La vista previa tiene un selector **Inicio / Nosotros**. La página Nosotros usa
 `about.ts`) y sus secciones tienen `id` (`cabecera`, `estadisticas`, `valores`, `equipo`, `credenciales`, `cobertura`; lista en `ABOUT_BLOCKS`).
 
 Ya se editan, tocando el texto (un campo cada vez, con escritura en vivo salvo listas y números):
-- **Cabecera:** frase pequeña, título, introducción y descripción (contenido de página NOSOTROS, `/api/contenidos-pagina`).
+- **Cabecera:** título, introducción y descripción (contenido de página NOSOTROS, `/api/contenidos-pagina`). El rótulo «NOSOTROS» es fijo.
 - **Misión, Visión y Valores** (campos de la empresa; los valores, uno por línea, se guardan separados por « | »).
 - **Año de fundación** y **lugares de cobertura** (separados por coma), de la empresa.
-- **Cabeceras** de Equipo, Credenciales y respaldo, y «Dónde trabajamos» (`textos_bloque`, claves `equipo`, `credenciales`, `cobertura`).
+- **Cabeceras** de Equipo, Credenciales y respaldo, y «Dónde trabajamos» (`textos_bloque`, claves `equipo`, `credenciales`, `cobertura`). Los rótulos «RESPALDO» y «COBERTURA» son fijos.
 
 La empresa se guarda con `PUT /api/empresa/{id}` enviando solo sus campos planos (`EmpresaUpdateRequest`): las redes sociales y estadísticas
 no se tocan. - **Estadísticas** («+12 años», «+85»…): tocar la cifra abre prefijo, cifra y sufijo; la etiqueta, solo ella; el resto de la tarjeta, los cuatro
@@ -219,5 +219,8 @@ no se tocan. - **Estadísticas** («+12 años», «+85»…): tocar la cifra abr
   credencial» abren el formulario de alta (se crea al final de la lista, activo). La API pública incluye ahora el `id` de cada miembro y credencial.
   El editor genérico (`content-item-editor`) soporta campos de imagen, selectores, alta y baja.
 
-Pendiente de «Nosotros»: reordenar equipo y credenciales desde la vista previa (hoy se hace en `/admin/sitio/equipo` y `/admin/sitio/credenciales`)
-y el selector de ubicación del mapa.
+- **Mapa** (fase 3): tocar el mapa de «Dónde trabajamos» abre el **selector de ubicación** (mapa Leaflet/OpenStreetMap, clic o arrastrar el pin) y la
+  dirección que se muestra bajo el mapa; se guarda en la empresa (`latitud`, `longitud`, `direccion`) con `PUT /api/empresa/{id}`. El mapa incrustado es
+  un iframe de otro origen y se traga los clics, así que en modo editor el puente le añade una capa transparente (`[data-edit-field=ubicacion]::after`).
+
+Pendiente de «Nosotros»: reordenar equipo y credenciales desde la vista previa (hoy se hace en `/admin/sitio/equipo` y `/admin/sitio/credenciales`).
