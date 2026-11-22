@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, booleanAttribute, inject, input, signal } from '@angular/core';
 
 import { API_BASE_URL } from '../../../core/config/api.config';
 import { ToastService } from '../../../core/services/toast.service';
@@ -30,6 +30,8 @@ export class AdminHomeReviews {
   private readonly toast = inject(ToastService);
   private readonly url = `${trimTrailingSlashes(inject(API_BASE_URL))}/api/resenas`;
 
+  /** Incrustada: sin el encabezado de página (la pantalla que la contiene pone el suyo). */
+  readonly embedded = input(false, { transform: booleanAttribute });
   readonly reviews = signal<readonly AdminReview[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);

@@ -111,77 +111,22 @@ export const routes: Routes = [
       { path: 'contenido', redirectTo: 'landing', pathMatch: 'full' },
       { path: 'anuncios', redirectTo: '/admin', pathMatch: 'full' },
       {
-        path: 'home-isadecor/resenas',
+        path: 'home-isadecor',
         loadComponent: () =>
-          import('./features/admin/home-reviews/admin-home-reviews').then(
-            ({ AdminHomeReviews }) => AdminHomeReviews,
+          import('./features/admin/isadecor-home/admin-isadecor-home').then(
+            ({ AdminIsadecorHome }) => AdminIsadecorHome,
           ),
-        data: { title: 'Reseñas del Home' },
       },
-      {
-        path: 'home-isadecor/publicaciones',
-        loadComponent: () =>
-          import('./features/admin/site-content/admin-site-content').then(
-            ({ AdminSiteContent }) => AdminSiteContent,
-          ),
-        data: { entity: 'isadecor-publicaciones', title: 'Videos de redes' },
-      },
-      {
-        path: 'home-isadecor/hero',
-        loadComponent: () =>
-          import('./features/admin/site-content/admin-site-content').then(
-            ({ AdminSiteContent }) => AdminSiteContent,
-          ),
-        data: { entity: 'isadecor-hero', title: 'Hero de la Home' },
-      },
-      {
-        path: 'home-isadecor/cinta',
-        loadComponent: () =>
-          import('./features/admin/site-content/admin-site-content').then(
-            ({ AdminSiteContent }) => AdminSiteContent,
-          ),
-        data: { entity: 'isadecor-cinta', title: 'Cinta de avisos' },
-      },
-      {
-        path: 'home-isadecor/promociones',
-        loadComponent: () =>
-          import('./features/admin/site-content/admin-site-content').then(
-            ({ AdminSiteContent }) => AdminSiteContent,
-          ),
-        data: { entity: 'isadecor-promociones', title: 'Promociones' },
-      },
-      {
-        path: 'home-isadecor/campana',
-        loadComponent: () =>
-          import('./features/admin/site-content/admin-site-content').then(
-            ({ AdminSiteContent }) => AdminSiteContent,
-          ),
-        data: { entity: 'isadecor-campana', title: 'Campaña' },
-      },
-      {
-        path: 'home-isadecor/servicio',
-        loadComponent: () =>
-          import('./features/admin/site-content/admin-site-content').then(
-            ({ AdminSiteContent }) => AdminSiteContent,
-          ),
-        data: { entity: 'isadecor-servicios', title: 'Bloque de servicio' },
-      },
-      {
-        path: 'home-isadecor/servicio-puntos',
-        loadComponent: () =>
-          import('./features/admin/site-content/admin-site-content').then(
-            ({ AdminSiteContent }) => AdminSiteContent,
-          ),
-        data: { entity: 'isadecor-servicio-puntos', title: 'Puntos del servicio' },
-      },
-      {
-        path: 'home-isadecor/secciones',
-        loadComponent: () =>
-          import('./features/admin/site-content/admin-site-content').then(
-            ({ AdminSiteContent }) => AdminSiteContent,
-          ),
-        data: { entity: 'isadecor-secciones', title: 'Secciones de productos' },
-      },
+      // Rutas antiguas (una por pantalla): abren la sección correspondiente de la pantalla única.
+      { path: 'home-isadecor/resenas', redirectTo: '/admin/home-isadecor?seccion=resenas', pathMatch: 'full' },
+      { path: 'home-isadecor/publicaciones', redirectTo: '/admin/home-isadecor?seccion=publicaciones', pathMatch: 'full' },
+      { path: 'home-isadecor/hero', redirectTo: '/admin/home-isadecor?seccion=hero', pathMatch: 'full' },
+      { path: 'home-isadecor/cinta', redirectTo: '/admin/home-isadecor?seccion=cinta', pathMatch: 'full' },
+      { path: 'home-isadecor/promociones', redirectTo: '/admin/home-isadecor?seccion=promociones', pathMatch: 'full' },
+      { path: 'home-isadecor/campana', redirectTo: '/admin/home-isadecor?seccion=campana', pathMatch: 'full' },
+      { path: 'home-isadecor/servicio', redirectTo: '/admin/home-isadecor?seccion=servicio', pathMatch: 'full' },
+      { path: 'home-isadecor/servicio-puntos', redirectTo: '/admin/home-isadecor?seccion=servicio', pathMatch: 'full' },
+      { path: 'home-isadecor/secciones', redirectTo: '/admin/home-isadecor?seccion=secciones', pathMatch: 'full' },
       {
         path: 'sitio',
         loadComponent: () =>

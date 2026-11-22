@@ -1,0 +1,58 @@
+<app-admin-page-header
+  eyebrow="Home ISADECOR"
+  title="Home de ISADECOR"
+  description="Todo lo que se ve en la portada de la tienda, en el orden en que aparece. Abre una sección para editarla."
+/>
+
+<ul class="mt-8 m-0 flex list-none flex-col gap-3 p-0" data-isadecor-home-sections>
+  @for (section of sections; track section.id) {
+    <li class="rounded-card border border-border bg-surface shadow-card" [id]="'seccion-' + section.id">
+      <h2 class="m-0">
+        <button
+          type="button"
+          class="flex min-h-14 w-full items-center justify-between gap-4 rounded-card px-5 py-4 text-left transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          [attr.aria-expanded]="isOpen()(section.id)"
+          [attr.aria-controls]="'panel-' + section.id"
+          (click)="toggle(section.id)"
+        >
+          <span class="min-w-0">
+            <span class="block text-heading-4 text-text-primary">{{ section.title }}</span>
+            @if (!isOpen()(section.id)) {
+              <span class="mt-0.5 block truncate text-body-sm text-text-muted">{{ section.description }}</span>
+            }
+          </span>
+          <svg
+            aria-hidden="true"
+            class="size-5 shrink-0 text-text-muted transition-transform duration-normal"
+            [class.rotate-180]="isOpen()(section.id)"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+      </h2>
+
+      @if (isOpen()(section.id)) {
+        <div [id]="'panel-' + section.id" class="space-y-8 border-t border-border p-5">
+          @if (section.reviews) {
+            <app-admin-home-reviews embedded />
+          } @else {
+            @for (item of section.entities; track item.key) {
+              <div class="space-y-4">
+                @if (section.entities.length > 1) {
+                  <h3 class="text-heading-5 text-text-primary">{{ item.title }}</h3>
+                }
+                <app-admin-site-content [entityKey]="item.key" embedded />
+              </div>
+            }
+          }
+        </div>
+      }
+    </li>
+  }
+</ul>

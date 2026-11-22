@@ -2,9 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  booleanAttribute,
   computed,
   effect,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -59,10 +61,16 @@ export class AdminSiteContent {
   private readonly toast = inject(ToastService);
   private readonly base = trimTrailingSlashes(inject(API_BASE_URL));
 
-  private readonly entityKey = toSignal(
+  /** Clave de la entidad cuando la pantalla va incrustada en otra; si no, se toma de la ruta (`data.entity`). */
+  readonly entityKeyInput = input<string | null>(null, { alias: 'entityKey' });
+  /** Incrustada: sin el encabezado de página (la pantalla que la contiene pone el suyo). */
+  readonly embedded = input(false, { transform: booleanAttribute });
+
+  private readonly routeEntityKey = toSignal(
     inject(ActivatedRoute).data.pipe(map((data) => data['entity'] as string)),
     { initialValue: '' },
   );
+  private readonly entityKey = computed(() => this.entityKeyInput() ?? this.routeEntityKey());
 
   readonly entity = computed<SiteContentEntity | null>(
     () =>

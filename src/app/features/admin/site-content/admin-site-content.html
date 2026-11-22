@@ -1,14 +1,22 @@
 @if (entity(); as config) {
-  <app-admin-page-header
-    [eyebrow]="eyebrowFor(config)"
-    [title]="config.title"
-    [description]="config.description"
-  >
-    @if (!editing()) {
-      <app-button variant="primary" (click)="openNew()">{{ config.addLabel }}</app-button>
-    }
-  
-  </app-admin-page-header>
+  @if (embedded()) {
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <p class="max-w-3xl text-body-sm text-text-secondary">{{ config.description }}</p>
+      @if (!editing()) {
+        <app-button variant="primary" size="small" (click)="openNew()">{{ config.addLabel }}</app-button>
+      }
+    </div>
+  } @else {
+    <app-admin-page-header
+      [eyebrow]="eyebrowFor(config)"
+      [title]="config.title"
+      [description]="config.description"
+    >
+      @if (!editing()) {
+        <app-button variant="primary" (click)="openNew()">{{ config.addLabel }}</app-button>
+      }
+    </app-admin-page-header>
+  }
 
   @if (error(); as message) {
     <app-alert class="mt-6" variant="error" title="No pudimos completar la operación">

@@ -30,22 +30,7 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
       { label: 'Categorías', route: '/admin/categorias' },
       { label: 'Cotizaciones', route: '/admin/cotizaciones' },
       { label: 'Pedidos', route: '/admin/pedidos' },
-    ],
-  },
-  {
-    id: 'isadecor-home',
-    title: 'Home',
-    brand: 'ISADECOR',
-    items: [
-      { label: 'Hero de la Home', route: '/admin/home-isadecor/hero' },
-      { label: 'Cinta de avisos', route: '/admin/home-isadecor/cinta' },
-      { label: 'Promociones', route: '/admin/home-isadecor/promociones' },
-      { label: 'Campaña', route: '/admin/home-isadecor/campana' },
-      { label: 'Secciones de productos', route: '/admin/home-isadecor/secciones' },
-      { label: 'Bloque de servicio', route: '/admin/home-isadecor/servicio' },
-      { label: 'Puntos del servicio', route: '/admin/home-isadecor/servicio-puntos' },
-      { label: 'Reseñas del Home', route: '/admin/home-isadecor/resenas' },
-      { label: 'Videos de redes', route: '/admin/home-isadecor/publicaciones' },
+      { label: 'Home de ISADECOR', route: '/admin/home-isadecor' },
     ],
   },
   {

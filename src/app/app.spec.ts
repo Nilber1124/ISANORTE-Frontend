@@ -82,6 +82,7 @@ describe('App', () => {
       'configuracion',
       'contenido',
       'anuncios',
+      'home-isadecor',
       'home-isadecor/resenas',
       'home-isadecor/publicaciones',
       'home-isadecor/hero',
@@ -133,5 +134,15 @@ describe('App', () => {
     expect(redirect('sitio/proyecto-galeria')).toBe('/admin/proyectos');
     expect(redirect('isadecor-landing')).toBe('/admin');
     expect(redirect('anuncios')).toBe('/admin');
+  });
+
+  it('redirects each old ISADECOR Home admin route to its section of the single screen', () => {
+    const adminRoute = routes.find((route) => route.path === 'admin');
+    const redirect = (path: string) => adminRoute?.children?.find((route) => route.path === path)?.redirectTo;
+    expect(redirect('home-isadecor/hero')).toBe('/admin/home-isadecor?seccion=hero');
+    expect(redirect('home-isadecor/cinta')).toBe('/admin/home-isadecor?seccion=cinta');
+    expect(redirect('home-isadecor/servicio-puntos')).toBe('/admin/home-isadecor?seccion=servicio');
+    expect(redirect('home-isadecor/resenas')).toBe('/admin/home-isadecor?seccion=resenas');
+    expect(redirect('home-isadecor/publicaciones')).toBe('/admin/home-isadecor?seccion=publicaciones');
   });
 });

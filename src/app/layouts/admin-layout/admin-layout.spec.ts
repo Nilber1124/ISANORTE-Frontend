@@ -37,11 +37,13 @@ describe('AdminLayout', () => {
 
     expect(groupButton('ISADECOR')).toBeTruthy();
     expect(groupButton('ISANORTE')).toBeTruthy();
-    // El grupo de Home está plegado al inicio; abrirlo muestra sus enlaces.
-    expect(nav.querySelector('a[href="/admin/home-isadecor/hero"]')).toBeNull();
-    groupButton('Home')?.click();
+    // El grupo «Sitio y empresa» está plegado al inicio; abrirlo muestra sus enlaces.
+    expect(nav.querySelector('a[href="/admin/empresa"]')).toBeNull();
+    groupButton('Sitio y empresa')?.click();
     harness.detectChanges();
-    expect(nav.querySelector('a[href="/admin/home-isadecor/hero"]')).toBeTruthy();
+    expect(nav.querySelector('a[href="/admin/empresa"]')).toBeTruthy();
+    // El Home de ISADECOR es una sola entrada dentro de la tienda, no un grupo de 9.
+    expect(nav.querySelector('a[href="/admin/home-isadecor/hero"]')).toBeNull();
   });
 
   it('opens the group of the current page and filters the menu with the search box', async () => {
@@ -51,11 +53,11 @@ describe('AdminLayout', () => {
     expect(nav.querySelector('a[href="/admin/sitio/politicas"]')).toBeTruthy();
 
     const search = element.querySelector('#admin-nav-search') as HTMLInputElement;
-    search.value = 'reseñas';
+    search.value = 'home de isadecor';
     search.dispatchEvent(new Event('input'));
     harness.detectChanges();
     const links = Array.from(nav.querySelectorAll('a')).map((a) => a.textContent?.trim());
-    expect(links).toEqual(['Reseñas del Home']);
+    expect(links).toEqual(['Home de ISADECOR']);
   });
 
   it('groups the content catalogs under a single «Contenido de la web» entry', async () => {
