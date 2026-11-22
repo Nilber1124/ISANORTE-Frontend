@@ -126,45 +126,6 @@
         </div>
       </div>
     </section>
-
-    <section aria-labelledby="config-colors-heading">
-      <h2 id="config-colors-heading" class="mb-4 text-heading-4 text-text-primary">Colores</h2>
-      <div class="grid gap-5 sm:grid-cols-2">
-        <div class="color-field">
-          <app-input-field
-            inputId="site-config-primary-color"
-            label="Color primario"
-            [(value)]="colorPrimario"
-            helperText="Se guarda como texto, sin modificar el Design System."
-            [disabled]="submitting()"
-          />
-          @if (colorPrimario()) {
-            <span
-              class="color-swatch"
-              [style.background-color]="colorPrimario()"
-              aria-hidden="true"
-            ></span>
-          }
-        </div>
-        <div class="color-field">
-          <app-input-field
-            inputId="site-config-secondary-color"
-            label="Color secundario"
-            [(value)]="colorSecundario"
-            helperText="Se guarda como texto, sin modificar el Design System."
-            [disabled]="submitting()"
-          />
-          @if (colorSecundario()) {
-            <span
-              class="color-swatch"
-              [style.background-color]="colorSecundario()"
-              aria-hidden="true"
-            ></span>
-          }
-        </div>
-      </div>
-    </section>
-
     <section aria-labelledby="config-footer-heading">
       <h2 id="config-footer-heading" class="mb-4 text-heading-4 text-text-primary">
         Pie de página

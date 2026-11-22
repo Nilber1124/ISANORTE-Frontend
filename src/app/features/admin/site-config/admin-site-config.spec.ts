@@ -104,14 +104,14 @@ describe('AdminSiteConfig', () => {
     expect(facade.createOpens).toBe(1);
   });
 
-  it('renders configuration data, logo previews and color fields', () => {
+  it('renders configuration data and logo previews, without the colors the site does not use', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Identidad del sitio');
     expect(element.textContent).toContain('Empresa asociada');
     expect(element.textContent).toContain('Pie configurado');
     expect(element.querySelectorAll('img')).toHaveLength(3);
-    expect(element.textContent).toContain('#111111');
-    expect(element.textContent).toContain('#f97316');
+    expect(element.textContent).not.toContain('Colores');
+    expect(element.textContent).not.toContain('#111111');
   });
 
   it('opens configuration editing', () => {

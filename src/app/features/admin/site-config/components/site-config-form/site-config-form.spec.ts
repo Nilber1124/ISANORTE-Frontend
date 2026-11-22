@@ -142,13 +142,22 @@ describe('SiteConfigForm', () => {
     }
   });
 
-  it('renders image previews and text color fields', async () => {
+  it('offers the three branding images and not the colors, which the site does not use', async () => {
     await createForm('edit', [company], config);
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.querySelectorAll('img')).toHaveLength(3);
-    expect(element.querySelector('#site-config-primary-color')?.getAttribute('type')).toBe('text');
-    expect(element.querySelector('#site-config-secondary-color')?.getAttribute('type')).toBe(
-      'text',
-    );
+    expect(element.querySelectorAll('app-image-uploader')).toHaveLength(3);
+    expect(element.querySelector('#site-config-primary-color')).toBeNull();
+    expect(element.querySelector('#site-config-secondary-color')).toBeNull();
+  });
+
+  it('keeps the stored colors when saving, so no data is lost', async () => {
+    await createForm('edit', [company], config);
+    const saved: Array<{ mode: string; request: Record<string, unknown> }> = [];
+    fixture.componentInstance.saved.subscribe((value) => saved.push(value as never));
+    Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'))
+      .find((item) => item.textContent?.includes('Guardar cambios'))
+      ?.click();
+    expect(saved[0].request['colorPrimario']).toBe('#111');
+    expect(saved[0].request['colorSecundario']).toBe('#fff');
   });
 });

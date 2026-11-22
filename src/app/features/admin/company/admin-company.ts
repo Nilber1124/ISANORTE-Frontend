@@ -21,10 +21,11 @@ import {
   DynamicChildSave,
 } from '../shared/dynamic-child-manager/dynamic-child-manager';
 import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-admin-company',
-  imports: [AdminPageHeader, 
+  imports: [RouterLink, AdminPageHeader, 
     Alert,
     Badge,
     Button,
@@ -43,7 +44,6 @@ import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 export class AdminCompany {
   readonly facade = inject(AdminCompanyFacade);
   readonly showLegalData = input(true);
-  readonly onlyAbout = input(false);
   readonly networkToDelete = signal<SocialNetworkResponse | null>(null);
   readonly activeFormTab = signal<CompanySection>('legal');
 

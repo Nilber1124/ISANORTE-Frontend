@@ -37,7 +37,6 @@ export class CompanyForm {
   readonly section = input<CompanySection>('legal');
   readonly initialTab = input<CompanySection>('legal');
   readonly showLegalTab = input<boolean>(true);
-  readonly onlyAbout = input<boolean>(false);
   readonly submitting = input<boolean>(false);
 
   readonly saved = output<CompanyFormSubmission>();
@@ -54,7 +53,7 @@ export class CompanyForm {
         return 'Editar ubicación & canales de contacto';
       case 'nosotros':
       default:
-        return this.onlyAbout() ? 'Editar textos de Nosotros' : 'Editar filosofía corporativa';
+        return 'Editar filosofía corporativa';
     }
   });
 
@@ -69,9 +68,7 @@ export class CompanyForm {
         return 'Canales de atención, teléfonos, correo electrónico y dirección física.';
       case 'nosotros':
       default:
-        return this.onlyAbout()
-          ? 'Resumen de presentación, misión, visión y valores para la web pública.'
-          : 'Resumen institucional, misión, visión y valores corporativos.';
+        return 'Resumen institucional, misión, visión y valores corporativos.';
     }
   });
 

@@ -152,39 +152,6 @@
             </div>
           </div>
         </section>
-
-        <section class="config-card" aria-labelledby="colors-heading">
-          <h2 id="colors-heading" class="config-card-title">Colores</h2>
-          <div class="config-list">
-            <div class="color-row">
-              <dl>
-                <dt>Primario</dt>
-                <dd>{{ config.colorPrimario || 'No configurado' }}</dd>
-              </dl>
-              @if (config.colorPrimario) {
-                <span
-                  class="detail-swatch"
-                  [style.background-color]="config.colorPrimario"
-                  aria-hidden="true"
-                ></span>
-              }
-            </div>
-            <div class="color-row">
-              <dl>
-                <dt>Secundario</dt>
-                <dd>{{ config.colorSecundario || 'No configurado' }}</dd>
-              </dl>
-              @if (config.colorSecundario) {
-                <span
-                  class="detail-swatch"
-                  [style.background-color]="config.colorSecundario"
-                  aria-hidden="true"
-                ></span>
-              }
-            </div>
-          </div>
-        </section>
-
         <section class="config-card" aria-labelledby="footer-heading">
           <h2 id="footer-heading" class="config-card-title">Pie de página</h2>
           <p class="whitespace-pre-wrap text-body text-text-secondary">
