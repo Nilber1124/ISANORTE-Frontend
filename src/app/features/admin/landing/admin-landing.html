@@ -79,6 +79,14 @@
                 (saved)="saveSectionField(edit.field, $event)"
                 (closed)="closePanelEdit()"
               />
+            } @else if (edit.kind === 'stat') {
+              <app-statistic-editor
+                [orden]="edit.orden"
+                [field]="edit.field"
+                (draftChanged)="setStatDraft(edit.orden, $event)"
+                (saved)="serviceSaved()"
+                (closed)="closePanelEdit()"
+              />
             } @else if (edit.kind === 'projects') {
               <app-projects-order-editor (saved)="serviceSaved()" (closed)="closePanelEdit()" />
             } @else if (edit.kind === 'blocktext') {

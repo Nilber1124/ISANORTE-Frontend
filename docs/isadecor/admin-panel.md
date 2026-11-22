@@ -208,5 +208,9 @@ Ya se editan, tocando el texto (un campo cada vez, con escritura en vivo salvo l
 - **Cabeceras** de Equipo, Credenciales y respaldo, y «Dónde trabajamos» (`textos_bloque`, claves `equipo`, `credenciales`, `cobertura`).
 
 La empresa se guarda con `PUT /api/empresa/{id}` enviando solo sus campos planos (`EmpresaUpdateRequest`): las redes sociales y estadísticas
-no se tocan. Pendiente de «Nosotros»: estadísticas, etiquetas de la cabecera, tarjetas de equipo y credenciales (crear/editar/borrar) y el
-selector de ubicación del mapa.
+no se tocan. - **Estadísticas** («+12 años», «+85»…): tocar la cifra abre prefijo, cifra y sufijo; la etiqueta, solo ella; el resto de la tarjeta, los cuatro
+  campos. Escritura en vivo (la cifra se ve como prefijo + cifra + sufijo). La página pública no expone el `id` de las estadísticas, así que se
+  localizan por su **orden**; se guardan con `PUT /api/empresa/{empresaId}/estadisticas/{id}` (`statistic-editor`).
+- **Etiquetas de la cabecera** («Cajamarca», «Obra con garantía»…): una por línea (campo `tags` del contenido de página).
+
+Pendiente de «Nosotros»: tarjetas de equipo y credenciales (crear/editar/borrar) y el selector de ubicación del mapa.

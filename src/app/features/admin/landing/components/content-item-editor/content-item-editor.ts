@@ -30,6 +30,8 @@ export interface ContentField {
   readonly list?: boolean;
   /** Número entero (vacío = sin valor). */
   readonly number?: boolean;
+  /** Lista real (array): un elemento por línea; se guarda como array. */
+  readonly array?: boolean;
 }
 
 const SEPARATOR = ' | ';
@@ -74,6 +76,7 @@ export const CONTENT_ITEMS: Readonly<
       { key: 'titulo', label: 'Título', rows: 2, required: false },
       { key: 'introduccion', label: 'Introducción', rows: 3, required: false },
       { key: 'descripcion', label: 'Descripción', rows: 3, required: false },
+      { key: 'tags', label: 'Etiquetas (una por línea)', rows: 4, required: false, array: true },
     ],
   },
   garantia: {
@@ -117,12 +120,14 @@ type Item = Record<string, unknown> & { id: string };
 function read(field: ContentField, item: Item | null): string {
   const raw = item?.[field.key];
   if (raw === null || raw === undefined) return '';
+  if (field.array) return Array.isArray(raw) ? raw.map(String).join('\n') : '';
   if (field.list) return String(raw).split('|').map((line) => line.trim()).filter(Boolean).join('\n');
   return String(raw);
 }
 
 /** Lo que se envía al guardar un campo. */
-function write(field: ContentField, text: string): string | number | null {
+function write(field: ContentField, text: string): string | number | string[] | null {
+  if (field.array) return text.split('\n').map((line) => line.trim()).filter(Boolean);
   if (field.list) {
     const lines = text.split('\n').map((line) => line.trim()).filter(Boolean);
     return lines.length > 0 ? lines.join(SEPARATOR) : null;
@@ -238,7 +243,7 @@ export class ContentItemEditor {
   protected onSingleDraft(value: string | null): void {
     const single = this.single();
     // Las listas y los números no se ven en vivo en la página.
-    this.draftChanged.emit(value !== null && single && !single.list && !single.number ? { [single.key]: value } : null);
+    this.draftChanged.emit(value !== null && single && !single.list && !single.number && !single.array ? { [single.key]: value } : null);
   }
 
   protected saveSingle(value: string): void {
@@ -255,7 +260,7 @@ export class ContentItemEditor {
     );
   }
 
-  private persist(patch: Record<string, string | number | null>): void {
+  private persist(patch: Record<string, string | number | string[] | null>): void {
     const item = this.item();
     if (!item || this.saving()) return;
     this.saving.set(true);

@@ -16,6 +16,7 @@ import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { AdminLandingFacade } from './admin-landing.facade';
 import { FieldEditor } from './components/field-editor/field-editor';
+import { StatisticEditor, StatisticField } from './components/statistic-editor/statistic-editor';
 import { ProjectsOrderEditor } from './components/projects-order-editor/projects-order-editor';
 import { BlockTextEditor } from './components/block-text-editor/block-text-editor';
 import { BLOCK_TEXT_DEFAULTS, BlockKey, BlockTextField, isBlockKey } from '../../../shared/content/block-texts';
@@ -68,6 +69,7 @@ export type PanelEdit =
   | { readonly kind: 'section'; readonly field: SectionTextField }
   | { readonly kind: 'service'; readonly slug: string; readonly field: ServiceField }
   | { readonly kind: 'projects' }
+  | { readonly kind: 'stat'; readonly orden: number; readonly field: StatisticField }
   | { readonly kind: 'blocktext'; readonly clave: BlockKey; readonly field: BlockTextField }
   | { readonly kind: 'unit'; readonly slug: string; readonly field: UnitField }
   | { readonly kind: 'content'; readonly item: string; readonly id: string; readonly field: string };
@@ -124,6 +126,7 @@ export interface LandingTabItem {
     UnitFieldEditor,
     BlockTextEditor,
     ProjectsOrderEditor,
+    StatisticEditor,
     ServiceFieldEditor,
     LandingPreview,
     LandingSectionForm,
@@ -272,6 +275,18 @@ export class AdminLanding {
       }
       return;
     }
+    // Una estadística de la empresa («+12 años…»): cifra (prefijo, cifra, sufijo), etiqueta o ambas.
+    if (selection.item?.startsWith('estadistica:')) {
+      const orden = Number(selection.item.slice('estadistica:'.length));
+      if (!Number.isNaN(orden) && ['valor', 'etiqueta', 'tarjeta'].includes(selection.field)) {
+        this.panelEdit.set({
+          kind: 'stat',
+          orden,
+          field: (selection.field === 'tarjeta' ? 'ambos' : selection.field) as StatisticField,
+        });
+      }
+      return;
+    }
     // Una tarjeta de proyecto: solo se cambia qué proyectos salen y en qué orden.
     if (selection.item?.startsWith('proyectos:')) {
       this.panelEdit.set({ kind: 'projects' });
@@ -402,6 +417,11 @@ export class AdminLanding {
   protected setUnitDraft(slug: string, values: Readonly<Record<string, string>> | null): void {
     const block = this.selectedBlockId();
     this.previewDraft.set(block && values ? { block, item: `unidad:${slug}`, values } : null);
+  }
+
+  protected setStatDraft(orden: number, values: Readonly<Record<string, string>> | null): void {
+    const block = this.selectedBlockId();
+    this.previewDraft.set(block && values ? { block, item: `estadistica:${orden}`, values } : null);
   }
 
   protected setContentDraft(item: string, id: string, values: Readonly<Record<string, string>> | null): void {

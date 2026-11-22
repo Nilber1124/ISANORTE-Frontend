@@ -104,6 +104,7 @@
               data-reveal="up"
               data-reveal-order="4"
               data-about-tags
+              data-edit-field="tags"
             >
               @for (tag of facade.tags(); track $index) {
                 <span
@@ -163,11 +164,14 @@
           @for (stat of facade.statistics(); track $index) {
             <div
               class="border-l border-border px-6 first:border-l-0 lg:border-l lg:border-border lg:first:border-l-0"
+            
+              [attr.data-edit-item]="'estadistica:' + stat.orden"
+              data-edit-fallback="tarjeta"
             >
-              <p class="text-heading-1 text-white">
+              <p data-edit-field="valor" class="text-heading-1 text-white">
                 {{ (stat.prefijo ?? '') + stat.valor + (stat.sufijo ?? '') }}
               </p>
-              <p class="mt-2 font-mono text-caption uppercase tracking-wider text-accent">
+              <p data-edit-field="etiqueta" class="mt-2 font-mono text-caption uppercase tracking-wider text-accent">
                 {{ stat.etiqueta }}
               </p>
             </div>

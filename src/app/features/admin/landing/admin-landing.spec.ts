@@ -352,4 +352,19 @@ describe('AdminLanding', () => {
     component['selectField']({ block: 'cobertura', field: 'titulo' });
     expect(component.panelEdit()).toEqual({ kind: 'blocktext', clave: 'cobertura', field: 'titulo' });
   });
+
+  it('al tocar una estadística abre cifra, etiqueta o ambas; las etiquetas de la cabecera abren su lista', () => {
+    component['changePage']('nosotros');
+    component['selectBlock']('estadisticas');
+    component['selectField']({ block: 'estadisticas', field: 'valor', item: 'estadistica:2' });
+    expect(component.panelEdit()).toEqual({ kind: 'stat', orden: 2, field: 'valor' });
+    component['selectField']({ block: 'estadisticas', field: 'tarjeta', item: 'estadistica:2' });
+    expect(component.panelEdit()).toEqual({ kind: 'stat', orden: 2, field: 'ambos' });
+    component['setStatDraft'](2, { valor: '+85', etiqueta: 'OBRAS' });
+    expect(component.previewDraft()).toEqual({ block: 'estadisticas', item: 'estadistica:2', values: { valor: '+85', etiqueta: 'OBRAS' } });
+
+    component['selectBlock']('cabecera');
+    component['selectField']({ block: 'cabecera', field: 'tags' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'pagina', id: 'NOSOTROS', field: 'tags' });
+  });
 });
