@@ -19,6 +19,9 @@ const EDITOR_STYLE = `
 body.editor-mode section[id]{cursor:pointer;transition:outline-color .15s}
 body.editor-mode [data-edit-item]:hover{outline:2px dashed #f97316;outline-offset:2px}
 body.editor-mode [data-edit-field]{cursor:text}
+/* Los mapas incrustados (iframe de otro origen) se tragan el clic: una capa transparente lo recoge. */
+body.editor-mode [data-edit-field=ubicacion]{position:relative;cursor:pointer}
+body.editor-mode [data-edit-field=ubicacion]::after{content:'';position:absolute;inset:0;z-index:20}
 body.editor-mode [data-edit-field]:hover{outline:2px solid #f97316;outline-offset:3px}
 body.editor-mode section[id]:hover{outline:2px dashed #f97316;outline-offset:-2px}
 body.editor-mode section[id].editor-selected{outline:3px solid #f97316;outline-offset:-3px}

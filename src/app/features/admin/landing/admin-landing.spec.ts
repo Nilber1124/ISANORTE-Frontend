@@ -383,4 +383,20 @@ describe('AdminLanding', () => {
     component['selectField']({ block: 'credenciales', field: 'tarjeta', item: 'credencial:c1' });
     expect(component.panelEdit()).toEqual({ kind: 'content', item: 'credencial', id: 'c1', field: 'ambos' });
   });
+
+  it('al tocar el mapa de Nosotros abre el selector de ubicación', () => {
+    component['changePage']('nosotros');
+    component['selectBlock']('cobertura');
+    component['selectField']({ block: 'cobertura', field: 'ubicacion' });
+    expect(component.panelEdit()).toEqual({ kind: 'map' });
+  });
+
+  it('los rótulos fijos de Nosotros (NOSOTROS, RESPALDO, COBERTURA) no se pueden editar', () => {
+    component['changePage']('nosotros');
+    for (const [block, field] of [['cabecera', 'eyebrow'], ['credenciales', 'etiqueta'], ['cobertura', 'etiqueta']]) {
+      component['selectBlock'](block);
+      component['selectField']({ block, field });
+      expect(component.panelEdit()).toBeNull();
+    }
+  });
 });

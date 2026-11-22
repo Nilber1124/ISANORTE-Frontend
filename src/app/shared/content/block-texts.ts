@@ -43,12 +43,10 @@ export const BLOCK_TEXT_DEFAULTS: Readonly<
     titulo: 'El equipo detrás de cada obra',
   },
   credenciales: {
-    etiqueta: 'Respaldo',
     titulo: 'Credenciales y respaldo',
     subtitulo: 'Registros, colegiaturas y licencias vigentes de la empresa y de su equipo técnico.',
   },
   cobertura: {
-    etiqueta: 'Cobertura',
     titulo: 'Dónde trabajamos',
     subtitulo: 'Construimos en la ciudad y en las provincias de la región, con equipo propio en obra.',
   },

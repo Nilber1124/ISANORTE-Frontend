@@ -18,9 +18,9 @@
           <app-input-field
             [inputId]="'stat-' + key"
             [label]="labels[key]"
-            [required]="key === 'valor' || key === 'etiqueta'"
+            [required]="true"
             [disabled]="saving()"
-            [inputMode]="key === 'valor' ? 'decimal' : undefined"
+            [helperText]="key === 'cifra' ? 'Escribe la cifra completa: el prefijo (+), el número y el sufijo (años, m²…).' : undefined"
             [value]="values()[key] ?? ''"
             (valueChange)="setValue(key, $event)"
           />

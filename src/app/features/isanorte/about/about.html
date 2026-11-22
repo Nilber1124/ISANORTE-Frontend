@@ -60,7 +60,6 @@
         <div>
           @if (content.eyebrow) {
             <p
-              data-edit-field="eyebrow"
               class="mb-3 flex items-center gap-3 text-eyebrow uppercase text-text-secondary"
               data-reveal="up"
               data-reveal-order="0"
@@ -346,7 +345,7 @@
       data-about-credentials
     >
       <div class="mb-10 max-w-3xl">
-        <p data-edit-field="etiqueta" class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">{{ trust.blockText('credenciales', 'etiqueta') }}</p>
+        <p class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">Respaldo</p>
         <h2 id="credenciales-title" data-edit-field="titulo" class="whitespace-pre-line text-heading-1 text-text-primary">
           {{ trust.blockText('credenciales', 'titulo') }}
         </h2>
@@ -434,8 +433,8 @@
     >
       <div class="app-container grid gap-10 lg:grid-cols-12 lg:items-stretch lg:gap-14">
         <div class="flex flex-col lg:col-span-6">
-          <p data-edit-field="etiqueta" class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
-            {{ trust.blockText('cobertura', 'etiqueta') }}
+          <p class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
+            Cobertura
           </p>
           <h2 id="cobertura-title" data-edit-field="titulo" class="mb-5 whitespace-pre-line text-heading-1 text-text-primary">
             {{ trust.blockText('cobertura', 'titulo') }}
@@ -478,7 +477,7 @@
         </div>
 
         @if (showMap()) {
-          <div class="flex min-h-80 lg:col-span-6">
+          <div data-edit-field="ubicacion" class="flex min-h-80 lg:col-span-6">
             <app-location-map
               class="flex-1"
               size="fill"

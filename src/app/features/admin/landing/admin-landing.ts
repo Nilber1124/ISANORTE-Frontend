@@ -16,6 +16,7 @@ import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { AdminLandingFacade } from './admin-landing.facade';
 import { FieldEditor } from './components/field-editor/field-editor';
+import { MapLocationEditor } from './components/map-location-editor/map-location-editor';
 import { StatisticEditor, StatisticField } from './components/statistic-editor/statistic-editor';
 import { ProjectsOrderEditor } from './components/projects-order-editor/projects-order-editor';
 import { BlockTextEditor } from './components/block-text-editor/block-text-editor';
@@ -69,6 +70,7 @@ export type PanelEdit =
   | { readonly kind: 'section'; readonly field: SectionTextField }
   | { readonly kind: 'service'; readonly slug: string; readonly field: ServiceField }
   | { readonly kind: 'projects' }
+  | { readonly kind: 'map' }
   | { readonly kind: 'stat'; readonly orden: number; readonly field: StatisticField }
   | { readonly kind: 'blocktext'; readonly clave: BlockKey; readonly field: BlockTextField }
   | { readonly kind: 'unit'; readonly slug: string; readonly field: UnitField }
@@ -133,6 +135,7 @@ export interface LandingTabItem {
     BlockTextEditor,
     ProjectsOrderEditor,
     StatisticEditor,
+    MapLocationEditor,
     ServiceFieldEditor,
     LandingPreview,
     LandingSectionForm,
@@ -321,6 +324,11 @@ export class AdminLanding {
           field: selection.field === 'tarjeta' ? 'ambos' : selection.field,
         });
       }
+      return;
+    }
+    // El mapa de «Dónde trabajamos»: se elige la ubicación de la oficina.
+    if (!selection.item && selection.block === 'cobertura' && selection.field === 'ubicacion') {
+      this.panelEdit.set({ kind: 'map' });
       return;
     }
     // Misión, visión o valores (campos de la empresa): se edita solo el texto tocado.

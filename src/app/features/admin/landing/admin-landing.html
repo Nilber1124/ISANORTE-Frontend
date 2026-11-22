@@ -87,6 +87,8 @@
                 (saved)="serviceSaved()"
                 (closed)="closePanelEdit()"
               />
+            } @else if (edit.kind === 'map') {
+              <app-map-location-editor (saved)="serviceSaved()" (closed)="closePanelEdit()" />
             } @else if (edit.kind === 'projects') {
               <app-projects-order-editor (saved)="serviceSaved()" (closed)="closePanelEdit()" />
             } @else if (edit.kind === 'blocktext') {

@@ -147,4 +147,14 @@ describe('editor bridge', () => {
     const css = Array.from(document.head.querySelectorAll('style')).map((st) => st.textContent).join('');
     expect(css).not.toContain('pointer-events:none');
   });
+
+  it('adds a transparent layer over embedded maps so their clicks reach the editor', () => {
+    document.body.innerHTML = '<section id="cobertura"><div data-edit-field="ubicacion"><iframe></iframe></div></section>';
+    const { win, posted } = fakeWindow('?editor=1', true);
+    initEditorBridge(document, win);
+    const css = Array.from(document.head.querySelectorAll('style')).map((st) => st.textContent).join('');
+    expect(css).toContain('[data-edit-field=ubicacion]::after');
+    document.querySelector('[data-edit-field=ubicacion]')!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(posted).toContainEqual({ source: EDITOR_MESSAGE_SOURCE, type: 'select', block: 'cobertura', field: 'ubicacion', item: undefined });
+  });
 });

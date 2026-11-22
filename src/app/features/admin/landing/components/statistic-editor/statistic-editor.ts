@@ -36,11 +36,25 @@ interface Company {
 }
 
 const LABELS: Record<string, string> = {
-  prefijo: 'Prefijo (p. ej. +)',
-  valor: 'Cifra',
-  sufijo: 'Sufijo (p. ej. m²)',
+  cifra: 'Cifra (tal como se ve, p. ej. +12 años)',
   etiqueta: 'Etiqueta',
 };
+
+/** «+12 años» ← prefijo «+», cifra 12, sufijo « años». */
+function combine(stat: Statistic | null): string {
+  if (!stat) return '';
+  return `${stat.prefijo ?? ''}${Number(stat.valor)}${stat.sufijo ?? ''}`;
+}
+
+/** Separa «+12 años» en prefijo, cifra y sufijo; `null` si no hay una cifra. */
+export function parseFigure(text: string): { prefijo: string | null; valor: number; sufijo: string | null } | null {
+  const match = /^\s*([^0-9-]*?)\s*(-?\d+(?:[.,]\d+)?)(.*)$/.exec(text);
+  if (!match) return null;
+  const valor = Number(match[2].replace(',', '.'));
+  if (Number.isNaN(valor)) return null;
+  const sufijo = match[3].replace(/\s+$/, '');
+  return { prefijo: match[1].trim() || null, valor, sufijo: sufijo.trim() ? sufijo : null };
+}
 
 /**
  * Edita una estadística de la empresa («+12 años de experiencia…») tocada en la vista previa. La página pública no
@@ -56,7 +70,7 @@ export class StatisticEditor {
   readonly orden = input.required<number>();
   readonly field = input.required<StatisticField>();
 
-  /** Lo que se teclea, por campo de la página (`valor` = prefijo + cifra + sufijo). */
+  /** Lo que se teclea, por campo de la página (`valor` = la cifra completa, p. ej. «+12 años»). */
   readonly draftChanged = output<Readonly<Record<string, string>> | null>();
   readonly saved = output<void>();
   readonly closed = output<void>();
@@ -75,7 +89,7 @@ export class StatisticEditor {
 
   protected readonly keys = computed<readonly string[]>(() => {
     const field = this.field();
-    return field === 'etiqueta' ? ['etiqueta'] : field === 'valor' ? ['prefijo', 'valor', 'sufijo'] : ['prefijo', 'valor', 'sufijo', 'etiqueta'];
+    return field === 'etiqueta' ? ['etiqueta'] : field === 'valor' ? ['cifra'] : ['cifra', 'etiqueta'];
   });
   protected readonly labels = LABELS;
   protected readonly heading = computed(
@@ -83,12 +97,7 @@ export class StatisticEditor {
   );
 
   private saved$(stat: Statistic | null): Record<string, string> {
-    return {
-      prefijo: stat?.prefijo ?? '',
-      valor: stat ? String(stat.valor) : '',
-      sufijo: stat?.sufijo ?? '',
-      etiqueta: stat?.etiqueta ?? '',
-    };
+    return { cifra: combine(stat), etiqueta: stat?.etiqueta ?? '' };
   }
 
   protected readonly dirty = computed(() => {
@@ -100,7 +109,7 @@ export class StatisticEditor {
   protected readonly invalid = computed(() => {
     const v = this.values();
     return (
-      (this.keys().includes('valor') && (v['valor'] ?? '').trim() === '' || Number.isNaN(Number(v['valor']))) ||
+      (this.keys().includes('cifra') && parseFigure(v['cifra'] ?? '') === null) ||
       (this.keys().includes('etiqueta') && (v['etiqueta'] ?? '').trim() === '')
     );
   });
@@ -117,7 +126,7 @@ export class StatisticEditor {
       untracked(() => {
         if (!dirty) return this.draftChanged.emit(null);
         const draft: Record<string, string> = {};
-        if (keys.includes('valor')) draft['valor'] = `${v['prefijo'] ?? ''}${v['valor'] ?? ''}${v['sufijo'] ?? ''}`;
+        if (keys.includes('cifra')) draft['valor'] = v['cifra'] ?? '';
         if (keys.includes('etiqueta')) draft['etiqueta'] = v['etiqueta'] ?? '';
         this.draftChanged.emit(draft);
       });
@@ -163,10 +172,11 @@ export class StatisticEditor {
     this.saving.set(true);
     this.error.set(null);
     // Lo que no se editó viaja tal cual está guardado.
+    const figure = this.keys().includes('cifra') ? parseFigure(v['cifra'] ?? '') : null;
     const body = {
-      valor: this.keys().includes('valor') ? Number(v['valor']) : stat.valor,
-      prefijo: this.keys().includes('valor') ? v['prefijo']?.trim() || null : stat.prefijo,
-      sufijo: this.keys().includes('valor') ? v['sufijo']?.trim() || null : stat.sufijo,
+      valor: figure ? figure.valor : stat.valor,
+      prefijo: figure ? figure.prefijo : stat.prefijo,
+      sufijo: figure ? figure.sufijo : stat.sufijo,
       etiqueta: this.keys().includes('etiqueta') ? (v['etiqueta'] ?? '').trim() : stat.etiqueta,
       orden: stat.orden,
       activo: stat.activo ?? true,

@@ -122,7 +122,6 @@ export const CONTENT_ITEMS: Readonly<
     heading: 'Cabecera de la página',
     matchKey: 'pagina',
     fields: [
-      { key: 'eyebrow', label: 'Frase pequeña sobre el título', rows: 1, required: false },
       { key: 'titulo', label: 'Título', rows: 2, required: false },
       { key: 'introduccion', label: 'Introducción', rows: 3, required: false },
       { key: 'descripcion', label: 'Descripción', rows: 3, required: false },
