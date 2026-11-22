@@ -194,6 +194,9 @@
                     Este bloque aún no está registrado como sección. Créalo en la pestaña «Secciones &amp; Hero».
                   </p>
                 }
+                @if (block.create; as create) {
+                  <app-button variant="primary" (click)="startCreate(create.item)">{{ create.label }}</app-button>
+                }
                 @if (block.screen; as screen) {
                   <a
                     [routerLink]="screen.route"

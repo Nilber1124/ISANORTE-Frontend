@@ -7,6 +7,7 @@ export interface PublicFaq {
 }
 
 export interface PublicTeamMember {
+  id: string;
   nombre: string;
   cargo: string;
   especialidad: string | null;
@@ -16,6 +17,7 @@ export interface PublicTeamMember {
 }
 
 export interface PublicCredential {
+  id: string;
   nombre: string;
   entidad: string | null;
   tipo: 'LICENCIA' | 'COLEGIATURA' | 'CERTIFICACION' | 'REGISTRO';

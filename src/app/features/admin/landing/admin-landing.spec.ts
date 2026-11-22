@@ -367,4 +367,20 @@ describe('AdminLanding', () => {
     component['selectField']({ block: 'cabecera', field: 'tags' });
     expect(component.panelEdit()).toEqual({ kind: 'content', item: 'pagina', id: 'NOSOTROS', field: 'tags' });
   });
+
+  it('permite crear miembros y credenciales y editar sus campos desde la vista previa', () => {
+    component['changePage']('nosotros');
+    component['selectBlock']('equipo');
+    expect(component.selectedBlock()?.create?.item).toBe('miembro');
+    component['startCreate']('miembro');
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'miembro', id: 'new', field: 'ambos' });
+
+    component['selectField']({ block: 'equipo', field: 'fotoUrl', item: 'miembro:m1' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'miembro', id: 'm1', field: 'fotoUrl' });
+    component['selectBlock']('credenciales');
+    component['selectField']({ block: 'credenciales', field: 'tipo', item: 'credencial:c1' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'credencial', id: 'c1', field: 'tipo' });
+    component['selectField']({ block: 'credenciales', field: 'tarjeta', item: 'credencial:c1' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'credencial', id: 'c1', field: 'ambos' });
+  });
 });

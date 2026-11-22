@@ -304,9 +304,14 @@
         </h2>
         <ul class="grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-4">
           @for (member of trust.team(); track member.nombre) {
-            <li class="overflow-hidden rounded-card border border-border bg-surface">
+            <li
+              class="overflow-hidden rounded-card border border-border bg-surface"
+              [attr.data-edit-item]="'miembro:' + member.id"
+              data-edit-fallback="tarjeta"
+            >
               @if (member.fotoUrl) {
                 <img
+                  data-edit-field="fotoUrl"
                   [src]="member.fotoUrl"
                   [alt]="member.fotoAlt ?? member.nombre"
                   width="400"
@@ -317,13 +322,13 @@
                 />
               }
               <div class="p-5">
-                <h3 class="text-heading-4 text-text-primary">{{ member.nombre }}</h3>
-                <p class="text-body-sm font-semibold text-accent">{{ member.cargo }}</p>
+                <h3 data-edit-field="nombre" class="text-heading-4 text-text-primary">{{ member.nombre }}</h3>
+                <p data-edit-field="cargo" class="text-body-sm font-semibold text-accent">{{ member.cargo }}</p>
                 @if (member.especialidad) {
-                  <p class="mt-1 text-body-sm text-text-secondary">{{ member.especialidad }}</p>
+                  <p data-edit-field="especialidad" class="mt-1 text-body-sm text-text-secondary">{{ member.especialidad }}</p>
                 }
                 @if (member.biografia) {
-                  <p class="mt-3 text-body-sm text-text-secondary">{{ member.biografia }}</p>
+                  <p data-edit-field="biografia" class="mt-3 text-body-sm text-text-secondary">{{ member.biografia }}</p>
                 }
               </div>
             </li>
@@ -353,10 +358,13 @@
         @for (item of trust.credentials(); track item.nombre) {
           <li
             class="group flex flex-col gap-4 rounded-card border border-border bg-surface p-6 transition-[border-color,transform] duration-normal ease-[var(--ease-standard)] hover:-translate-y-0.5 hover:border-accent"
+            [attr.data-edit-item]="'credencial:' + item.id"
+            data-edit-fallback="tarjeta"
           >
             <div class="flex items-center justify-between gap-3">
               @if (item.imagenUrl) {
                 <img
+                  data-edit-field="imagenUrl"
                   [src]="item.imagenUrl"
                   [alt]="item.imagenAlt ?? item.nombre"
                   width="48"
@@ -386,13 +394,14 @@
               }
               <span
                 class="rounded-full border border-border px-3 py-1 text-caption font-semibold uppercase tracking-wider text-text-secondary"
+                data-edit-field="tipo"
                 >{{ credentialLabels[item.tipo] ?? item.tipo }}</span
               >
             </div>
             <div class="min-w-0 flex-1">
-              <h3 class="text-heading-4 leading-snug text-text-primary">{{ item.nombre }}</h3>
+              <h3 data-edit-field="nombre" class="text-heading-4 leading-snug text-text-primary">{{ item.nombre }}</h3>
               @if (item.entidad) {
-                <p class="mt-1.5 text-body-sm text-text-secondary">{{ item.entidad }}</p>
+                <p data-edit-field="entidad" class="mt-1.5 text-body-sm text-text-secondary">{{ item.entidad }}</p>
               }
             </div>
             @if (item.codigo || item.anio) {
@@ -400,13 +409,13 @@
                 class="flex items-center gap-2 border-t border-border pt-4 text-caption text-text-muted"
               >
                 @if (item.codigo) {
-                  <span class="font-semibold text-text-primary">{{ item.codigo }}</span>
+                  <span data-edit-field="codigo" class="font-semibold text-text-primary">{{ item.codigo }}</span>
                 }
                 @if (item.codigo && item.anio) {
                   <span aria-hidden="true">·</span>
                 }
                 @if (item.anio) {
-                  <span>Desde {{ item.anio }}</span>
+                  <span data-edit-field="anio">Desde {{ item.anio }}</span>
                 }
               </p>
             }

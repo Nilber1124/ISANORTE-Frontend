@@ -1,4 +1,4 @@
-@if (single(); as field) {
+@if (simpleSingle(); as field) {
   <app-field-editor
     [heading]="heading()"
     [label]="field.label"
@@ -16,7 +16,7 @@
   <section class="rounded-card border border-border bg-surface shadow-card" [attr.aria-label]="heading()">
     <header class="flex items-start justify-between gap-3 border-b border-border p-5">
       <div>
-        <p class="text-eyebrow uppercase text-text-muted">Editando</p>
+        <p class="text-eyebrow uppercase text-text-muted">{{ isNew() ? 'Creando' : 'Editando' }}</p>
         <h2 class="mt-1 text-heading-3 text-text-primary">{{ heading() }}</h2>
       </div>
       <app-button size="small" variant="ghost" (click)="closed.emit()">← Volver</app-button>
@@ -28,19 +28,54 @@
         @if (error(); as message) {
           <p class="rounded-control border border-error/40 bg-error/10 p-3 text-body-sm text-error" role="alert">{{ message }}</p>
         }
-        @for (f of config().fields; track f.key) {
-          @if (f.rows > 1) {
+        @for (f of visibleFields(); track f.key) {
+          @if (f.image) {
+            <div class="space-y-2">
+              <p class="text-body-sm font-semibold text-text-primary">{{ f.label }}</p>
+              <app-image-uploader
+                [ngModel]="values()[f.key] ?? ''"
+                (ngModelChange)="setValue(f.key, $event)"
+                [name]="'item-' + f.key"
+                [folder]="config().folder ?? 'isanorte/contenido'"
+              />
+            </div>
+          } @else if (f.options) {
+            <app-select-field
+              [inputId]="'item-' + f.key"
+              [label]="f.label"
+              [options]="f.options"
+              [required]="f.required"
+              [disabled]="saving()"
+              [value]="values()[f.key] ?? ''"
+              (valueChange)="setValue(f.key, $event)"
+            />
+          } @else if (f.rows > 1) {
             <app-textarea-field [inputId]="'item-' + f.key" [label]="f.label" [rows]="f.rows" [required]="f.required" [disabled]="saving()" [value]="values()[f.key] ?? ''" (valueChange)="setValue(f.key, $event)" />
           } @else {
             <app-input-field [inputId]="'item-' + f.key" [label]="f.label" [required]="f.required" [disabled]="saving()" [value]="values()[f.key] ?? ''" (valueChange)="setValue(f.key, $event)" />
           }
         }
-        <div class="flex items-center gap-3">
-          <app-button variant="primary" [disabled]="!dirty() || invalid() || saving()" [loading]="saving()" (click)="saveAll()">Guardar</app-button>
+        <div class="flex flex-wrap items-center gap-3">
+          <app-button variant="primary" [disabled]="!dirty() || invalid() || saving()" [loading]="saving()" (click)="saveAll()">
+            {{ isNew() ? 'Crear' : 'Guardar' }}
+          </app-button>
           @if (dirty()) {
-            <span class="text-caption text-text-muted" role="status">Cambios sin guardar · ya se ven en la vista previa</span>
+            <span class="text-caption text-text-muted" role="status">{{ isNew() ? 'Sin crear todavía' : 'Cambios sin guardar · los textos ya se ven en la vista previa' }}</span>
           }
         </div>
+        @if (!isNew() && item()) {
+          <div class="border-t border-border pt-4">
+            @if (confirmDelete()) {
+              <p class="mb-2 text-body-sm text-text-secondary">¿Eliminar este elemento? No se puede deshacer.</p>
+              <div class="flex gap-2">
+                <app-button size="small" variant="primary" [disabled]="saving()" (click)="remove()">Sí, eliminar</app-button>
+                <app-button size="small" variant="ghost" (click)="confirmDelete.set(false)">No</app-button>
+              </div>
+            } @else {
+              <app-button size="small" variant="ghost" [disabled]="saving()" (click)="confirmDelete.set(true)">Eliminar</app-button>
+            }
+          </div>
+        }
       }
     </div>
   </section>

@@ -19,6 +19,9 @@ import { Button } from '../../../../../shared/components/button/button';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 import { trimTrailingSlashes } from '../../../../../shared/utils/text';
+import { FormsModule } from '@angular/forms';
+import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
+import { SelectField } from '../../../../../shared/components/select-field/select-field';
 import { FieldEditor } from '../field-editor/field-editor';
 
 export interface ContentField {
@@ -32,6 +35,10 @@ export interface ContentField {
   readonly number?: boolean;
   /** Lista real (array): un elemento por línea; se guarda como array. */
   readonly array?: boolean;
+  /** Imagen: se sube con el selector de archivos (carpeta de Cloudinary de la config). */
+  readonly image?: boolean;
+  /** Lista de opciones fijas (selector). */
+  readonly options?: readonly { value: string; label: string }[];
 }
 
 const SEPARATOR = ' | ';
@@ -48,9 +55,52 @@ export const CONTENT_ITEMS: Readonly<
       matchKey?: string;
       /** Si se indica, la petición solo lleva estos campos (el resto del registro no viaja). */
       bodyKeys?: readonly string[];
+      /** Carpeta de subida de las imágenes. */
+      folder?: string;
+      /** Valores con los que arranca un registro nuevo (además de `activo` y `orden`). */
+      defaults?: Readonly<Record<string, string>>;
     }
   >
 > = {
+  miembro: {
+    endpoint: 'equipo',
+    heading: 'Miembro del equipo',
+    folder: 'isanorte/equipo',
+    fields: [
+      { key: 'nombre', label: 'Nombre', rows: 1, required: true },
+      { key: 'cargo', label: 'Cargo', rows: 1, required: true },
+      { key: 'especialidad', label: 'Especialidad', rows: 1, required: false },
+      { key: 'biografia', label: 'Biografía', rows: 4, required: false },
+      { key: 'fotoUrl', label: 'Foto', rows: 1, required: false, image: true },
+      { key: 'fotoAlt', label: 'Texto alternativo de la foto', rows: 1, required: false },
+    ],
+  },
+  credencial: {
+    endpoint: 'credenciales',
+    heading: 'Credencial',
+    folder: 'isanorte/credenciales',
+    defaults: { tipo: 'LICENCIA' },
+    fields: [
+      { key: 'nombre', label: 'Nombre', rows: 1, required: true },
+      { key: 'entidad', label: 'Entidad que la emite', rows: 1, required: false },
+      {
+        key: 'tipo',
+        label: 'Tipo',
+        rows: 1,
+        required: true,
+        options: [
+          { value: 'LICENCIA', label: 'Licencia' },
+          { value: 'COLEGIATURA', label: 'Colegiatura' },
+          { value: 'CERTIFICACION', label: 'Certificación' },
+          { value: 'REGISTRO', label: 'Registro' },
+        ],
+      },
+      { key: 'codigo', label: 'Código o número', rows: 1, required: false },
+      { key: 'anio', label: 'Año desde el que la tenemos', rows: 1, required: false, number: true },
+      { key: 'imagenUrl', label: 'Imagen o logo', rows: 1, required: false, image: true },
+      { key: 'imagenAlt', label: 'Texto alternativo de la imagen', rows: 1, required: false },
+    ],
+  },
   empresa: {
     endpoint: 'empresa',
     heading: 'Empresa',
@@ -142,7 +192,7 @@ function write(field: ContentField, text: string): string | number | string[] | 
  */
 @Component({
   selector: 'app-content-item-editor',
-  imports: [Button, FieldEditor, InputField, TextareaField],
+  imports: [Button, FieldEditor, FormsModule, ImageUploaderComponent, InputField, SelectField, TextareaField],
   templateUrl: './content-item-editor.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -156,6 +206,11 @@ export class ContentItemEditor {
   readonly draftChanged = output<Readonly<Record<string, string>> | null>();
   readonly saved = output<void>();
   readonly closed = output<void>();
+
+  /** Alta de un registro nuevo (`itemId = 'new'`). */
+  protected readonly isNew = computed(() => this.itemId() === 'new');
+  protected readonly confirmDelete = signal(false);
+  private nextOrder = 0;
 
   private readonly http = inject(HttpClient);
   private readonly base = trimTrailingSlashes(inject(API_BASE_URL));
@@ -173,9 +228,19 @@ export class ContentItemEditor {
   protected readonly single = computed<ContentField | null>(
     () => this.config().fields.find((f) => f.key === this.field()) ?? null,
   );
+  /** Campo suelto de texto: se edita con el editor de un campo; imágenes y selectores usan el formulario. */
+  protected readonly simpleSingle = computed(() => {
+    const single = this.single();
+    return single && !single.image && !single.options && !this.isNew() ? single : null;
+  });
+  /** Campos que se muestran en el formulario: el tocado o todos. */
+  protected readonly visibleFields = computed(() => {
+    const single = this.single();
+    return single ? [single] : this.config().fields;
+  });
   protected readonly heading = computed(() => {
     const single = this.single();
-    return `${this.config().heading}${single ? ' · ' + single.label : ''}`;
+    return `${this.isNew() ? 'Nuevo · ' : ''}${this.config().heading}${single ? ' · ' + single.label : ''}`;
   });
   protected readonly savedValue = computed(() => {
     const single = this.single();
@@ -183,20 +248,26 @@ export class ContentItemEditor {
   });
   protected readonly dirty = computed(() => {
     const item = this.item();
+    if (this.isNew()) return this.config().fields.some((f) => (this.values()[f.key] ?? '') !== this.baseline(f, null));
     return (
-      !!item && this.config().fields.some((f) => (this.values()[f.key] ?? '') !== read(f, item))
+      !!item && this.visibleFields().some((f) => (this.values()[f.key] ?? '') !== this.baseline(f, item))
     );
   });
   protected readonly invalid = computed(() =>
-    this.config().fields.some((f) => f.required && (this.values()[f.key] ?? '').trim() === ''),
+    this.visibleFields().some((f) => f.required && (this.values()[f.key] ?? '').trim() === ''),
   );
+
+  /** Valor de partida de un campo: el guardado o, en un alta, el valor por defecto. */
+  private baseline(field: ContentField, item: Item | null): string {
+    return item ? read(field, item) : (this.config().defaults?.[field.key] ?? '');
+  }
 
   constructor() {
     effect(() => {
       const item = this.item();
       untracked(() =>
         this.values.set(
-          Object.fromEntries(this.config().fields.map((f) => [f.key, read(f, item ?? null)])),
+          Object.fromEntries(this.config().fields.map((f) => [f.key, this.baseline(f, item ?? null)])),
         ),
       );
     });
@@ -204,7 +275,14 @@ export class ContentItemEditor {
       const values = this.values();
       const dirty = this.dirty();
       untracked(() => {
-        if (!this.single()) this.draftChanged.emit(dirty ? values : null);
+        if (this.simpleSingle()) return;
+        // Solo los textos se ven en vivo (no imágenes, selectores, listas ni números).
+        const live = Object.fromEntries(
+          this.visibleFields()
+            .filter((f) => !f.image && !f.options && !f.list && !f.number && !f.array)
+            .map((f) => [f.key, values[f.key] ?? '']),
+        );
+        this.draftChanged.emit(dirty && !this.isNew() ? live : null);
       });
     });
     effect(() => {
@@ -217,11 +295,21 @@ export class ContentItemEditor {
     this.loading.set(true);
     this.error.set(null);
     this.item.set(null);
+    this.confirmDelete.set(false);
     this.http
       .get<Item[]>(`${this.base}/api/${this.config().endpoint}`)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (all) => {
+          if (id === 'new') {
+            // Alta: no hay registro; solo se calcula el orden (al final de la lista).
+            this.nextOrder = all.reduce((max, entry) => Math.max(max, Number(entry['orden'] ?? -1)), -1) + 1;
+            this.values.set(
+              Object.fromEntries(this.config().fields.map((f) => [f.key, this.baseline(f, null)])),
+            );
+            this.loading.set(false);
+            return;
+          }
           const matchKey = this.config().matchKey ?? 'id';
           // `*` = el primer (y único) registro, p. ej. la empresa.
           const found = (id === '*' ? all[0] : all.find((entry) => entry[matchKey] === id)) ?? null;
@@ -255,12 +343,59 @@ export class ContentItemEditor {
     if (!this.dirty() || this.invalid()) return;
     this.persist(
       Object.fromEntries(
-        this.config().fields.map((f) => [f.key, write(f, this.values()[f.key] ?? '')]),
+        this.visibleFields().map((f) => [f.key, write(f, this.values()[f.key] ?? '')]),
       ),
     );
   }
 
+  /** Crea el registro (alta). */
+  private create(patch: Record<string, string | number | string[] | null>): void {
+    if (this.saving()) return;
+    this.saving.set(true);
+    this.error.set(null);
+    this.http
+      .post<Item>(`${this.base}/api/${this.config().endpoint}`, { ...patch, activo: true, orden: this.nextOrder })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.toast.show('Creado correctamente.', 'success');
+          this.saved.emit();
+          this.closed.emit();
+        },
+        error: () => {
+          this.saving.set(false);
+          this.error.set('No se pudo crear. Revisa los datos e inténtalo de nuevo.');
+        },
+      });
+  }
+
+  /** Elimina el registro (tras confirmar). */
+  protected remove(): void {
+    const item = this.item();
+    if (!item || this.saving()) return;
+    this.saving.set(true);
+    this.error.set(null);
+    this.http
+      .delete<void>(`${this.base}/api/${this.config().endpoint}/${encodeURIComponent(item.id)}`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.toast.show('Eliminado.', 'success');
+          this.saved.emit();
+          this.closed.emit();
+        },
+        error: () => {
+          this.saving.set(false);
+          this.confirmDelete.set(false);
+          this.error.set('No se pudo eliminar.');
+        },
+      });
+  }
+
   private persist(patch: Record<string, string | number | string[] | null>): void {
+    if (this.isNew()) return this.create(patch);
     const item = this.item();
     if (!item || this.saving()) return;
     this.saving.set(true);

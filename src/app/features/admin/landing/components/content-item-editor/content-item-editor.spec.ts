@@ -110,3 +110,62 @@ describe('ContentItemEditor · empresa', () => {
     http.verify();
   });
 });
+
+describe('ContentItemEditor · equipo y credenciales', () => {
+  function setup(kind: string, itemId: string, field: string, endpoint: string, list: unknown[]) {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
+    });
+    const http = TestBed.inject(HttpTestingController);
+    const fixture = TestBed.createComponent(ContentItemEditor);
+    fixture.componentRef.setInput('kind', kind);
+    fixture.componentRef.setInput('itemId', itemId);
+    fixture.componentRef.setInput('field', field);
+    fixture.detectChanges();
+    http.expectOne(`/api/${endpoint}`).flush(list);
+    fixture.detectChanges();
+    return { http, fixture, el: fixture.nativeElement as HTMLElement };
+  }
+
+  it('creates a team member at the end of the list with the filled fields', () => {
+    const { http, fixture, el } = setup('miembro', 'new', 'ambos', 'equipo', [{ id: 'a', orden: 0 }, { id: 'b', orden: 3 }]);
+    expect(el.textContent).toContain('Nuevo · Miembro del equipo');
+    const c = fixture.componentInstance as unknown as { setValue(k: string, v: string): void; saveAll(): void };
+    c.setValue('nombre', 'Ing. Ana Pérez');
+    c.setValue('cargo', 'Residente');
+    fixture.detectChanges();
+    const saved: number[] = [];
+    fixture.componentInstance.closed.subscribe(() => saved.push(1));
+    c.saveAll();
+    const request = http.expectOne('/api/equipo');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toMatchObject({ nombre: 'Ing. Ana Pérez', cargo: 'Residente', activo: true, orden: 4, especialidad: null, fotoUrl: null });
+    request.flush({ id: 'n' });
+    expect(saved).toHaveLength(1);
+    http.verify();
+  });
+
+  it('does not create a credential until the required fields are filled, and starts with a type', () => {
+    const { http, fixture } = setup('credencial', 'new', 'ambos', 'credenciales', []);
+    const c = fixture.componentInstance as unknown as { values(): Record<string, string>; invalid(): boolean };
+    expect(c.values()['tipo']).toBe('LICENCIA');
+    expect(c.invalid()).toBe(true);
+    http.verify();
+  });
+
+  it('deletes a member only after confirming', () => {
+    const member = { id: 'm1', nombre: 'Carlos', cargo: 'Gerente', especialidad: null, biografia: null, fotoUrl: null, fotoAlt: null, activo: true, orden: 0 };
+    const { http, fixture, el } = setup('miembro', 'm1', 'fotoUrl', 'equipo', [member]);
+    expect(el.textContent).toContain('Foto');
+    const c = fixture.componentInstance as unknown as { confirmDelete: { set(v: boolean): void }; remove(): void };
+    http.expectNone('/api/equipo/m1');
+    c.confirmDelete.set(true);
+    fixture.detectChanges();
+    expect(el.textContent).toContain('¿Eliminar este elemento?');
+    c.remove();
+    const request = http.expectOne('/api/equipo/m1');
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null);
+    http.verify();
+  });
+});

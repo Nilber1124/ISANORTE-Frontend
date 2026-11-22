@@ -82,6 +82,8 @@ export interface PreviewBlock {
   readonly type?: LandingSectionType;
   /** Pantalla del admin donde se edita su contenido, si no es una sección de la landing. */
   readonly screen?: { readonly route: string; readonly label: string };
+  /** Permite crear un elemento nuevo del bloque (p. ej. un miembro del equipo). */
+  readonly create?: { readonly item: string; readonly label: string };
 }
 
 /** Bloques de la página «Nosotros» (ancla `id` de cada sección). */
@@ -89,8 +91,12 @@ export const ABOUT_BLOCKS: readonly PreviewBlock[] = [
   { id: 'cabecera', label: 'Cabecera' },
   { id: 'estadisticas', label: 'Estadísticas' },
   { id: 'valores', label: 'Misión, visión y valores' },
-  { id: 'equipo', label: 'Equipo' },
-  { id: 'credenciales', label: 'Credenciales y respaldo' },
+  { id: 'equipo', label: 'Equipo', create: { item: 'miembro', label: 'Añadir un miembro' } },
+  {
+    id: 'credenciales',
+    label: 'Credenciales y respaldo',
+    create: { item: 'credencial', label: 'Añadir una credencial' },
+  },
   { id: 'cobertura', label: 'Dónde trabajamos' },
 ];
 
@@ -417,6 +423,11 @@ export class AdminLanding {
   protected setUnitDraft(slug: string, values: Readonly<Record<string, string>> | null): void {
     const block = this.selectedBlockId();
     this.previewDraft.set(block && values ? { block, item: `unidad:${slug}`, values } : null);
+  }
+
+  /** Abre el formulario para crear un elemento nuevo del bloque seleccionado. */
+  protected startCreate(item: string): void {
+    this.panelEdit.set({ kind: 'content', item, id: 'new', field: 'ambos' });
   }
 
   protected setStatDraft(orden: number, values: Readonly<Record<string, string>> | null): void {
