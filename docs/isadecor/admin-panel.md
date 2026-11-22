@@ -304,3 +304,11 @@ Detalle y estado en [plan-admin-ux.md](plan-admin-ux.md).
   - ISADECOR (producto, catálogos) no cambia. El backend y la tabla `seo_paginas` no se tocaron.
 - **Empresa:** el bloque de misión, visión y valores se sustituyó por un enlace a la vista previa de Nosotros; se conserva el «Resumen institucional» (pie de página).
 - **Configuración del sitio:** ya no muestra ni pide los colores primario y secundario (nada los usa); sus valores se conservan al guardar.
+
+### Anuncios eliminados (Fase 3.1)
+
+Se quitó el **panel lateral de anuncios** de la web de ISANORTE (la pestaña naranja «ANUNCIOS» en el borde izquierdo que se desplegaba con un carrusel) y su pantalla del admin (`/admin/anuncios`, con 5 pestañas de las cuales 4 eran del viejo Home de ISADECOR). Además de estar vacío (la tabla tenía 0 filas), el formulario creaba por defecto la ubicación `ANUNCIOS_HOME` y el panel público solo lee `GENERAL`, así que lo que se creaba no se veía.
+
+- Frontend: se borraron `features/announcements`, `features/admin/announcements`, `AnnouncementApiService` y su modelo. El layout público ya no pide `/api/publico/anuncios/ISANORTE`.
+- Las rutas `/admin/anuncios` y `/admin/isadecor-landing` redirigen a `/admin`.
+- **El backend no se tocó:** los endpoints de anuncios y la tabla `anuncios` (vacía) siguen existiendo; se pueden retirar con una migración cuando se decida.

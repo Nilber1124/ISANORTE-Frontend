@@ -3,7 +3,7 @@
 Resultado de la auditoría del admin (30 pantallas a escritorio, 23 a 375 px, y lectura del código).
 Este documento convierte esos hallazgos en fases ejecutables.
 
-**Estado:** Fase 1 ✅ · Fase 2 ✅ · Fases 3 y 4 pendientes.
+**Estado:** Fase 1 ✅ · Fase 2 ✅ · Fase 3: 3.1 ✅, 3.2 pendiente · Fase 4 pendiente.
 
 **Decisión tomada en la Fase 2:** el SEO deja de administrarse (ver «SEO automático» abajo). «Páginas y SEO» desaparece del admin.
 
@@ -63,11 +63,13 @@ Unidades de negocio **se deja como está** (decisión ya tomada), salvo 1.8.
 
 ## Fase 3 · Home de ISADECOR y Anuncios (riesgo medio, la más grande)
 
+> **3.1 se resolvió quitando Anuncios por completo** (en lugar de simplificarlo): se eliminó el panel lateral público, su pantalla del admin y el servicio y modelos del frontend. El backend y la tabla `anuncios` (vacía) no se tocaron. Motivo: el cliente no pidió anuncios y el flujo del admin creaba por defecto una ubicación que el panel nunca leía.
+
 Tamaño: **L**. Se hace después de las fases 1 y 2.
 
 | # | Tarea | Hecho cuando |
 |---|---|---|
-| 3.1 | **Anuncios:** como la tienda no los consume y la tabla está vacía, dejarlo solo para la **cinta superior de ISANORTE**: título «Cinta de anuncios», destino fijo ISANORTE, **con entrada en el menú** (grupo «Web»), y quitar de la interfaz las pestañas de ISADECOR (Promociones, Anuncios, Productos destacados, Categorías superiores). El backend no se toca. | una sola cinta administrable, sin duplicados con `home-isadecor/*` |
+| 3.1 ✅ | **Anuncios:** como la tienda no los consume y la tabla está vacía, dejarlo solo para la **cinta superior de ISANORTE**: título «Cinta de anuncios», destino fijo ISANORTE, **con entrada en el menú** (grupo «Web»), y quitar de la interfaz las pestañas de ISADECOR (Promociones, Anuncios, Productos destacados, Categorías superiores). El backend no se toca. | una sola cinta administrable, sin duplicados con `home-isadecor/*` |
 | 3.2 | **Una pantalla «Home de ISADECOR»** con secciones plegables que reutilizan los editores actuales (Hero, Cinta de avisos, Promociones, Campaña, Bloque de servicio + puntos, Secciones de productos, Reseñas, Videos de redes). Las 9 rutas antiguas redirigen al apartado correspondiente. | el menú de ISADECOR Home pasa de 9 entradas a 1 |
 | 3.3 | *(Opcional, después)* Vista previa editable del Home de ISADECOR, como la de ISANORTE. Es un proyecto aparte. | — |
 
