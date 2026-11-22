@@ -331,3 +331,19 @@ El dashboard dejó de mostrar contadores de volumen y pasó a decir **qué hay q
 - **Accesos rápidos:** Landing, Productos, Cotizaciones y Pedidos.
 - Una línea final resume lo publicado en la web (productos, proyectos y servicios).
 - La lógica de stock se extrajo a `features/admin/products/product-stock.util.ts` y la comparten Productos y el dashboard.
+
+### Ventas registradas a mano (WhatsApp, tienda…)
+
+Pantalla **Ventas** (`/admin/ventas`, dentro de Tienda) para anotar las ventas que se cierran fuera de la web. Es un registro propio (tablas `ventas` y `detalles_venta`, migración V10), **sin cuenta de cliente**.
+
+- **Registrar venta** (panel con formulario): fecha, canal (WhatsApp, Tienda u Otro), cómo pagó (efectivo, transferencia, Yape, Plin, tarjeta u otro), si ya pagó, cliente opcional (nombre, teléfono y DNI de 8 dígitos o RUC de 11 con razón social) y las líneas. Cada línea es un **producto del catálogo** (con su acabado si el stock se controla por acabado; el precio sale del catálogo y se puede cambiar) o un **artículo libre** escrito a mano. El total lo calcula el servidor.
+- **Stock:** al guardar, las líneas que son productos del catálogo con control de stock **descuentan su stock** (movimiento `SALIDA` con el motivo «Venta VTA-…» y el usuario que la registró). Los artículos libres y los productos sin control de stock no mueven nada. **Esto solo ocurre desde esta pantalla**: las ventas por WhatsApp no tocan el stock de ninguna otra forma. Si no hay stock suficiente, no se guarda nada y se explica el motivo.
+- **Editar** devuelve el stock de la versión anterior y descuenta el de la nueva. **Anular** devuelve el stock (movimiento `ENTRADA`) una sola vez y **Reactivar** lo vuelve a descontar. Las ventas no se borran.
+- La lista muestra el resumen de **hoy**, **este mes** y **por cobrar**, y filtra por estado y canal.
+- API: `GET/POST /api/ventas`, `GET/PUT /api/ventas/{id}` y `PATCH /api/ventas/{id}/anulada` (solo rol administrativo; ver OpenAPI).
+- Pendientes de esta pantalla (comprobantes, exportar, reportes…) en [pendientes-tienda.md](pendientes-tienda.md).
+
+### Correcciones encontradas al probar las ventas
+
+- **`SelectField` mostraba la primera opción** aunque su valor inicial fuera otro (asignaba `value` al `<select>` antes de que existieran las opciones). Ahora cada `<option>` se marca con `selected`; sin esto una venta podía guardarse como «Yape» mostrando «Efectivo».
+- **Fechas con `'es'`:** la localización `es` nunca se registraba y el pipe de fecha lanzaba `NG0701`; también habría roto las «cotizaciones y pedidos recientes» del dashboard con datos reales. Ahora se registra en `app.config.ts`.

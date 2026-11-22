@@ -20,6 +20,7 @@ servers:
   - url: http://localhost:8080
     description: Desarrollo local con el puerto predeterminado de Spring Boot
 tags:
+  - name: Ventas
   - name: Anuncios
   - name: Administradores
   - name: Categorías
@@ -1559,6 +1560,48 @@ paths:
         '400': {$ref: '#/components/responses/BadRequest'}
         '401': {description: Falta el token de cliente o expiró}
         '404': {$ref: '#/components/responses/NotFound'}
+  /api/ventas:
+    get:
+      tags: [Ventas]
+      operationId: listarVentas
+      summary: Lista las ventas registradas a mano
+      description: Más recientes primero. Acceso administrativo.
+      x-access-intent: ADMINISTRATIVO
+      responses: {'200': {description: Lista, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/VentaResponse'}}}}}}
+    post:
+      tags: [Ventas]
+      operationId: registrarVenta
+      summary: Registra una venta (WhatsApp, tienda u otro canal)
+      description: El total se calcula en el servidor. Descuenta el stock de las líneas que son productos del catálogo con control de stock (con su movimiento SALIDA); si no hay stock suficiente, responde 400 y no guarda nada.
+      x-access-intent: ADMINISTRATIVO
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/VentaRequest'}}}}
+      responses: {'201': {description: Creada, content: {application/json: {schema: {$ref: '#/components/schemas/VentaResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/ventas/{id}:
+    get:
+      tags: [Ventas]
+      operationId: obtenerVenta
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      responses: {'200': {description: Encontrada, content: {application/json: {schema: {$ref: '#/components/schemas/VentaResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
+    put:
+      tags: [Ventas]
+      operationId: actualizarVenta
+      summary: Edita una venta (no anulada)
+      description: Devuelve el stock de la versión anterior y descuenta el de la nueva, en una sola transacción.
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/VentaRequest'}}}}
+      responses: {'200': {description: Actualizada, content: {application/json: {schema: {$ref: '#/components/schemas/VentaResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /api/ventas/{id}/anulada:
+    patch:
+      tags: [Ventas]
+      operationId: anularVenta
+      summary: Anula o reactiva una venta
+      description: Anular devuelve el stock (movimiento ENTRADA) una sola vez; reactivar lo vuelve a descontar. Las ventas no se borran.
+      x-access-intent: ADMINISTRATIVO
+      parameters: [{$ref: '#/components/parameters/UuidId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AnulacionVentaRequest'}}}}
+      responses: {'200': {description: Actualizada, content: {application/json: {schema: {$ref: '#/components/schemas/VentaResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
   /api/publico/sitios/{clave}:
     get:
       tags: [Público]
@@ -3252,6 +3295,67 @@ components:
       allOf:
         - {$ref: '#/components/schemas/SeoPaginaRequest'}
         - {type: object, required: [id, fechaCreacion, fechaActualizacion], properties: {id: {type: string, format: uuid}, fechaCreacion: {type: string, format: date-time}, fechaActualizacion: {type: string, format: date-time}}}
+    VentaRequest:
+      type: object
+      required: [canal, fechaVenta, metodoPago, pagado, detalles]
+      properties:
+        canal: {type: string, enum: [WHATSAPP, TIENDA, OTRO]}
+        fechaVenta: {type: string, format: date}
+        clienteNombre: {type: string, maxLength: 150, nullable: true}
+        clienteTelefono: {type: string, maxLength: 30, nullable: true}
+        tipoDocumento: {type: string, enum: [DNI, RUC], nullable: true, description: DNI = 8 dígitos; RUC = 11 dígitos. El número es obligatorio si se indica el tipo y viceversa.}
+        documento: {type: string, maxLength: 20, nullable: true}
+        razonSocial: {type: string, maxLength: 200, nullable: true}
+        metodoPago: {type: string, enum: [EFECTIVO, TRANSFERENCIA, YAPE, PLIN, TARJETA, OTRO]}
+        pagado: {type: boolean}
+        notas: {type: string, maxLength: 500, nullable: true}
+        detalles: {type: array, minItems: 1, items: {$ref: '#/components/schemas/VentaDetalleRequest'}}
+    VentaDetalleRequest:
+      type: object
+      required: [nombre, cantidad, precioUnitario]
+      properties:
+        productoId: {type: string, format: uuid, nullable: true, description: Producto del catálogo; sin él, la línea es un artículo libre que no mueve stock.}
+        varianteId: {type: string, format: uuid, nullable: true, description: Acabado. Obligatorio si el stock del producto se controla por acabado.}
+        nombre: {type: string, maxLength: 180}
+        sku: {type: string, maxLength: 100, nullable: true}
+        cantidad: {type: integer, minimum: 1}
+        precioUnitario: {type: number, minimum: 0}
+    VentaResponse:
+      type: object
+      required: [id, codigo, canal, fechaVenta, metodoPago, pagado, total, anulada, stockDescontado, detalles]
+      properties:
+        id: {type: string, format: uuid}
+        codigo: {type: string, example: VTA-20261122-1A2B3C}
+        canal: {type: string, enum: [WHATSAPP, TIENDA, OTRO]}
+        fechaVenta: {type: string, format: date}
+        clienteNombre: {type: string, nullable: true}
+        clienteTelefono: {type: string, nullable: true}
+        tipoDocumento: {type: string, enum: [DNI, RUC], nullable: true}
+        documento: {type: string, nullable: true}
+        razonSocial: {type: string, nullable: true}
+        metodoPago: {type: string, enum: [EFECTIVO, TRANSFERENCIA, YAPE, PLIN, TARJETA, OTRO]}
+        pagado: {type: boolean}
+        total: {type: number}
+        notas: {type: string, nullable: true}
+        anulada: {type: boolean}
+        stockDescontado: {type: boolean}
+        detalles: {type: array, items: {$ref: '#/components/schemas/VentaDetalleResponse'}}
+        fechaCreacion: {type: string, format: date-time}
+    VentaDetalleResponse:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        productoId: {type: string, format: uuid, nullable: true}
+        varianteId: {type: string, format: uuid, nullable: true}
+        nombre: {type: string}
+        sku: {type: string, nullable: true}
+        cantidad: {type: integer}
+        precioUnitario: {type: number}
+        subtotal: {type: number}
+    AnulacionVentaRequest:
+      type: object
+      required: [anulada]
+      properties: {anulada: {type: boolean}}
     PublicSiteResponse:
       type: object
       description: Configuración, empresa sin RUC, redes activas y unidades activas del sitio canónico.
