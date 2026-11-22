@@ -59,7 +59,6 @@ describe('IsadecorLayout', () => {
 
     http.expectNone('/api/publico/sitios/isanorte');
     http.expectNone('/api/publico/sitios/isanorte/unidades/isadecor/catalogo?page=0&size=1');
-    http.expectNone('/api/publico/anuncios/ISADECOR?ubicacion=GENERAL');
     http.verify();
 
     const compiled = fixture.nativeElement as HTMLElement;

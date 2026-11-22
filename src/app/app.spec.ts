@@ -120,10 +120,10 @@ describe('App', () => {
     expect(loadedComponent).not.toBe(AdminModulePlaceholder);
   });
 
-  it('keeps the old isadecor-landing admin route as a redirect to anuncios', () => {
+  it('keeps the old isadecor-landing admin route as a redirect to the dashboard', () => {
     const adminRoute = routes.find((route) => route.path === 'admin');
     const old = adminRoute?.children?.find((route) => route.path === 'isadecor-landing');
-    expect(old?.redirectTo).toBe('anuncios');
+    expect(old?.redirectTo).toBe('/admin');
   });
 
   it('redirects the removed admin screens to where their content lives now', () => {
@@ -131,6 +131,7 @@ describe('App', () => {
     const redirect = (path: string) => adminRoute?.children?.find((route) => route.path === path)?.redirectTo;
     expect(redirect('contenido')).toBe('landing');
     expect(redirect('sitio/proyecto-galeria')).toBe('/admin/proyectos');
-    expect(redirect('isadecor-landing')).toBe('anuncios');
+    expect(redirect('isadecor-landing')).toBe('/admin');
+    expect(redirect('anuncios')).toBe('/admin');
   });
 });

@@ -65,8 +65,8 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/orders/admin-orders').then(({ AdminOrders }) => AdminOrders),
       },
-      // Ruta antigua: se conserva para no romper enlaces guardados.
-      { path: 'isadecor-landing', redirectTo: 'anuncios', pathMatch: 'full' },
+      // Rutas antiguas: se conservan para no romper enlaces guardados.
+      { path: 'isadecor-landing', redirectTo: '/admin', pathMatch: 'full' },
       {
         path: 'proyectos',
         loadComponent: () =>
@@ -109,14 +109,7 @@ export const routes: Routes = [
       },
       // Ruta antigua («Páginas y SEO»): el SEO ahora es automático y los textos se editan en Landing.
       { path: 'contenido', redirectTo: 'landing', pathMatch: 'full' },
-      {
-        path: 'anuncios',
-        loadComponent: () =>
-          import('./features/admin/announcements/admin-announcements').then(
-            ({ AdminAnnouncements }) => AdminAnnouncements,
-          ),
-        data: { title: 'Anuncios' },
-      },
+      { path: 'anuncios', redirectTo: '/admin', pathMatch: 'full' },
       {
         path: 'home-isadecor/resenas',
         loadComponent: () =>
