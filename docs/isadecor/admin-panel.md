@@ -213,4 +213,11 @@ no se tocan. - **Estadísticas** («+12 años», «+85»…): tocar la cifra abr
   localizan por su **orden**; se guardan con `PUT /api/empresa/{empresaId}/estadisticas/{id}` (`statistic-editor`).
 - **Etiquetas de la cabecera** («Cajamarca», «Obra con garantía»…): una por línea (campo `tags` del contenido de página).
 
-Pendiente de «Nosotros»: tarjetas de equipo y credenciales (crear/editar/borrar) y el selector de ubicación del mapa.
+- **Equipo y credenciales** (fase 2): cada tarjeta es un registro real (`/api/equipo`, `/api/credenciales`). Tocar su nombre, cargo, especialidad,
+  biografía, foto, entidad, tipo, código o año abre solo ese campo; tocar el resto de la tarjeta, todos. El formulario permite **cambiar la foto**
+  (subida), elegir el **tipo** de credencial y **eliminar** el elemento (con confirmación). En el panel del bloque, «Añadir un miembro» y «Añadir una
+  credencial» abren el formulario de alta (se crea al final de la lista, activo). La API pública incluye ahora el `id` de cada miembro y credencial.
+  El editor genérico (`content-item-editor`) soporta campos de imagen, selectores, alta y baja.
+
+Pendiente de «Nosotros»: reordenar equipo y credenciales desde la vista previa (hoy se hace en `/admin/sitio/equipo` y `/admin/sitio/credenciales`)
+y el selector de ubicación del mapa.
