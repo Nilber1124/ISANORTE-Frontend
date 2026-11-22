@@ -279,3 +279,14 @@ Las solicitudes se atienden por WhatsApp, así que el formulario de la web (pág
 - Se eliminó la pantalla **Contacto** del admin (bandeja de solicitudes), su ruta, su entrada del menú y el atajo desde Landing.
 - Backend: se quitaron `POST /api/publico/contacto` y `/api/solicitudes-contacto` (listar, ver y cambiar estado) con su servicio, repositorio, entidad y DTOs. **La tabla `solicitudes_contacto` se dejó intacta** (sin migración de borrado) para no perder solicitudes ya guardadas en producción; se puede eliminar con una migración cuando se hayan exportado.
 - Las cotizaciones de ISADECOR (carrito/pedidos) son otro circuito y no se tocaron.
+
+### Coherencia del admin (Fase 1 del plan de UX)
+
+Detalle y estado en [plan-admin-ux.md](plan-admin-ux.md).
+
+- **Encabezado común `AdminPageHeader`** (`features/admin/shared/admin-page-header`): rótulo, título, descripción y acciones proyectadas. Lo usan las 16 pantallas del admin. El título es siempre el nombre de la entrada del menú (Dashboard, Landing, Servicios, Categorías, Páginas y SEO, Videos de redes…) y el rótulo nombra la marca (`Home ISADECOR`, `Contenido ISANORTE`, `Catálogo ISADECOR`…).
+- **Un verbo para crear:** «Nuevo/Nueva + sustantivo» para entidades (producto, categoría, proyecto, servicio, unidad, configuración, contenido, SEO) y «Añadir + sustantivo» para elementos dentro de otra cosa (pregunta, miembro, credencial, testimonio, garantía, paso, foto, política, red, variante, especificación, documento). En las pantallas genéricas el texto sale de `addLabel` en `site-content.config.ts`.
+- **Cambios sin guardar en los paneles:** `Drawer` acepta `guardUnsaved`. Si alguien escribió dentro de un `<form>` del panel, cerrar (X, fuera del panel, Escape o el botón «Cancelar» vía `drawer.requestClose()`) pide confirmación «¿Salir sin guardar?». Lo activan los paneles con formulario (empresa, categoría, unidad de negocio, proyecto, anuncio, configuración, contenido, SEO y sección de landing). Producto y servicio conservan su propio aviso.
+- **Unidad de negocio:** desactivarla exige escribir su nombre.
+- **Móvil (375 px):** el bloque «Redes sociales» de Empresa ya no se sale de la pantalla; los botones de iconos, la estrella de «destacado» y los enlaces «También se edita en» de Landing miden al menos 40 px.
+- **Código muerto eliminado:** `features/admin/isadecor-landing` (≈1.500 líneas). La ruta `/admin/isadecor-landing` ahora redirige a `/admin/anuncios`.
