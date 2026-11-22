@@ -119,11 +119,6 @@ export const routes: Routes = [
           import('./features/admin/content/admin-content').then(({ AdminContent }) => AdminContent),
       },
       {
-        path: 'contacto',
-        loadComponent: () =>
-          import('./features/admin/contact/admin-contact').then(({ AdminContact }) => AdminContact),
-      },
-      {
         path: 'anuncios',
         loadComponent: () =>
           import('./features/admin/announcements/admin-announcements').then(

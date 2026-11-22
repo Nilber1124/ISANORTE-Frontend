@@ -50,7 +50,6 @@ class PublicContactFacadeStub {
   readonly telefonoError = signal<string | undefined>(undefined);
   readonly empresaError = signal<string | undefined>(undefined);
   readonly mensajeError = signal<string | undefined>(undefined);
-  readonly submitting = signal(false);
   readonly submitSuccess = signal(false);
   readonly submitError = signal<string | null>(null);
   submitCalls = 0;
@@ -137,7 +136,7 @@ describe('Contact', () => {
     expect(fixture.nativeElement.querySelector('[data-contact-form]')).toBeTruthy();
   });
 
-  it('submits only through the facade and reflects submitting, success and error feedback', () => {
+  it('submits only through the facade and reflects success and error feedback', () => {
     const fixture = TestBed.createComponent(Contact);
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
@@ -146,14 +145,11 @@ describe('Contact', () => {
     );
     expect(facade.submitCalls).toBe(1);
 
-    facade.submitting.set(true);
-    fixture.detectChanges();
-    expect(element.querySelector('button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
+    expect(element.querySelector('button[type="submit"]')?.textContent).toContain('WHATSAPP');
 
-    facade.submitting.set(false);
     facade.submitSuccess.set(true);
     fixture.detectChanges();
-    expect(element.textContent).toContain('Tu mensaje fue enviado correctamente.');
+    expect(element.textContent).toContain('Envía el mensaje desde allí');
 
     facade.submitSuccess.set(false);
     facade.submitError.set('Error API');

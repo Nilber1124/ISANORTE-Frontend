@@ -3,12 +3,10 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { BusinessUnitResourceType } from '../models/business-unit/business-unit-resource.model';
-import { ContactRequestStatus } from '../models/contact/contact-request.model';
 import { PublicPageType } from '../models/content/page-content.model';
 import { SeoPageType, SeoRobots } from '../models/content/page-seo.model';
 import { BusinessUnitApiService } from './business-unit-api.service';
 import { CompanyApiService } from './company-api.service';
-import { ContactRequestApiService } from './contact-request-api.service';
 import { LandingSectionApiService } from './landing-section-api.service';
 import { PageContentApiService } from './page-content-api.service';
 import { PageSeoApiService } from './page-seo-api.service';
@@ -135,18 +133,5 @@ describe('dynamic content ApiServices', () => {
     const call = http.expectOne('/api/seo-paginas');
     expect(call.request.body).toEqual(request);
     call.flush({ id: 'seo-1', ...request, fechaCreacion: '', fechaActualizacion: '' });
-  });
-
-  it('filters contact requests and patches only estado', () => {
-    const api = TestBed.inject(ContactRequestApiService);
-    api.getAll(ContactRequestStatus.NUEVA).subscribe();
-    const list = http.expectOne('/api/solicitudes-contacto?estado=NUEVA');
-    expect(list.request.method).toBe('GET');
-    list.flush([]);
-    api.changeStatus('request 1', { estado: ContactRequestStatus.EN_GESTION }).subscribe();
-    const patch = http.expectOne('/api/solicitudes-contacto/request%201/estado');
-    expect(patch.request.method).toBe('PATCH');
-    expect(patch.request.body).toEqual({ estado: ContactRequestStatus.EN_GESTION });
-    patch.flush({});
   });
 });

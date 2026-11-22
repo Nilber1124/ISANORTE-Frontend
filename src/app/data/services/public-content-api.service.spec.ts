@@ -6,11 +6,6 @@ import { API_BASE_URL } from '../../core/config/api.config';
 import { REQUIERE_SESION_CLIENTE } from '../../core/auth/cliente-session.context';
 import { ProductCompetitorComparisonResponse } from '../models/product/product-competitor-comparison-response.model';
 import { ProductPriceComparisonResponse } from '../models/product/product-price-comparison-response.model';
-import {
-  PublicContactRequest,
-  PublicContactRequestStatus,
-  PublicContactResponse,
-} from '../models/contact/public-contact-request.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
 import { PublicPageResponse, PublicPageType } from '../models/public-content/public-page.model';
 import { PublicProductCatalogResponse } from '../models/public-content/public-product-catalog.model';
@@ -101,21 +96,6 @@ const projectsPageResponse: PublicPageResponse = {
   ],
 };
 
-const publicContactRequest: PublicContactRequest = {
-  nombre: 'Persona de prueba',
-  email: 'persona@example.com',
-  telefono: '+51 999 111 222',
-  empresa: null,
-  mensaje: 'Mensaje de prueba',
-  consentimiento: true,
-};
-
-const publicContactResponse: PublicContactResponse = {
-  id: 'c31c49b0-8a7c-4c7c-8c1a-9d9e25c5cb99',
-  estado: PublicContactRequestStatus.NUEVA,
-  fechaCreacion: '2026-09-21T12:00:00',
-};
-
 describe('PublicContentApiService', () => {
   let api: PublicContentApiService;
   let http: HttpTestingController;
@@ -192,18 +172,6 @@ describe('PublicContentApiService', () => {
     request.flush(projectsPageResponse);
 
     expect(result?.proyectos?.[0]).toEqual(projectsPageResponse.proyectos?.[0]);
-  });
-
-  it('posts only the typed public contact request and returns its public confirmation', () => {
-    let result: PublicContactResponse | undefined;
-    api.submitContact(publicContactRequest).subscribe((response) => (result = response));
-
-    const request = http.expectOne('https://backend.example/api/publico/contacto');
-    expect(request.request.method).toBe('POST');
-    expect(request.request.body).toEqual(publicContactRequest);
-    request.flush(publicContactResponse, { status: 201, statusText: 'Created' });
-
-    expect(result).toEqual(publicContactResponse);
   });
 
   it('uses the canonical public Unit Catalog path, encodes parameters and returns the typed payload', () => {

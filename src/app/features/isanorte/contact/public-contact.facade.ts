@@ -1,17 +1,16 @@
 import { DOCUMENT } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
 import { finalize } from 'rxjs';
 
 import { PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
-import { PublicContactRequest } from '../../../data/models/contact/public-contact-request.model';
 import {
   PublicPageResponse,
   PublicPageType,
 } from '../../../data/models/public-content/public-page.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
+import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import {
   PublicPageSeoDefaults,
   applyPublicPageSeo,
@@ -19,9 +18,41 @@ import {
 } from '../../../shared/utils/public-page-seo.util';
 import { isValidEmail } from '../../../shared/utils/text';
 
+/** Datos del formulario que viajan en el mensaje de WhatsApp. */
+export interface ContactMessageData {
+  nombre: string;
+  telefono: string;
+  email: string;
+  empresa: string;
+  servicio: string;
+  ubicacion: string;
+  mensaje: string;
+}
+
+/** Texto de WhatsApp con la solicitud: una línea por dato que se haya llenado. */
+export function buildContactWhatsappMessage(data: ContactMessageData): string {
+  const lines = ['Hola, quisiera cotizar un proyecto con ISANORTE.', ''];
+  const add = (label: string, value: string): void => {
+    if (value.trim()) lines.push(`*${label}:* ${value.trim()}`);
+  };
+  add('Nombre', data.nombre);
+  add('Teléfono', data.telefono);
+  add('Correo', data.email);
+  add('Empresa', data.empresa);
+  add('Servicio de interés', data.servicio);
+  add('Ubicación', data.ubicacion);
+  add('Mensaje', data.mensaje);
+  return lines.join('\n');
+}
+
+/**
+ * El formulario no guarda nada en el sistema: al enviarlo abre WhatsApp con los datos escritos en el mensaje,
+ * que es por donde se atienden las solicitudes.
+ */
 @Injectable()
 export class PublicContactFacade {
   private readonly api = inject(PublicContentApiService);
+  private readonly site = inject(PublicSiteFacade, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
@@ -65,7 +96,6 @@ export class PublicContactFacade {
   readonly mensajeTouched = signal(false);
   readonly ubicacionTouched = signal(false);
   readonly consentimientoTouched = signal(false);
-  readonly submitting = signal(false);
   readonly submitSuccess = signal(false);
   readonly submitError = signal<string | null>(null);
 
@@ -147,40 +177,32 @@ export class PublicContactFacade {
     this.submitted.set(true);
     this.submitSuccess.set(false);
     this.submitError.set(null);
-    if (this.submitting() || !this.isValid()) return;
+    if (!this.isValid()) return;
 
-    this.submitting.set(true);
-    this.api
-      .submitContact(this.request())
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.submitting.set(false)),
-      )
-      .subscribe({
-        next: () => {
-          this.submitSuccess.set(true);
-          this.resetForm();
-        },
-        error: (error: unknown) => this.submitError.set(this.submitMessage(error)),
-      });
+    const href = this.site?.whatsappHrefFor(
+      buildContactWhatsappMessage({
+        nombre: this.nombre(),
+        telefono: this.telefono(),
+        email: this.email(),
+        empresa: this.empresa(),
+        servicio: this.servicio(),
+        ubicacion: this.ubicacion(),
+        mensaje: this.mensaje(),
+      }),
+    );
+    if (!href) {
+      this.submitError.set(
+        'Por ahora no podemos abrir WhatsApp. Escríbenos por correo o llámanos a los datos de contacto.',
+      );
+      return;
+    }
+    this.document?.defaultView?.open(href, '_blank', 'noopener');
+    this.submitSuccess.set(true);
+    this.resetForm();
   }
 
   dismissSubmitSuccess(): void {
     this.submitSuccess.set(false);
-  }
-
-  private request(): PublicContactRequest {
-    const empresa = this.empresa().trim();
-    return {
-      nombre: this.nombre().trim(),
-      email: this.email().trim(),
-      telefono: this.telefono().trim(),
-      empresa: empresa || null,
-      ubicacion: this.ubicacion().trim() || null,
-      servicioInteres: this.servicio().trim() || null,
-      mensaje: this.mensaje().trim() || 'Solicitud de cotización desde el sitio web.',
-      consentimiento: this.consentimiento(),
-    };
   }
 
   private resetForm(): void {
@@ -256,12 +278,5 @@ export class PublicContactFacade {
 
   private ubicacionErrorForValue(): boolean {
     return this.ubicacion().trim().length > 150;
-  }
-
-  private submitMessage(error: unknown): string {
-    if (error instanceof HttpErrorResponse && error.status === 400) {
-      return 'Revisa los datos ingresados e inténtalo nuevamente.';
-    }
-    return 'No pudimos enviar tu mensaje. Inténtalo nuevamente.';
   }
 }

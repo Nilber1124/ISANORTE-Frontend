@@ -56,7 +56,6 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
       { label: 'Landing', route: '/admin/landing', badge: 'Hub' },
       { label: 'Proyectos', route: '/admin/proyectos' },
       { label: 'Servicios', route: '/admin/servicios' },
-      { label: 'Contacto', route: '/admin/contacto' },
     ],
   },
   {

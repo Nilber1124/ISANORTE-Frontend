@@ -1,21 +1,21 @@
 @let f = facade();
 <app-card class="mt-10 block lg:mt-0" padding="large" data-contact-form>
-  <h2 class="text-heading-3 text-text-primary">Enviar mensaje</h2>
-  <p class="mt-2 text-body text-text-secondary">Completa el formulario para contactar al equipo.</p>
+  <h2 class="text-heading-3 text-text-primary">Solicitar cotización</h2>
+  <p class="mt-2 text-body text-text-secondary">Completa el formulario y te llevamos a WhatsApp con tu solicitud lista para enviar.</p>
 
   @if (f.submitSuccess()) {
     <app-alert
       class="mt-6 block"
       variant="success"
-      title="Mensaje enviado"
+      title="Abrimos WhatsApp"
       dismissible
       (dismissed)="f.dismissSubmitSuccess()"
     >
-      Tu mensaje fue enviado correctamente.
+      Tu solicitud quedó escrita en WhatsApp. Envía el mensaje desde allí para que el equipo la reciba.
     </app-alert>
   }
   @if (f.submitError(); as error) {
-    <app-alert class="mt-6 block" variant="error" title="No fue posible enviar el mensaje">{{
+    <app-alert class="mt-6 block" variant="error" title="No fue posible abrir WhatsApp">{{
       error
     }}</app-alert>
   }
@@ -30,7 +30,6 @@
       [(value)]="f.nombre"
       [required]="true"
       [maxLength]="150"
-      [disabled]="f.submitting()"
       [error]="f.nombreError()"
       (blurred)="f.nombreTouched.set(true)"
     />
@@ -45,7 +44,6 @@
       [(value)]="f.telefono"
       [required]="true"
       [maxLength]="30"
-      [disabled]="f.submitting()"
       [error]="f.telefonoError()"
       (blurred)="f.telefonoTouched.set(true)"
     />
@@ -60,7 +58,6 @@
       [(value)]="f.email"
       [required]="true"
       [maxLength]="180"
-      [disabled]="f.submitting()"
       [error]="f.emailError()"
       (blurred)="f.emailTouched.set(true)"
     />
@@ -71,7 +68,6 @@
         placeholder="Selecciona un servicio"
         [options]="services()"
         [(value)]="f.servicio"
-        [disabled]="f.submitting()"
       />
     }
     <app-input-field
@@ -82,7 +78,6 @@
       autocomplete="off"
       [(value)]="f.ubicacion"
       [maxLength]="150"
-      [disabled]="f.submitting()"
       [error]="f.ubicacionError()"
       (blurred)="f.ubicacionTouched.set(true)"
     />
@@ -94,7 +89,6 @@
       [(value)]="f.mensaje"
       [rows]="3"
       [maxLength]="4000"
-      [disabled]="f.submitting()"
       [error]="f.mensajeError()"
       (blurred)="f.mensajeTouched.set(true)"
     />
@@ -106,7 +100,6 @@
           name="consentimiento"
           class="mt-0.5 size-5 shrink-0 cursor-pointer accent-accent"
           [checked]="f.consentimiento()"
-          [disabled]="f.submitting()"
           [attr.aria-invalid]="f.consentimientoError() ? 'true' : null"
           [attr.aria-describedby]="f.consentimientoError() ? 'contact-consent-error' : null"
           (change)="
@@ -137,10 +130,8 @@
         variant="accent"
         size="large"
         type="submit"
-        [loading]="f.submitting()"
-        [disabled]="f.submitting()"
       >
-        ENVIAR SOLICITUD &rarr;
+        ENVIAR POR WHATSAPP &rarr;
       </app-button>
     </div>
   </form>

@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Meta, Title } from '@angular/platform-browser';
@@ -6,16 +5,12 @@ import { Observable, Subject, throwError } from 'rxjs';
 
 import { SeoRobots } from '../../../data/models/content/page-seo.model';
 import {
-  PublicContactRequest,
-  PublicContactRequestStatus,
-  PublicContactResponse,
-} from '../../../data/models/contact/public-contact-request.model';
-import {
   PublicPageResponse,
   PublicPageType,
 } from '../../../data/models/public-content/public-page.model';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
-import { PublicContactFacade } from './public-contact.facade';
+import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
+import { PublicContactFacade, buildContactWhatsappMessage } from './public-contact.facade';
 
 const pageResponse: PublicPageResponse = {
   contenido: {
@@ -35,28 +30,22 @@ const pageResponse: PublicPageResponse = {
   proyectos: null,
 };
 
-const confirmation: PublicContactResponse = {
-  id: 'c31c49b0-8a7c-4c7c-8c1a-9d9e25c5cb99',
-  estado: PublicContactRequestStatus.NUEVA,
-  fechaCreacion: '2026-09-21T12:00:00',
-};
-
 class PublicContentApiStub {
   page$: Observable<PublicPageResponse> = new Subject<PublicPageResponse>();
-  submit$: Observable<PublicContactResponse> = new Subject<PublicContactResponse>();
   pageCalls: Array<{ siteKey: string; page: PublicPageType }> = [];
-  requests: PublicContactRequest[] = [];
 
   getPage(siteKey: string, page: PublicPageType): Observable<PublicPageResponse> {
     this.pageCalls.push({ siteKey, page });
     return this.page$;
   }
-
-  submitContact(request: PublicContactRequest): Observable<PublicContactResponse> {
-    this.requests.push(request);
-    return this.submit$;
-  }
 }
+
+const opened: Array<{ url: string; target: string | undefined; features: string | undefined }> = [];
+let whatsappNumber: string | null = '51999888777';
+const siteStub = {
+  whatsappHrefFor: (message: string) =>
+    whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}` : null,
+};
 
 describe('PublicContactFacade', () => {
   let facade: PublicContactFacade;
@@ -65,11 +54,18 @@ describe('PublicContactFacade', () => {
   let metaService: Meta;
 
   beforeEach(() => {
+    opened.length = 0;
+    vi.spyOn(window, 'open').mockImplementation((url, target, features) => {
+      opened.push({ url: String(url), target, features });
+      return null;
+    });
+    whatsappNumber = '51999888777';
     TestBed.configureTestingModule({
       providers: [
         PublicContactFacade,
         PublicContentApiStub,
         { provide: PublicContentApiService, useExisting: PublicContentApiStub },
+        { provide: PublicSiteFacade, useValue: siteStub },
       ],
     });
     facade = TestBed.inject(PublicContactFacade);
@@ -101,75 +97,60 @@ describe('PublicContactFacade', () => {
     expect(facade.error()).toBeNull();
   });
 
-  it('uses the exact public request, prevents a duplicate submit and resets only after success', () => {
+  function sentMessage(): string {
+    return decodeURIComponent(opened[0].url.split('?text=')[1]);
+  }
+
+  it('opens WhatsApp in a new tab with the typed data and resets the form', () => {
     fillValidForm();
+    facade.servicio.set(' Remodelaciones ');
+    facade.ubicacion.set(' Cajamarca ');
     facade.submit();
-    facade.submit();
 
-    expect(facade.submitting()).toBe(true);
-    expect(api.requests).toEqual([
-      {
-        nombre: 'Persona API',
-        email: 'persona@example.com',
-        telefono: '+51 999 111 222',
-        empresa: null,
-        ubicacion: null,
-        servicioInteres: null,
-        mensaje: 'Mensaje API',
-        consentimiento: true,
-      },
-    ]);
-
-    const submit = api.submit$ as Subject<PublicContactResponse>;
-    submit.next(confirmation);
-    submit.complete();
-
-    expect(facade.submitting()).toBe(false);
+    expect(opened).toHaveLength(1);
+    expect(opened[0].url.startsWith('https://wa.me/51999888777?text=')).toBe(true);
+    expect(opened[0].target).toBe('_blank');
+    expect(opened[0].features).toBe('noopener');
+    expect(sentMessage()).toBe(
+      [
+        'Hola, quisiera cotizar un proyecto con ISANORTE.',
+        '',
+        '*Nombre:* Persona API',
+        '*Teléfono:* +51 999 111 222',
+        '*Correo:* persona@example.com',
+        '*Servicio de interés:* Remodelaciones',
+        '*Ubicación:* Cajamarca',
+        '*Mensaje:* Mensaje API',
+      ].join('\n'),
+    );
     expect(facade.submitSuccess()).toBe(true);
     expect(facade.nombre()).toBe('');
     expect(facade.mensaje()).toBe('');
   });
 
-  it('sends the service of interest and consent as real fields', () => {
-    fillValidForm();
-    facade.servicio.set(' Remodelaciones ');
-    facade.submit();
-
-    expect(api.requests[0].servicioInteres).toBe('Remodelaciones');
-    expect(api.requests[0].consentimiento).toBe(true);
-    expect(api.requests[0].mensaje).toBe('Mensaje API');
+  it('omits the optional lines that were left empty', () => {
+    expect(
+      buildContactWhatsappMessage({
+        nombre: 'Ana', telefono: '999', email: 'a@b.co', empresa: '', servicio: '  ', ubicacion: '', mensaje: '',
+      }),
+    ).toBe(
+      'Hola, quisiera cotizar un proyecto con ISANORTE.\n\n*Nombre:* Ana\n*Teléfono:* 999\n*Correo:* a@b.co',
+    );
   });
 
-  it('sends the trimmed location as its own field and a default message when none is written', () => {
-    fillValidForm();
-    facade.mensaje.set('');
-    facade.ubicacion.set(' Cajamarca ');
-    facade.submit();
-    expect(api.requests[0].ubicacion).toBe('Cajamarca');
-    expect(api.requests[0].mensaje).toBe('Solicitud de cotización desde el sitio web.');
-  });
-
-  it('sends a default message when only the required fields are filled', () => {
-    fillValidForm();
-    facade.mensaje.set('');
-    facade.submit();
-
-    expect(api.requests[0].mensaje).toBe('Solicitud de cotización desde el sitio web.');
-  });
-
-  it('requires the data authorization before sending', () => {
+  it('requires the data authorization before opening WhatsApp', () => {
     fillValidForm();
     facade.consentimiento.set(false);
     facade.submit();
 
-    expect(api.requests).toEqual([]);
+    expect(opened).toEqual([]);
     expect(facade.consentimientoError()).toContain('aceptar');
   });
 
-  it('does not send an invalid request and exposes contract-aligned validation', () => {
+  it('does not open WhatsApp with an invalid form and exposes validation', () => {
     facade.submit();
 
-    expect(api.requests).toEqual([]);
+    expect(opened).toEqual([]);
     expect(facade.nombreError()).toContain('nombre');
     expect(facade.emailError()).toContain('correo');
     expect(facade.telefonoError()).toContain('teléfono');
@@ -181,28 +162,22 @@ describe('PublicContactFacade', () => {
     expect(facade.emailError()).toContain('válido');
   });
 
-  it('keeps entered values and shows a generic validation error for HTTP 400', () => {
+  it('keeps the entered values and explains the problem when the company has no WhatsApp number', () => {
+    whatsappNumber = null;
     fillValidForm();
-    api.submit$ = throwError(() => new HttpErrorResponse({ status: 400 }));
     facade.submit();
 
-    expect(facade.submitting()).toBe(false);
+    expect(opened).toEqual([]);
     expect(facade.submitSuccess()).toBe(false);
-    expect(facade.submitError()).toContain('Revisa');
-    expect(facade.nombre()).toBe('  Persona API  ');
+    expect(facade.submitError()).toContain('WhatsApp');
+    expect(facade.mensaje()).toBe(' Mensaje API ');
   });
 
-  it('shows a neutral transport error while retaining the form and isolates page failure', () => {
-    fillValidForm();
-    api.submit$ = throwError(() => new Error('offline'));
-    facade.submit();
-    expect(facade.submitError()).toContain('No pudimos enviar');
-    expect(facade.mensaje()).toBe(' Mensaje API ');
-
+  it('isolates a page load failure from the form', () => {
     api.page$ = throwError(() => new Error('offline'));
     facade.load();
     expect(facade.error()).toContain('No pudimos cargar');
-    expect(facade.submitError()).toContain('No pudimos enviar');
+    expect(facade.submitError()).toBeNull();
   });
 
   it('applies dynamic SEO from backend on load', () => {

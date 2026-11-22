@@ -4,10 +4,6 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../../core/config/api.config';
 import { conSesionCliente } from '../../core/auth/cliente-session.context';
-import {
-  PublicContactRequest,
-  PublicContactResponse,
-} from '../models/contact/public-contact-request.model';
 import { ProductCompetitorComparisonResponse } from '../models/product/product-competitor-comparison-response.model';
 import { ProductPriceComparisonRequest } from '../models/product/product-price-comparison-request.model';
 import { ProductPriceComparisonResponse } from '../models/product/product-price-comparison-response.model';
@@ -243,13 +239,6 @@ export class PublicContentApiService {
       `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/pedidos`,
       request,
       { context: conSesionCliente() },
-    );
-  }
-
-  submitContact(request: PublicContactRequest): Observable<PublicContactResponse> {
-    return this.http.post<PublicContactResponse>(
-      `${this.apiBaseUrl}/api/publico/contacto`,
-      request,
     );
   }
 
