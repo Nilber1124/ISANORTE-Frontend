@@ -3,7 +3,9 @@
 Resultado de la auditoría del admin (30 pantallas a escritorio, 23 a 375 px, y lectura del código).
 Este documento convierte esos hallazgos en fases ejecutables.
 
-**Estado:** Fase 1 ✅ hecha · Fases 2, 3 y 4 pendientes.
+**Estado:** Fase 1 ✅ · Fase 2 ✅ · Fases 3 y 4 pendientes.
+
+**Decisión tomada en la Fase 2:** el SEO deja de administrarse (ver «SEO automático» abajo). «Páginas y SEO» desaparece del admin.
 
 **Correcciones a la auditoría descubiertas al ejecutar la Fase 1**
 - **Proyectos a 375 px no desborda.** Fue un falso positivo de la medición: su tabla se desplaza dentro de su propia caja. El desborde real era solo el de **Empresa** (el bloque «Redes sociales» llegaba a 424 px en una pantalla de 360).
@@ -39,18 +41,23 @@ Objetivo: que todo el admin hable igual y que no haya código muerto. Tamaño: *
 | 1.7 ✅ | **Móvil:** arreglar el desborde de Proyectos y Empresa; objetivos táctiles ≥ 40 px en Landing, Proyectos y Empresa. | `admin-projects`, `admin-company`, `admin-landing` | `scrollWidth ≤ 375` y sin botones < 40 px |
 | 1.8 ✅ | **«Desactivar» de Unidades de negocio** (apaga toda la tienda): confirmación que exige escribir el nombre de la unidad. | `business-units` | no se desactiva con un solo clic |
 
-## Fase 2 · Menú y duplicados con la vista previa (riesgo bajo-medio)
+## Fase 2 · Menú y duplicados con la vista previa — ✅ hecha
 
 Objetivo: menos entradas, sin perder función. Tamaño: **M**.
 
 | # | Tarea | Hecho cuando |
 |---|---|---|
-| 2.1 | **«Contenido de la web»**: una entrada del menú con una página de 6 tarjetas (Preguntas frecuentes, Equipo, Credenciales, Testimonios, Garantías, Pasos del proceso), cada una con su cantidad de elementos y botón. Las rutas actuales `/admin/sitio/*` siguen funcionando. | el menú de ISANORTE queda en: Landing, Proyectos, Servicios, Contenido de la web |
-| 2.2 | **Quitar «Galería de proyectos»** del menú (ya está en la ficha de cada proyecto) y redirigir su ruta a Proyectos. | sin entrada ni ruta huérfana |
-| 2.3 | **«Políticas»** pasa al grupo «Sitio y empresa». | menú actualizado |
-| 2.4 | **Empresa:** la tarjeta «Filosofía» se sustituye por un enlace «Se edita en la vista previa de Nosotros». Identidad y contacto se quedan. | sin duplicado de misión, visión y valores |
-| 2.5 | **Páginas y SEO:** la tabla de páginas editoriales queda en solo lectura con un enlace a la vista previa, salvo Contacto; SEO se queda. | un solo lugar para editar cada texto |
-| 2.6 | **Configuración del sitio:** comprobar si `Branding` y `Colores` los usa la web; si no, ocultarlos. | decisión documentada |
+| 2.1 ✅ | **«Contenido de la web»**: una entrada del menú con una página de 6 tarjetas (Preguntas frecuentes, Equipo, Credenciales, Testimonios, Garantías, Pasos del proceso), cada una con su cantidad de elementos y botón. Las rutas actuales `/admin/sitio/*` siguen funcionando. | el menú de ISANORTE queda en: Landing, Proyectos, Servicios, Contenido de la web |
+| 2.2 ✅ | **Quitar «Galería de proyectos»** del menú (ya está en la ficha de cada proyecto) y redirigir su ruta a Proyectos. | sin entrada ni ruta huérfana |
+| 2.3 ✅ | **«Políticas»** pasa al grupo «Sitio y empresa». | menú actualizado |
+| 2.4 ✅ | **Empresa:** la tarjeta «Filosofía» se sustituye por un enlace «Se edita en la vista previa de Nosotros». Identidad y contacto se quedan. | sin duplicado de misión, visión y valores |
+| 2.5 ✅ | **Páginas y SEO:** la tabla de páginas editoriales queda en solo lectura con un enlace a la vista previa, salvo Contacto; SEO se queda. | un solo lugar para editar cada texto |
+| 2.6 ✅ | **Configuración del sitio:** comprobar si `Branding` y `Colores` los usa la web; si no, ocultarlos. | decisión documentada |
+
+**Cómo quedó (cambios respecto a lo planeado)**
+- **2.5 → SEO automático y fuera «Páginas y SEO».** El cliente no pidió SEO ni lo entiende, así que no se administra: títulos fijos con palabras clave en el código, descripción que sigue al texto de la página, imagen de la página o una foto del sitio por defecto, siempre indexable. Los textos de Contacto y la foto de Nosotros pasaron a la vista previa.
+- **2.4:** de Empresa se quitó el bloque de misión, visión y valores (se edita en la vista previa de Nosotros) pero **se conservó el resumen institucional**, que alimenta el pie de página y no se puede tocar en la vista previa.
+- **2.6:** se ocultaron **solo los colores** (`colorPrimario` y `colorSecundario`: nada en la web los usa) y se conservan sus valores al guardar. El logo, el logo blanco y el favicon sí los usa la web y se quedan.
 
 Unidades de negocio **se deja como está** (decisión ya tomada), salvo 1.8.
 

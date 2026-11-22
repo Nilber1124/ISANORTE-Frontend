@@ -290,3 +290,17 @@ Detalle y estado en [plan-admin-ux.md](plan-admin-ux.md).
 - **Unidad de negocio:** desactivarla exige escribir su nombre.
 - **Móvil (375 px):** el bloque «Redes sociales» de Empresa ya no se sale de la pantalla; los botones de iconos, la estrella de «destacado» y los enlaces «También se edita en» de Landing miden al menos 40 px.
 - **Código muerto eliminado:** `features/admin/isadecor-landing` (≈1.500 líneas). La ruta `/admin/isadecor-landing` ahora redirige a `/admin/anuncios`.
+
+### Menú y duplicados (Fase 2 del plan de UX)
+
+- **Menú de ISANORTE · Web:** Landing, Proyectos, Servicios y **Contenido de la web**. «Contenido de la web» (`/admin/sitio`, `AdminWebContent`) es una página con 6 tarjetas (Preguntas frecuentes, Equipo, Credenciales, Testimonios, Garantías, Pasos del proceso) que muestran cuántos elementos hay y cuántos están ocultos y abren su pantalla `/admin/sitio/<clave>`. Desapareció el grupo «Confianza y contenido». **Políticas** pasó a «Sitio y empresa».
+- **Galería de proyectos:** sin entrada en el menú; `/admin/sitio/proyecto-galeria` redirige a Proyectos (sus fotos se gestionan en la ficha de cada proyecto).
+- **Páginas y SEO eliminado.** `/admin/contenido` redirige a Landing. Los textos de las páginas se editan tocándolos en la vista previa, que ahora incluye **Contacto** y permite cambiar la **foto de Nosotros**.
+- **SEO automático** (`public-page-seo.util.ts`, modo `automatic` de `PublicPageSeoDefaults`, usado por las páginas de ISANORTE): se ignora el SEO guardado en el backend.
+  - **Título:** fijo en cada facade, con palabras clave («Servicios de construcción en Cajamarca | ISANORTE»).
+  - **Descripción:** la introducción o descripción de la página, recortada a ~160 caracteres; si no hay, la fija de la facade.
+  - **Imagen para compartir:** la de la página (Nosotros tiene) o, si no, `DEFAULT_SHARE_IMAGE` (foto del Hero).
+  - **Robots:** siempre `index, follow`.
+  - ISADECOR (producto, catálogos) no cambia. El backend y la tabla `seo_paginas` no se tocaron.
+- **Empresa:** el bloque de misión, visión y valores se sustituyó por un enlace a la vista previa de Nosotros; se conserva el «Resumen institucional» (pie de página).
+- **Configuración del sitio:** ya no muestra ni pide los colores primario y secundario (nada los usa); sus valores se conservan al guardar.
