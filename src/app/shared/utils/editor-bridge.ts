@@ -4,8 +4,10 @@
  * cuál se tocó. Fuera de ese caso no hace nada.
  *
  * Mensajes (siempre del mismo origen):
- *  - página → admin: `{ source: 'isanorte-editor', type: 'select' | 'ready', block?, field? }`
- *    (`field` es el `data-edit-field` del texto o imagen tocado, si lo hay)
+ *  - página → admin: `{ source: 'isanorte-editor', type: 'select' | 'ready', block?, field?, item? }`
+ *    (`item` identifica un elemento repetido, p. ej. `servicio:<id>`, vía `data-edit-item`)
+ *    (`field` es el `data-edit-field` del texto o imagen tocado, o el `data-edit-fallback` de la
+ *    sección si se tocó una zona sin campo propio, como el fondo)
  *  - admin → página: `{ source: 'isanorte-admin', type: 'focus', block }` y
  *    `{ source: 'isanorte-admin', type: 'draft', block, values }` (`values: null` restaura lo guardado):
  *    muestra al instante el texto que se está escribiendo, sin guardar nada.
@@ -15,6 +17,7 @@ export const ADMIN_MESSAGE_SOURCE = 'isanorte-admin';
 
 const EDITOR_STYLE = `
 body.editor-mode section[id]{cursor:pointer;transition:outline-color .15s}
+body.editor-mode [data-edit-item]:hover{outline:2px dashed #f97316;outline-offset:2px}
 body.editor-mode [data-edit-field]{cursor:text}
 body.editor-mode [data-edit-field]:hover{outline:2px solid #f97316;outline-offset:3px}
 body.editor-mode section[id]:hover{outline:2px dashed #f97316;outline-offset:-2px}
@@ -45,9 +48,15 @@ export function initEditorBridge(doc: Document, win: Window): (() => void) | nul
     if (!section) return;
     event.preventDefault();
     event.stopPropagation();
-    const field = target?.closest?.('[data-edit-field]')?.getAttribute('data-edit-field') ?? undefined;
+    // Un campo concreto si se tocó uno; si no (p. ej. el fondo, tapado por otras capas), el que la
+    // sección declare en data-edit-fallback.
+    const field =
+      target?.closest?.('[data-edit-field]')?.getAttribute('data-edit-field') ??
+      target?.closest?.('[data-edit-fallback]')?.getAttribute('data-edit-fallback') ??
+      undefined;
+    const item = target?.closest?.('[data-edit-item]')?.getAttribute('data-edit-item') ?? undefined;
     win.parent.postMessage(
-      { source: EDITOR_MESSAGE_SOURCE, type: 'select', block: section.id, field },
+      { source: EDITOR_MESSAGE_SOURCE, type: 'select', block: section.id, field, item },
       win.location.origin,
     );
   };
@@ -58,15 +67,16 @@ export function initEditorBridge(doc: Document, win: Window): (() => void) | nul
       source?: string;
       type?: string;
       block?: string;
+      item?: string;
       values?: Record<string, unknown> | null;
     } | null;
     if (data?.source !== ADMIN_MESSAGE_SOURCE) return;
     if (data.type === 'focus' && data.block) focusBlock(data.block);
-    else if (data.type === 'draft') setDraft(data.block ?? '', data.values ?? null);
+    else if (data.type === 'draft') setDraft(data.block ?? '', data.item ?? null, data.values ?? null);
   };
 
   // Borrador en vivo: cambia solo el texto mostrado (nunca el HTML) y recuerda el original.
-  let draft: { block: string; values: Record<string, string> } | null = null;
+  let draft: { block: string; item: string | null; values: Record<string, string> } | null = null;
   const originals = new Map<Element, string>();
   const lastTextNode = (el: Element): Text => {
     for (let i = el.childNodes.length - 1; i >= 0; i--) {
@@ -75,9 +85,17 @@ export function initEditorBridge(doc: Document, win: Window): (() => void) | nul
     return el.appendChild(doc.createTextNode(''));
   };
   const applyDraft = (): void => {
-    const section = draft ? doc.getElementById(draft.block) : null;
-    if (!draft || !section) return;
-    section.querySelectorAll('[data-edit-field]').forEach((el) => {
+    if (!draft) return;
+    // Un borrador de elemento (p. ej. una tarjeta) solo toca los campos de ese elemento; el de bloque,
+    // los campos del bloque que no pertenecen a ningún elemento repetido.
+    const scope = draft.item
+      ? Array.from(doc.querySelectorAll('[data-edit-item]')).find(
+          (el) => el.getAttribute('data-edit-item') === draft!.item,
+        )
+      : doc.getElementById(draft.block);
+    if (!scope) return;
+    scope.querySelectorAll('[data-edit-field]').forEach((el) => {
+      if (!draft!.item && el.closest('[data-edit-item]')) return;
       const key = el.getAttribute('data-edit-field') ?? '';
       if (!(key in draft!.values)) return;
       const node = lastTextNode(el);
@@ -91,17 +109,17 @@ export function initEditorBridge(doc: Document, win: Window): (() => void) | nul
     });
     originals.clear();
   };
-  const setDraft = (block: string, values: Record<string, unknown> | null): void => {
+  const setDraft = (block: string, item: string | null, values: Record<string, unknown> | null): void => {
+    restoreDraft();
     if (!values) {
       draft = null;
-      restoreDraft();
       return;
     }
     const clean: Record<string, string> = {};
     for (const [key, value] of Object.entries(values)) {
       if (typeof value === 'string') clean[key] = value.slice(0, 2000);
     }
-    draft = { block, values: clean };
+    draft = { block, item, values: clean };
     applyDraft();
   };
 

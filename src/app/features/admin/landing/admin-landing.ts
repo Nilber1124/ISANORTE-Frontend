@@ -15,6 +15,9 @@ import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { AdminLandingFacade } from './admin-landing.facade';
+import { FieldEditor } from './components/field-editor/field-editor';
+import { GuaranteeField, GuaranteeFieldEditor } from './components/guarantee-field-editor/guarantee-field-editor';
+import { ServiceField, ServiceFieldEditor } from './components/service-field-editor/service-field-editor';
 import { HeroDraft, HeroEditor, HeroChildSave, HeroFocusRequest, HeroSwap, HeroTextsSave } from './components/hero-editor/hero-editor';
 import {
   LandingPreview,
@@ -38,6 +41,28 @@ export interface SectionMeta {
 }
 
 export type LandingTab = 'vista' | 'secciones' | 'nosotros';
+
+/** Campos de texto de una sección de la landing que se pueden tocar en la página. */
+export type SectionTextField = 'etiqueta' | 'titulo' | 'subtitulo' | 'contenido';
+
+export const SECTION_TEXT_FIELDS: Readonly<
+  Record<SectionTextField, { label: string; rows: number; helper?: string }>
+> = {
+  etiqueta: { label: 'Frase pequeña sobre el título', rows: 1 },
+  titulo: {
+    label: 'Título',
+    rows: 2,
+    helper: 'Un salto de línea parte el título en dos líneas en la web.',
+  },
+  subtitulo: { label: 'Subtítulo', rows: 3 },
+  contenido: { label: 'Descripción', rows: 4 },
+};
+
+/** Lo que se edita en el panel al tocar algo de la página (un solo campo). */
+export type PanelEdit =
+  | { readonly kind: 'section'; readonly field: SectionTextField }
+  | { readonly kind: 'service'; readonly slug: string; readonly field: ServiceField }
+  | { readonly kind: 'guarantee'; readonly id: string; readonly field: GuaranteeField };
 
 /** Bloque de la web pública (ancla `id` de su `<section>`) y dónde se edita. */
 export interface PreviewBlock {
@@ -75,7 +100,10 @@ export interface LandingTabItem {
     Button,
     DynamicChildManager,
     EmptyState,
+    FieldEditor,
     HeroEditor,
+    GuaranteeFieldEditor,
+    ServiceFieldEditor,
     LandingPreview,
     LandingSectionForm,
     RouterLink,
@@ -117,6 +145,8 @@ export class AdminLanding {
   readonly editingInPanel = signal(false);
   /** Campo o lista tocado en la página: el editor muestra solo eso (`null` = todo el Hero). */
   readonly heroOnly = signal<string | null>(null);
+  /** Campo suelto (texto de sección o de una tarjeta de servicio) abierto en el panel. */
+  readonly panelEdit = signal<PanelEdit | null>(null);
   /** Borrador en vivo del Hero (lo que se teclea en el panel) y campo tocado en la página. */
   readonly previewDraft = signal<PreviewDraft | null>(null);
   readonly focusRequest = signal<HeroFocusRequest | null>(null);
@@ -189,15 +219,109 @@ export class AdminLanding {
     this.selectedBlockId.set(id);
     this.editingInPanel.set(false);
     this.heroOnly.set(null);
+    this.panelEdit.set(null);
     this.previewDraft.set(null);
   }
 
   /** Se tocó un texto o una foto del Hero en la página: se abre su editor con ese campo enfocado. */
   protected selectField(selection: PreviewFieldSelection): void {
-    if (selection.block !== 'inicio' || !this.selectedSection()) return;
+    // Una tarjeta de servicio: nombre o descripción corta de ese servicio.
+    if (selection.item?.startsWith('servicio:')) {
+      if (['nombre', 'resumen', 'tarjeta'].includes(selection.field)) {
+        this.panelEdit.set({
+          kind: 'service',
+          slug: selection.item.slice('servicio:'.length),
+          field: (selection.field === 'tarjeta' ? 'ambos' : selection.field) as ServiceField,
+        });
+      }
+      return;
+    }
+    // Una garantía («Por qué elegir a ISANORTE»): título y/o texto de esa garantía.
+    if (selection.item?.startsWith('garantia:')) {
+      if (['titulo', 'texto', 'tarjeta'].includes(selection.field)) {
+        this.panelEdit.set({
+          kind: 'guarantee',
+          id: selection.item.slice('garantia:'.length),
+          field: (selection.field === 'tarjeta' ? 'ambos' : selection.field) as GuaranteeField,
+        });
+      }
+      return;
+    }
+    // Texto de una sección que no es el Hero: un solo campo.
+    if (selection.block !== 'inicio') {
+      if (this.selectedSection() && selection.field in SECTION_TEXT_FIELDS) {
+        this.panelEdit.set({ kind: 'section', field: selection.field as SectionTextField });
+      }
+      return;
+    }
+    if (!this.selectedSection()) return;
     this.heroOnly.set(selection.field);
     this.editingInPanel.set(true);
     this.focusRequest.set({ field: selection.field, n: Date.now() });
+  }
+
+  protected closePanelEdit(): void {
+    this.panelEdit.set(null);
+    this.previewDraft.set(null);
+  }
+
+  protected sectionFieldLabel(field: SectionTextField): string {
+    return SECTION_TEXT_FIELDS[field].label;
+  }
+
+  protected sectionFieldRows(field: SectionTextField): number {
+    return SECTION_TEXT_FIELDS[field].rows;
+  }
+
+  protected sectionFieldHelper(field: SectionTextField): string | undefined {
+    return SECTION_TEXT_FIELDS[field].helper;
+  }
+
+  protected sectionFieldValue(field: SectionTextField): string {
+    return this.selectedSection()?.[field] ?? '';
+  }
+
+  protected setSectionDraft(field: SectionTextField, value: string | null): void {
+    const block = this.selectedBlockId();
+    this.previewDraft.set(block && value !== null ? { block, values: { [field]: value } } : null);
+  }
+
+  protected saveSectionField(field: SectionTextField, value: string): void {
+    const section = this.selectedSection();
+    if (!section) return;
+    this.facade.update(
+      {
+        configuracionSitioId: section.configuracionSitioId,
+        tipo: section.tipo,
+        etiqueta: section.etiqueta,
+        titulo: section.titulo,
+        subtitulo: section.subtitulo,
+        contenido: section.contenido,
+        imagenUrl: section.imagenUrl,
+        imagenAlt: section.imagenAlt,
+        textoBoton: section.textoBoton,
+        enlaceBoton: section.enlaceBoton,
+        orden: section.orden ?? 0,
+        visible: section.visible ?? true,
+        [field]: value || null,
+      },
+      section,
+    );
+  }
+
+  protected setGuaranteeDraft(id: string, values: Readonly<Record<string, string>> | null): void {
+    const block = this.selectedBlockId();
+    this.previewDraft.set(block && values ? { block, item: `garantia:${id}`, values } : null);
+  }
+
+  protected setServiceDraft(slug: string, values: Readonly<Record<string, string>> | null): void {
+    const block = this.selectedBlockId();
+    this.previewDraft.set(block && values ? { block, item: `servicio:${slug}`, values } : null);
+  }
+
+  protected serviceSaved(): void {
+    this.previewDraft.set(null);
+    this.previewKey.update((key) => key + 1);
   }
 
   protected closeHeroEditor(): void {

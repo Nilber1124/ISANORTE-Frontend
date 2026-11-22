@@ -1,0 +1,42 @@
+@if (single()) {
+  <app-field-editor
+    [heading]="heading()"
+    [label]="meta().label"
+    [value]="currentValue()"
+    [rows]="meta().rows"
+    [required]="meta().required"
+    [loading]="loading()"
+    [busy]="saving()"
+    [error]="error()"
+    (draftChanged)="onSingleDraft($event)"
+    (saved)="save($event)"
+    (closed)="closed.emit()"
+  />
+} @else {
+  <section class="rounded-card border border-border bg-surface shadow-card" [attr.aria-label]="heading()">
+    <header class="flex items-start justify-between gap-3 border-b border-border p-5">
+      <div>
+        <p class="text-eyebrow uppercase text-text-muted">Editando</p>
+        <h2 class="mt-1 text-heading-3 text-text-primary">{{ heading() }}</h2>
+      </div>
+      <app-button size="small" variant="ghost" (click)="closed.emit()">← Volver</app-button>
+    </header>
+    <div class="space-y-4 p-5">
+      @if (loading()) {
+        <p class="text-body-sm text-text-muted" role="status">Cargando…</p>
+      } @else {
+        @if (error(); as message) {
+          <p class="rounded-control border border-error/40 bg-error/10 p-3 text-body-sm text-error" role="alert">{{ message }}</p>
+        }
+        <app-input-field inputId="guarantee-titulo" label="Título" [(value)]="tituloText" [required]="true" [disabled]="saving()" />
+        <app-textarea-field inputId="guarantee-texto" label="Texto" [(value)]="textoText" [rows]="3" [required]="true" [disabled]="saving()" />
+        <div class="flex items-center gap-3">
+          <app-button variant="primary" [disabled]="!bothDirty() || bothInvalid() || saving()" [loading]="saving()" (click)="saveBoth()">Guardar</app-button>
+          @if (bothDirty()) {
+            <span class="text-caption text-text-muted" role="status">Cambios sin guardar · ya se ven en la vista previa</span>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}

@@ -28,6 +28,7 @@
       title="Vista previa de la landing ISANORTE"
       class="absolute top-0 border-0 bg-white"
       [src]="src"
+      (load)="onFrameLoad()"
       [style.width.px]="frameWidth()"
       [style.height.px]="viewportHeight / scale()"
       [style.left.px]="offsetLeft()"

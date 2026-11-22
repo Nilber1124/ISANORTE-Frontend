@@ -28,6 +28,7 @@
       id="inicio"
       data-theme="dark"
       data-home-hero
+      data-edit-fallback="fotos"
       class="relative isolate flex min-h-[calc(100svh-4rem)] flex-col overflow-hidden bg-background text-text-primary"
     >
       <app-cinematic-tour data-edit-field="fotos" [scenes]="facade.heroScenes()"></app-cinematic-tour>
@@ -170,7 +171,7 @@
     <section id="servicios" class="section-space bg-background-soft" data-home-services>
       <div class="app-container">
         <div class="mb-10 flex flex-col justify-between gap-6 md:mb-14 md:flex-row md:items-end">
-          <h2 class="max-w-3xl whitespace-pre-line text-heading-1 text-text-primary" data-rise>
+          <h2 data-edit-field="titulo" class="max-w-3xl whitespace-pre-line text-heading-1 text-text-primary" data-rise>
             {{ services.header.title }}
           </h2>
           @if (services.action; as action) {
@@ -180,7 +181,12 @@
 
         <ul class="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
           @for (service of services.services; track service.id; let i = $index) {
-            <li class="h-full" data-rise>
+            <li
+              class="h-full"
+              data-rise
+              [attr.data-edit-item]="'servicio:' + service.slug"
+              data-edit-fallback="tarjeta"
+            >
               <a
                 [href]="service.linkUrl"
                 class="group relative flex h-full min-h-60 flex-col gap-5 rounded-card border border-border bg-surface p-6 text-text-primary transition-[border-color,background-color,transform] duration-normal ease-[var(--ease-standard)] hover:-translate-y-1 hover:border-accent hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background lg:p-7"
@@ -209,9 +215,9 @@
                   >
                 </span>
                 <span class="flex min-w-0 flex-1 flex-col gap-2">
-                  <h3 class="text-heading-4 leading-snug">{{ service.name }}</h3>
+                  <h3 data-edit-field="nombre" class="text-heading-4 leading-snug">{{ service.name }}</h3>
                   @if (service.summary) {
-                    <p class="line-clamp-3 text-body-sm text-text-secondary">
+                    <p data-edit-field="resumen" class="line-clamp-3 text-body-sm text-text-secondary">
                       {{ service.summary }}
                     </p>
                   }
@@ -702,6 +708,8 @@
             <li
               class="group flex gap-4 rounded-card border border-border bg-surface p-6 transition-[border-color,transform] duration-normal ease-[var(--ease-standard)] hover:-translate-y-0.5 hover:border-accent"
               data-rise
+              [attr.data-edit-item]="'garantia:' + item.id"
+              data-edit-fallback="tarjeta"
             >
               <span
                 class="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent"
@@ -720,10 +728,10 @@
                 </svg>
               </span>
               <div class="min-w-0">
-                <h3 class="mb-1.5 text-heading-4 leading-snug text-text-primary">
+                <h3 data-edit-field="titulo" class="mb-1.5 text-heading-4 leading-snug text-text-primary">
                   {{ item.titulo }}
                 </h3>
-                <p class="text-body-sm text-text-secondary">{{ item.texto }}</p>
+                <p data-edit-field="texto" class="text-body-sm text-text-secondary">{{ item.texto }}</p>
               </div>
             </li>
           }

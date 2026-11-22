@@ -224,4 +224,55 @@ describe('AdminLanding', () => {
     expect(component.previewDraft()).toBeNull();
     expect(component.editingInPanel()).toBe(false);
   });
+
+  it('al tocar el título de Servicios o una tarjeta abre solo ese campo', () => {
+    facadeMock.siteConfigurations.set([mockSiteConfig]);
+    facadeMock.sections.set([{ ...mockSection, tipo: 'SERVICIOS', titulo: 'Todo en un lugar' } as never]);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    component['selectBlock']('servicios');
+    component['selectField']({ block: 'servicios', field: 'titulo' });
+    fixture.detectChanges();
+    expect(component.panelEdit()).toEqual({ kind: 'section', field: 'titulo' });
+    expect(element.querySelector('app-field-editor')).toBeTruthy();
+    expect((element.querySelector('textarea') as HTMLTextAreaElement).value).toBe('Todo en un lugar');
+
+    component['setSectionDraft']('titulo', 'Borrador');
+    expect(component.previewDraft()).toEqual({ block: 'servicios', values: { titulo: 'Borrador' } });
+
+    component['selectField']({ block: 'servicios', field: 'resumen', item: 'servicio:abc' });
+    expect(component.panelEdit()).toEqual({ kind: 'service', slug: 'abc', field: 'resumen' });
+    component['setServiceDraft']('abc', { resumen: 'Nuevo' });
+    expect(component.previewDraft()).toEqual({ block: 'servicios', item: 'servicio:abc', values: { resumen: 'Nuevo' } });
+
+    // Tocar la tarjeta (sin un texto concreto) muestra nombre y descripción a la vez.
+    component['selectField']({ block: 'servicios', field: 'tarjeta', item: 'servicio:abc' });
+    expect(component.panelEdit()).toEqual({ kind: 'service', slug: 'abc', field: 'ambos' });
+
+    component['selectBlock']('proyectos');
+    expect(component.panelEdit()).toBeNull();
+    expect(component.previewDraft()).toBeNull();
+  });
+
+  it('guarda el texto de una sección conservando el resto de sus campos', () => {
+    const update = vi.fn();
+    (facadeMock as unknown as { update: unknown }).update = update;
+    const section = { ...mockSection, tipo: 'SERVICIOS', titulo: 'Viejo', subtitulo: 'Sub', textoBoton: 'X', enlaceBoton: '/x' } as never;
+    facadeMock.sections.set([section]);
+    component['selectBlock']('servicios');
+    component['saveSectionField']('titulo', 'Nuevo\ntítulo');
+    const request = update.mock.calls[0][0];
+    expect(request).toMatchObject({ titulo: 'Nuevo\ntítulo', subtitulo: 'Sub', textoBoton: 'X', enlaceBoton: '/x', tipo: 'SERVICIOS' });
+  });
+
+  it('al tocar una garantía abre su título, su texto o ambos', () => {
+    component['selectBlock']('garantias');
+    component['selectField']({ block: 'garantias', field: 'texto', item: 'garantia:g1' });
+    expect(component.panelEdit()).toEqual({ kind: 'guarantee', id: 'g1', field: 'texto' });
+    component['selectField']({ block: 'garantias', field: 'tarjeta', item: 'garantia:g1' });
+    expect(component.panelEdit()).toEqual({ kind: 'guarantee', id: 'g1', field: 'ambos' });
+    component['setGuaranteeDraft']('g1', { titulo: 'a', texto: 'b' });
+    expect(component.previewDraft()).toEqual({ block: 'garantias', item: 'garantia:g1', values: { titulo: 'a', texto: 'b' } });
+  });
 });

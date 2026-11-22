@@ -97,4 +97,46 @@ describe('editor bridge', () => {
     expect(document.querySelector('h1 img')).toBeNull();
     expect(document.querySelector('h1')!.textContent).toBe('<img src=x onerror=alert(1)>');
   });
+
+  it('falls back to the section field when an area without its own field is tapped', () => {
+    document.body.innerHTML =
+      '<section id="inicio" data-edit-fallback="fotos"><div id="capa"><h1 data-edit-field="titulo">Hola</h1></div></section><section id="proceso"><p id="x">Sin campo</p></section>';
+    const { win, posted } = fakeWindow('?editor=1', true);
+    initEditorBridge(document, win);
+    const click = (id: string) =>
+      document.getElementById(id)!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    click('capa');
+    expect(posted).toContainEqual({ source: EDITOR_MESSAGE_SOURCE, type: 'select', block: 'inicio', field: 'fotos' });
+    click('x');
+    expect(posted).toContainEqual({ source: EDITOR_MESSAGE_SOURCE, type: 'select', block: 'proceso', field: undefined });
+  });
+
+  it('reports the tapped item and applies a draft only inside that item', () => {
+    document.body.innerHTML =
+      '<section id="servicios"><h2 data-edit-field="titulo">Título</h2>' +
+      '<ul><li id="a" data-edit-item="servicio:a" data-edit-fallback="nombre"><h3 data-edit-field="nombre">Uno</h3></li>' +
+      '<li data-edit-item="servicio:b" data-edit-fallback="nombre"><h3 data-edit-field="nombre">Dos</h3></li></ul></section>';
+    const { win, posted, listeners } = fakeWindow('?editor=1', true);
+    initEditorBridge(document, win);
+
+    document.getElementById('a')!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(posted).toContainEqual({
+      source: EDITOR_MESSAGE_SOURCE, type: 'select', block: 'servicios', field: 'nombre', item: 'servicio:a',
+    });
+
+    const send = (item: string | null, values: Record<string, unknown> | null) =>
+      listeners['message']({ origin: 'http://localhost', data: { source: ADMIN_MESSAGE_SOURCE, type: 'draft', block: 'servicios', item, values } });
+    send('servicio:b', { nombre: 'Dos editado' });
+    const names = () => Array.from(document.querySelectorAll('h3')).map((h) => h.textContent);
+    expect(names()).toEqual(['Uno', 'Dos editado']);
+
+    // Un borrador del bloque no toca los campos de las tarjetas.
+    send(null, { titulo: 'Nuevo título', nombre: 'No debe cambiar' });
+    expect(names()).toEqual(['Uno', 'Dos']);
+    expect(document.querySelector('h2')!.textContent).toBe('Nuevo título');
+
+    send(null, null);
+    expect(document.querySelector('h2')!.textContent).toBe('Título');
+  });
 });

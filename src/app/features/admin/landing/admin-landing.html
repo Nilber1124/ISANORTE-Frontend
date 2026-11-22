@@ -64,7 +64,37 @@
           @if (facade.error()) {
             <app-alert variant="error">{{ facade.error() }}</app-alert>
           }
-          @if (editingInPanel() && selectedBlock()?.type === 'HERO' && selectedSection(); as heroSection) {
+          @if (panelEdit(); as edit) {
+            @if (edit.kind === 'section') {
+              <app-field-editor
+                [heading]="(selectedBlock()?.label ?? '') + ' · ' + sectionFieldLabel(edit.field)"
+                [label]="sectionFieldLabel(edit.field)"
+                [value]="sectionFieldValue(edit.field)"
+                [rows]="sectionFieldRows(edit.field)"
+                [helper]="sectionFieldHelper(edit.field)"
+                [busy]="facade.submitting()"
+                (draftChanged)="setSectionDraft(edit.field, $event)"
+                (saved)="saveSectionField(edit.field, $event)"
+                (closed)="closePanelEdit()"
+              />
+            } @else if (edit.kind === 'guarantee') {
+              <app-guarantee-field-editor
+                [guaranteeId]="edit.id"
+                [field]="edit.field"
+                (draftChanged)="setGuaranteeDraft(edit.id, $event)"
+                (saved)="serviceSaved()"
+                (closed)="closePanelEdit()"
+              />
+            } @else {
+              <app-service-field-editor
+                [serviceSlug]="edit.slug"
+                [field]="edit.field"
+                (draftChanged)="setServiceDraft(edit.slug, $event)"
+                (saved)="serviceSaved()"
+                (closed)="closePanelEdit()"
+              />
+            }
+          } @else if (editingInPanel() && selectedBlock()?.type === 'HERO' && selectedSection(); as heroSection) {
             <app-hero-editor
               [section]="heroSection"
               [busy]="heroBusy()"

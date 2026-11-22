@@ -25,6 +25,8 @@ export type PreviewDevice = 'desktop' | 'mobile';
 /** Texto que se está escribiendo en el panel, por campo, para mostrarlo ya en la página. */
 export interface PreviewDraft {
   readonly block: string;
+  /** Elemento repetido al que pertenece (p. ej. `servicio:<id>`); sin él, el borrador es del bloque. */
+  readonly item?: string;
   readonly values: Readonly<Record<string, string>>;
 }
 
@@ -32,6 +34,8 @@ export interface PreviewDraft {
 export interface PreviewFieldSelection {
   readonly block: string;
   readonly field: string;
+  /** Elemento repetido tocado (p. ej. una tarjeta de servicio). */
+  readonly item?: string;
 }
 
 const FRAME_WIDTH: Record<PreviewDevice, number> = { desktop: 1280, mobile: 390 };
@@ -75,6 +79,8 @@ export class LandingPreview {
   );
 
   private ready = false;
+  /** La página ya terminó de cargar: antes, recargarla cancelaría la primera navegación del iframe. */
+  private loaded = false;
 
   constructor() {
     const destroyRef = inject(DestroyRef);
@@ -111,11 +117,18 @@ export class LandingPreview {
     effect(() => {
       if (this.reloadKey() > 0) {
         untracked(() => {
+          if (!this.loaded) return; // la primera carga aún no terminó: ya traerá lo último
           this.ready = false;
+          this.loaded = false;
           this.frame()?.nativeElement.contentWindow?.location.reload();
         });
       }
     });
+  }
+
+  protected onFrameLoad(): void {
+    const href = this.frame()?.nativeElement.contentWindow?.location.href;
+    this.loaded = !!href && href !== 'about:blank';
   }
 
   protected setDevice(device: PreviewDevice): void {
@@ -130,6 +143,7 @@ export class LandingPreview {
       type?: string;
       block?: string;
       field?: string;
+      item?: string;
     } | null;
     if (data?.source !== EDITOR_MESSAGE_SOURCE) return;
     if (data.type === 'ready') {
@@ -139,7 +153,9 @@ export class LandingPreview {
       this.sendDraft(this.draft());
     } else if (data.type === 'select' && data.block) {
       this.blockSelected.emit(data.block);
-      if (data.field) this.fieldSelected.emit({ block: data.block, field: data.field });
+      if (data.field) {
+        this.fieldSelected.emit({ block: data.block, field: data.field, item: data.item });
+      }
     }
   }
 
@@ -147,7 +163,13 @@ export class LandingPreview {
     const frameWindow = this.frame()?.nativeElement.contentWindow;
     if (!frameWindow || !this.ready) return;
     frameWindow.postMessage(
-      { source: ADMIN_MESSAGE_SOURCE, type: 'draft', block: draft?.block ?? this.selected() ?? '', values: draft?.values ?? null },
+      {
+        source: ADMIN_MESSAGE_SOURCE,
+        type: 'draft',
+        block: draft?.block ?? this.selected() ?? '',
+        item: draft?.item ?? null,
+        values: draft?.values ?? null,
+      },
       window.location.origin,
     );
   }

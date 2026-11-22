@@ -34,6 +34,7 @@ export interface PublicTestimonial {
 }
 
 export interface PublicGuarantee {
+  id: string;
   titulo: string;
   texto: string;
   enHero: boolean;
