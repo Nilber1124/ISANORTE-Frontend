@@ -224,3 +224,44 @@ no se tocan. - **Estadísticas** («+12 años», «+85»…): tocar la cifra abr
   un iframe de otro origen y se traga los clics, así que en modo editor el puente le añade una capa transparente (`[data-edit-field=ubicacion]::after`).
 
 Pendiente de «Nosotros»: reordenar equipo y credenciales desde la vista previa (hoy se hace en `/admin/sitio/equipo` y `/admin/sitio/credenciales`).
+
+## Vista previa de «Servicios»
+
+El selector de la vista previa suma **Servicios** (`/servicios?editor=1`; bloques `cabecera`, `servicios`, `preguntas`; `SERVICES_BLOCKS`).
+- **Título de la página** (contenido de página SERVICIOS): tocar el título abre solo ese campo. El rótulo superior es fijo.
+- **Tarjetas de servicio** (`service-card-editor`): cada tarjeta es un servicio real (`/api/servicios`, también en `/admin/servicios`). Tocar el nombre, la
+  descripción, la foto o la lista de puntos abre solo eso; tocar el resto de la tarjeta, todo junto. Los **puntos** se escriben uno por línea y se sincronizan
+  con los beneficios del servicio (edita, añade y quita según haga falta). «Añadir un servicio» crea uno nuevo al final (el `slug` sale del nombre; la
+  **foto es obligatoria**, el servidor no deja publicar un servicio sin imagen). «Quitar de la web» (pide confirmación) **desactiva** el servicio: no se borra
+  (el backend no tiene `DELETE` de servicios) y se reactiva desde `/admin/servicios`. El botón «Cotizar este servicio» es fijo.
+- **Preguntas frecuentes** (ámbito SERVICIOS): editar pregunta y respuesta, **añadir** («Añadir una pregunta» crea una con ámbito SERVICIOS) y eliminar.
+  La cabecera del bloque («Antes de contratar»…) es texto fijo.
+
+La API pública de la página Servicios incluye ahora el `id` de cada servicio. El editor de la Home usa los servicios por `slug` (`servicio:<slug>`); la
+página Servicios usa `svc:<id>` para no mezclarlos.
+
+## Vista previa de «Proyectos»
+
+El selector de la vista previa incluye **Proyectos** (`/proyectos?editor=1`) con dos bloques: **Título** y **Proyectos**.
+
+- **Título**: edita el contenido de página `PROYECTOS` (frase, título…).
+- **Tarjetas de proyecto** (`data-edit-item="proy:<id>"`): tocar la portada, el nombre, la descripción, la ubicación o el periodo abre solo ese campo (`project-card-editor`). Tocar el resto de la tarjeta abre el formulario completo, que añade **tipo de obra** (con él se arman los filtros de la página) y **servicios aplicados** (casillas).
+- **Añadir un proyecto**: lo crea al final de la lista con un `slug` único calculado a partir del nombre; la portada es obligatoria (la tarjeta no tiene sentido sin foto).
+- **Quitar de la web**: desactiva el proyecto (`PATCH /api/proyectos/{id}/activo`); no se borra y sigue en `/admin/proyectos`. El borrado definitivo sigue siendo solo de esa pantalla.
+- Los demás datos del proyecto (cliente, área, plazo, alcance, orden, destacado, galería) viajan sin cambios al guardar un campo suelto.
+- **No se editan en la vista previa**: los filtros (derivados del tipo de obra) y el orden entre proyectos. La página de detalle de cada proyecto se gestiona en su ficha (ver abajo).
+- Backend: la API pública de proyectos devuelve ahora el `id` de cada proyecto.
+
+### Ficha completa del proyecto (`/admin/proyectos`)
+
+Cada proyecto tiene colgados datos propios que se ven en su página de detalle. En lugar de editar esa página en la vista previa (demasiadas vueltas), todo se gestiona en **un solo formulario con pestañas**. Se llega con **«Editar ficha completa»** en la tarjeta de la vista previa (navega a `/admin/proyectos?editar=<id>`, que abre el formulario y limpia el parámetro) o con «Editar» en el listado.
+
+- **Datos**: nombre, descripción larga, ficha (cliente, ubicación, periodo, área, plazo, alcance, tipo de obra), portada, servicios, orden y destacado. Es el formulario de siempre.
+- **Antes / durante / después** (`project-gallery-manager`): fotos de `proyecto_galeria` ligadas al proyecto por slug. Añadir (subida + etapa), cambiar la etapa (Antes, Durante la obra, Resultado, Detalle), subir/bajar y quitar con confirmación. Cada cambio se guarda al momento (`/api/proyecto-galeria`).
+- **Testimonio** (`project-testimonial-manager`): testimonios con `proyectoSlug` igual al del proyecto; crear, editar y quitar (`/api/testimonios`). Al editar conserva foto, orden y estado.
+- **El slug de un proyecto existente ya no se puede cambiar**: las fotos y los testimonios se enlazan por slug, no por id, y al cambiarlo quedaban huérfanos. En el alta sigue generándose automáticamente.
+- Las pestañas de fotos y testimonio guardan por sí mismas; el botón «Guardar cambios» solo aplica a «Datos».
+
+### Animación de aparición (corrección)
+
+`app-reveal-stagger` esperaba a ver el 25 % del bloque entero (`threshold: 0.25`); en bloques altos (8 servicios ≈ 5000 px) nunca se alcanzaba y las tarjetas quedaban con `opacity: 0`, también en móvil. Ahora dispara con `threshold: 0` y un margen del 10 % inferior, y dentro de la vista previa del admin todo `[data-reveal]` queda visible.
