@@ -13,7 +13,7 @@ lateral y el título de la barra superior) se agrupa por marca:
 | Principal | Dashboard |
 | ISADECOR · Tienda | Productos, Categorías, Cotizaciones, Pedidos |
 | ISADECOR · Home | Hero, Cinta, Promociones, Campaña, Secciones, Bloque de servicio, Puntos, Reseñas, Videos |
-| ISANORTE · Web | Landing, Proyectos, Servicios, Contacto |
+| ISANORTE · Web | Landing, Proyectos, Servicios |
 | ISANORTE · Confianza y contenido | FAQs, Equipo, Credenciales, Testimonios, Garantías, Pasos, Políticas, Galería |
 | Sitio y empresa | Páginas y SEO, Empresa, Unidades de negocio, Configuración |
 
@@ -88,7 +88,7 @@ lateral y el título de la barra superior) se agrupa por marca:
   - Alcance actual: solo la Home de ISANORTE. ISADECOR puede reutilizar el mismo puente.
 - Quedan además las pestañas «Secciones & Hero» (la tabla) y «Nosotros». Servicios, Proyectos, Contacto y
   Páginas y SEO ya no se incrustan: se enlazan en «También se edita en:». Los enlaces antiguos
-  `?tab=servicios|proyectos|contenido|contacto` redirigen a su pantalla.
+  `?tab=servicios|proyectos|contenido` redirigen a su pantalla.
 - **Empresa** y **Configuración del sitio** comparten encabezado con el resto (eyebrow
   «Sitio y empresa» + `h1`).
 
@@ -264,3 +264,18 @@ Cada proyecto tiene colgados datos propios que se ven en su página de detalle. 
 ### Animación de aparición (corrección)
 
 `app-reveal-stagger` esperaba a ver el 25 % del bloque entero (`threshold: 0.25`); en bloques altos (8 servicios ≈ 5000 px) nunca se alcanzaba y las tarjetas quedaban con `opacity: 0`, también en móvil. Ahora dispara con `threshold: 0` y un margen del 10 % inferior, y dentro de la vista previa del admin todo `[data-reveal]` queda visible.
+
+### Pestañas eliminadas
+
+`/admin/landing` ya no tiene barra de pestañas: muestra directamente la vista previa.
+
+- **«Nosotros»**: misión, visión, valores, cobertura, año y estadísticas se editan tocándolos en la vista previa de Nosotros; el formulario completo sigue en `/admin/empresa`. Un enlace antiguo `?tab=nosotros` abre esa vista previa.
+- **«Secciones & Hero»** (tabla de secciones con orden, visibilidad, alta/baja y escenas): se quitó entera porque ninguna de sus funciones se usaba. Lo que se conserva en la vista previa es editar los textos y las escenas del Hero y ocultar o mostrar una sección. El orden de las secciones de la portada ya no se cambia desde el admin.
+
+### El formulario de contacto ya no guarda solicitudes
+
+Las solicitudes se atienden por WhatsApp, así que el formulario de la web (página Contacto y bloque «Solicitar cotización» del Home) **no crea nada en el sistema**: al enviarlo abre WhatsApp en una pestaña nueva con el número de la empresa y un mensaje que lleva los datos escritos (nombre, teléfono, correo, empresa, servicio, ubicación y mensaje, solo los llenados). Si la empresa no tiene número de WhatsApp, avisa y no abre nada.
+
+- Se eliminó la pantalla **Contacto** del admin (bandeja de solicitudes), su ruta, su entrada del menú y el atajo desde Landing.
+- Backend: se quitaron `POST /api/publico/contacto` y `/api/solicitudes-contacto` (listar, ver y cambiar estado) con su servicio, repositorio, entidad y DTOs. **La tabla `solicitudes_contacto` se dejó intacta** (sin migración de borrado) para no perder solicitudes ya guardadas en producción; se puede eliminar con una migración cuando se hayan exportado.
+- Las cotizaciones de ISADECOR (carrito/pedidos) son otro circuito y no se tocaron.

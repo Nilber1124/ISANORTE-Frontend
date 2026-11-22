@@ -33,7 +33,6 @@ tags:
   - name: Unidades de negocio
   - name: Contenido editorial
   - name: SEO
-  - name: Solicitudes de contacto
   - name: Público
 paths:
   /api/administradores:
@@ -1476,35 +1475,6 @@ paths:
       parameters: [{$ref: '#/components/parameters/UuidId'}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SeoPaginaUpdateRequest'}}}}
       responses: {'200': {description: Actualizado, content: {application/json: {schema: {$ref: '#/components/schemas/SeoPaginaResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
-  /api/solicitudes-contacto:
-    get:
-      tags: [Solicitudes de contacto]
-      operationId: listarSolicitudesContacto
-      x-access-intent: ADMINISTRATIVO
-      parameters: [{name: estado, in: query, required: false, schema: {$ref: '#/components/schemas/EstadoSolicitudContacto'}}]
-      responses: {'200': {description: Lista, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/SolicitudContactoResponse'}}}}}}
-  /api/solicitudes-contacto/{id}:
-    get:
-      tags: [Solicitudes de contacto]
-      operationId: obtenerSolicitudContacto
-      x-access-intent: ADMINISTRATIVO
-      parameters: [{$ref: '#/components/parameters/UuidId'}]
-      responses: {'200': {description: Encontrada, content: {application/json: {schema: {$ref: '#/components/schemas/SolicitudContactoResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
-  /api/solicitudes-contacto/{id}/estado:
-    patch:
-      tags: [Solicitudes de contacto]
-      operationId: actualizarEstadoSolicitudContacto
-      x-access-intent: ADMINISTRATIVO
-      parameters: [{$ref: '#/components/parameters/UuidId'}]
-      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EstadoSolicitudContactoRequest'}}}}
-      responses: {'200': {description: Actualizada, content: {application/json: {schema: {$ref: '#/components/schemas/SolicitudContactoResponse'}}}}, '404': {$ref: '#/components/responses/NotFound'}}
-  /api/publico/contacto:
-    post:
-      tags: [Público]
-      operationId: crearSolicitudContactoPublica
-      x-access-intent: PUBLICO
-      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SolicitudContactoCreateRequest'}}}}
-      responses: {'201': {description: Recibida, content: {application/json: {schema: {$ref: '#/components/schemas/SolicitudContactoPublicResponse'}}}}, '400': {$ref: '#/components/responses/BadRequest'}}
   /api/publico/cuenta/registro:
     post:
       tags: [Público]
@@ -3166,10 +3136,6 @@ components:
     RobotsSeo:
       type: string
       enum: [INDEX_FOLLOW, NOINDEX_FOLLOW, INDEX_NOFOLLOW, NOINDEX_NOFOLLOW]
-    EstadoSolicitudContacto:
-      type: string
-      enum: [NUEVA, EN_GESTION, RESPONDIDA, DESCARTADA, SPAM]
-
     HeroSceneRequest:
       type: object
       required: [imagenUrl, orden, activo]
@@ -3286,30 +3252,6 @@ components:
       allOf:
         - {$ref: '#/components/schemas/SeoPaginaRequest'}
         - {type: object, required: [id, fechaCreacion, fechaActualizacion], properties: {id: {type: string, format: uuid}, fechaCreacion: {type: string, format: date-time}, fechaActualizacion: {type: string, format: date-time}}}
-    SolicitudContactoCreateRequest:
-      type: object
-      required: [nombre, email, telefono, mensaje]
-      properties:
-        nombre: {type: string, maxLength: 150}
-        email: {type: string, format: email, maxLength: 180}
-        telefono: {type: string, maxLength: 30}
-        empresa: {type: string, maxLength: 180, nullable: true}
-        mensaje: {type: string, maxLength: 5000}
-    EstadoSolicitudContactoRequest:
-      type: object
-      required: [estado]
-      properties: {estado: {$ref: '#/components/schemas/EstadoSolicitudContacto'}}
-    SolicitudContactoPublicResponse:
-      type: object
-      required: [id, estado, fechaCreacion]
-      properties:
-        id: {type: string, format: uuid}
-        estado: {$ref: '#/components/schemas/EstadoSolicitudContacto'}
-        fechaCreacion: {type: string, format: date-time}
-    SolicitudContactoResponse:
-      allOf:
-        - {$ref: '#/components/schemas/SolicitudContactoCreateRequest'}
-        - {type: object, required: [id, estado, fechaCreacion, fechaActualizacion], properties: {id: {type: string, format: uuid}, estado: {$ref: '#/components/schemas/EstadoSolicitudContacto'}, fechaCreacion: {type: string, format: date-time}, fechaActualizacion: {type: string, format: date-time}}}
     PublicSiteResponse:
       type: object
       description: Configuración, empresa sin RUC, redes activas y unidades activas del sitio canónico.
