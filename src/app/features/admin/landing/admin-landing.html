@@ -56,6 +56,8 @@
           [selected]="selectedBlockId()"
           [reloadKey]="previewKey()"
           [draft]="previewDraft()"
+          [page]="previewPage()"
+          (pageChange)="changePage($event)"
           (blockSelected)="selectBlock($event)"
           (fieldSelected)="selectField($event)"
         />
@@ -203,7 +205,7 @@
           <section aria-labelledby="blocks-title">
             <h2 id="blocks-title" class="mb-2 text-body-sm font-semibold text-text-primary">Bloques de la página</h2>
             <ul class="m-0 flex list-none flex-col gap-1 p-0">
-              @for (block of previewBlocks; track block.id) {
+              @for (block of previewBlocks(); track block.id) {
                 <li>
                   <button
                     type="button"

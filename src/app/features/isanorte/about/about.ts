@@ -1,8 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  afterNextRender,
+  computed,
+  inject,
+} from '@angular/core';
 
 import { PublicTrustStore } from '../../../data/services/public-trust.store';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { LocationMap } from '../../../shared/components/location-map/location-map';
+import { initEditorBridge } from '../../../shared/utils/editor-bridge';
 import { Alert } from '../../../shared/components/alert/alert';
 import { CtaBand } from '../../../shared/components/cta-band/cta-band';
 import { RevealStagger } from '../../../shared/components/reveal-stagger/reveal-stagger';
@@ -48,6 +57,15 @@ export class About {
   constructor() {
     this.facade.load();
     this.trust.load();
+
+    // Dentro de la vista previa del admin (?editor=1) los bloques se pueden señalar para editarlos.
+    const document = inject(DOCUMENT);
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const win = document.defaultView;
+      const stop = win ? initEditorBridge(document, win) : null;
+      if (stop) destroyRef.onDestroy(stop);
+    });
   }
 
   /** «A | B | C» se presenta como lista; un texto sin barras queda como párrafo (devuelve null). */

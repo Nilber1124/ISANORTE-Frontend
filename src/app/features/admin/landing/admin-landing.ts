@@ -27,6 +27,7 @@ import {
   LandingPreview,
   PreviewDraft,
   PreviewFieldSelection,
+  PreviewPage,
 } from './components/landing-preview/landing-preview';
 import { LandingSectionForm } from './components/landing-section-form/landing-section-form';
 import { HeroSceneRequest } from '../../../data/models/landing-section/hero-scene.model';
@@ -80,6 +81,16 @@ export interface PreviewBlock {
   /** Pantalla del admin donde se edita su contenido, si no es una sección de la landing. */
   readonly screen?: { readonly route: string; readonly label: string };
 }
+
+/** Bloques de la página «Nosotros» (ancla `id` de cada sección). */
+export const ABOUT_BLOCKS: readonly PreviewBlock[] = [
+  { id: 'cabecera', label: 'Cabecera' },
+  { id: 'estadisticas', label: 'Estadísticas' },
+  { id: 'valores', label: 'Misión, visión y valores' },
+  { id: 'equipo', label: 'Equipo' },
+  { id: 'credenciales', label: 'Credenciales y respaldo' },
+  { id: 'cobertura', label: 'Dónde trabajamos' },
+];
 
 export const PREVIEW_BLOCKS: readonly PreviewBlock[] = [
   { id: 'inicio', label: 'Portada (Hero)', type: LandingSectionType.HERO },
@@ -149,7 +160,11 @@ export class AdminLanding {
 
   readonly activeTab = signal<LandingTab>('vista');
 
-  readonly previewBlocks = PREVIEW_BLOCKS;
+  /** Página que se previsualiza y sus bloques. */
+  readonly previewPage = signal<PreviewPage>('inicio');
+  readonly previewBlocks = computed(() =>
+    this.previewPage() === 'nosotros' ? ABOUT_BLOCKS : PREVIEW_BLOCKS,
+  );
   readonly selectedBlockId = signal<string | null>(null);
   /** El bloque elegido se está editando en el panel (hoy solo el Hero tiene editor propio). */
   readonly editingInPanel = signal(false);
@@ -164,7 +179,8 @@ export class AdminLanding {
   readonly previewKey = signal(0);
 
   readonly selectedBlock = computed(
-    () => PREVIEW_BLOCKS.find((block) => block.id === this.selectedBlockId()) ?? null,
+    () =>
+      [...PREVIEW_BLOCKS, ...ABOUT_BLOCKS].find((block) => block.id === this.selectedBlockId()) ?? null,
   );
   /** Sección de la landing que alimenta el bloque elegido (si la hay y está registrada). */
   readonly selectedSection = computed(() => {
@@ -225,6 +241,16 @@ export class AdminLanding {
     }
   }
 
+  /** Cambió la página de la vista previa: se limpia lo seleccionado. */
+  protected changePage(page: PreviewPage): void {
+    this.previewPage.set(page);
+    this.selectedBlockId.set(null);
+    this.editingInPanel.set(false);
+    this.heroOnly.set(null);
+    this.panelEdit.set(null);
+    this.previewDraft.set(null);
+  }
+
   protected selectBlock(id: string): void {
     this.selectedBlockId.set(id);
     this.editingInPanel.set(false);
@@ -273,6 +299,28 @@ export class AdminLanding {
           id: rest.join(':'),
           field: selection.field === 'tarjeta' ? 'ambos' : selection.field,
         });
+      }
+      return;
+    }
+    // Misión, visión o valores (campos de la empresa): se edita solo el texto tocado.
+    if (selection.item?.startsWith('valor:')) {
+      this.panelEdit.set({
+        kind: 'content',
+        item: 'empresa',
+        id: '*',
+        field: selection.item.slice('valor:'.length),
+      });
+      return;
+    }
+    // Lugares de cobertura y año de fundación (campos de la empresa) de la sección «Dónde trabajamos».
+    if (!selection.item && selection.block === 'cobertura' && ['zonaCobertura', 'anioFundacion'].includes(selection.field)) {
+      this.panelEdit.set({ kind: 'content', item: 'empresa', id: '*', field: selection.field });
+      return;
+    }
+    // La cabecera de la página «Nosotros»: contenido de página NOSOTROS (frase, título, introducción, descripción).
+    if (!selection.item && selection.block === 'cabecera') {
+      if (CONTENT_ITEMS['pagina'].fields.some((f) => f.key === selection.field)) {
+        this.panelEdit.set({ kind: 'content', item: 'pagina', id: 'NOSOTROS', field: selection.field });
       }
       return;
     }

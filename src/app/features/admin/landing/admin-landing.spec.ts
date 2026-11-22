@@ -324,4 +324,32 @@ describe('AdminLanding', () => {
     component['selectField']({ block: 'proyectos', field: 'titulo' });
     expect(component.panelEdit()).toEqual({ kind: 'section', field: 'titulo' });
   });
+
+  it('permite cambiar de página en la vista previa y abre los campos de la cabecera de Nosotros', () => {
+    component['changePage']('nosotros');
+    expect(component.previewPage()).toBe('nosotros');
+    expect(component.previewBlocks().map((b) => b.id)).toContain('equipo');
+
+    component['selectBlock']('cabecera');
+    component['selectField']({ block: 'cabecera', field: 'introduccion' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'pagina', id: 'NOSOTROS', field: 'introduccion' });
+    component['selectField']({ block: 'equipo', field: 'titulo' });
+    expect(component.panelEdit()).toEqual({ kind: 'blocktext', clave: 'equipo', field: 'titulo' });
+
+    component['changePage']('inicio');
+    expect(component.panelEdit()).toBeNull();
+    expect(component.previewBlocks().map((b) => b.id)).toContain('inicio');
+  });
+
+  it('al tocar misión/visión/valores, el año o los lugares abre ese campo de la empresa', () => {
+    component['changePage']('nosotros');
+    component['selectBlock']('valores');
+    component['selectField']({ block: 'valores', field: 'texto', item: 'valor:vision' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'empresa', id: '*', field: 'vision' });
+    component['selectBlock']('cobertura');
+    component['selectField']({ block: 'cobertura', field: 'anioFundacion' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'empresa', id: '*', field: 'anioFundacion' });
+    component['selectField']({ block: 'cobertura', field: 'titulo' });
+    expect(component.panelEdit()).toEqual({ kind: 'blocktext', clave: 'cobertura', field: 'titulo' });
+  });
 });

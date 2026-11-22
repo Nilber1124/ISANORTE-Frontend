@@ -53,3 +53,60 @@ describe('ContentItemEditor', () => {
     request.flush({ ...list[1], cargo: 'Empresaria · Cajamarca' });
   });
 });
+
+describe('ContentItemEditor · contenido de página', () => {
+  it('localiza el contenido por página (no por id) y guarda conservando el resto', () => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
+    });
+    const http = TestBed.inject(HttpTestingController);
+    const fixture = TestBed.createComponent(ContentItemEditor);
+    fixture.componentRef.setInput('kind', 'pagina');
+    fixture.componentRef.setInput('itemId', 'NOSOTROS');
+    fixture.componentRef.setInput('field', 'introduccion');
+    fixture.detectChanges();
+    const nosotros = { id: 'c2', configuracionSitioId: 's1', pagina: 'NOSOTROS', eyebrow: null, titulo: 'Titulo', introduccion: 'Intro', descripcion: 'Desc', imagenUrl: null, imagenAlt: null, imagenFondoUrl: null, activo: true, tags: ['A'] };
+    http.expectOne('/api/contenidos-pagina').flush([{ ...nosotros, id: 'c1', pagina: 'CONTACTO' }, nosotros]);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('textarea')?.value).toBe('Intro');
+
+    (fixture.componentInstance as unknown as { saveSingle(v: string): void }).saveSingle('Nueva intro');
+    const request = http.expectOne('/api/contenidos-pagina/c2');
+    expect(request.request.body).toMatchObject({ introduccion: 'Nueva intro', titulo: 'Titulo', tags: ['A'], pagina: 'NOSOTROS', activo: true });
+    request.flush({ ...nosotros, introduccion: 'Nueva intro' });
+    http.verify();
+  });
+});
+
+describe('ContentItemEditor · empresa', () => {
+  it('muestra los valores uno por línea, guarda unidos y solo envía los campos de la empresa', () => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: API_BASE_URL, useValue: '' }],
+    });
+    const http = TestBed.inject(HttpTestingController);
+    const fixture = TestBed.createComponent(ContentItemEditor);
+    fixture.componentRef.setInput('kind', 'empresa');
+    fixture.componentRef.setInput('itemId', '*');
+    fixture.componentRef.setInput('field', 'valores');
+    fixture.detectChanges();
+    const company = {
+      id: 'e1', razonSocial: 'ISANORTE SAC', nombreComercial: 'ISANORTE', ruc: '1', direccion: null, ciudad: null, telefono: null,
+      telefonoSecundario: null, email: null, emailVentas: null, whatsapp: null, horarioAtencion: null, anioFundacion: 2012,
+      zonaCobertura: 'Cajamarca', tiempoRespuesta: null, latitud: null, longitud: null, mision: 'm', vision: 'v',
+      valores: 'Seguridad | Costos', resumenNosotros: null, redesSociales: [{ id: 'r1' }], estadisticas: [{ id: 's1' }],
+    };
+    http.expectOne('/api/empresa').flush([company]);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect((el.querySelector('textarea') as HTMLTextAreaElement).value).toBe('Seguridad\nCostos');
+
+    (fixture.componentInstance as unknown as { saveSingle(v: string): void }).saveSingle('Seguridad\n\nPlazos\nComunidad');
+    const request = http.expectOne('/api/empresa/e1');
+    expect(request.request.body.valores).toBe('Seguridad | Plazos | Comunidad');
+    expect(request.request.body.anioFundacion).toBe(2012);
+    expect(request.request.body.redesSociales).toBeUndefined();
+    expect(request.request.body.estadisticas).toBeUndefined();
+    request.flush(company);
+    http.verify();
+  });
+});

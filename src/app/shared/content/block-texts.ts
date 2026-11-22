@@ -3,7 +3,14 @@
  * Si un bloque no tiene texto guardado, la Home muestra el texto por defecto de aquí; el admin lo usa
  * como valor de partida al editarlo.
  */
-export type BlockKey = 'garantias' | 'testimonios' | 'preguntas' | 'proceso';
+export type BlockKey =
+  | 'garantias'
+  | 'testimonios'
+  | 'preguntas'
+  | 'proceso'
+  | 'equipo'
+  | 'credenciales'
+  | 'cobertura';
 export type BlockTextField = 'etiqueta' | 'titulo' | 'subtitulo';
 
 export const BLOCK_TEXT_LABELS: Readonly<Record<BlockTextField, string>> = {
@@ -31,6 +38,19 @@ export const BLOCK_TEXT_DEFAULTS: Readonly<
   },
   proceso: {
     titulo: 'Del terreno a la llave en mano, con un solo equipo',
+  },
+  equipo: {
+    titulo: 'El equipo detrás de cada obra',
+  },
+  credenciales: {
+    etiqueta: 'Respaldo',
+    titulo: 'Credenciales y respaldo',
+    subtitulo: 'Registros, colegiaturas y licencias vigentes de la empresa y de su equipo técnico.',
+  },
+  cobertura: {
+    etiqueta: 'Cobertura',
+    titulo: 'Dónde trabajamos',
+    subtitulo: 'Construimos en la ciudad y en las provincias de la región, con equipo propio en obra.',
   },
 };
 

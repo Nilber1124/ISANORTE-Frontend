@@ -41,6 +41,7 @@
   </div>
 } @else if (facade.content(); as content) {
   <section
+    id="cabecera"
     data-theme="light"
     class="relative isolate overflow-hidden border-b border-border bg-background-soft"
   >
@@ -59,6 +60,7 @@
         <div>
           @if (content.eyebrow) {
             <p
+              data-edit-field="eyebrow"
               class="mb-3 flex items-center gap-3 text-eyebrow uppercase text-text-secondary"
               data-reveal="up"
               data-reveal-order="0"
@@ -68,6 +70,7 @@
           }
           @if (content.titulo) {
             <h1
+              data-edit-field="titulo"
               class="text-display whitespace-pre-line text-text-primary lg:text-display-xl"
               data-reveal="up"
               data-reveal-order="1"
@@ -77,6 +80,7 @@
           }
           @if (content.introduccion) {
             <p
+              data-edit-field="introduccion"
               class="mt-6 max-w-[52ch] text-body-lg text-text-secondary"
               data-reveal="up"
               data-reveal-order="2"
@@ -86,6 +90,7 @@
           }
           @if (content.descripcion) {
             <p
+              data-edit-field="descripcion"
               class="mt-6 max-w-[52ch] text-body-lg text-text-secondary"
               data-reveal="up"
               data-reveal-order="3"
@@ -149,6 +154,7 @@
     <section
       data-theme="dark"
       class="border-b border-border bg-black"
+      id="estadisticas"
       aria-label="Estadísticas"
       data-about-statistics
     >
@@ -174,6 +180,7 @@
   @if (facade.showValues()) {
     <section
       class="app-container py-16 lg:py-24"
+      id="valores"
       aria-label="Misión, visión y valores"
       data-about-values
     >
@@ -182,6 +189,8 @@
           <article
             class="flex flex-col gap-4 rounded-card border border-border bg-surface p-6 shadow-card lg:p-8"
             [attr.data-about-value]="item.id"
+            [attr.data-edit-item]="'valor:' + item.id"
+            data-edit-fallback="texto"
           >
             <span
               class="value-icon flex size-11 items-center justify-center rounded-control"
@@ -232,7 +241,7 @@
             </span>
             <h2 class="text-heading-3 text-text-primary">{{ item.label }}</h2>
             @if (valueParts(item.description); as parts) {
-              <ul class="m-0 flex list-none flex-col gap-2 p-0">
+              <ul data-edit-field="texto" class="m-0 flex list-none flex-col gap-2 p-0">
                 @for (part of parts; track part) {
                   <li class="flex items-start gap-2.5 text-body text-text-primary">
                     <span
@@ -244,7 +253,7 @@
                 }
               </ul>
             } @else {
-              <p class="text-body text-text-secondary">{{ item.description }}</p>
+              <p data-edit-field="texto" class="text-body text-text-secondary">{{ item.description }}</p>
             }
           </article>
         }
@@ -281,12 +290,13 @@
   @if (trust.team().length > 0) {
     <section
       class="bg-background-soft py-16 lg:py-24"
+      id="equipo"
       aria-labelledby="equipo-title"
       data-about-team
     >
       <div class="app-container">
-        <h2 id="equipo-title" class="mb-10 max-w-3xl text-heading-1 text-text-primary">
-          El equipo detrás de cada obra
+        <h2 id="equipo-title" data-edit-field="titulo" class="mb-10 max-w-3xl whitespace-pre-line text-heading-1 text-text-primary">
+          {{ trust.blockText('equipo', 'titulo') }}
         </h2>
         <ul class="grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-4">
           @for (member of trust.team(); track member.nombre) {
@@ -322,16 +332,17 @@
   @if (trust.credentials().length > 0) {
     <section
       class="app-container py-16 lg:py-24"
+      id="credenciales"
       aria-labelledby="credenciales-title"
       data-about-credentials
     >
       <div class="mb-10 max-w-3xl">
-        <p class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">Respaldo</p>
-        <h2 id="credenciales-title" class="text-heading-1 text-text-primary">
-          Credenciales y respaldo
+        <p data-edit-field="etiqueta" class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">{{ trust.blockText('credenciales', 'etiqueta') }}</p>
+        <h2 id="credenciales-title" data-edit-field="titulo" class="whitespace-pre-line text-heading-1 text-text-primary">
+          {{ trust.blockText('credenciales', 'titulo') }}
         </h2>
-        <p class="mt-4 text-body-lg text-text-secondary">
-          Registros, colegiaturas y licencias vigentes de la empresa y de su equipo técnico.
+        <p data-edit-field="subtitulo" class="mt-4 text-body-lg text-text-secondary">
+          {{ trust.blockText('credenciales', 'subtitulo') }}
         </p>
       </div>
       <ul class="grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
@@ -404,21 +415,22 @@
   @if (coverage()) {
     <section
       class="border-y border-border bg-background-soft py-16 lg:py-24"
+      id="cobertura"
       aria-labelledby="cobertura-title"
       data-about-coverage
     >
       <div class="app-container grid gap-10 lg:grid-cols-12 lg:items-stretch lg:gap-14">
         <div class="flex flex-col lg:col-span-6">
-          <p class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
-            Cobertura
+          <p data-edit-field="etiqueta" class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
+            {{ trust.blockText('cobertura', 'etiqueta') }}
           </p>
-          <h2 id="cobertura-title" class="mb-5 text-heading-1 text-text-primary">
-            Dónde trabajamos
+          <h2 id="cobertura-title" data-edit-field="titulo" class="mb-5 whitespace-pre-line text-heading-1 text-text-primary">
+            {{ trust.blockText('cobertura', 'titulo') }}
           </h2>
-          <p class="mb-8 max-w-xl text-body-lg text-text-secondary">
-            Construimos en la ciudad y en las provincias de la región, con equipo propio en obra.
+          <p data-edit-field="subtitulo" class="mb-8 max-w-xl text-body-lg text-text-secondary">
+            {{ trust.blockText('cobertura', 'subtitulo') }}
           </p>
-          <ul class="m-0 mb-8 flex list-none flex-wrap gap-2.5 p-0">
+          <ul data-edit-field="zonaCobertura" class="m-0 mb-8 flex list-none flex-wrap gap-2.5 p-0">
             @for (area of coverageAreas(); track area) {
               <li
                 class="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-body-sm font-semibold text-text-primary"
@@ -444,7 +456,7 @@
             <div
               class="mt-auto flex items-center gap-4 rounded-card border border-border bg-surface p-5"
             >
-              <span class="text-heading-1 font-bold leading-none text-accent">{{ year }}</span>
+              <span data-edit-field="anioFundacion" class="text-heading-1 font-bold leading-none text-accent">{{ year }}</span>
               <span class="text-body-sm text-text-secondary"
                 >Año en que empezamos a construir en la región.</span
               >

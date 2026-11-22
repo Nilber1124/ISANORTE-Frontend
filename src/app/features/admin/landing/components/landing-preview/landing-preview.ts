@@ -8,6 +8,7 @@ import {
   effect,
   inject,
   input,
+  model,
   output,
   signal,
   untracked,
@@ -21,6 +22,15 @@ import {
 } from '../../../../../shared/utils/editor-bridge';
 
 export type PreviewDevice = 'desktop' | 'mobile';
+
+/** Páginas públicas que se pueden previsualizar y editar. */
+export type PreviewPage = 'inicio' | 'nosotros';
+
+const PAGE_URLS: Record<PreviewPage, string> = {
+  inicio: '/?editor=1',
+  nosotros: '/nosotros?editor=1',
+};
+export const PREVIEW_PAGE_LABELS: Record<PreviewPage, string> = { inicio: 'Inicio', nosotros: 'Nosotros' };
 
 /** Texto que se está escribiendo en el panel, por campo, para mostrarlo ya en la página. */
 export interface PreviewDraft {
@@ -58,11 +68,20 @@ export class LandingPreview {
   readonly reloadKey = input(0);
   /** Borrador en vivo del bloque abierto en el panel; `null` = lo guardado. */
   readonly draft = input<PreviewDraft | null>(null);
+  /** Página que se muestra (Inicio o Nosotros). */
+  readonly page = model<PreviewPage>('inicio');
   readonly blockSelected = output<string>();
   readonly fieldSelected = output<PreviewFieldSelection>();
 
   protected readonly device = signal<PreviewDevice>('desktop');
-  protected readonly src = inject(DomSanitizer).bypassSecurityTrustResourceUrl('/?editor=1');
+  private readonly sanitizer = inject(DomSanitizer);
+  protected readonly src = computed(() =>
+    this.sanitizer.bypassSecurityTrustResourceUrl(PAGE_URLS[this.page()]),
+  );
+  protected readonly pages = Object.entries(PREVIEW_PAGE_LABELS).map(([id, label]) => ({
+    id: id as PreviewPage,
+    label,
+  }));
   protected readonly viewportHeight = VIEWPORT_HEIGHT;
 
   private readonly container = viewChild.required<ElementRef<HTMLElement>>('container');
@@ -129,6 +148,13 @@ export class LandingPreview {
   protected onFrameLoad(): void {
     const href = this.frame()?.nativeElement.contentWindow?.location.href;
     this.loaded = !!href && href !== 'about:blank';
+  }
+
+  protected setPage(page: PreviewPage): void {
+    if (page === this.page()) return;
+    this.ready = false;
+    this.loaded = false;
+    this.page.set(page);
   }
 
   protected setDevice(device: PreviewDevice): void {
