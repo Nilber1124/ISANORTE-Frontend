@@ -20,6 +20,8 @@ type GsapContext = ReturnType<GsapModule['context']>;
 export interface CinematicScene {
   id: string;
   imageUrl: string;
+  srcSet?: string;
+  sizes?: string;
 }
 
 /**
@@ -28,8 +30,8 @@ export interface CinematicScene {
  * Simula una cámara que recorre los distintos ambientes de una vivienda:
  * cada escena hace un zoom lento con deriva horizontal/vertical y una rotación
  * 3D muy sutil (profundidad de perspectiva), y entre escenas se ejecuta una
- * transición fluida en fundido con un ligero desenfoque, de modo que una
- * escena entra mientras la anterior termina su movimiento.
+ * transición fluida en fundido, de modo que una escena entra mientras la
+ * anterior termina su movimiento.
  *
  * - Reutilizable y desacoplada del Hero: recibe una lista dinámica de
  *   `CinematicScene[]` (imagenUrl) que podrá venir del backend.
@@ -103,15 +105,20 @@ export class CinematicTour {
     // Accesibilidad: sin movimientos 3D, imagen estática (la primera escena).
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || this.a11y.reduceMotion()) return;
 
+    const scenes = this.scenes();
+    if (layers.length > 1) {
+      layers[1].style.backgroundImage = `url(${scenes[1].imageUrl})`;
+    }
+
     const ctx = gsap.context(() => {
       const count = layers.length;
       const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-      // Móvil/tablet: intensidad reducida.
-      const k = isDesktop ? this.intensity() : this.intensity() * 0.6;
+      // En móvil se conservan los fundidos de escena, pero se evita mover/zoomear
+      // la imagen LCP durante la carga inicial. Escritorio mantiene la cámara completa.
+      const k = isDesktop ? this.intensity() : 0;
 
       const sceneDur = this.sceneDuration() / 1000;
       const fade = this.crossFade() / 1000;
-      const blurIn = 6;
 
       // La escala nunca baja de 1: con k reducido (móvil) la capa debe seguir cubriendo todo el contenedor.
       const startScale = 1 + 0.05 * k;
@@ -145,6 +152,18 @@ export class CinematicTour {
         const base = i * sceneDur;
         const exit = base + sceneDur - fade;
 
+        // Solicita la siguiente escena cuando ya se acerca su turno.
+        const preloadIndex = (i + 2) % count;
+        if (count > 2) {
+          tl.call(
+            () => {
+              layers[preloadIndex].style.backgroundImage = `url(${scenes[preloadIndex].imageUrl})`;
+            },
+            [],
+            base + sceneDur - 2,
+          );
+        }
+
         // Avance de cámara durante toda la escena.
         tl.fromTo(
           layer,
@@ -156,14 +175,12 @@ export class CinematicTour {
         // Pequeño zoom adicional de cámara justo antes de terminar la escena.
         tl.to(layer, { scale: exitScale, duration: 0.9, ease: 'power1.in' }, base + sceneDur - 1.5);
 
-        // Transición: ligero desenfoque y fundido de salida.
-        tl.to(layer, { filter: `blur(${blurIn}px)`, duration: 0.7, ease: 'power1.in' }, base + sceneDur - 1.4);
+        // La transición usa opacidad y transform para evitar repintar por blur.
         tl.to(layer, { opacity: 0, duration: fade, ease: 'power1.inOut' }, exit);
 
         // La siguiente escena entra durante el fundido, ya en movimiento.
-        tl.set(next, { opacity: 0, filter: `blur(${blurIn}px)`, scale: startScale, xPercent: mn.x0, yPercent: mn.y0, rotationX: mn.rx0, rotationY: mn.ry0 }, exit);
+        tl.set(next, { opacity: 0, scale: startScale, xPercent: mn.x0, yPercent: mn.y0, rotationX: mn.rx0, rotationY: mn.ry0 }, exit);
         tl.to(next, { opacity: 1, duration: fade, ease: 'power1.inOut' }, exit);
-        tl.to(next, { filter: 'blur(0px)', duration: fade, ease: 'power1.inOut' }, exit);
       }
 
       // Parallax de cámara con el ratón (solo escritorio con puntero fino).

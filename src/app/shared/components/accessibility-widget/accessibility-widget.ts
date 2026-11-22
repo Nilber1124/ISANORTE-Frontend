@@ -60,7 +60,7 @@ export class AccessibilityWidget {
 
   protected readonly triggerClass = computed(() =>
     this.placement() === 'floating'
-      ? 'inline-flex size-12 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-action-primary text-action-primary-text shadow-floating transition-colors hover:bg-action-primary-hover'
+      ? 'inline-flex size-12 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-action-primary text-action-primary-text shadow-floating hover:bg-action-primary-hover'
       : 'inline-flex size-11 cursor-pointer items-center justify-center rounded-control border border-border bg-surface text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary',
   );
 
