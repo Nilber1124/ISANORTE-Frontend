@@ -40,7 +40,7 @@
     </section>
   </div>
 } @else {
-  <section class="section-space bg-background-soft">
+  <section id="cabecera" class="section-space bg-background-soft">
     <div class="app-container">
       @if (facade.error(); as error) {
         <app-alert class="mb-10" variant="error" title="Contacto" data-contact-page-error>{{
@@ -57,15 +57,15 @@
         <div class="items-start lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-16">
           <div class="animate-fade-in-up">
             @if (content.titulo) {
-              <h1 class="text-display text-text-primary">{{ content.titulo }}</h1>
+              <h1 data-edit-field="titulo" class="text-display text-text-primary">{{ content.titulo }}</h1>
             }
             @if (content.introduccion) {
-              <p class="mt-6 max-w-[52ch] text-body-lg text-text-secondary">
+              <p data-edit-field="introduccion" class="mt-6 max-w-[52ch] text-body-lg text-text-secondary">
                 {{ content.introduccion }}
               </p>
             }
             @if (content.descripcion) {
-              <p class="mt-6 max-w-[52ch] text-body text-text-secondary">
+              <p data-edit-field="descripcion" class="mt-6 max-w-[52ch] text-body text-text-secondary">
                 {{ content.descripcion }}
               </p>
             }

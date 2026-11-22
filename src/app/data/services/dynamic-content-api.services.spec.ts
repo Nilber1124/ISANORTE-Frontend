@@ -3,13 +3,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { BusinessUnitResourceType } from '../models/business-unit/business-unit-resource.model';
-import { PublicPageType } from '../models/content/page-content.model';
-import { SeoPageType, SeoRobots } from '../models/content/page-seo.model';
 import { BusinessUnitApiService } from './business-unit-api.service';
 import { CompanyApiService } from './company-api.service';
 import { LandingSectionApiService } from './landing-section-api.service';
-import { PageContentApiService } from './page-content-api.service';
-import { PageSeoApiService } from './page-seo-api.service';
 import { ServiceApiService } from './service-api.service';
 
 describe('dynamic content ApiServices', () => {
@@ -90,48 +86,5 @@ describe('dynamic content ApiServices', () => {
     const call = http.expectOne('/api/empresa/company-1/estadisticas');
     expect(call.request.body).toEqual(request);
     call.flush({ id: 'stat-1', ...request });
-  });
-
-  it('uses exact page content collection and item paths', () => {
-    const api = TestBed.inject(PageContentApiService);
-    const request = {
-      configuracionSitioId: 'site-1',
-      pagina: PublicPageType.NOSOTROS,
-      activo: true,
-      tags: ['A', 'B'],
-    };
-    api.create(request).subscribe();
-    const create = http.expectOne('/api/contenidos-pagina');
-    expect(create.request.method).toBe('POST');
-    expect(create.request.body).toEqual(request);
-    create.flush({ id: 'content-1', ...request, fechaCreacion: '', fechaActualizacion: '' });
-    api.update('content 1', { activo: false, tags: [] }).subscribe();
-    const update = http.expectOne('/api/contenidos-pagina/content%201');
-    expect(update.request.method).toBe('PUT');
-    expect(update.request.body).toEqual({ activo: false, tags: [] });
-    update.flush({
-      id: 'content-1',
-      ...request,
-      activo: false,
-      tags: [],
-      fechaCreacion: '',
-      fechaActualizacion: '',
-    });
-  });
-
-  it('uses exact SEO paths and enum values', () => {
-    const api = TestBed.inject(PageSeoApiService);
-    const request = {
-      configuracionSitioId: 'site-1',
-      tipoPagina: SeoPageType.UNIDAD_NEGOCIO,
-      title: 'ISADECOR',
-      description: 'Catálogo',
-      robots: SeoRobots.INDEX_FOLLOW,
-      unidadNegocioId: 'unit-1',
-    };
-    api.create(request).subscribe();
-    const call = http.expectOne('/api/seo-paginas');
-    expect(call.request.body).toEqual(request);
-    call.flush({ id: 'seo-1', ...request, fechaCreacion: '', fechaActualizacion: '' });
   });
 });

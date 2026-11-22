@@ -1,0 +1,23 @@
+<app-admin-page-header
+  eyebrow="Contenido ISANORTE"
+  title="Contenido de la web"
+  description="Los textos que se repiten en la web. También se editan tocándolos en Landing; aquí ves la lista completa, los ocultos y el orden."
+/>
+
+<ul class="mt-8 m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 xl:grid-cols-3" data-web-content-cards>
+  @for (card of cards(); track card.key) {
+    <li>
+      <a
+        [routerLink]="card.route"
+        class="group flex h-full flex-col gap-3 rounded-card border border-border bg-surface p-5 shadow-card transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      >
+        <span class="text-heading-4 text-text-primary">{{ card.title }}</span>
+        <span class="text-body-sm text-text-secondary">{{ card.description }}</span>
+        <span class="mt-auto flex items-center justify-between pt-2 text-body-sm">
+          <span class="font-semibold text-text-primary" data-web-content-count>{{ countLabel(card) }}</span>
+          <span class="font-semibold text-accent group-hover:underline" aria-hidden="true">Abrir →</span>
+        </span>
+      </a>
+    </li>
+  }
+</ul>

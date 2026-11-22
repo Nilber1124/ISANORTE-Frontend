@@ -1,10 +1,11 @@
-import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, afterNextRender, computed, inject } from '@angular/core';
 
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { Alert } from '../../../shared/components/alert/alert';
 import { LocationMap } from '../../../shared/components/location-map/location-map';
 import { Card } from '../../../shared/components/card/card';
+import { initEditorBridge } from '../../../shared/utils/editor-bridge';
 import { ContactForm } from './contact-form/contact-form';
 import { PublicContactFacade } from './public-contact.facade';
 
@@ -74,6 +75,15 @@ export class Contact {
 
   constructor() {
     this.facade.load();
+
+    // Dentro de la vista previa del admin (?editor=1) los textos de la cabecera se pueden señalar para editarlos.
+    const destroyRef = inject(DestroyRef);
+    const document = inject(DOCUMENT);
+    afterNextRender(() => {
+      const win = document.defaultView;
+      const stop = win ? initEditorBridge(document, win) : null;
+      if (stop) destroyRef.onDestroy(stop);
+    });
   }
 
   private phoneHref(value: string): string | null {

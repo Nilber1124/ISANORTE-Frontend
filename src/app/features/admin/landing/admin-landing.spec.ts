@@ -128,7 +128,7 @@ describe('AdminLanding', () => {
     const links = Array.from(
       element.querySelectorAll('nav[aria-label="Otras pantallas de la web"] a'),
     ).map((a) => a.getAttribute('href'));
-    expect(links).toEqual(['/admin/servicios', '/admin/proyectos', '/admin/contenido']);
+    expect(links).toEqual(['/admin/servicios', '/admin/proyectos']);
   });
 
   it('al elegir un bloque de la vista previa ofrece editar su sección o ir a su pantalla', () => {
@@ -342,6 +342,19 @@ describe('AdminLanding', () => {
       component['selectField']({ block, field });
       expect(component.panelEdit()).toBeNull();
     }
+  });
+
+  it('en la página Contacto: sus textos abren el contenido CONTACTO, y la foto de Nosotros abre el editor de imagen', () => {
+    component['changePage']('contacto');
+    expect(component.previewBlocks().map((b) => b.id)).toEqual(['cabecera']);
+    component['selectBlock']('cabecera');
+    component['selectField']({ block: 'cabecera', field: 'introduccion' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'pagina', id: 'CONTACTO', field: 'introduccion' });
+
+    component['changePage']('nosotros');
+    component['selectBlock']('cabecera');
+    component['selectField']({ block: 'cabecera', field: 'imagenUrl' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'pagina', id: 'NOSOTROS', field: 'imagenUrl' });
   });
 
   it('en la página Proyectos: el título abre el contenido PROYECTOS y las tarjetas abren su editor', () => {

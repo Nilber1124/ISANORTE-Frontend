@@ -91,6 +91,7 @@ describe('App', () => {
       'home-isadecor/servicio',
       'home-isadecor/servicio-puntos',
       'home-isadecor/secciones',
+      'sitio',
       'sitio/faqs',
       'sitio/equipo',
       'sitio/credenciales',
@@ -123,5 +124,13 @@ describe('App', () => {
     const adminRoute = routes.find((route) => route.path === 'admin');
     const old = adminRoute?.children?.find((route) => route.path === 'isadecor-landing');
     expect(old?.redirectTo).toBe('anuncios');
+  });
+
+  it('redirects the removed admin screens to where their content lives now', () => {
+    const adminRoute = routes.find((route) => route.path === 'admin');
+    const redirect = (path: string) => adminRoute?.children?.find((route) => route.path === path)?.redirectTo;
+    expect(redirect('contenido')).toBe('landing');
+    expect(redirect('sitio/proyecto-galeria')).toBe('/admin/proyectos');
+    expect(redirect('isadecor-landing')).toBe('anuncios');
   });
 });

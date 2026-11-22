@@ -123,6 +123,7 @@ export const CONTENT_ITEMS: Readonly<
       { key: 'introduccion', label: 'Introducción', rows: 3, required: false },
       { key: 'descripcion', label: 'Descripción', rows: 3, required: false },
       { key: 'tags', label: 'Etiquetas (una por línea)', rows: 4, required: false, array: true },
+      { key: 'imagenUrl', label: 'Foto de la página', rows: 1, required: false, image: true },
     ],
   },
   garantia: {

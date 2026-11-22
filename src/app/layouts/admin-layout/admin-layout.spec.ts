@@ -45,10 +45,10 @@ describe('AdminLayout', () => {
   });
 
   it('opens the group of the current page and filters the menu with the search box', async () => {
-    const harness = await RouterTestingHarness.create('/admin/sitio/equipo');
+    const harness = await RouterTestingHarness.create('/admin/sitio/politicas');
     const element = harness.fixture.nativeElement as HTMLElement;
     const nav = element.querySelector('nav[aria-label="Navegación administrativa"]') as HTMLElement;
-    expect(nav.querySelector('a[href="/admin/sitio/equipo"]')).toBeTruthy();
+    expect(nav.querySelector('a[href="/admin/sitio/politicas"]')).toBeTruthy();
 
     const search = element.querySelector('#admin-nav-search') as HTMLInputElement;
     search.value = 'reseñas';
@@ -56,6 +56,18 @@ describe('AdminLayout', () => {
     harness.detectChanges();
     const links = Array.from(nav.querySelectorAll('a')).map((a) => a.textContent?.trim());
     expect(links).toEqual(['Reseñas del Home']);
+  });
+
+  it('groups the content catalogs under a single «Contenido de la web» entry', async () => {
+    const harness = await RouterTestingHarness.create('/admin/sitio/equipo');
+    const nav = harness.fixture.nativeElement.querySelector('nav[aria-label="Navegación administrativa"]') as HTMLElement;
+    const hub = nav.querySelector('a[href="/admin/sitio"]');
+    expect(hub?.textContent?.trim()).toBe('Contenido de la web');
+    // Los catálogos ya no tienen entrada propia en el menú.
+    for (const route of ['faqs', 'equipo', 'credenciales', 'testimonios', 'garantias', 'pasos-proceso', 'proyecto-galeria']) {
+      expect(nav.querySelector(`a[href="/admin/sitio/${route}"]`)).toBeNull();
+    }
+    expect(nav.querySelector('a[href="/admin/contenido"]')).toBeNull();
   });
 
   it('marks Dashboard active only at the exact /admin route', async () => {

@@ -126,6 +126,9 @@ export const PROJECTS_BLOCKS: readonly PreviewBlock[] = [
   { id: 'proyectos', label: 'Proyectos', create: { item: 'proy', label: 'Añadir un proyecto' } },
 ];
 
+/** Bloques de la página «Contacto». */
+export const CONTACT_BLOCKS: readonly PreviewBlock[] = [{ id: 'cabecera', label: 'Título y textos' }];
+
 export const PREVIEW_BLOCKS: readonly PreviewBlock[] = [
   { id: 'inicio', label: 'Portada (Hero)', type: LandingSectionType.HERO },
   { id: 'servicios', label: 'Servicios', type: LandingSectionType.SERVICIOS, screen: { route: '/admin/servicios', label: 'Editar los servicios' } },
@@ -179,7 +182,9 @@ export class AdminLanding {
         ? SERVICES_BLOCKS
         : this.previewPage() === 'proyectos'
           ? PROJECTS_BLOCKS
-          : PREVIEW_BLOCKS,
+          : this.previewPage() === 'contacto'
+            ? CONTACT_BLOCKS
+            : PREVIEW_BLOCKS,
   );
   readonly selectedBlockId = signal<string | null>(null);
   /** El bloque elegido se está editando en el panel (hoy solo el Hero tiene editor propio). */
@@ -210,14 +215,12 @@ export class AdminLanding {
   private readonly legacyTabRoutes: Record<string, string> = {
     servicios: '/admin/servicios',
     proyectos: '/admin/proyectos',
-    contenido: '/admin/contenido',
   };
 
   /** Atajos a las demás pantallas que alimentan la landing. */
   readonly relatedScreens: readonly { label: string; route: string; hint: string }[] = [
     { label: 'Servicios', route: '/admin/servicios', hint: 'Servicios que se muestran en la portada' },
     { label: 'Proyectos', route: '/admin/proyectos', hint: 'Obras y casos de éxito' },
-    { label: 'Páginas y SEO', route: '/admin/contenido', hint: 'Textos y posicionamiento' },
   ];
 
   constructor() {
@@ -366,7 +369,7 @@ export class AdminLanding {
     if (!selection.item && selection.block === 'cabecera') {
       if (CONTENT_ITEMS['pagina'].fields.some((f) => f.key === selection.field)) {
         const page = this.previewPage();
-        const pagina = page === 'servicios' ? 'SERVICIOS' : page === 'proyectos' ? 'PROYECTOS' : 'NOSOTROS';
+        const pagina = { servicios: 'SERVICIOS', proyectos: 'PROYECTOS', contacto: 'CONTACTO' }[page as string] ?? 'NOSOTROS';
         this.panelEdit.set({ kind: 'content', item: 'pagina', id: pagina, field: selection.field });
       }
       return;

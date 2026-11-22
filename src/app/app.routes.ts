@@ -107,11 +107,8 @@ export const routes: Routes = [
             ({ AdminSiteConfig }) => AdminSiteConfig,
           ),
       },
-      {
-        path: 'contenido',
-        loadComponent: () =>
-          import('./features/admin/content/admin-content').then(({ AdminContent }) => AdminContent),
-      },
+      // Ruta antigua («Páginas y SEO»): el SEO ahora es automático y los textos se editan en Landing.
+      { path: 'contenido', redirectTo: 'landing', pathMatch: 'full' },
       {
         path: 'anuncios',
         loadComponent: () =>
@@ -193,6 +190,11 @@ export const routes: Routes = [
         data: { entity: 'isadecor-secciones', title: 'Secciones de productos' },
       },
       {
+        path: 'sitio',
+        loadComponent: () =>
+          import('./features/admin/web-content/admin-web-content').then(({ AdminWebContent }) => AdminWebContent),
+      },
+      {
         path: 'sitio/faqs',
         loadComponent: () =>
           import('./features/admin/site-content/admin-site-content').then(
@@ -248,14 +250,8 @@ export const routes: Routes = [
           ),
         data: { entity: 'politicas', title: 'Políticas' },
       },
-      {
-        path: 'sitio/proyecto-galeria',
-        loadComponent: () =>
-          import('./features/admin/site-content/admin-site-content').then(
-            ({ AdminSiteContent }) => AdminSiteContent,
-          ),
-        data: { entity: 'proyecto-galeria', title: 'Galería de proyectos' },
-      },
+      // Las fotos de la obra ahora se gestionan en la ficha de cada proyecto.
+      { path: 'sitio/proyecto-galeria', redirectTo: '/admin/proyectos', pathMatch: 'full' },
     ],
   },
   {

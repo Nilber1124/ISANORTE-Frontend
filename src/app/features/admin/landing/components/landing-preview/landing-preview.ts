@@ -24,15 +24,16 @@ import {
 export type PreviewDevice = 'desktop' | 'mobile';
 
 /** Páginas públicas que se pueden previsualizar y editar. */
-export type PreviewPage = 'inicio' | 'nosotros' | 'servicios' | 'proyectos';
+export type PreviewPage = 'inicio' | 'nosotros' | 'servicios' | 'proyectos' | 'contacto';
 
 const PAGE_URLS: Record<PreviewPage, string> = {
   inicio: '/?editor=1',
   nosotros: '/nosotros?editor=1',
   servicios: '/servicios?editor=1',
   proyectos: '/proyectos?editor=1',
+  contacto: '/contacto?editor=1',
 };
-export const PREVIEW_PAGE_LABELS: Record<PreviewPage, string> = { inicio: 'Inicio', nosotros: 'Nosotros', servicios: 'Servicios', proyectos: 'Proyectos' };
+export const PREVIEW_PAGE_LABELS: Record<PreviewPage, string> = { inicio: 'Inicio', nosotros: 'Nosotros', servicios: 'Servicios', proyectos: 'Proyectos', contacto: 'Contacto' };
 
 /** Texto que se está escribiendo en el panel, por campo, para mostrarlo ya en la página. */
 export interface PreviewDraft {
