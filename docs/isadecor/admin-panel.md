@@ -146,3 +146,52 @@ texto abre solo ese campo; tocar el resto de la tarjeta, los dos. Guarda con `PU
 `enHero`, `orden` y `activo`. La API pública de confianza ahora incluye el `id` de cada garantía para poder identificarla.
 La cabecera del bloque («Nuestro compromiso», «Por qué elegir a ISANORTE», la frase de abajo) es **texto fijo de la plantilla**,
 no viene de la base de datos, por lo que no se edita desde el admin.
+
+## Edición por campo en Testimonios (y editor genérico de elementos)
+
+Cada tarjeta de «Lo que dicen nuestros clientes» es un **testimonio real** (tabla `testimonios`, también en
+`/admin/sitio/testimonios`). Tocar el texto, el nombre o el cargo abre solo ese campo; tocar el resto de la tarjeta, los tres.
+La API pública de confianza incluye ahora el `id` de cada testimonio. La foto no se edita desde la vista previa.
+
+Garantías y testimonios comparten un editor genérico (`content-item-editor`, configurado en `CONTENT_ITEMS`): para sumar otro
+elemento de contenido del sitio basta marcar su tarjeta en la Home con `data-edit-item="<prefijo>:<id>"`, sus textos con
+`data-edit-field="<clave>"` y añadir su entrada (endpoint y campos) a `CONTENT_ITEMS`.
+
+## Preguntas frecuentes y bloque ISADECOR
+
+- **Preguntas frecuentes:** cada pregunta del Home es una FAQ real (`/admin/sitio/faqs`). Tocar la pregunta abre solo ese campo; tocar el
+  resto del desplegable, pregunta y respuesta juntas (el editor genérico `CONTENT_ITEMS.faq`). La API pública de confianza incluye
+  el `id` de cada FAQ. La cabecera («Dudas comunes», «Preguntas frecuentes», la frase y el recuadro de WhatsApp) es texto fijo.
+- **Bloque «Unidad ISADECOR»:** el **título** se edita al tocarlo (es el título de la sección UNIDAD_NEGOCIO de la landing). La
+  **descripción** y los **puntos con check** salen de la unidad de negocio (`unidades_negocio.descripcion` y `.ofertas`):
+  - Tocar la descripción abre solo ese campo (se ve en vivo); tocar los puntos abre solo «Puntos de oferta» (un punto por línea,
+    se ven al guardar; se guardan separados por « | »); tocar otra zona del bloque de texto abre ambos.
+  - Guarda con `PUT /api/unidades-negocio/{id}` conservando el resto de la unidad (incluida `ofertas`, que el formulario de
+    `/admin/unidades-negocio` no envía: ver nota abajo). Componente: `unit-field-editor`.
+
+> Nota: el formulario de `/admin/unidades-negocio` no incluye el campo `ofertas` en su petición; conviene revisar que guardar desde
+> allí no borre los puntos de oferta (no se verificó).
+
+## «Cómo trabajamos» (pasos del proceso)
+
+Cada paso es un registro real (`pasos_proceso`, también en `/admin/sitio/pasos-proceso`). Tocar su título o su texto abre solo ese campo;
+tocar el resto del paso, los dos (editor genérico, `CONTENT_ITEMS.paso`). La API pública incluye el `id` de cada paso. Solo se tocan los
+textos: la animación con scroll de esa sección no se modifica (solo se añaden atributos `data-edit-*`). El título de la sección
+(«Del terreno a la llave en mano, con un solo equipo») es texto fijo de la plantilla.
+
+## Cabeceras de bloque editables (`textos_bloque`)
+
+Las cabeceras de «Por qué elegir a ISANORTE» (garantías), Testimonios, Preguntas frecuentes y «Cómo trabajamos» ya no son texto fijo:
+se guardan en la tabla `textos_bloque` (migración `V9`; una fila por bloque con `clave`, `etiqueta`, `titulo`, `subtitulo`).
+- **Backend:** `GET /api/textos-bloque` y `PUT /api/textos-bloque/{clave}` (admin; claves: `garantias`, `testimonios`, `preguntas`,
+  `proceso`; un campo en blanco vuelve al texto por defecto). La API pública de confianza devuelve `textos`.
+- **Frontend:** `shared/content/block-texts.ts` define los textos por defecto; la Home usa `trust.blockText(clave, campo)` (el guardado o,
+  si no hay fila, el por defecto). Al tocar la frase, el título o el subtítulo de la cabecera, el panel abre solo ese campo
+  (`block-text-editor`), con escritura en vivo. Solo se pueden tocar los campos que el bloque tiene (p. ej. «Cómo trabajamos» solo el título).
+
+## Proyectos: título y orden
+
+- El **título** del bloque se edita al tocarlo (sección PROYECTOS de la landing).
+- Las **tarjetas** no se editan en texto: al tocar una se abre «Proyectos en la Home» (`projects-order-editor`), donde solo se cambia
+  **qué proyectos salen y en qué orden** (campos `destacado` y `orden`). La Home muestra los 4 primeros activos y destacados por
+  orden; los demás aparecen atenuados con aviso. Los textos y fotos de cada proyecto siguen en `/admin/proyectos`.
