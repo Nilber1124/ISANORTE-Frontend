@@ -431,7 +431,7 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
     title: 'Videos de redes',
     addLabel: 'Añadir un video',
     description:
-      'Pega el enlace de un video o reel de Instagram: el título y la miniatura se obtienen solos. Salen en «Síguenos» del Home (los 4 primeros) y en la página Comunidad.',
+      'Pega el enlace de un video de Instagram, TikTok o Facebook. En Instagram y TikTok el título y la miniatura se obtienen solos; en Facebook sube tú la miniatura. Salen en las tarjetas de «Síguenos» del Home (el más reciente de cada red) y en la página Comunidad.',
     endpoint: 'isadecor/publicaciones',
     folder: 'isadecor/comunidad',
     unitSlug: UNIT,
@@ -444,7 +444,7 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
         type: 'text',
         required: true,
         maxLength: 500,
-        help: 'Ej.: https://www.instagram.com/reel/XXXXXXXX/ — solo publicaciones o reels, no el perfil.',
+        help: 'Ej.: https://www.instagram.com/reel/XXXXXXXX/ o https://www.tiktok.com/@cuenta/video/123 — un video o reel, no el perfil.',
       },
       {
         key: 'red',
@@ -452,7 +452,11 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
         type: 'select',
         required: true,
         initial: 'INSTAGRAM',
-        options: [{ value: 'INSTAGRAM', label: 'Instagram' }],
+        options: [
+          { value: 'INSTAGRAM', label: 'Instagram' },
+          { value: 'TIKTOK', label: 'TikTok' },
+          { value: 'FACEBOOK', label: 'Facebook' },
+        ],
       },
       {
         key: 'titulo',
@@ -465,7 +469,7 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
         key: 'miniaturaUrl',
         label: 'Miniatura (opcional)',
         type: 'image',
-        help: 'Se obtiene sola de Instagram. Sube una imagen solo si no aparece o quieres otra.',
+        help: 'Se obtiene sola de Instagram y TikTok. En Facebook sube una imagen (por ejemplo, una captura del video).',
       },
     ],
   },

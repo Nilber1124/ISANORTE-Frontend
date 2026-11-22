@@ -88,7 +88,7 @@ const TIKTOK_VIDEO = /^https:\/\/(www\.)?tiktok\.com\/@[^/]+\/video\/(\d+)/;
             target="_blank"
             rel="noopener noreferrer"
             class="mt-3 block text-center text-body-sm font-semibold text-white underline"
-            >Ver en {{ video.red === 'TIKTOK' ? 'TikTok' : 'Instagram' }}</a
+            >Ver en {{ networkName(video) }}</a
           >
         </div>
       </div>
@@ -121,7 +121,11 @@ export class CommunityGrid {
   });
 
   protected label(item: IsadecorPublicationResponse): string {
-    return item.titulo || (item.red === 'TIKTOK' ? 'Video de TikTok' : 'Video de Instagram');
+    return item.titulo || `Video de ${this.networkName(item)}`;
+  }
+
+  protected networkName(item: IsadecorPublicationResponse): string {
+    return { INSTAGRAM: 'Instagram', TIKTOK: 'TikTok', FACEBOOK: 'Facebook' }[item.red];
   }
 
   protected open(item: IsadecorPublicationResponse): void {

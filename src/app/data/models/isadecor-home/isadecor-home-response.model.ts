@@ -3,7 +3,7 @@ export type HomeSaleMode = 'COMPRAR' | 'COTIZAR' | 'AMBAS';
 export type HomeSaleUnit = 'M2' | 'UNIDAD' | 'CAJA' | 'ML';
 export type HomeStockState = 'DISPONIBLE' | 'QUEDAN' | 'AGOTADO' | 'SIN_CONTROL';
 
-export type IsadecorPublicationNetwork = 'INSTAGRAM' | 'TIKTOK';
+export type IsadecorPublicationNetwork = 'INSTAGRAM' | 'TIKTOK' | 'FACEBOOK';
 
 /** Video de una red social cargado desde administración. */
 export interface IsadecorPublicationResponse {
