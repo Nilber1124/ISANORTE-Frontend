@@ -245,16 +245,15 @@ página Servicios usa `svc:<id>` para no mezclarlos.
 El selector de la vista previa incluye **Proyectos** (`/proyectos?editor=1`) con dos bloques: **Título** y **Proyectos**.
 
 - **Título**: edita el contenido de página `PROYECTOS` (frase, título…).
-- **Tarjetas de proyecto** (`data-edit-item="proy:<id>"`): tocar la portada, el nombre, la descripción, la ubicación o el periodo abre solo ese campo (`project-card-editor`). Tocar el resto de la tarjeta abre el formulario completo, que añade **tipo de obra** (con él se arman los filtros de la página) y **servicios aplicados** (casillas).
-- **Añadir un proyecto**: lo crea al final de la lista con un `slug` único calculado a partir del nombre; la portada es obligatoria (la tarjeta no tiene sentido sin foto).
-- **Quitar de la web**: desactiva el proyecto (`PATCH /api/proyectos/{id}/activo`); no se borra y sigue en `/admin/proyectos`. El borrado definitivo sigue siendo solo de esa pantalla.
+- **Tarjetas de proyecto** (`data-edit-item="proy:<id>"`): tocar la portada, el nombre, la descripción, la ubicación o el periodo abre solo ese campo en el panel (`project-card-editor`).
+- **Tocar el resto de la tarjeta** o **«Añadir un proyecto»** abre el **formulario completo** del proyecto (`project-full-editor`, el mismo de `/admin/proyectos`) sobre la vista previa: es un panel ancho con todos los campos, en vez del panel lateral estrecho. Al editar tiene las pestañas de fotos y testimonio; al crear, solo los datos, con el orden al final. Para quitar un proyecto de la web se usa su interruptor «activo» (no se borra).
 - Los demás datos del proyecto (cliente, área, plazo, alcance, orden, destacado, galería) viajan sin cambios al guardar un campo suelto.
 - **No se editan en la vista previa**: los filtros (derivados del tipo de obra) y el orden entre proyectos. La página de detalle de cada proyecto se gestiona en su ficha (ver abajo).
 - Backend: la API pública de proyectos devuelve ahora el `id` de cada proyecto.
 
 ### Ficha completa del proyecto (`/admin/proyectos`)
 
-Cada proyecto tiene colgados datos propios que se ven en su página de detalle. En lugar de editar esa página en la vista previa (demasiadas vueltas), todo se gestiona en **un solo formulario con pestañas**. Se llega con **«Editar ficha completa»** en la tarjeta de la vista previa (navega a `/admin/proyectos?editar=<id>`, que abre el formulario y limpia el parámetro) o con «Editar» en el listado.
+Cada proyecto tiene colgados datos propios que se ven en su página de detalle. En lugar de editar esa página en la vista previa (demasiadas vueltas), todo se gestiona en **un solo formulario con pestañas**. Se llega tocando la tarjeta en la vista previa (abre el formulario sin salir de la página) o con «Editar» en el listado de `/admin/proyectos`. `/admin/proyectos?editar=<id>` también abre el proyecto indicado.
 
 - **Datos**: nombre, descripción larga, ficha (cliente, ubicación, periodo, área, plazo, alcance, tipo de obra), portada, servicios, orden y destacado. Es el formulario de siempre.
 - **Antes / durante / después** (`project-gallery-manager`): fotos de `proyecto_galeria` ligadas al proyecto por slug. Añadir (subida + etapa), cambiar la etapa (Antes, Durante la obra, Resultado, Detalle), subir/bajar y quitar con confirmación. Cada cambio se guarda al momento (`/api/proyecto-galeria`).
