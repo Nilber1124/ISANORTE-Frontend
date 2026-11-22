@@ -22,6 +22,7 @@ import { SelectField, SelectOption } from '../../../shared/components/select-fie
 import { AdminProductsFacade } from './admin-products.facade';
 import { ProductForm, ProductFormSubmission } from './components/product-form/product-form';
 import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
+import { ProductStockLevel, stockLevel, totalStock } from './product-stock.util';
 
 @Component({
   selector: 'app-admin-products',
@@ -174,20 +175,13 @@ export class AdminProducts {
     this.page.set(0);
   }
 
-  /** Stock total: suma de acabados con control, o el stock del propio producto. */
+  /** Stock total del producto (ver `product-stock.util.ts`). */
   protected totalStock(product: ProductResponse): number | null {
-    const controlled = (product.variantes ?? []).filter((v) => v.stockActual != null);
-    if (controlled.length > 0) return controlled.reduce((sum, v) => sum + (v.stockActual ?? 0), 0);
-    return product.stockActual ?? null;
+    return totalStock(product);
   }
 
-  protected stockState(product: ProductResponse): 'agotado' | 'bajo' | 'ok' | 'sin-control' {
-    const total = this.totalStock(product);
-    if (product.disponibilidad === ProductAvailability.AGOTADO) return 'agotado';
-    if (total === null) return 'sin-control';
-    if (total <= 0) return 'agotado';
-    if ((product.stockMinimo ?? 0) > 0 && total <= (product.stockMinimo ?? 0)) return 'bajo';
-    return 'ok';
+  protected stockState(product: ProductResponse): ProductStockLevel {
+    return stockLevel(product);
   }
 
   protected thumbnail(product: ProductResponse): string | null {

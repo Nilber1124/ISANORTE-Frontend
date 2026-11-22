@@ -1,7 +1,7 @@
 <app-admin-page-header
   eyebrow="Panel administrativo"
   title="Dashboard"
-  description="Resumen de la actividad actual de ISANORTE e ISADECOR."
+  description="Lo que necesita tu atención hoy y lo último que entró."
 />
 
 @if (facade.error()) {
@@ -10,173 +10,144 @@
   </app-alert>
 }
 
-<!-- Stat tiles -->
-<section class="mt-10" aria-labelledby="stats-title">
-  <h2 id="stats-title" class="sr-only">Métricas generales</h2>
+<!-- Para atender hoy -->
+<section class="mt-10" aria-labelledby="attention-title">
+  <h2 id="attention-title" class="text-heading-3 text-text-primary">Para atender hoy</h2>
 
   @if (facade.loading()) {
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      @for (_ of [1, 2, 3, 4]; track $index) {
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      @for (_ of [1, 2, 3]; track $index) {
         <div class="h-32 animate-pulse rounded-card bg-surface-hover"></div>
       }
     </div>
+  } @else if (facade.attention().length === 0) {
+    <p
+      class="mt-4 rounded-card border border-border bg-surface-elevated p-5 text-body text-text-secondary"
+      data-all-clear
+    >
+      <span class="font-semibold text-success">Todo al día.</span>
+      No hay cotizaciones, pedidos ni productos que requieran atención ahora mismo.
+    </p>
   } @else {
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <ul class="mt-4 m-0 grid list-none gap-4 p-0 sm:grid-cols-2 xl:grid-cols-3" data-attention>
+      @for (item of facade.attention(); track item.id) {
+        <li>
+          <a
+            [routerLink]="item.route"
+            class="group flex h-full flex-col rounded-card border bg-surface-elevated p-5 transition-colors duration-fast hover:border-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            [class]="item.tone === 'urgent' ? 'border-accent/50' : 'border-border'"
+            [attr.data-attention-item]="item.id"
+          >
+            <p class="text-eyebrow uppercase text-text-muted">{{ item.label }}</p>
+            <p class="mt-3 font-numeric text-heading-1 font-bold leading-none text-text-primary tabular-nums">
+              {{ item.count }}
+            </p>
+            @if (item.detail) {
+              <p class="mt-2 text-body-sm text-text-secondary">{{ item.detail }}</p>
+            }
+            <p class="mt-auto flex items-center gap-1.5 pt-3 text-body-sm text-accent group-hover:underline">
+              Abrir
+              <span aria-hidden="true">→</span>
+            </p>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<!-- Lo último que entró -->
+<div class="mt-10 grid gap-8 xl:grid-cols-2">
+  <section aria-labelledby="recent-quotes-title">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h2 id="recent-quotes-title" class="text-heading-3 text-text-primary">Cotizaciones recientes</h2>
       <a
         routerLink="/admin/cotizaciones"
-        class="group rounded-card border border-border bg-surface-elevated p-5 transition-colors duration-fast hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        class="inline-flex min-h-10 items-center text-body-sm font-semibold text-accent underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        >Ver todas</a
       >
-        <p class="text-eyebrow uppercase text-text-muted">Cotizaciones nuevas</p>
-        <p class="mt-3 font-numeric text-heading-1 font-bold leading-none text-text-primary tabular-nums">
-          {{ facade.pendingQuotes() }}
-        </p>
-        <p class="mt-3 flex items-center gap-1.5 text-body-sm text-accent group-hover:underline">
-          Ver cotizaciones
-          <span aria-hidden="true">→</span>
-        </p>
-      </a>
-
-      <a
-        routerLink="/admin/productos"
-        class="group rounded-card border border-border bg-surface-elevated p-5 transition-colors duration-fast hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-      >
-        <p class="text-eyebrow uppercase text-text-muted">Productos publicados</p>
-        <p class="mt-3 font-numeric text-heading-1 font-bold leading-none text-text-primary tabular-nums">
-          {{ facade.publishedProducts() }}
-        </p>
-        <p class="mt-3 flex items-center gap-1.5 text-body-sm text-accent group-hover:underline">
-          Ver productos
-          <span aria-hidden="true">→</span>
-        </p>
-      </a>
-
-      <a
-        routerLink="/admin/proyectos"
-        class="group rounded-card border border-border bg-surface-elevated p-5 transition-colors duration-fast hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-      >
-        <p class="text-eyebrow uppercase text-text-muted">Proyectos activos</p>
-        <p class="mt-3 font-numeric text-heading-1 font-bold leading-none text-text-primary tabular-nums">
-          {{ facade.activeProjects() }}
-        </p>
-        <p class="mt-3 flex items-center gap-1.5 text-body-sm text-accent group-hover:underline">
-          Ver proyectos
-          <span aria-hidden="true">→</span>
-        </p>
-      </a>
-
-      <a
-        routerLink="/admin/servicios"
-        class="group rounded-card border border-border bg-surface-elevated p-5 transition-colors duration-fast hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-      >
-        <p class="text-eyebrow uppercase text-text-muted">Servicios activos</p>
-        <p class="mt-3 font-numeric text-heading-1 font-bold leading-none text-text-primary tabular-nums">
-          {{ facade.activeServices() }}
-        </p>
-        <p class="mt-3 flex items-center gap-1.5 text-body-sm text-accent group-hover:underline">
-          Ver servicios
-          <span aria-hidden="true">→</span>
-        </p>
-      </a>
     </div>
-  }
-</section>
+    @if (facade.loading()) {
+      <div class="mt-4 space-y-2">
+        @for (_ of [1, 2, 3]; track $index) {
+          <div class="h-14 animate-pulse rounded-control bg-surface-hover"></div>
+        }
+      </div>
+    } @else if (facade.recentQuotes().length === 0) {
+      <p class="mt-4 text-body-sm text-text-muted">No hay cotizaciones registradas aún.</p>
+    } @else {
+      <ul class="mt-4 m-0 list-none divide-y divide-border overflow-hidden rounded-card border border-border p-0" data-recent-quotes>
+        @for (quote of facade.recentQuotes(); track quote.id) {
+          <li class="flex items-center justify-between gap-3 px-4 py-3">
+            <div class="min-w-0">
+              <p class="truncate text-body-sm font-medium text-text-primary">{{ quote.nombreCliente }}</p>
+              <p class="text-caption text-text-muted">
+                <span class="font-mono">{{ quote.codigo }}</span>
+                · {{ quote.fechaCreacion | date: 'dd MMM yyyy' : undefined : 'es' }}
+              </p>
+            </div>
+            <app-badge [variant]="statusVariant(quote.estado)" size="small">{{ statusLabel(quote.estado) }}</app-badge>
+          </li>
+        }
+      </ul>
+    }
+  </section>
 
-<!-- Recent quotes -->
-<section class="mt-10" aria-labelledby="recent-quotes-title">
-  <div class="flex flex-wrap items-end justify-between gap-4">
-    <h2 id="recent-quotes-title" class="text-heading-3 text-text-primary">
-      Cotizaciones recientes
-    </h2>
-    <a
-      routerLink="/admin/cotizaciones"
-      class="text-body-sm font-semibold text-accent underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-    >
-      Ver todas
-    </a>
-  </div>
-
-  @if (facade.loading()) {
-    <div class="mt-4 space-y-2">
-      @for (_ of [1, 2, 3, 4, 5]; track $index) {
-        <div class="h-14 animate-pulse rounded-control bg-surface-hover"></div>
-      }
+  <section aria-labelledby="recent-orders-title">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h2 id="recent-orders-title" class="text-heading-3 text-text-primary">Pedidos recientes</h2>
+      <a
+        routerLink="/admin/pedidos"
+        class="inline-flex min-h-10 items-center text-body-sm font-semibold text-accent underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        >Ver todos</a
+      >
     </div>
-  } @else if (facade.recentQuotes().length === 0) {
-    <p class="mt-6 text-body-sm text-text-muted">No hay cotizaciones registradas aún.</p>
-  } @else {
-    <div class="mt-4 overflow-hidden rounded-card border border-border">
-      <table class="w-full text-body-sm">
-        <thead>
-          <tr class="border-b border-border bg-surface">
-            <th class="px-4 py-3 text-left font-semibold text-text-secondary" scope="col">
-              Cliente
-            </th>
-            <th class="hidden px-4 py-3 text-left font-semibold text-text-secondary sm:table-cell" scope="col">
-              Código
-            </th>
-            <th class="px-4 py-3 text-left font-semibold text-text-secondary" scope="col">
-              Estado
-            </th>
-            <th class="hidden px-4 py-3 text-right font-semibold text-text-secondary lg:table-cell" scope="col">
-              Fecha
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (quote of facade.recentQuotes(); track quote.id) {
-            <tr class="border-b border-border last:border-0 transition-colors hover:bg-surface-hover">
-              <td class="px-4 py-3 font-medium text-text-primary">{{ quote.nombreCliente }}</td>
-              <td class="hidden px-4 py-3 font-mono text-caption text-text-muted sm:table-cell">
-                {{ quote.codigo }}
-              </td>
-              <td class="px-4 py-3">
-                <app-badge [variant]="statusVariant(quote.estado)" size="small">
-                  {{ statusLabel(quote.estado) }}
-                </app-badge>
-              </td>
-              <td class="hidden px-4 py-3 text-right text-text-muted lg:table-cell">
-                {{ quote.fechaCreacion | date: 'dd MMM yyyy' : undefined : 'es' }}
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
-</section>
+    @if (facade.loading()) {
+      <div class="mt-4 space-y-2">
+        @for (_ of [1, 2, 3]; track $index) {
+          <div class="h-14 animate-pulse rounded-control bg-surface-hover"></div>
+        }
+      </div>
+    } @else if (facade.recentOrders().length === 0) {
+      <p class="mt-4 text-body-sm text-text-muted">No hay pedidos registrados aún.</p>
+    } @else {
+      <ul class="mt-4 m-0 list-none divide-y divide-border overflow-hidden rounded-card border border-border p-0" data-recent-orders>
+        @for (order of facade.recentOrders(); track order.id) {
+          <li class="flex items-center justify-between gap-3 px-4 py-3">
+            <div class="min-w-0">
+              <p class="truncate text-body-sm font-medium text-text-primary">
+                <span class="font-mono">{{ order.codigo }}</span>
+                @if (order.totalPedido !== null) {
+                  · S/ {{ order.totalPedido | number: '1.2-2' }}
+                }
+              </p>
+              <p class="text-caption text-text-muted">{{ order.fechaCreacion | date: 'dd MMM yyyy' : undefined : 'es' }}</p>
+            </div>
+            <app-badge [variant]="orderStatusVariant(order.estado)" size="small">{{ orderStatusLabel(order.estado) }}</app-badge>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>
 
-<!-- Quick access -->
+<!-- Accesos rápidos -->
 <section class="mt-10" aria-labelledby="quick-access-title">
   <h2 id="quick-access-title" class="text-heading-3 text-text-primary">Accesos rápidos</h2>
 
-  <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-    <a
-      routerLink="/admin/landing"
-      class="flex items-center gap-3 rounded-card border border-border bg-surface-elevated px-4 py-3.5 text-body-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-    >
-      <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
-      Landing ISANORTE
-    </a>
-    <a
-      routerLink="/admin/categorias"
-      class="flex items-center gap-3 rounded-card border border-border bg-surface-elevated px-4 py-3.5 text-body-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-    >
-      <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
-      Categorías
-    </a>
-    <a
-      routerLink="/admin/empresa"
-      class="flex items-center gap-3 rounded-card border border-border bg-surface-elevated px-4 py-3.5 text-body-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-    >
-      <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
-      Datos de empresa
-    </a>
-    <a
-      routerLink="/admin/configuracion"
-      class="flex items-center gap-3 rounded-card border border-border bg-surface-elevated px-4 py-3.5 text-body-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-    >
-      <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
-      Configuración del sitio
-    </a>
+  <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    @for (link of quickLinks; track link.route) {
+      <a
+        [routerLink]="link.route"
+        class="flex min-h-12 items-center gap-3 rounded-card border border-border bg-surface-elevated px-4 py-3.5 text-body-sm font-semibold text-text-primary transition-colors hover:border-accent/40 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      >
+        <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
+        {{ link.label }}
+      </a>
+    }
   </div>
 </section>
+
+@if (!facade.loading() && !facade.error()) {
+  <p class="mt-8 text-body-sm text-text-muted" data-published-summary>En la web ahora: {{ facade.publishedSummary() }}.</p>
+}
