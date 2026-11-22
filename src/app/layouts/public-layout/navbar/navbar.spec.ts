@@ -43,7 +43,6 @@ describe('Navbar', () => {
       '/servicios',
       '/proyectos',
       '/isadecor',
-      '/contacto',
     ]);
     expect(nav.querySelector('app-button')).toBeNull();
   });
@@ -87,13 +86,14 @@ describe('Navbar', () => {
     expect(nav.querySelector('a[href="tel:+51999111222"]')).toBeTruthy();
   });
 
-  it('keeps WhatsApp and the quote button one tap away in the header', () => {
+  it('keeps WhatsApp as the single contact action in the header (no separate quote button)', () => {
     const nav = fixture.nativeElement as HTMLElement;
     const whatsapp = nav.querySelectorAll('a[href="https://wa.me/51999111222"]');
     // Una versión de escritorio y otra móvil.
     expect(whatsapp).toHaveLength(2);
     expect(whatsapp[0].getAttribute('target')).toBe('_blank');
-    expect(nav.querySelector('a[href="/contacto"]')?.textContent?.trim()).toBe('Cotizar');
+    expect(nav.querySelector('a[href="/contacto"]')).toBeNull();
+    expect(nav.textContent).not.toContain('Cotizar');
   });
 
   it('closes the open mobile menu with Escape', () => {

@@ -68,7 +68,7 @@
           [href]="wa"
           target="_blank"
           rel="noopener"
-          class="inline-flex min-h-10 items-center gap-2 rounded-button border border-white/25 px-4 text-body-sm font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          class="inline-flex min-h-10 items-center gap-2 rounded-button bg-accent px-5 text-body-sm font-semibold text-accent-contrast transition-colors duration-normal hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-brand"
           aria-label="Escribir por WhatsApp"
         >
           <svg
@@ -85,13 +85,15 @@
           </svg>
           WhatsApp
         </a>
+      } @else {
+        <!-- Sin número de WhatsApp configurado, el formulario de Contacto es la única vía. -->
+        <a
+          routerLink="/contacto"
+          class="inline-flex min-h-10 cursor-pointer items-center rounded-button bg-accent px-5 text-body-sm font-semibold text-accent-contrast transition-colors duration-normal hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-brand"
+        >
+          Cotizar
+        </a>
       }
-      <a
-        routerLink="/contacto"
-        class="inline-flex min-h-10 cursor-pointer items-center rounded-button bg-accent px-5 text-body-sm font-semibold text-accent-contrast transition-colors duration-normal hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-brand"
-      >
-        Cotizar
-      </a>
     </div>
 
     <!-- Móvil: contacto directo siempre a la vista -->
@@ -194,13 +196,25 @@
         >
           ISADECOR
         </a>
-        <a
-          routerLink="/contacto"
-          (click)="closeNavigation()"
-          class="mt-2 rounded-button bg-accent px-4 py-3 text-center text-body-sm font-semibold text-accent-contrast hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-        >
-          Contacto
-        </a>
+        @if (whatsappHref(); as wa) {
+          <a
+            [href]="wa"
+            target="_blank"
+            rel="noopener"
+            (click)="closeNavigation()"
+            class="mt-2 rounded-button bg-accent px-4 py-3 text-center text-body-sm font-semibold text-accent-contrast hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          >
+            Escribir por WhatsApp
+          </a>
+        } @else {
+          <a
+            routerLink="/contacto"
+            (click)="closeNavigation()"
+            class="mt-2 rounded-button bg-accent px-4 py-3 text-center text-body-sm font-semibold text-accent-contrast hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          >
+            Contacto
+          </a>
+        }
       </div>
     </div>
   }
