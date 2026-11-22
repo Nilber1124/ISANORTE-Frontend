@@ -1,4 +1,4 @@
-<app-drawer drawerId="announcement-form" [title]="mode() === 'create' ? 'Nuevo anuncio' : 'Editar anuncio'"
+<app-drawer #drawer guardUnsaved drawerId="announcement-form" [title]="mode() === 'create' ? 'Nuevo anuncio' : 'Editar anuncio'"
   description="Configura contenido, publicación y destino de la acción." [open]="true" [loading]="submitting()"
   (closed)="canceled.emit()">
   @if (serverError(); as error) {
@@ -147,7 +147,7 @@
     }
   </form>
   <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">Cancelar</app-button><app-button
+    <app-button variant="secondary" [disabled]="submitting()" (click)="drawer.requestClose()">Cancelar</app-button><app-button
       [loading]="submitting()" (click)="submit()">{{
       mode() === 'create' ? 'Crear anuncio' : 'Guardar cambios'
       }}</app-button>

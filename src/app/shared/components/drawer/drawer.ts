@@ -10,16 +10,18 @@ import {
   inject,
   input,
   model,
+  signal,
   output,
   viewChild,
 } from '@angular/core';
+import { Button } from '../button/button';
 import { Loading } from '../loading/loading';
 
 export type DrawerCloseReason = 'button' | 'backdrop' | 'escape';
 
 @Component({
   selector: 'app-drawer',
-  imports: [Loading],
+  imports: [Button, Loading],
   templateUrl: './drawer.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -30,12 +32,19 @@ export class Drawer {
   readonly open = model(false);
   readonly dismissible = input(true, { transform: booleanAttribute });
   readonly loading = input(false, { transform: booleanAttribute });
+  /**
+   * Pide confirmación al cerrar si alguien escribió en un formulario del panel (X, fuera del panel,
+   * Escape o `requestClose()`). Los paneles de solo lectura no lo activan.
+   */
+  readonly guardUnsaved = input(false, { transform: booleanAttribute });
 
   readonly closed = output<DrawerCloseReason>();
 
   private readonly injector = inject(Injector);
   private readonly panel = viewChild<ElementRef<HTMLElement>>('drawerPanel');
   private returnFocusTo?: HTMLElement;
+  private readonly touched = signal(false);
+  protected readonly confirmingDiscard = signal(false);
 
   protected readonly titleId = computed(() => `${this.drawerId()}-title`);
   protected readonly descriptionId = computed(() => `${this.drawerId()}-description`);
@@ -62,10 +71,34 @@ export class Drawer {
     );
   });
 
-  protected close(reason: DrawerCloseReason): void {
+  protected close(reason: DrawerCloseReason, force = false): void {
     if (!this.dismissible() || this.loading()) return;
+    if (!force && this.guardUnsaved() && this.touched()) {
+      this.confirmingDiscard.set(true);
+      return;
+    }
+    this.confirmingDiscard.set(false);
+    this.touched.set(false);
     this.open.set(false);
     this.closed.emit(reason);
+  }
+
+  /** Cierra el panel como si se pulsara la X: los botones «Cancelar» de los formularios usan esto. */
+  requestClose(): void {
+    this.close('button');
+  }
+
+  protected discardAndClose(): void {
+    this.close('button', true);
+  }
+
+  protected keepEditing(): void {
+    this.confirmingDiscard.set(false);
+  }
+
+  /** Cualquier cambio dentro de un `<form>` del panel cuenta como «con cambios sin guardar». */
+  protected markTouched(event: Event): void {
+    if ((event.target as Element | null)?.closest('form')) this.touched.set(true);
   }
 
   protected handleBackdrop(event: MouseEvent): void {
@@ -75,6 +108,10 @@ export class Drawer {
   protected handleKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       event.preventDefault();
+      if (this.confirmingDiscard()) {
+        this.keepEditing();
+        return;
+      }
       this.close('escape');
       return;
     }

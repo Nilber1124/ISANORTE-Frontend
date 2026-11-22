@@ -1,4 +1,4 @@
-<app-drawer
+<app-drawer #drawer guardUnsaved
   drawerId="business-unit-form-drawer"
   [title]="mode() === 'create' ? 'Nueva unidad de negocio' : 'Editar unidad de negocio'"
   description="Administra la configuración de la marca o división (ej: ISADECOR), sus datos visuales y empresa matriz."
@@ -211,7 +211,7 @@
   </form>
 
   <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="drawer.requestClose()">
       Cancelar
     </app-button>
     <app-button

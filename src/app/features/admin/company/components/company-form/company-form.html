@@ -1,4 +1,4 @@
-<app-drawer
+<app-drawer #drawer guardUnsaved
   drawerId="company-form-drawer"
   [title]="modalTitle()"
   [description]="modalDescription()"
@@ -382,7 +382,7 @@
       type="button"
       variant="secondary"
       [disabled]="submitting()"
-      (click)="canceled.emit()"
+      (click)="drawer.requestClose()"
     >
       Cancelar
     </app-button>

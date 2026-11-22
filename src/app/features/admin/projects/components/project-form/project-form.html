@@ -1,4 +1,4 @@
-<app-drawer
+<app-drawer #drawer guardUnsaved
   drawerId="admin-project-form"
   [title]="mode() === 'create' ? 'Nuevo proyecto' : 'Editar proyecto'"
   [description]="
@@ -365,7 +365,7 @@
   </form>
 
   <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="drawer.requestClose()">
       {{ tab() === 'datos' ? 'Cancelar' : 'Cerrar' }}
     </app-button>
     @if (tab() === 'datos') {

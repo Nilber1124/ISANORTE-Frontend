@@ -1,4 +1,4 @@
-<app-drawer
+<app-drawer #drawer guardUnsaved
   drawerId="category-form-drawer"
   [title]="mode() === 'create' ? 'Nueva categoría' : 'Editar categoría'"
   description="Define la taxonomía comercial, portada visual y asignación de catálogo."
@@ -152,7 +152,7 @@
   </form>
 
   <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="drawer.requestClose()">
       Cancelar
     </app-button>
     <app-button

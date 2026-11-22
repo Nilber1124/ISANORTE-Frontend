@@ -1,4 +1,4 @@
-<app-drawer
+<app-drawer #drawer guardUnsaved
   drawerId="page-content-form-drawer"
   [title]="content() ? 'Editar contenido' : 'Nuevo contenido'"
   [description]="
@@ -166,7 +166,7 @@
           [disabled]="!tagDraft().trim() || saving()"
           (click)="addTag()"
         >
-          {{ editingTagIndex() === null ? 'Agregar' : 'Guardar' }}
+          {{ editingTagIndex() === null ? 'Añadir' : 'Guardar' }}
         </app-button>
       </div>
 
@@ -248,7 +248,7 @@
   </form>
 
   <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-    <app-button variant="secondary" [disabled]="saving()" (click)="closed.emit()">
+    <app-button variant="secondary" [disabled]="saving()" (click)="drawer.requestClose()">
       Cancelar
     </app-button>
     <app-button variant="primary" [loading]="saving()" (click)="submit()">

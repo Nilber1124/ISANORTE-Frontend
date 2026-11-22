@@ -55,6 +55,8 @@
 
       <div
         class="flex-1 overflow-y-auto px-5 py-6 sm:px-6"
+        (input)="markTouched($event)"
+        (change)="markTouched($event)"
         [class.pointer-events-none]="loading()"
         [class.opacity-60]="loading()"
       >
@@ -68,6 +70,25 @@
       >
         <ng-content select="[drawer-actions]" />
       </footer>
+      @if (confirmingDiscard()) {
+        <div
+          class="absolute inset-0 z-10 flex items-center justify-center bg-overlay/60 p-5"
+          role="alertdialog"
+          aria-modal="true"
+          [attr.aria-labelledby]="drawerId() + '-discard-title'"
+        >
+          <div class="w-full max-w-sm rounded-card border border-border bg-surface-elevated p-6 shadow-floating">
+            <h3 [id]="drawerId() + '-discard-title'" class="text-heading-4 text-text-primary">¿Salir sin guardar?</h3>
+            <p class="mt-2 text-body-sm text-text-secondary">
+              Hay cambios en el formulario que todavía no se han guardado.
+            </p>
+            <div class="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <app-button variant="secondary" (click)="discardAndClose()">Descartar cambios</app-button>
+              <app-button variant="primary" (click)="keepEditing()">Seguir editando</app-button>
+            </div>
+          </div>
+        </div>
+      }
     </aside>
   </div>
 }

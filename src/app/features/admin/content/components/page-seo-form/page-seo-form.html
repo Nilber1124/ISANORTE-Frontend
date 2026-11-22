@@ -1,4 +1,4 @@
-<app-drawer
+<app-drawer #drawer guardUnsaved
   drawerId="page-seo-form-drawer"
   [title]="seo() ? 'Editar SEO' : 'Nuevo SEO'"
   [description]="
@@ -148,7 +148,7 @@
   </form>
 
   <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-    <app-button variant="secondary" [disabled]="saving()" (click)="closed.emit()">
+    <app-button variant="secondary" [disabled]="saving()" (click)="drawer.requestClose()">
       Cancelar
     </app-button>
     <app-button

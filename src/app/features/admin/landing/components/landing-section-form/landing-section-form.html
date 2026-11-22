@@ -1,4 +1,4 @@
-<app-drawer
+<app-drawer #drawer guardUnsaved
   drawerId="landing-section-drawer"
   [open]="open()"
   [title]="mode() === 'create' ? 'Nueva sección' : 'Editar sección'"
@@ -260,7 +260,7 @@
     <app-button
       type="button"
       variant="secondary"
-      (click)="closed.emit()"
+      (click)="drawer.requestClose()"
       [disabled]="submitting()"
     >
       Cancelar

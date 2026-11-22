@@ -1,4 +1,4 @@
-<app-drawer
+<app-drawer #drawer guardUnsaved
   drawerId="site-config-form-drawer"
   [title]="mode() === 'create' ? 'Crear configuración' : 'Editar configuración'"
   description="Administra la identidad visual y los datos globales del sitio."
@@ -181,7 +181,7 @@
   </form>
 
   <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-    <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="drawer.requestClose()">
       Cancelar
     </app-button>
     <app-button
