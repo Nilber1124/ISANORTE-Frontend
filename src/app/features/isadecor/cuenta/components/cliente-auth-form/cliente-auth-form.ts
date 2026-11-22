@@ -61,7 +61,7 @@ export class ClienteAuthForm {
           apellido: this.apellido().trim() || null,
           email,
           password: this.password(),
-          telefono: this.telefono().trim() || null,
+          telefono: this.telefono().trim(),
           aceptaTratamientoDatos: this.aceptaDatos(),
         })
       : this.auth.login({ email, password: this.password() });
@@ -70,6 +70,8 @@ export class ClienteAuthForm {
     if (!isValidEmail(this.email().trim())) return 'Ingresa un correo electrónico válido.';
     if (this.modo() === 'ingresar') return this.password() ? null : 'Ingresa tu contraseña.';
     if (!this.nombre().trim()) return 'Ingresa tu nombre.';
+    if (!/^[+0-9 ()-]{7,30}$/.test(this.telefono().trim()))
+      return 'Ingresa un teléfono de contacto válido.';
     if (this.password().length < 8) return 'La contraseña debe tener al menos 8 caracteres.';
     if (!this.aceptaDatos()) return 'Debes aceptar el tratamiento de tus datos personales.';
     return null;

@@ -67,12 +67,13 @@
   @if (modo() === 'registrar') {
     <div>
       <label for="cliente-telefono" class="form-label"
-        >Teléfono <span class="text-text-muted">(opcional)</span></label
+        >Teléfono</label
       ><input
         id="cliente-telefono"
         type="tel"
         class="form-control"
         autocomplete="tel"
+        required
         [value]="telefono()"
         [disabled]="loading()"
         (input)="telefono.set(valor($event))"
