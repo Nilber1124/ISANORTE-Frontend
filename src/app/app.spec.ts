@@ -34,6 +34,7 @@ describe('App', () => {
       'proyectos',
       'proyectos/:slug',
       'contacto',
+      'politicas/:slug',
     ]);
   });
 
@@ -80,7 +81,24 @@ describe('App', () => {
       'landing',
       'configuracion',
       'contenido',
-      'contacto',
+      'anuncios',
+      'home-isadecor/resenas',
+      'home-isadecor/publicaciones',
+      'home-isadecor/hero',
+      'home-isadecor/cinta',
+      'home-isadecor/promociones',
+      'home-isadecor/campana',
+      'home-isadecor/servicio',
+      'home-isadecor/servicio-puntos',
+      'home-isadecor/secciones',
+      'sitio/faqs',
+      'sitio/equipo',
+      'sitio/credenciales',
+      'sitio/testimonios',
+      'sitio/garantias',
+      'sitio/pasos-proceso',
+      'sitio/politicas',
+      'sitio/proyecto-galeria',
     ]);
   });
 
@@ -101,19 +119,9 @@ describe('App', () => {
     expect(loadedComponent).not.toBe(AdminModulePlaceholder);
   });
 
-  it('should lazy-load AdminIsadecorLanding for the isadecor landing route', async () => {
+  it('keeps the old isadecor-landing admin route as a redirect to anuncios', () => {
     const adminRoute = routes.find((route) => route.path === 'admin');
-    const isadecorLandingRoute = adminRoute?.children?.find(
-      (route) => route.path === 'isadecor-landing',
-    );
-
-    expect(isadecorLandingRoute?.component).toBeUndefined();
-    expect(isadecorLandingRoute?.loadComponent).toBeTypeOf('function');
-
-    const loadedComponent = await isadecorLandingRoute?.loadComponent?.();
-    const { AdminIsadecorLanding } =
-      await import('./features/admin/isadecor-landing/admin-isadecor-landing');
-
-    expect(loadedComponent).toBe(AdminIsadecorLanding);
+    const old = adminRoute?.children?.find((route) => route.path === 'isadecor-landing');
+    expect(old?.redirectTo).toBe('anuncios');
   });
 });

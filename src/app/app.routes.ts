@@ -65,14 +65,8 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/orders/admin-orders').then(({ AdminOrders }) => AdminOrders),
       },
-      {
-        path: 'isadecor-landing',
-        loadComponent: () =>
-          import('./features/admin/announcements/admin-announcements').then(
-            ({ AdminAnnouncements }) => AdminAnnouncements,
-          ),
-        data: { title: 'Accesos Rápidos ISADECOR' },
-      },
+      // Ruta antigua: se conserva para no romper enlaces guardados.
+      { path: 'isadecor-landing', redirectTo: 'anuncios', pathMatch: 'full' },
       {
         path: 'proyectos',
         loadComponent: () =>
@@ -140,7 +134,7 @@ export const routes: Routes = [
           import('./features/admin/site-content/admin-site-content').then(
             ({ AdminSiteContent }) => AdminSiteContent,
           ),
-        data: { entity: 'isadecor-publicaciones', title: 'Videos de redes sociales' },
+        data: { entity: 'isadecor-publicaciones', title: 'Videos de redes' },
       },
       {
         path: 'home-isadecor/hero',
