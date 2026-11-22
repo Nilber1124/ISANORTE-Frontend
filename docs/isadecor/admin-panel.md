@@ -78,7 +78,8 @@ lateral y el título de la barra superior) se agrupa por marca:
     formulario completo del Hero; «Editar la portada» también lo abre completo. Lo que se teclea en el panel se ve al instante en la página (borrador
     en vivo, sin guardar; al cerrar el editor o volver al texto guardado, la página se restaura).
     Cómo: los elementos llevan `data-edit-field="…"` en `home.html`; `editor-bridge.ts` envía el
-    campo tocado y aplica los borradores **solo como texto** (nunca HTML). Un campo que la Home no
+    campo tocado y aplica los borradores **solo como texto** (nunca HTML). Si se toca una zona sin campo propio (p. ej. el fondo del Hero, tapado por el texto),
+    se usa el `data-edit-fallback` de la sección (en el Hero, `fotos`). Un campo que la Home no
     dibuja (p. ej. la etiqueta vacía) no muestra borrador. Para hacerlo en otro bloque: marcar sus
     elementos con `data-edit-field` y darle su editor (como `hero-editor`).
   - **Título multilínea:** el título de una sección admite saltos de línea (la web del Hero lo parte en
@@ -127,3 +128,21 @@ administrables:
   pestaña «Botón principal» del formulario de sección. El panel de bloque muestra los botones de cada
   sección como «Botones fijos» (texto y destino, solo lectura). Al guardar una sección se conservan los
   campos `textoBoton`/`enlaceBoton` que ya tuviera.
+
+## Edición por campo en Servicios
+
+En el bloque «Servicios» de la vista previa:
+- **Título de la sección:** al tocarlo, el panel muestra solo ese campo (se guarda en la sección SERVICIOS de la landing).
+- **Tarjetas:** cada tarjeta es un **servicio real** (el mismo que alimenta la página `/servicios`). Al tocar su nombre o su
+  descripción corta se edita ese campo del servicio (`PUT /api/servicios/{id}` con el resto de campos sin tocar), así que el
+  cambio se refleja también en `/servicios`. Se identifican por slug (`data-edit-item="servicio:<slug>"`).
+- Tocar el nombre o el párrafo abre solo ese campo; tocar el resto de la tarjeta abre nombre y descripción juntos.
+- El resto de la ficha (descripción larga, beneficios, imagen) se edita en `/admin/servicios`.
+
+## Edición por campo en «Por qué elegir a ISANORTE» (garantías)
+
+Cada tarjeta es una **garantía real** (tabla `garantias`, también editable en `/admin/sitio/garantias`). Tocar su título o su
+texto abre solo ese campo; tocar el resto de la tarjeta, los dos. Guarda con `PUT /api/garantias/{id}` conservando
+`enHero`, `orden` y `activo`. La API pública de confianza ahora incluye el `id` de cada garantía para poder identificarla.
+La cabecera del bloque («Nuestro compromiso», «Por qué elegir a ISANORTE», la frase de abajo) es **texto fijo de la plantilla**,
+no viene de la base de datos, por lo que no se edita desde el admin.
