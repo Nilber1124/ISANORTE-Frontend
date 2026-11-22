@@ -1,3 +1,4 @@
+import { ISADECOR_SOCIAL_NETWORKS } from '../../../core/config/public-site.config';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,7 +10,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 
 import { SocialCards } from '../community/social-cards';
-import { pickCommunityNetworks } from '../community/community-networks';
+import { CommunityNetwork } from '../community/community-networks';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { IsadecorHomeFacade } from './isadecor-home.facade';
 import { ArmaAmbiente } from './arma-ambiente/arma-ambiente';
@@ -76,9 +77,7 @@ export class Home {
       ? `https://wa.me/${phone}?text=${encodeURIComponent('Hola ISADECOR, quisiera cotizar acabados.')}`
       : null;
   });
-  readonly networks = computed(() =>
-    pickCommunityNetworks(this.publicSite.presentableSocialNetworks()),
-  );
+  readonly networks = computed<CommunityNetwork[]>(() => [...ISADECOR_SOCIAL_NETWORKS]);
   readonly catalogUrl = '/isadecor/productos';
   readonly skeletons = [0, 1, 2, 3];
 

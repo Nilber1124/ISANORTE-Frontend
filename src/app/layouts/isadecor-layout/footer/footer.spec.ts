@@ -84,10 +84,12 @@ describe('Isadecor Footer', () => {
     expect(footer.textContent).toContain('© 2026 ISADECOR. Todos los derechos reservados.');
   });
 
-  it('shows the Facebook and Instagram links of the company but not other networks', () => {
+  it('shows the official ISADECOR profiles, not the ones of the construction company', () => {
     const footer = fixture.nativeElement as HTMLElement;
-    expect(footer.querySelector('a[href="https://instagram.com/isadecor"]')).toBeTruthy();
-    expect(footer.querySelector('a[href="https://facebook.com/isadecor"]')).toBeTruthy();
+    expect(footer.querySelector('a[href="https://www.instagram.com/isadecor.pee"]')).toBeTruthy();
+    expect(footer.querySelector('a[href="https://www.facebook.com/isadecor.pe"]')).toBeTruthy();
+    expect(footer.querySelector('a[href="https://www.tiktok.com/@isadeco.pe"]')).toBeTruthy();
+    expect(footer.querySelector('a[href="https://instagram.com/isadecor"]')).toBeNull();
     expect(footer.querySelector('a[href="/isadecor/comunidad"]')).toBeTruthy();
   });
 

@@ -1,7 +1,8 @@
+import { ISADECOR_SOCIAL_NETWORKS } from '../../../core/config/public-site.config';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { pickCommunityNetworks } from '../../../features/isadecor/community/community-networks';
+import { CommunityNetwork } from '../../../features/isadecor/community/community-networks';
 import { SocialIcon } from '../../../features/isadecor/community/social-icon';
 import { PublicSiteFacade } from '../../public-layout/public-site.facade';
 
@@ -69,9 +70,7 @@ export class Footer {
     })),
   );
 
-  readonly networks = computed(() =>
-    pickCommunityNetworks(this.facade.presentableSocialNetworks()),
-  );
+  readonly networks = computed<CommunityNetwork[]>(() => [...ISADECOR_SOCIAL_NETWORKS]);
 
   readonly payments = 'Visa · Mastercard · Yape · Plin · Transferencia';
 

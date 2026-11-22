@@ -1,3 +1,4 @@
+import { ISADECOR_SOCIAL_NETWORKS } from '../../../core/config/public-site.config';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,7 +13,7 @@ import { IsadecorPublicationResponse } from '../../../data/models/isadecor-home/
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { CommunityGrid } from './community-grid';
-import { pickCommunityNetworks } from './community-networks';
+import { CommunityNetwork } from './community-networks';
 import { SocialIcon } from './social-icon';
 
 /** Página con los videos de Instagram (y TikTok cuando se cargue) de ISADECOR. */
@@ -84,7 +85,7 @@ export class Community {
   readonly skeletons = [0, 1, 2, 3];
 
   /** Instagram y TikTok de la empresa (los demás enlaces no se muestran aquí). */
-  readonly networks = computed(() => pickCommunityNetworks(this.site.presentableSocialNetworks()));
+  readonly networks = computed<CommunityNetwork[]>(() => [...ISADECOR_SOCIAL_NETWORKS]);
 
   constructor() {
     afterNextRender(() => this.load());
