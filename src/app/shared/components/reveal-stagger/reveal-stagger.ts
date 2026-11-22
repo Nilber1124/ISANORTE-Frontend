@@ -205,7 +205,9 @@ export class RevealStagger {
             }
           }
         },
-        { threshold: 0.25 },
+        // threshold 0: con bloques altos (p. ej. 8 tarjetas ≈ 5000 px) un porcentaje del
+        // bloque nunca cabe en una pantalla y el contenido quedaba oculto para siempre.
+        { threshold: 0, rootMargin: '0px 0px -10% 0px' },
       );
       io.observe(hostEl);
       this.destroyRef.onDestroy(() => io.disconnect());
