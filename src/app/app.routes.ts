@@ -66,6 +66,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'catalogos',
+        loadComponent: () =>
+          import('./features/admin/catalogs/admin-catalogs').then(
+            ({ AdminCatalogs }) => AdminCatalogs,
+          ),
+      },
+      {
         path: 'unidades-negocio',
         loadComponent: () =>
           import('./features/admin/business-units/admin-business-units').then(

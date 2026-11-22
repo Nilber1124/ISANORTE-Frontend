@@ -51,6 +51,7 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
       { label: 'Empresa', route: '/admin/empresa' },
       { label: 'Políticas', route: '/admin/sitio/politicas' },
       { label: 'Unidades de negocio', route: '/admin/unidades-negocio' },
+      { label: 'Catálogos PDF', route: '/admin/catalogos' },
       { label: 'Configuración del sitio', route: '/admin/configuracion' },
     ],
   },
