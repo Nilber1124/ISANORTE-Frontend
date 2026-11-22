@@ -6,13 +6,12 @@
     </p>
   </header>
 } @else {
-  <header class="mb-8 max-w-3xl">
-    <p class="text-eyebrow uppercase text-text-muted">Sitio y empresa</p>
-    <h1 class="mt-3 text-heading-1 text-text-primary">Empresa</h1>
-    <p class="mt-3 text-body text-text-secondary">
-      Configura la identidad corporativa, misión, visión, canales de contacto y estadísticas que se presentan en la web.
-    </p>
-  </header>
+  <app-admin-page-header
+    class="mb-8"
+    eyebrow="Sitio y empresa"
+    title="Empresa"
+    description="Configura la identidad corporativa, misión, visión, canales de contacto y estadísticas que se presentan en la web."
+  />
 }
 
 @if (facade.error() && !facade.companyFormOpen() && !facade.socialFormOpen()) {
@@ -185,7 +184,7 @@
 
         <!-- 2. Ubicación & Canales de Contacto -->
         <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
-          <div class="flex items-center justify-between border-b border-border pb-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
             <div>
               <h3 class="text-subtitle font-bold text-text-primary">Ubicación & Canales de Contacto</h3>
               <p class="mt-0.5 text-caption text-text-muted">Canales oficiales de atención, comunicación y dirección de la empresa.</p>
@@ -229,7 +228,7 @@
 
         <!-- 3. Filosofía Corporativa -->
         <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
-          <div class="flex items-center justify-between border-b border-border pb-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
             <div>
               <h3 class="text-subtitle font-bold text-text-primary">Filosofía Corporativa</h3>
               <p class="mt-0.5 text-caption text-text-muted">Resumen institucional, misión, visión y principios de la organización.</p>
@@ -274,16 +273,16 @@
         </section>
 
         <!-- 4. Sub-recursos de Empresa: Redes Sociales & Estadísticas -->
-        <div class="grid items-start gap-6 lg:grid-cols-2">
+        <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
           <!-- Redes Sociales -->
           <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
-            <div class="flex items-center justify-between border-b border-border pb-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
               <div>
                 <h3 class="text-subtitle font-bold text-text-primary">Redes Sociales</h3>
                 <p class="mt-0.5 text-caption text-text-muted">Canales oficiales de la empresa.</p>
               </div>
               <app-button variant="secondary" size="small" (click)="facade.openSocialNetworkCreate()">
-                Agregar red
+                Añadir red
               </app-button>
             </div>
 
@@ -306,7 +305,7 @@
                   <div class="ml-3 flex shrink-0 gap-1">
                     <button
                       type="button"
-                      class="rounded p-1.5 text-text-muted transition-colors hover:bg-surface-hover hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                      class="rounded p-2.5 text-text-muted sm:p-1.5 transition-colors hover:bg-surface-hover hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                       aria-label="Editar"
                       (click)="facade.openSocialNetworkEdit(net)"
                     >
@@ -316,7 +315,7 @@
                     </button>
                     <button
                       type="button"
-                      class="rounded p-1.5 text-text-muted transition-colors hover:bg-error/10 hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                      class="rounded p-2.5 text-text-muted sm:p-1.5 transition-colors hover:bg-error/10 hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                       aria-label="Eliminar"
                       (click)="requestDeleteNetwork(net)"
                     >
@@ -336,7 +335,7 @@
 
           <!-- Estadísticas Corporativas -->
           <section class="rounded-card border border-border bg-surface p-6 shadow-sm">
-            <div class="flex items-center justify-between border-b border-border pb-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
               <div>
                 <h3 class="text-subtitle font-bold text-text-primary">Estadísticas</h3>
                 <p class="mt-0.5 text-caption text-text-muted">Métricas e indicadores clave de la empresa.</p>

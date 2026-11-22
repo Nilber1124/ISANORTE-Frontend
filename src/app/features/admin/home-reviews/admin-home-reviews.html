@@ -1,11 +1,8 @@
-<header class="max-w-3xl">
-  <p class="text-eyebrow uppercase text-text-muted">Home ISADECOR</p>
-  <h1 class="mt-3 text-heading-1 text-text-primary">Reseñas del Home</h1>
-  <p class="mt-3 text-body text-text-secondary">
-    Marca las reseñas reales que se muestran en la Home (máximo 6, por orden). Las demás siguen
-    visibles solo en la ficha de su producto.
-  </p>
-</header>
+<app-admin-page-header
+  eyebrow="Home ISADECOR"
+  title="Reseñas del Home"
+  description="Marca las reseñas reales que se muestran en la Home (máximo 6, por orden). Las demás siguen visibles solo en la ficha de su producto."
+/>
 
 @if (error(); as message) {
   <p class="mt-6 rounded-card border border-border bg-surface p-4 text-body-sm" role="alert">

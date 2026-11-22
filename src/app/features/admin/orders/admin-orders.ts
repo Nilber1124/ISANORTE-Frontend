@@ -12,10 +12,11 @@ import { Loading } from '../../../shared/components/loading/loading';
 import { SelectField, SelectOption } from '../../../shared/components/select-field/select-field';
 import { AdminOrdersFacade, OrderStatusFilter } from './admin-orders.facade';
 import { OrderDetail } from './components/order-detail/order-detail';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
   selector: 'app-admin-orders',
-  imports: [
+  imports: [AdminPageHeader, 
     Alert,
     Badge,
     Button,

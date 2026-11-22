@@ -1,13 +1,9 @@
 <div class="space-y-6">
-  <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <p class="text-eyebrow uppercase text-text-muted">Web ISANORTE</p>
-      <h1 class="mt-2 text-heading-1 text-text-primary">Gestión de Landing Page</h1>
-      <p class="mt-2 text-body text-text-secondary">
-        Configura de forma integral y ordenada todas las secciones, contenidos y recursos de la página principal.
-      </p>
-    </div>
-  </header>
+  <app-admin-page-header
+    eyebrow="Web ISANORTE"
+    title="Landing"
+    description="Toca cualquier texto o imagen de la web para editarlo; la vista previa se actualiza al guardar."
+  />
 
   <nav aria-label="Otras pantallas de la web" class="flex flex-wrap items-center gap-x-5 gap-y-2 text-body-sm">
     <span class="text-text-muted">También se edita en:</span>
@@ -15,7 +11,7 @@
       <a
         [routerLink]="item.route"
         [title]="item.hint"
-        class="font-semibold text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        class="inline-flex min-h-10 items-center font-semibold text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
       >
         {{ item.label }} <span aria-hidden="true">→</span>
       </a>

@@ -99,7 +99,7 @@ describe('AdminSiteConfig', () => {
     );
     const button = Array.from(
       (fixture.nativeElement as HTMLElement).querySelectorAll('button'),
-    ).find((item) => item.textContent?.includes('Crear configuración'));
+    ).find((item) => item.textContent?.includes('Nueva configuración'));
     button?.click();
     expect(facade.createOpens).toBe(1);
   });

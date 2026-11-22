@@ -4,6 +4,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { API_BASE_URL } from '../../../core/config/api.config';
 import { ToastService } from '../../../core/services/toast.service';
 import { trimTrailingSlashes } from '../../../shared/utils/text';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 export interface AdminReview {
   id: string;
@@ -20,6 +21,7 @@ export interface AdminReview {
 /** Elige qué reseñas reales se muestran en la Home de ISADECOR y en qué orden. */
 @Component({
   selector: 'app-admin-home-reviews',
+  imports: [AdminPageHeader],
   templateUrl: './admin-home-reviews.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

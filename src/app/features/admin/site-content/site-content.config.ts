@@ -25,6 +25,8 @@ export interface SiteContentEntity {
   readonly key: string;
   readonly title: string;
   readonly description: string;
+  /** Texto del botón de alta: «Añadir» + el elemento (un solo verbo para los elementos que viven dentro de otro contenido). */
+  readonly addLabel: string;
   /** Ruta REST de administración, p. ej. `faqs` → `/api/faqs`. */
   readonly endpoint: string;
   readonly folder: string;
@@ -45,6 +47,7 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'faqs',
     title: 'Preguntas frecuentes',
+    addLabel: 'Añadir una pregunta',
     description: 'Respuestas que se muestran en Home y Servicios.',
     endpoint: 'faqs',
     folder: 'isanorte/faqs',
@@ -70,6 +73,7 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'equipo',
     title: 'Equipo',
+    addLabel: 'Añadir un miembro',
     description: 'Personas que aparecen en Nosotros.',
     endpoint: 'equipo',
     folder: 'isanorte/equipo',
@@ -87,6 +91,7 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'credenciales',
     title: 'Credenciales',
+    addLabel: 'Añadir una credencial',
     description: 'Licencias, colegiaturas y certificaciones.',
     endpoint: 'credenciales',
     folder: 'isanorte/credenciales',
@@ -114,6 +119,7 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'testimonios',
     title: 'Testimonios',
+    addLabel: 'Añadir un testimonio',
     description: 'Opiniones de clientes (Home y detalle de proyecto).',
     endpoint: 'testimonios',
     folder: 'isanorte/testimonios',
@@ -137,6 +143,7 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'garantias',
     title: 'Garantías',
+    addLabel: 'Añadir una garantía',
     description: 'Compromisos concretos («Por qué ISANORTE») y puntos del hero.',
     endpoint: 'garantias',
     folder: 'isanorte/garantias',
@@ -150,6 +157,7 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'pasos-proceso',
     title: 'Pasos del proceso',
+    addLabel: 'Añadir un paso',
     description: 'Etapas de «Cómo trabajamos» en el Home.',
     endpoint: 'pasos-proceso',
     folder: 'isanorte/proceso',
@@ -162,6 +170,7 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'proyecto-galeria',
     title: 'Galería de proyectos',
+    addLabel: 'Añadir una foto',
     description: 'Fotos antes, durante y después de cada obra.',
     endpoint: 'proyecto-galeria',
     folder: 'isanorte/galeria',
@@ -194,6 +203,7 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'politicas',
     title: 'Políticas',
+    addLabel: 'Añadir una política',
     description:
       'Política de privacidad y otros textos legales. Se publican en /politicas/<slug>; la de privacidad usa el slug «privacidad».',
     endpoint: 'politicas',
@@ -229,6 +239,7 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'isadecor-hero',
     title: 'Hero de la Home',
+    addLabel: 'Añadir un hero',
     description:
       'Titular y subtítulo que se ven al abrir la tienda. Solo se muestra el primero activo.',
     endpoint: 'isadecor/hero',
@@ -244,6 +255,7 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'isadecor-cinta',
     title: 'Cinta de avisos',
+    addLabel: 'Añadir un aviso',
     description: 'Frases cortas que rotan sobre el encabezado (envíos, instalación, etc.).',
     endpoint: 'isadecor/cinta',
     folder: 'isadecor/cinta',
@@ -264,6 +276,7 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'isadecor-promociones',
     title: 'Promociones',
+    addLabel: 'Añadir una promoción',
     description:
       'Hasta 3 en la Home: la marcada como principal va grande. Muestran el precio real del producto; vencen solas en su fecha.',
     endpoint: 'isadecor/promociones',
@@ -298,6 +311,7 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'isadecor-campana',
     title: 'Campaña',
+    addLabel: 'Añadir una campaña',
     description: 'Banner de campaña de la Home. Solo se muestra la primera activa.',
     endpoint: 'isadecor/campanas',
     folder: 'isadecor/campana',
@@ -330,6 +344,7 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'isadecor-servicios',
     title: 'Bloque de servicio',
+    addLabel: 'Añadir un bloque',
     description:
       'Bloque «instalación / servicio» de la Home. Sus puntos se editan en «Puntos del servicio».',
     endpoint: 'isadecor/servicios-empresa',
@@ -362,6 +377,7 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'isadecor-servicio-puntos',
     title: 'Puntos del servicio',
+    addLabel: 'Añadir un punto',
     description: 'Viñetas del bloque de servicio, en el orden indicado.',
     endpoint: 'isadecor/servicio-puntos',
     folder: 'isadecor/servicio',
@@ -381,6 +397,7 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
   {
     key: 'isadecor-secciones',
     title: 'Secciones de productos',
+    addLabel: 'Añadir una sección',
     description:
       '«Elige tu acabado» (tienda) y «Fáciles de instalar»: automáticas por demanda, manuales o mixtas, con productos fijados y excluidos.',
     endpoint: 'isadecor/secciones',
@@ -444,7 +461,8 @@ export const ISADECOR_HOME_ENTITIES: readonly SiteContentEntity[] = [
   },
   {
     key: 'isadecor-publicaciones',
-    title: 'Videos de redes sociales',
+    title: 'Videos de redes',
+    addLabel: 'Añadir un video',
     description:
       'Pega el enlace de un video o reel de Instagram: el título y la miniatura se obtienen solos. Salen en «Síguenos» del Home (los 4 primeros) y en la página Comunidad.',
     endpoint: 'isadecor/publicaciones',

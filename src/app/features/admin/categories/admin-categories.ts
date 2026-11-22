@@ -9,10 +9,11 @@ import { Loading } from '../../../shared/components/loading/loading';
 import { Modal } from '../../../shared/components/modal/modal';
 import { AdminCategoriesFacade } from './admin-categories.facade';
 import { CategoryForm, CategoryFormSubmission } from './components/category-form/category-form';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
   selector: 'app-admin-categories',
-  imports: [Alert, Badge, Button, CategoryForm, EmptyState, Loading, Modal],
+  imports: [AdminPageHeader, Alert, Badge, Button, CategoryForm, EmptyState, Loading, Modal],
   providers: [AdminCategoriesFacade],
   templateUrl: './admin-categories.html',
   styleUrl: './admin-categories.css',

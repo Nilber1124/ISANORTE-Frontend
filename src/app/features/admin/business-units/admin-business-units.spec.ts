@@ -114,7 +114,7 @@ describe('AdminBusinessUnits', () => {
       ?.click();
     expect(facade.creates).toBe(1);
   });
-  it('opens edit and confirms deactivation', () => {
+  it('opens edit and asks to type the unit name before deactivating it', () => {
     const element = fixture.nativeElement as HTMLElement;
     Array.from(element.querySelectorAll('button'))
       .find((item) => item.textContent?.includes('Editar'))
@@ -124,10 +124,22 @@ describe('AdminBusinessUnits', () => {
       .find((item) => item.textContent?.includes('Desactivar'))
       ?.click();
     fixture.detectChanges();
-    Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'))
-      .filter((item) => item.textContent?.includes('Desactivar'))
-      .at(-1)
-      ?.click();
+    const confirmButton = () =>
+      Array.from(element.querySelectorAll('button'))
+        .filter((item) => item.textContent?.includes('Desactivar'))
+        .at(-1) as HTMLButtonElement;
+
+    // Sin escribir el nombre no se puede confirmar.
+    expect(confirmButton().disabled).toBe(true);
+    confirmButton().click();
+    expect(facade.changes).toEqual([]);
+
+    const input = element.querySelector('#deactivate-business-unit-name') as HTMLInputElement;
+    input.value = unit.nombre;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(confirmButton().disabled).toBe(false);
+    confirmButton().click();
     expect(facade.changes).toEqual([{ unit, active: false }]);
   });
 });

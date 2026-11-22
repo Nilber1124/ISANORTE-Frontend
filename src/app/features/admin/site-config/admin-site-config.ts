@@ -10,10 +10,11 @@ import {
   SiteConfigForm,
   SiteConfigFormSubmission,
 } from './components/site-config-form/site-config-form';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
   selector: 'app-admin-site-config',
-  imports: [Alert, Button, EmptyState, Loading, SiteConfigForm],
+  imports: [AdminPageHeader, Alert, Button, EmptyState, Loading, SiteConfigForm],
   providers: [AdminSiteConfigFacade],
   templateUrl: './admin-site-config.html',
   styleUrl: './admin-site-config.css',

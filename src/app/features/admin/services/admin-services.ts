@@ -22,10 +22,11 @@ import {
   DynamicChildManager,
   DynamicChildSave,
 } from '../shared/dynamic-child-manager/dynamic-child-manager';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
   selector: 'app-admin-services',
-  imports: [Alert, Badge, Button, DynamicChildManager, EmptyState, Loading, Modal, ServiceForm],
+  imports: [AdminPageHeader, Alert, Badge, Button, DynamicChildManager, EmptyState, Loading, Modal, ServiceForm],
   providers: [AdminServicesFacade],
   templateUrl: './admin-services.html',
   styleUrl: './admin-services.css',

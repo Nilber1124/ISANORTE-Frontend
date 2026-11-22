@@ -25,7 +25,7 @@ describe('AdminLayout', () => {
 
     expect(element.querySelector('app-admin-topbar')).toBeTruthy();
     expect(element.querySelector('app-admin-sidebar')).toBeTruthy();
-    expect(element.querySelector('h1')?.textContent).toContain('ISANORTE Admin');
+    expect(element.querySelector('h1')?.textContent).toContain('Dashboard');
   });
 
   it('groups the navigation by brand and folds the groups away from the current page', async () => {

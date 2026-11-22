@@ -21,10 +21,11 @@ import { Pagination } from '../../../shared/components/pagination/pagination';
 import { SelectField, SelectOption } from '../../../shared/components/select-field/select-field';
 import { AdminProductsFacade } from './admin-products.facade';
 import { ProductForm, ProductFormSubmission } from './components/product-form/product-form';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
   selector: 'app-admin-products',
-  imports: [
+  imports: [AdminPageHeader, 
     Alert,
     Badge,
     Button,

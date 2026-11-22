@@ -29,6 +29,7 @@ import {
   SiteContentEntity,
   SiteContentField,
 } from './site-content.config';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 interface RefOption {
   readonly id: string;
@@ -48,7 +49,7 @@ type FormValue = Record<string, string | number | boolean | null>;
  */
 @Component({
   selector: 'app-admin-site-content',
-  imports: [Alert, Button, EmptyState, InputField, Loading, Modal, SelectField, TextareaField],
+  imports: [AdminPageHeader, Alert, Button, EmptyState, InputField, Loading, Modal, SelectField, TextareaField],
   templateUrl: './admin-site-content.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -444,5 +445,10 @@ export class AdminSiteContent {
   private failSelection(): void {
     this.savingSelection.set(false);
     this.toast.show('No se pudo guardar la selección.', 'error');
+  }
+
+  /** Rótulo de la marca a la que pertenece el contenido (ISADECOR Home o ISANORTE). */
+  protected eyebrowFor(config: SiteContentEntity): string {
+    return ISADECOR_HOME_ENTITIES.includes(config) ? 'Home ISADECOR' : 'Contenido ISANORTE';
   }
 }

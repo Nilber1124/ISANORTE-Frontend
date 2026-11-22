@@ -10,10 +10,11 @@ import { Loading } from '../../../shared/components/loading/loading';
 import { Modal } from '../../../shared/components/modal/modal';
 import { AdminProjectsFacade } from './admin-projects.facade';
 import { ProjectForm, ProjectFormSubmission } from './components/project-form/project-form';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
   selector: 'app-admin-projects',
-  imports: [Alert, Badge, Button, EmptyState, Loading, Modal, ProjectForm],
+  imports: [AdminPageHeader, Alert, Badge, Button, EmptyState, Loading, Modal, ProjectForm],
   providers: [AdminProjectsFacade],
 
   templateUrl: './admin-projects.html',

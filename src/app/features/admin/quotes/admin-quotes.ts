@@ -12,10 +12,11 @@ import { Loading } from '../../../shared/components/loading/loading';
 import { SelectField, SelectOption } from '../../../shared/components/select-field/select-field';
 import { AdminQuotesFacade, QuoteStatusFilter } from './admin-quotes.facade';
 import { QuoteDetail } from './components/quote-detail/quote-detail';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
   selector: 'app-admin-quotes',
-  imports: [
+  imports: [AdminPageHeader, 
     Alert,
     Badge,
     Button,

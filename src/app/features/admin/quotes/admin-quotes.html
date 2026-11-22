@@ -1,10 +1,8 @@
-<header class="max-w-3xl">
-  <p class="text-eyebrow uppercase text-text-muted">Gestión comercial</p>
-  <h1 class="mt-3 text-heading-1 text-text-primary">Cotizaciones</h1>
-  <p class="mt-3 text-body text-text-secondary">
-    Consulta solicitudes recibidas, sus productos y el historial de cambios de estado.
-  </p>
-</header>
+<app-admin-page-header
+  eyebrow="Gestión comercial"
+  title="Cotizaciones"
+  description="Consulta solicitudes recibidas, sus productos y el historial de cambios de estado."
+/>
 
 @if (facade.error(); as error) {
   <app-alert

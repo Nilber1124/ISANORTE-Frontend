@@ -1,13 +1,10 @@
-<header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-  <div class="max-w-3xl">
-    <p class="text-eyebrow uppercase text-text-muted">Catálogo ISADECOR</p>
-    <h1 class="mt-3 text-heading-1 text-text-primary">Productos</h1>
-    <p class="mt-3 text-body text-text-secondary">
-      Administra la información comercial, las relaciones y la publicación de los productos.
-    </p>
-  </div>
+<app-admin-page-header
+  eyebrow="Catálogo ISADECOR"
+  title="Productos"
+  description="Administra la información comercial, las relaciones y la publicación de los productos."
+>
   <app-button variant="primary" (click)="facade.openCreate()">Nuevo producto</app-button>
-</header>
+</app-admin-page-header>
 
 @if (facade.error() && !facade.formOpen()) {
   <app-alert

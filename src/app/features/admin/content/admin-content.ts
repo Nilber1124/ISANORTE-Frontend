@@ -10,10 +10,11 @@ import { Loading } from '../../../shared/components/loading/loading';
 import { AdminContentFacade } from './admin-content.facade';
 import { PageContentForm } from './components/page-content-form/page-content-form';
 import { PageSeoForm } from './components/page-seo-form/page-seo-form';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
   selector: 'app-admin-content',
-  imports: [Alert, Badge, Button, EmptyState, Loading, PageContentForm, PageSeoForm],
+  imports: [AdminPageHeader, Alert, Badge, Button, EmptyState, Loading, PageContentForm, PageSeoForm],
   templateUrl: './admin-content.html',
   styleUrl: './admin-content.css',
   providers: [AdminContentFacade],

@@ -40,6 +40,7 @@ import {
 } from '../shared/dynamic-child-manager/dynamic-child-manager';
 
 import { LandingSectionType } from '../../../data/models/landing-section/landing-section-type.enum';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 /** Campos de texto de una sección de la landing que se pueden tocar en la página. */
 export type SectionTextField = 'etiqueta' | 'titulo' | 'subtitulo' | 'contenido';
@@ -139,7 +140,7 @@ export const PREVIEW_BLOCKS: readonly PreviewBlock[] = [
 
 @Component({
   selector: 'app-admin-landing',
-  imports: [
+  imports: [AdminPageHeader, 
     Alert,
     Button,
     DynamicChildManager,

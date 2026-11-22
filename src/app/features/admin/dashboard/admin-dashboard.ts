@@ -6,10 +6,11 @@ import { Alert } from '../../../shared/components/alert/alert';
 import { Badge, BadgeVariant } from '../../../shared/components/badge/badge';
 import { AdminDashboardFacade } from './admin-dashboard.facade';
 import { QuoteStatus } from '../../../data/models/quote/quote-status.enum';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [Alert, Badge, RouterLink, DatePipe],
+  imports: [AdminPageHeader, Alert, Badge, RouterLink, DatePipe],
   providers: [AdminDashboardFacade],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',

@@ -10,10 +10,11 @@ import { Loading } from '../../../shared/components/loading/loading';
 import { Modal } from '../../../shared/components/modal/modal';
 import { AdminAnnouncementsFacade } from './admin-announcements.facade';
 import { AnnouncementForm } from './components/announcement-form/announcement-form';
+import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
   selector: 'app-admin-announcements',
-  imports: [Alert, Badge, Button, EmptyState, Loading, Modal, AnnouncementForm],
+  imports: [AdminPageHeader, Alert, Badge, Button, EmptyState, Loading, Modal, AnnouncementForm],
   providers: [AdminAnnouncementsFacade],
   templateUrl: './admin-announcements.html',
   styleUrl: './admin-announcements.css',
