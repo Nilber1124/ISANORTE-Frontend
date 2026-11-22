@@ -87,6 +87,8 @@
                 (saved)="serviceSaved()"
                 (closed)="closePanelEdit()"
               />
+            } @else if (edit.kind === 'proyfull') {
+              <app-project-full-editor [projectId]="edit.id" (saved)="serviceSaved()" (closed)="closePanelEdit()" />
             } @else if (edit.kind === 'proy') {
               <app-project-card-editor
                 [projectId]="edit.id"

@@ -1,23 +1,23 @@
-@if (simple(); as f) {
+@if (!isPhoto()) {
   <app-field-editor
     [heading]="heading()"
-    [label]="labels[f]"
+    [label]="labels[field()]"
     [value]="savedValue()"
-    [rows]="f === 'descripcion' ? 5 : 1"
-    [required]="requiredSimple()"
-    [helper]="f === 'fechaProyecto' ? 'Formato libre, p. ej. un año o un rango (2024–2025).' : undefined"
+    [rows]="field() === 'descripcion' ? 5 : 1"
+    [required]="required()"
+    [helper]="field() === 'fechaProyecto' ? 'Formato libre, p. ej. un año o un rango (2024–2025).' : undefined"
     [loading]="loading()"
     [busy]="saving()"
     [error]="error()"
-    (draftChanged)="onSingleDraft($event)"
-    (saved)="saveSingle($event)"
+    (draftChanged)="onDraft($event)"
+    (saved)="saveText($event)"
     (closed)="closed.emit()"
   />
 } @else {
   <section class="rounded-card border border-border bg-surface shadow-card" [attr.aria-label]="heading()">
     <header class="flex items-start justify-between gap-3 border-b border-border p-5">
       <div>
-        <p class="text-eyebrow uppercase text-text-muted">{{ isNew() ? 'Creando' : 'Editando' }}</p>
+        <p class="text-eyebrow uppercase text-text-muted">Editando</p>
         <h2 class="mt-1 text-heading-3 text-text-primary">{{ heading() }}</h2>
       </div>
       <app-button size="small" variant="ghost" (click)="closed.emit()">← Volver</app-button>
@@ -29,90 +29,14 @@
         @if (error(); as message) {
           <p class="rounded-control border border-error/40 bg-error/10 p-3 text-body-sm text-error" role="alert">{{ message }}</p>
         }
-        @for (key of keys(); track key) {
-          @switch (key) {
-            @case ('imagenUrl') {
-              <div class="space-y-2">
-                <p class="text-body-sm font-semibold text-text-primary">{{ labels.imagenUrl }} <span class="text-text-muted">(obligatoria)</span></p>
-                <app-image-uploader
-                  [ngModel]="values()['imagenUrl'] ?? ''"
-                  (ngModelChange)="setValue('imagenUrl', $event)"
-                  name="proyectoFoto"
-                  folder="isanorte/proyectos"
-                />
-              </div>
-            }
-            @case ('nombre') {
-              <app-input-field inputId="proy-nombre" [label]="labels.nombre" [required]="true" [disabled]="saving()" [value]="values()['nombre'] ?? ''" (valueChange)="setValue('nombre', $event)" />
-            }
-            @case ('descripcion') {
-              <app-textarea-field inputId="proy-descripcion" [label]="labels.descripcion" [rows]="5" [required]="true" [disabled]="saving()" [value]="values()['descripcion'] ?? ''" (valueChange)="setValue('descripcion', $event)" />
-            }
-            @case ('ubicacion') {
-              <app-input-field inputId="proy-ubicacion" [label]="labels.ubicacion" [disabled]="saving()" [value]="values()['ubicacion'] ?? ''" (valueChange)="setValue('ubicacion', $event)" />
-            }
-            @case ('fechaProyecto') {
-              <app-input-field inputId="proy-fecha" [label]="labels.fechaProyecto" placeholder="Ej: 2024–2025" helperText="Formato libre, p. ej. un año o un rango." [disabled]="saving()" [value]="values()['fechaProyecto'] ?? ''" (valueChange)="setValue('fechaProyecto', $event)" />
-            }
-            @case ('tipoObra') {
-              <div class="flex flex-col gap-1.5">
-                <label for="proy-tipo" class="text-body-sm font-semibold text-text-primary">{{ labels.tipoObra }}</label>
-                <select
-                  id="proy-tipo"
-                  class="min-h-11 rounded-control border border-border bg-background px-3 text-body"
-                  [disabled]="saving()"
-                  (change)="setValue('tipoObra', $any($event.target).value)"
-                >
-                  <option value="" [selected]="(values()['tipoObra'] ?? '') === ''">Sin especificar</option>
-                  @for (type of types; track type.value) {
-                    <option [value]="type.value" [selected]="values()['tipoObra'] === type.value">{{ type.label }}</option>
-                  }
-                </select>
-                <p class="text-caption text-text-muted">Con estos tipos se arman los filtros de la página.</p>
-              </div>
-            }
-            @case ('servicios') {
-              <fieldset class="space-y-2">
-                <legend class="text-body-sm font-semibold text-text-primary">{{ labels.servicios }}</legend>
-                @for (service of services(); track service.id) {
-                  <label class="flex min-h-9 items-center gap-2 text-body-sm text-text-primary">
-                    <input
-                      type="checkbox"
-                      class="size-4 accent-[var(--color-accent)]"
-                      [checked]="serviceIds().includes(service.id)"
-                      [disabled]="saving()"
-                      (change)="toggleService(service.id, $any($event.target).checked)"
-                    />
-                    {{ service.nombre }}
-                  </label>
-                }
-              </fieldset>
-            }
-          }
-        }
+        <app-image-uploader [ngModel]="photo()" (ngModelChange)="photo.set($event)" name="proyectoFoto" folder="isanorte/proyectos" />
         <div class="flex flex-wrap items-center gap-3">
-          <app-button variant="primary" [disabled]="!dirty() || invalid() || saving()" [loading]="saving()" (click)="save()">{{ isNew() ? 'Crear' : 'Guardar' }}</app-button>
-          @if (dirty()) {
-            <span class="text-caption text-text-muted" role="status">{{ isNew() ? 'Sin crear todavía' : 'Cambios sin guardar' }}</span>
+          <app-button variant="primary" [disabled]="!photoDirty() || saving()" [loading]="saving()" (click)="savePhoto()">Guardar</app-button>
+          @if (photoDirty()) {
+            <span class="text-caption text-text-muted" role="status">Cambios sin guardar</span>
           }
         </div>
       }
     </div>
-    @if (!isNew() && project() && field() === 'ambos') {
-      <div class="border-t border-border p-5">
-        @if (confirmRemove()) {
-          <p class="mb-2 text-body-sm text-text-secondary">¿Quitar este proyecto de la web? No se borra: queda desactivado en Proyectos.</p>
-          <div class="flex gap-2">
-            <app-button size="small" variant="primary" [disabled]="saving()" (click)="remove()">Sí, quitar</app-button>
-            <app-button size="small" variant="ghost" (click)="confirmRemove.set(false)">No</app-button>
-          </div>
-        } @else {
-          <div class="flex flex-wrap gap-2">
-            <app-button size="small" variant="secondary" [disabled]="saving()" (click)="openFullRecord()">Editar ficha completa</app-button>
-            <app-button size="small" variant="ghost" [disabled]="saving()" (click)="confirmRemove.set(true)">Quitar de la web</app-button>
-          </div>
-        }
-      </div>
-    }
   </section>
 }

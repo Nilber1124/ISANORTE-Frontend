@@ -57,6 +57,8 @@ export class ProjectForm implements OnInit {
   readonly loadingFormData = input(false);
   readonly submitting = input(false);
   readonly serverError = input<string | null>(null);
+  /** Orden inicial de un proyecto nuevo (por defecto, el final de la lista). */
+  readonly defaultOrder = input<number | null>(null);
 
   readonly canceled = output<void>();
   readonly saved = output<ProjectFormSubmission>();
@@ -107,7 +109,11 @@ export class ProjectForm implements OnInit {
 
   ngOnInit(): void {
     const project = this.project();
-    if (project === null) return;
+    if (project === null) {
+      const order = this.defaultOrder();
+      if (order !== null) this.orden.set(String(order));
+      return;
+    }
     this.nombre.set(project.nombre);
     this.slug.set(project.slug);
     this.cliente.set(project.cliente ?? '');

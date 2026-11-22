@@ -411,9 +411,9 @@ describe('AdminLanding', () => {
     component['selectField']({ block: 'proyectos', field: 'ubicacion', item: 'proy:p1' });
     expect(component.panelEdit()).toEqual({ kind: 'proy', id: 'p1', field: 'ubicacion' });
     component['selectField']({ block: 'proyectos', field: 'tarjeta', item: 'proy:p1' });
-    expect(component.panelEdit()).toEqual({ kind: 'proy', id: 'p1', field: 'ambos' });
+    expect(component.panelEdit()).toEqual({ kind: 'proyfull', id: 'p1' });
     component['startCreate']('proy');
-    expect(component.panelEdit()).toEqual({ kind: 'proy', id: 'new', field: 'ambos' });
+    expect(component.panelEdit()).toEqual({ kind: 'proyfull', id: 'new' });
   });
 
   it('en la página Servicios: el título abre el contenido SERVICIOS, las tarjetas abren su editor y se puede crear un servicio o una pregunta', () => {

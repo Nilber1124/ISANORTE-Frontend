@@ -16,6 +16,7 @@ import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { AdminLandingFacade } from './admin-landing.facade';
 import { FieldEditor } from './components/field-editor/field-editor';
+import { ProjectFullEditor } from './components/project-full-editor/project-full-editor';
 import { ProjectCardEditor, ProjectCardField } from './components/project-card-editor/project-card-editor';
 import { ServiceCardEditor, ServiceCardField } from './components/service-card-editor/service-card-editor';
 import { MapLocationEditor } from './components/map-location-editor/map-location-editor';
@@ -74,6 +75,7 @@ export type PanelEdit =
   | { readonly kind: 'projects' }
   | { readonly kind: 'map' }
   | { readonly kind: 'proy'; readonly id: string; readonly field: ProjectCardField }
+  | { readonly kind: 'proyfull'; readonly id: string }
   | { readonly kind: 'svc'; readonly id: string; readonly field: ServiceCardField }
   | { readonly kind: 'stat'; readonly orden: number; readonly field: StatisticField }
   | { readonly kind: 'blocktext'; readonly clave: BlockKey; readonly field: BlockTextField }
@@ -169,6 +171,7 @@ export interface LandingTabItem {
     StatisticEditor,
     MapLocationEditor,
     ProjectCardEditor,
+    ProjectFullEditor,
     ServiceCardEditor,
     ServiceFieldEditor,
     LandingPreview,
@@ -369,11 +372,13 @@ export class AdminLanding {
     // Una tarjeta de la página Proyectos: portada, textos, tipo de obra o servicios (o todo si se toca la tarjeta).
     if (selection.item?.startsWith('proy:')) {
       if (['nombre', 'descripcion', 'ubicacion', 'fechaProyecto', 'imagenUrl', 'tarjeta'].includes(selection.field)) {
-        this.panelEdit.set({
-          kind: 'proy',
-          id: selection.item.slice('proy:'.length),
-          field: (selection.field === 'tarjeta' ? 'ambos' : selection.field) as ProjectCardField,
-        });
+        const id = selection.item.slice('proy:'.length);
+        // Un campo suelto abre su editor; tocar la tarjeta abre el formulario completo del proyecto.
+        this.panelEdit.set(
+          selection.field === 'tarjeta'
+            ? { kind: 'proyfull', id }
+            : { kind: 'proy', id, field: selection.field as ProjectCardField },
+        );
       }
       return;
     }
@@ -500,7 +505,7 @@ export class AdminLanding {
   /** Abre el formulario para crear un elemento nuevo del bloque seleccionado. */
   protected startCreate(item: string, extras?: Readonly<Record<string, string>>): void {
     if (item === 'proy') {
-      this.panelEdit.set({ kind: 'proy', id: 'new', field: 'ambos' });
+      this.panelEdit.set({ kind: 'proyfull', id: 'new' });
       return;
     }
     if (item === 'svc') {
