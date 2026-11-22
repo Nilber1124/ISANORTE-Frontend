@@ -266,13 +266,62 @@ describe('AdminLanding', () => {
     expect(request).toMatchObject({ titulo: 'Nuevo\ntítulo', subtitulo: 'Sub', textoBoton: 'X', enlaceBoton: '/x', tipo: 'SERVICIOS' });
   });
 
-  it('al tocar una garantía abre su título, su texto o ambos', () => {
+  it('al tocar una garantía o un testimonio abre sus campos, por separado o juntos', () => {
     component['selectBlock']('garantias');
     component['selectField']({ block: 'garantias', field: 'texto', item: 'garantia:g1' });
-    expect(component.panelEdit()).toEqual({ kind: 'guarantee', id: 'g1', field: 'texto' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'garantia', id: 'g1', field: 'texto' });
     component['selectField']({ block: 'garantias', field: 'tarjeta', item: 'garantia:g1' });
-    expect(component.panelEdit()).toEqual({ kind: 'guarantee', id: 'g1', field: 'ambos' });
-    component['setGuaranteeDraft']('g1', { titulo: 'a', texto: 'b' });
-    expect(component.previewDraft()).toEqual({ block: 'garantias', item: 'garantia:g1', values: { titulo: 'a', texto: 'b' } });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'garantia', id: 'g1', field: 'ambos' });
+
+    component['selectField']({ block: 'testimonios', field: 'autor', item: 'testimonio:t1' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'testimonio', id: 't1', field: 'autor' });
+    component['setContentDraft']('testimonio', 't1', { texto: 'x', autor: 'y', cargo: 'z' });
+    expect(component.previewDraft()).toEqual({
+      block: 'garantias', item: 'testimonio:t1', values: { texto: 'x', autor: 'y', cargo: 'z' },
+    });
+    component['selectField']({ block: 'preguntas', field: 'tarjeta', item: 'faq:f1' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'faq', id: 'f1', field: 'ambos' });
+    component['selectField']({ block: 'proceso', field: 'tarjeta', item: 'paso:p1' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'paso', id: 'p1', field: 'ambos' });
+    // Un campo que ese elemento no tiene no abre nada.
+    component['selectBlock']('testimonios');
+    component['selectField']({ block: 'testimonios', field: 'titulo', item: 'testimonio:t1' });
+    expect(component.panelEdit()).toBeNull();
+  });
+
+  it('al tocar la descripción o los puntos de ISADECOR abre la unidad de negocio', () => {
+    component['selectBlock']('isadecor');
+    component['selectField']({ block: 'isadecor', field: 'ofertas', item: 'unidad:isadecor' });
+    expect(component.panelEdit()).toEqual({ kind: 'unit', slug: 'isadecor', field: 'ofertas' });
+    component['selectField']({ block: 'isadecor', field: 'tarjeta', item: 'unidad:isadecor' });
+    expect(component.panelEdit()).toEqual({ kind: 'unit', slug: 'isadecor', field: 'ambos' });
+    component['setUnitDraft']('isadecor', { descripcion: 'x' });
+    expect(component.previewDraft()).toEqual({ block: 'isadecor', item: 'unidad:isadecor', values: { descripcion: 'x' } });
+  });
+
+  it('al tocar la cabecera de un bloque abre solo ese texto; los campos que el bloque no tiene no abren nada', () => {
+    component['selectBlock']('garantias');
+    component['selectField']({ block: 'garantias', field: 'titulo' });
+    expect(component.panelEdit()).toEqual({ kind: 'blocktext', clave: 'garantias', field: 'titulo' });
+    component['setBlockTextDraft']('garantias', { titulo: 'Nuevo' });
+    expect(component.previewDraft()).toEqual({ block: 'garantias', values: { titulo: 'Nuevo' } });
+
+    component['selectBlock']('proceso');
+    component['selectField']({ block: 'proceso', field: 'subtitulo' });
+    expect(component.panelEdit()).toBeNull();
+    component['selectField']({ block: 'proceso', field: 'titulo' });
+    expect(component.panelEdit()).toEqual({ kind: 'blocktext', clave: 'proceso', field: 'titulo' });
+  });
+
+  it('al tocar una tarjeta de proyecto abre el orden de proyectos; el título abre el campo de la sección', () => {
+    facadeMock.siteConfigurations.set([mockSiteConfig]);
+    facadeMock.sections.set([{ ...mockSection, tipo: 'PROYECTOS', titulo: 'Obras' } as never]);
+    component['selectBlock']('proyectos');
+    component['selectField']({ block: 'proyectos', field: 'tarjeta', item: 'proyectos:casa-campestre' });
+    expect(component.panelEdit()).toEqual({ kind: 'projects' });
+
+    component['selectBlock']('proyectos');
+    component['selectField']({ block: 'proyectos', field: 'titulo' });
+    expect(component.panelEdit()).toEqual({ kind: 'section', field: 'titulo' });
   });
 });

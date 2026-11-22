@@ -280,7 +280,7 @@
     <section id="proyectos" class="section-space bg-background" data-home-projects>
       <div class="app-container">
         <div class="mb-10 flex flex-col justify-between gap-6 md:mb-14 md:flex-row md:items-end">
-          <h2 class="max-w-3xl whitespace-pre-line text-heading-1 text-text-primary" data-rise>
+          <h2 data-edit-field="titulo" class="max-w-3xl whitespace-pre-line text-heading-1 text-text-primary" data-rise>
             {{ facade.projectsHeader().title }}
           </h2>
           @if (projectsAction(); as action) {
@@ -292,7 +292,13 @@
           class="grid list-none grid-cols-1 gap-4 p-0 md:auto-rows-[14rem] md:grid-cols-4 lg:auto-rows-[17rem]"
         >
           @for (tile of projectTiles(); track tile.id) {
-            <li class="min-h-[18rem] md:min-h-0" [class]="tile.gridClass" data-rise>
+            <li
+              class="min-h-[18rem] md:min-h-0"
+              [class]="tile.gridClass"
+              data-rise
+              [attr.data-edit-item]="'proyectos:' + tile.slug"
+              data-edit-fallback="tarjeta"
+            >
               <a
                 [href]="'/proyectos/' + tile.slug"
                 class="group relative block size-full overflow-hidden rounded-card border border-border bg-background-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -388,10 +394,11 @@
         >
           <h2
             id="proceso-title"
-            class="max-w-3xl text-heading-2 text-text-primary lg:text-heading-1"
+            data-edit-field="titulo"
+            class="max-w-3xl whitespace-pre-line text-heading-2 text-text-primary lg:text-heading-1"
             data-rise
           >
-            Del terreno a la llave en mano, con un solo equipo
+            {{ trust.blockText('proceso', 'titulo') }}
           </h2>
           <div
             class="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-10"
@@ -657,6 +664,8 @@
               @for (step of steps(); track step.id; let i = $index) {
                 <li
                   data-step-item
+                  [attr.data-edit-item]="'paso:' + step.id"
+                  data-edit-fallback="tarjeta"
                   class="process-step rounded-card border border-transparent px-3 py-2.5 transition-[background-color,border-color,box-shadow] duration-normal lg:px-5 lg:py-4"
                 >
                   <div class="flex items-start gap-3 lg:gap-4">
@@ -667,12 +676,14 @@
                     >
                     <div class="min-w-0">
                       <h3
+                        data-edit-field="titulo"
                         class="process-step__title text-heading-4 text-text-primary transition-colors duration-normal lg:text-heading-3"
                       >
                         {{ step.titulo }}
                       </h3>
                       <div class="process-step__text grid">
                         <p
+                          data-edit-field="texto"
                           class="min-h-0 overflow-hidden pt-1.5 text-body-sm text-text-secondary lg:text-body"
                         >
                           {{ step.texto }}
@@ -694,12 +705,12 @@
     <section id="garantias" class="section-space bg-background" data-home-guarantees>
       <div class="app-container grid gap-10 lg:grid-cols-12 lg:gap-14">
         <div class="lg:col-span-4" data-rise>
-          <p class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
-            Nuestro compromiso
+          <p data-edit-field="etiqueta" class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
+            {{ trust.blockText('garantias', 'etiqueta') }}
           </p>
-          <h2 class="mb-5 text-heading-1 text-text-primary">Por qué elegir a ISANORTE</h2>
-          <p class="max-w-md text-body-lg text-text-secondary">
-            Compromisos concretos, por escrito, para que construir sea tranquilo.
+          <h2 data-edit-field="titulo" class="mb-5 whitespace-pre-line text-heading-1 text-text-primary">{{ trust.blockText('garantias', 'titulo') }}</h2>
+          <p data-edit-field="subtitulo" class="max-w-md text-body-lg text-text-secondary">
+            {{ trust.blockText('garantias', 'subtitulo') }}
           </p>
         </div>
 
@@ -745,16 +756,18 @@
     <section id="testimonios" class="section-space bg-background-soft" data-home-testimonials>
       <div class="app-container">
         <div class="mb-10 max-w-3xl md:mb-14" data-rise>
-          <p class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
-            Testimonios
+          <p data-edit-field="etiqueta" class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
+            {{ trust.blockText('testimonios', 'etiqueta') }}
           </p>
-          <h2 class="text-heading-1 text-text-primary">Lo que dicen nuestros clientes</h2>
+          <h2 data-edit-field="titulo" class="whitespace-pre-line text-heading-1 text-text-primary">{{ trust.blockText('testimonios', 'titulo') }}</h2>
         </div>
         <ul class="grid list-none gap-5 p-0 md:grid-cols-2 lg:grid-cols-3">
           @for (item of trust.testimonials(); track item.autor + item.texto) {
             <li
               class="relative flex flex-col overflow-hidden rounded-card border border-border bg-surface p-7 lg:p-8"
               data-rise
+              [attr.data-edit-item]="'testimonio:' + item.id"
+              data-edit-fallback="tarjeta"
             >
               <svg
                 class="pointer-events-none absolute -right-2 -top-2 size-24 text-accent/10"
@@ -779,7 +792,7 @@
                   </svg>
                 }
               </div>
-              <blockquote class="relative mb-8 flex-1 text-body-lg text-text-primary">
+              <blockquote data-edit-field="texto" class="relative mb-8 flex-1 text-body-lg text-text-primary">
                 {{ item.texto }}
               </blockquote>
               <figcaption class="flex items-center gap-3 border-t border-border pt-5">
@@ -801,11 +814,11 @@
                   >
                 }
                 <span class="min-w-0">
-                  <span class="block text-body-sm font-semibold text-text-primary">{{
+                  <span data-edit-field="autor" class="block text-body-sm font-semibold text-text-primary">{{
                     item.autor
                   }}</span>
                   @if (item.cargo) {
-                    <span class="block text-caption text-text-secondary">{{ item.cargo }}</span>
+                    <span data-edit-field="cargo" class="block text-caption text-text-secondary">{{ item.cargo }}</span>
                   }
                 </span>
               </figcaption>
@@ -839,13 +852,14 @@
       <div class="app-container relative z-10 grid items-center gap-12 lg:grid-cols-12">
         <div class="lg:col-span-5">
           <app-badge variant="accent" class="mb-6">Una línea de ISANORTE</app-badge>
-          <h2 class="mb-5 whitespace-pre-line text-heading-1 text-text-primary" data-rise>
+          <h2 data-edit-field="titulo" class="mb-5 whitespace-pre-line text-heading-1 text-text-primary" data-rise>
             {{ businessUnit.header.title }}
           </h2>
+          <div [attr.data-edit-item]="'unidad:' + businessUnit.unit.slug" data-edit-fallback="tarjeta">
           @if (businessUnit.unit.descripcion) {
-            <p class="mb-8 text-body-lg text-text-secondary">{{ businessUnit.unit.descripcion }}</p>
+            <p data-edit-field="descripcion" class="mb-8 text-body-lg text-text-secondary">{{ businessUnit.unit.descripcion }}</p>
           }
-          <ul class="mb-10 grid list-none gap-x-6 gap-y-3 p-0 sm:grid-cols-2">
+          <ul data-edit-field="ofertas" class="mb-10 grid list-none gap-x-6 gap-y-3 p-0 sm:grid-cols-2">
             @for (item of isadecorOffer(); track item) {
               <li class="flex items-center gap-2.5 text-body-sm text-text-primary">
                 <svg
@@ -862,6 +876,7 @@
               </li>
             }
           </ul>
+          </div>
           <div class="flex flex-wrap gap-3">
             @if (businessUnit.actions[0]; as primaryAction) {
               <app-button
@@ -951,12 +966,12 @@
     <section id="preguntas" class="section-space bg-background" data-home-faq>
       <div class="app-container grid gap-10 lg:grid-cols-12 lg:gap-14">
         <div class="lg:sticky lg:top-28 lg:col-span-4 lg:self-start" data-rise>
-          <p class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
-            Dudas comunes
+          <p data-edit-field="etiqueta" class="mb-4 text-caption font-semibold uppercase tracking-wider text-accent">
+            {{ trust.blockText('preguntas', 'etiqueta') }}
           </p>
-          <h2 class="mb-5 text-heading-1 text-text-primary">Preguntas frecuentes</h2>
-          <p class="mb-8 max-w-sm text-body-lg text-text-secondary">
-            Respondemos lo que más nos preguntan antes de empezar una obra.
+          <h2 data-edit-field="titulo" class="mb-5 whitespace-pre-line text-heading-1 text-text-primary">{{ trust.blockText('preguntas', 'titulo') }}</h2>
+          <p data-edit-field="subtitulo" class="mb-8 max-w-sm text-body-lg text-text-secondary">
+            {{ trust.blockText('preguntas', 'subtitulo') }}
           </p>
           <div class="max-w-sm rounded-card border border-border bg-surface p-5">
             <p class="mb-1 text-body font-semibold text-text-primary">
@@ -986,11 +1001,13 @@
               appSmoothDetails
               class="group rounded-card border border-border bg-surface p-5"
               data-rise
+              [attr.data-edit-item]="'faq:' + faq.id"
+              data-edit-fallback="tarjeta"
             >
               <summary
                 class="flex cursor-pointer list-none items-center justify-between gap-4 text-heading-4 text-text-primary [&::-webkit-details-marker]:hidden"
               >
-                {{ faq.pregunta }}
+                <span data-edit-field="pregunta">{{ faq.pregunta }}</span>
                 <svg
                   aria-hidden="true"
                   class="size-5 shrink-0 text-accent transition-transform duration-normal ease-[var(--ease-standard)] group-open:rotate-180"
@@ -1004,7 +1021,7 @@
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </summary>
-              <p class="mt-3 text-body text-text-secondary">{{ faq.respuesta }}</p>
+              <p data-edit-field="respuesta" class="mt-3 text-body text-text-secondary">{{ faq.respuesta }}</p>
             </details>
           }
         </div>

@@ -77,11 +77,30 @@
                 (saved)="saveSectionField(edit.field, $event)"
                 (closed)="closePanelEdit()"
               />
-            } @else if (edit.kind === 'guarantee') {
-              <app-guarantee-field-editor
-                [guaranteeId]="edit.id"
+            } @else if (edit.kind === 'projects') {
+              <app-projects-order-editor (saved)="serviceSaved()" (closed)="closePanelEdit()" />
+            } @else if (edit.kind === 'blocktext') {
+              <app-block-text-editor
+                [blockKey]="edit.clave"
                 [field]="edit.field"
-                (draftChanged)="setGuaranteeDraft(edit.id, $event)"
+                (draftChanged)="setBlockTextDraft(edit.clave, $event)"
+                (saved)="serviceSaved()"
+                (closed)="closePanelEdit()"
+              />
+            } @else if (edit.kind === 'unit') {
+              <app-unit-field-editor
+                [unitSlug]="edit.slug"
+                [field]="edit.field"
+                (draftChanged)="setUnitDraft(edit.slug, $event)"
+                (saved)="serviceSaved()"
+                (closed)="closePanelEdit()"
+              />
+            } @else if (edit.kind === 'content') {
+              <app-content-item-editor
+                [kind]="edit.item"
+                [itemId]="edit.id"
+                [field]="edit.field"
+                (draftChanged)="setContentDraft(edit.item, edit.id, $event)"
                 (saved)="serviceSaved()"
                 (closed)="closePanelEdit()"
               />

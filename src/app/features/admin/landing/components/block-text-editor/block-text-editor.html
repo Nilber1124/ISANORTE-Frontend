@@ -1,0 +1,13 @@
+<app-field-editor
+  [heading]="'Cabecera · ' + label()"
+  [label]="label()"
+  [value]="savedValue()"
+  [rows]="rows()"
+  [required]="field() === 'titulo'"
+  [loading]="loading()"
+  [busy]="saving()"
+  [error]="error()"
+  (draftChanged)="onDraft($event)"
+  (saved)="save($event)"
+  (closed)="closed.emit()"
+/>

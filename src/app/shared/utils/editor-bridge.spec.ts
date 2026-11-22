@@ -139,4 +139,12 @@ describe('editor bridge', () => {
     send(null, null);
     expect(document.querySelector('h2')!.textContent).toBe('Título');
   });
+
+  it('keeps the texts inside links clickable one by one (no pointer-events:none on links)', () => {
+    document.body.innerHTML = '<section id="s"></section>';
+    const { win } = fakeWindow('?editor=1', true);
+    initEditorBridge(document, win);
+    const css = Array.from(document.head.querySelectorAll('style')).map((st) => st.textContent).join('');
+    expect(css).not.toContain('pointer-events:none');
+  });
 });

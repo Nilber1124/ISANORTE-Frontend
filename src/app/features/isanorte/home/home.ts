@@ -49,7 +49,7 @@ export interface PreFooterData {
 
 interface BusinessUnitDisplay {
   header: { eyebrow: string; title: string };
-  unit: { nombre: string; descripcion: string };
+  unit: { nombre: string; descripcion: string; slug: string };
   background: PublicBusinessUnitResource | null;
   editorials: readonly PublicBusinessUnitResource[];
   actions: readonly HomeBusinessUnitActionView[];
@@ -99,7 +99,7 @@ export class Home {
 
   /** Pasos del proceso, garantías y ofertas de ISADECOR vienen de la base de datos. */
   readonly steps = computed(() =>
-    this.trust.steps().map((step, index) => ({ id: `paso-${index}`, ...step })),
+    this.trust.steps().map((step) => ({ ...step })),
   );
   readonly trustPoints = computed(() => this.trust.heroGuarantees().map((item) => item.titulo));
   readonly isadecorOffer = computed(() => this.facade.featuredBusinessUnit()?.ofertas ?? []);
@@ -170,7 +170,7 @@ export class Home {
 
       return {
         header,
-        unit: { nombre: unit.nombre, descripcion: unit.descripcion ?? '' },
+        unit: { nombre: unit.nombre, descripcion: unit.descripcion ?? '', slug: unit.slug },
         background: this.facade.businessUnitBackgroundResource(),
         editorials: this.facade.businessUnitEditorialResources(),
         actions: this.normalizedUnitActions(this.facade.businessUnitActions()),

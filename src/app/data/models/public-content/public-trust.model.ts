@@ -1,5 +1,6 @@
 /** Contenido público que construye confianza: GET /api/publico/sitios/{clave}/confianza. */
 export interface PublicFaq {
+  id: string;
   pregunta: string;
   respuesta: string;
   ambito: 'HOME' | 'SERVICIOS' | 'CONTACTO' | 'GENERAL';
@@ -25,6 +26,7 @@ export interface PublicCredential {
 }
 
 export interface PublicTestimonial {
+  id: string;
   autor: string;
   cargo: string | null;
   texto: string;
@@ -41,6 +43,7 @@ export interface PublicGuarantee {
 }
 
 export interface PublicProcessStep {
+  id: string;
   titulo: string;
   texto: string;
 }
@@ -58,6 +61,13 @@ export interface PublicPolicy {
   contenido: string;
 }
 
+export interface PublicBlockText {
+  clave: string;
+  etiqueta: string | null;
+  titulo: string | null;
+  subtitulo: string | null;
+}
+
 export interface PublicTrustResponse {
   faqs: PublicFaq[];
   equipo: PublicTeamMember[];
@@ -67,4 +77,5 @@ export interface PublicTrustResponse {
   pasos: PublicProcessStep[];
   galeria: PublicProjectGalleryImage[];
   politicas: PublicPolicy[];
+  textos?: PublicBlockText[];
 }

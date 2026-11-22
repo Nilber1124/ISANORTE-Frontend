@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 
 import { PUBLIC_SITE_KEY } from '../../core/config/public-site.config';
+import { BLOCK_TEXT_DEFAULTS, BlockKey, BlockTextField } from '../../shared/content/block-texts';
 import { PublicTrustResponse } from '../models/public-content/public-trust.model';
 import { PublicContentApiService } from './public-content-api.service';
 
@@ -30,6 +31,12 @@ export class PublicTrustStore {
   readonly steps = computed(() => this._data()?.pasos ?? []);
   readonly policies = computed(() => this._data()?.politicas ?? []);
   readonly gallery = computed(() => this._data()?.galeria ?? []);
+
+  /** Texto de cabecera de un bloque de la Home: el guardado en el admin o, si no hay, el de por defecto. */
+  blockText(key: BlockKey, field: BlockTextField): string {
+    const saved = this._data()?.textos?.find((item) => item.clave === key)?.[field];
+    return saved ?? BLOCK_TEXT_DEFAULTS[key][field] ?? '';
+  }
 
   faqsFor(scope: 'HOME' | 'SERVICIOS' | 'CONTACTO') {
     return this.faqs().filter((item) => item.ambito === scope || item.ambito === 'GENERAL');

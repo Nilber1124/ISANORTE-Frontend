@@ -22,7 +22,8 @@ body.editor-mode [data-edit-field]{cursor:text}
 body.editor-mode [data-edit-field]:hover{outline:2px solid #f97316;outline-offset:3px}
 body.editor-mode section[id]:hover{outline:2px dashed #f97316;outline-offset:-2px}
 body.editor-mode section[id].editor-selected{outline:3px solid #f97316;outline-offset:-3px}
-body.editor-mode a,body.editor-mode button{pointer-events:none}
+/* Los enlaces no navegan (el clic se cancela); sus textos siguen siendo tocables uno a uno. */
+body.editor-mode a,body.editor-mode button{cursor:pointer}
 `;
 
 export function isEditorFrame(win: Window): boolean {

@@ -1,15 +1,15 @@
-@if (single()) {
+@if (field() !== 'ambos') {
   <app-field-editor
     [heading]="heading()"
-    [label]="meta().label"
-    [value]="currentValue()"
-    [rows]="meta().rows"
-    [required]="meta().required"
+    [label]="field() === 'ofertas' ? 'Puntos de oferta' : 'Descripción'"
+    [value]="savedValue()"
+    [rows]="field() === 'ofertas' ? 5 : 4"
+    [helper]="field() === 'ofertas' ? 'Un punto por línea. Se ven en la página al guardar.' : undefined"
     [loading]="loading()"
     [busy]="saving()"
     [error]="error()"
     (draftChanged)="onSingleDraft($event)"
-    (saved)="save($event)"
+    (saved)="saveSingle($event)"
     (closed)="closed.emit()"
   />
 } @else {
@@ -28,12 +28,12 @@
         @if (error(); as message) {
           <p class="rounded-control border border-error/40 bg-error/10 p-3 text-body-sm text-error" role="alert">{{ message }}</p>
         }
-        <app-input-field inputId="guarantee-titulo" label="Título" [(value)]="tituloText" [required]="true" [disabled]="saving()" />
-        <app-textarea-field inputId="guarantee-texto" label="Texto" [(value)]="textoText" [rows]="3" [required]="true" [disabled]="saving()" />
+        <app-textarea-field inputId="unit-descripcion" label="Descripción" [(value)]="descripcionText" [rows]="4" [disabled]="saving()" />
+        <app-textarea-field inputId="unit-ofertas" label="Puntos de oferta" [(value)]="ofertasText" [rows]="5" helperText="Un punto por línea. Se ven en la página al guardar." [disabled]="saving()" />
         <div class="flex items-center gap-3">
-          <app-button variant="primary" [disabled]="!bothDirty() || bothInvalid() || saving()" [loading]="saving()" (click)="saveBoth()">Guardar</app-button>
-          @if (bothDirty()) {
-            <span class="text-caption text-text-muted" role="status">Cambios sin guardar · ya se ven en la vista previa</span>
+          <app-button variant="primary" [disabled]="!dirtyBoth() || saving()" [loading]="saving()" (click)="saveBoth()">Guardar</app-button>
+          @if (dirtyBoth()) {
+            <span class="text-caption text-text-muted" role="status">Cambios sin guardar</span>
           }
         </div>
       }

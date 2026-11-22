@@ -1,0 +1,62 @@
+<section class="rounded-card border border-border bg-surface shadow-card" aria-label="Proyectos de la Home">
+  <header class="flex items-start justify-between gap-3 border-b border-border p-5">
+    <div>
+      <p class="text-eyebrow uppercase text-text-muted">Editando</p>
+      <h2 class="mt-1 text-heading-3 text-text-primary">Proyectos en la Home</h2>
+    </div>
+    <app-button size="small" variant="ghost" (click)="closed.emit()">← Volver</app-button>
+  </header>
+
+  <div class="space-y-5 p-5">
+    <p class="text-body-sm text-text-secondary">
+      Se muestran los {{ limit }} primeros, en este orden. Los textos y fotos de cada proyecto se editan en
+      <a class="font-semibold text-accent hover:underline" href="/admin/proyectos">Proyectos</a>.
+    </p>
+
+    @if (loading()) {
+      <p class="text-body-sm text-text-muted" role="status">Cargando…</p>
+    } @else {
+      @if (error(); as message) {
+        <p class="rounded-control border border-error/40 bg-error/10 p-3 text-body-sm text-error" role="alert">{{ message }}</p>
+      }
+
+      <div>
+        <h3 class="mb-2 text-body-sm font-semibold uppercase tracking-wider text-text-primary">Se muestran</h3>
+        <ul class="m-0 flex list-none flex-col gap-2 p-0">
+          @for (project of shown(); track project.id; let i = $index; let first = $first; let last = $last) {
+            <li class="rounded-control border border-border p-3" [class.opacity-60]="i >= limit">
+              <div class="flex items-center gap-2">
+                <span class="grid size-6 shrink-0 place-items-center rounded-full bg-surface-hover text-caption font-bold text-text-secondary">{{ i + 1 }}</span>
+                <p class="min-w-0 flex-1 truncate text-body-sm font-semibold text-text-primary">{{ project.nombre }}</p>
+              </div>
+              @if (i >= limit) {
+                <p class="mt-1 text-caption text-text-muted">Aún no sale en la Home: solo se muestran los {{ limit }} primeros.</p>
+              }
+              <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                <app-button size="small" variant="ghost" [disabled]="first || saving()" [ariaLabel]="'Subir ' + project.nombre" (click)="move(i, -1)">↑</app-button>
+                <app-button size="small" variant="ghost" [disabled]="last || saving()" [ariaLabel]="'Bajar ' + project.nombre" (click)="move(i, 1)">↓</app-button>
+                <app-button size="small" variant="secondary" [disabled]="saving()" (click)="toggle(project)">Quitar de la Home</app-button>
+              </div>
+            </li>
+          } @empty {
+            <li class="text-body-sm text-text-muted">Ningún proyecto se muestra en la Home.</li>
+          }
+        </ul>
+      </div>
+
+      @if (hidden().length > 0) {
+        <div>
+          <h3 class="mb-2 text-body-sm font-semibold uppercase tracking-wider text-text-primary">No se muestran</h3>
+          <ul class="m-0 flex list-none flex-col gap-2 p-0">
+            @for (project of hidden(); track project.id) {
+              <li class="flex items-center justify-between gap-2 rounded-control border border-border p-3">
+                <p class="min-w-0 flex-1 truncate text-body-sm text-text-secondary">{{ project.nombre }}</p>
+                <app-button size="small" variant="secondary" [disabled]="saving()" (click)="toggle(project)">Mostrar en la Home</app-button>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    }
+  </div>
+</section>

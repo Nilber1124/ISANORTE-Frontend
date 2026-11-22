@@ -16,7 +16,11 @@ import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { AdminLandingFacade } from './admin-landing.facade';
 import { FieldEditor } from './components/field-editor/field-editor';
-import { GuaranteeField, GuaranteeFieldEditor } from './components/guarantee-field-editor/guarantee-field-editor';
+import { ProjectsOrderEditor } from './components/projects-order-editor/projects-order-editor';
+import { BlockTextEditor } from './components/block-text-editor/block-text-editor';
+import { BLOCK_TEXT_DEFAULTS, BlockKey, BlockTextField, isBlockKey } from '../../../shared/content/block-texts';
+import { UnitField, UnitFieldEditor } from './components/unit-field-editor/unit-field-editor';
+import { CONTENT_ITEMS, ContentItemEditor } from './components/content-item-editor/content-item-editor';
 import { ServiceField, ServiceFieldEditor } from './components/service-field-editor/service-field-editor';
 import { HeroDraft, HeroEditor, HeroChildSave, HeroFocusRequest, HeroSwap, HeroTextsSave } from './components/hero-editor/hero-editor';
 import {
@@ -62,7 +66,10 @@ export const SECTION_TEXT_FIELDS: Readonly<
 export type PanelEdit =
   | { readonly kind: 'section'; readonly field: SectionTextField }
   | { readonly kind: 'service'; readonly slug: string; readonly field: ServiceField }
-  | { readonly kind: 'guarantee'; readonly id: string; readonly field: GuaranteeField };
+  | { readonly kind: 'projects' }
+  | { readonly kind: 'blocktext'; readonly clave: BlockKey; readonly field: BlockTextField }
+  | { readonly kind: 'unit'; readonly slug: string; readonly field: UnitField }
+  | { readonly kind: 'content'; readonly item: string; readonly id: string; readonly field: string };
 
 /** Bloque de la web pública (ancla `id` de su `<section>`) y dónde se edita. */
 export interface PreviewBlock {
@@ -102,7 +109,10 @@ export interface LandingTabItem {
     EmptyState,
     FieldEditor,
     HeroEditor,
-    GuaranteeFieldEditor,
+    ContentItemEditor,
+    UnitFieldEditor,
+    BlockTextEditor,
+    ProjectsOrderEditor,
     ServiceFieldEditor,
     LandingPreview,
     LandingSectionForm,
@@ -236,15 +246,43 @@ export class AdminLanding {
       }
       return;
     }
-    // Una garantía («Por qué elegir a ISANORTE»): título y/o texto de esa garantía.
-    if (selection.item?.startsWith('garantia:')) {
-      if (['titulo', 'texto', 'tarjeta'].includes(selection.field)) {
+    // Una tarjeta de proyecto: solo se cambia qué proyectos salen y en qué orden.
+    if (selection.item?.startsWith('proyectos:')) {
+      this.panelEdit.set({ kind: 'projects' });
+      return;
+    }
+    // La unidad de negocio del bloque ISADECOR: descripción y/o puntos de oferta.
+    if (selection.item?.startsWith('unidad:')) {
+      if (['descripcion', 'ofertas', 'tarjeta'].includes(selection.field)) {
         this.panelEdit.set({
-          kind: 'guarantee',
-          id: selection.item.slice('garantia:'.length),
-          field: (selection.field === 'tarjeta' ? 'ambos' : selection.field) as GuaranteeField,
+          kind: 'unit',
+          slug: selection.item.slice('unidad:'.length),
+          field: (selection.field === 'tarjeta' ? 'ambos' : selection.field) as UnitField,
         });
       }
+      return;
+    }
+    // Un elemento del contenido del sitio (garantía, testimonio…): sus textos, juntos o por separado.
+    const [prefix, ...rest] = (selection.item ?? '').split(':');
+    const content = CONTENT_ITEMS[prefix];
+    if (content && rest.length > 0) {
+      if (selection.field === 'tarjeta' || content.fields.some((f) => f.key === selection.field)) {
+        this.panelEdit.set({
+          kind: 'content',
+          item: prefix,
+          id: rest.join(':'),
+          field: selection.field === 'tarjeta' ? 'ambos' : selection.field,
+        });
+      }
+      return;
+    }
+    // Cabecera (frase, título, subtítulo) de un bloque con texto editable, sin elemento repetido.
+    if (!selection.item && isBlockKey(selection.block) && selection.field in BLOCK_TEXT_DEFAULTS[selection.block]) {
+      this.panelEdit.set({
+        kind: 'blocktext',
+        clave: selection.block,
+        field: selection.field as BlockTextField,
+      });
       return;
     }
     // Texto de una sección que no es el Hero: un solo campo.
@@ -309,9 +347,18 @@ export class AdminLanding {
     );
   }
 
-  protected setGuaranteeDraft(id: string, values: Readonly<Record<string, string>> | null): void {
+  protected setBlockTextDraft(clave: BlockKey, values: Readonly<Record<string, string>> | null): void {
+    this.previewDraft.set(values ? { block: clave, values } : null);
+  }
+
+  protected setUnitDraft(slug: string, values: Readonly<Record<string, string>> | null): void {
     const block = this.selectedBlockId();
-    this.previewDraft.set(block && values ? { block, item: `garantia:${id}`, values } : null);
+    this.previewDraft.set(block && values ? { block, item: `unidad:${slug}`, values } : null);
+  }
+
+  protected setContentDraft(item: string, id: string, values: Readonly<Record<string, string>> | null): void {
+    const block = this.selectedBlockId();
+    this.previewDraft.set(block && values ? { block, item: `${item}:${id}`, values } : null);
   }
 
   protected setServiceDraft(slug: string, values: Readonly<Record<string, string>> | null): void {
