@@ -13,7 +13,6 @@ import {
   ClienteRegistroRequest,
 } from '../models/cliente/cliente.model';
 import { PublicOrderResponse } from '../models/public-content/public-order.model';
-import { PublicQuoteResponse } from '../models/public-content/public-quote.model';
 import { trimTrailingSlashes } from '../../shared/utils/text';
 
 @Injectable({ providedIn: 'root' })
@@ -27,12 +26,6 @@ export class ClienteApiService {
 
   login(request: ClienteLoginRequest): Observable<ClienteAuthResponse> {
     return this.http.post<ClienteAuthResponse>(`${this.resourceUrl}/login`, request);
-  }
-
-  misCotizaciones(): Observable<PublicQuoteResponse[]> {
-    return this.http.get<PublicQuoteResponse[]>(`${this.resourceUrl}/cotizaciones`, {
-      context: conSesionCliente(),
-    });
   }
 
   obtenerCarrito(): Observable<CarritoClienteResponse> {

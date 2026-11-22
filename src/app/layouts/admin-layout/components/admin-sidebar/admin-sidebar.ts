@@ -12,7 +12,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 
-import { PendingQuotesBadgeService } from '../../../../core/services/pending-quotes-badge.service';
 import {
   ADMIN_NAVIGATION,
   AdminNavigationGroup,
@@ -31,7 +30,6 @@ export type { AdminNavigationGroup, AdminNavigationItem };
 export class AdminSidebar {
   readonly open = input(false);
   readonly navigationSelected = output<void>();
-  readonly quoteBadge = inject(PendingQuotesBadgeService);
   private readonly router = inject(Router);
 
   readonly navigationGroups = ADMIN_NAVIGATION;

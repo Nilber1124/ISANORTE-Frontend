@@ -32,9 +32,8 @@ const product: PublicProductDetailResponse = {
 
 class QuoteFacadeStub {
   readonly mergingProduct = signal(false);
-  readonly submitting = signal(false);
+  readonly sent = signal(false);
   readonly error = signal<string | null>(null);
-  readonly quoteResult = signal(null);
   readonly mergeCalls: Array<{ slug: string; quantity: number }> = [];
   readonly submitCalls: QuoteCustomerDetails[] = [];
   mergeProductIntoCart(slug: string, quantity: number): void {
@@ -42,7 +41,6 @@ class QuoteFacadeStub {
   }
   submit(customer: QuoteCustomerDetails): void {
     this.submitCalls.push(customer);
-    this.submitting.set(true);
   }
 }
 

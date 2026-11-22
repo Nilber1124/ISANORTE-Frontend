@@ -6,7 +6,6 @@ import { finalize } from 'rxjs';
 
 import { AddressRequest, AddressResponse } from '../../../../data/models/address/address.model';
 import { PublicOrderResponse } from '../../../../data/models/public-content/public-order.model';
-import { PublicQuoteResponse } from '../../../../data/models/public-content/public-quote.model';
 import { ClienteApiService } from '../../../../data/services/cliente-api.service';
 
 @Injectable()
@@ -15,9 +14,6 @@ export class MiCuentaFacade {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly _quotes = signal<readonly PublicQuoteResponse[]>([]);
-  private readonly _loadingQuotes = signal(true);
-  private readonly _quotesError = signal<string | null>(null);
 
   private readonly _orders = signal<readonly PublicOrderResponse[]>([]);
   private readonly _loadingOrders = signal(true);
@@ -33,9 +29,6 @@ export class MiCuentaFacade {
   private readonly _addressFormError = signal<string | null>(null);
   private readonly _deletingAddressId = signal<string | null>(null);
 
-  readonly quotes = this._quotes.asReadonly();
-  readonly loadingQuotes = this._loadingQuotes.asReadonly();
-  readonly quotesError = this._quotesError.asReadonly();
 
   readonly orders = this._orders.asReadonly();
   readonly loadingOrders = this._loadingOrders.asReadonly();
@@ -50,25 +43,6 @@ export class MiCuentaFacade {
   readonly savingAddress = this._savingAddress.asReadonly();
   readonly addressFormError = this._addressFormError.asReadonly();
   readonly deletingAddressId = this._deletingAddressId.asReadonly();
-
-  cargarCotizaciones(): void {
-    this._loadingQuotes.set(true);
-    this._quotesError.set(null);
-    this.api
-      .misCotizaciones()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (quotes) => {
-          this._quotes.set(quotes);
-          this._loadingQuotes.set(false);
-        },
-        error: (error: unknown) => {
-          this._loadingQuotes.set(false);
-          if (this.redirectIfUnauthenticated(error)) return;
-          this._quotesError.set('No pudimos cargar tus cotizaciones. Inténtalo nuevamente.');
-        },
-      });
-  }
 
   cargarPedidos(): void {
     this._loadingOrders.set(true);

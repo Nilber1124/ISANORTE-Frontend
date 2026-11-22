@@ -11,7 +11,6 @@ import { Router, RouterLink } from '@angular/router';
 import { ClienteAuthService } from '../../../../core/auth/cliente-auth.service';
 import { AddressRequest, AddressResponse } from '../../../../data/models/address/address.model';
 import { OrderStatus } from '../../../../data/models/order/order-status.enum';
-import { QuoteStatus } from '../../../../data/models/quote/quote-status.enum';
 import { Alert } from '../../../../shared/components/alert/alert';
 import { Badge, BadgeVariant } from '../../../../shared/components/badge/badge';
 import { Button } from '../../../../shared/components/button/button';
@@ -19,29 +18,6 @@ import { Loading } from '../../../../shared/components/loading/loading';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { AddressForm, AddressFormValue } from '../components/address-form/address-form';
 import { MiCuentaFacade } from './mi-cuenta.facade';
-
-const QUOTE_CERRADAS: ReadonlySet<QuoteStatus> = new Set([
-  QuoteStatus.CERRADA,
-  QuoteStatus.CANCELADA,
-]);
-
-const QUOTE_ESTADO_VARIANTS: Record<QuoteStatus, BadgeVariant> = {
-  [QuoteStatus.NUEVA]: 'info',
-  [QuoteStatus.EN_REVISION]: 'warning',
-  [QuoteStatus.CONTACTADA]: 'accent',
-  [QuoteStatus.COTIZADA]: 'success',
-  [QuoteStatus.CERRADA]: 'neutral',
-  [QuoteStatus.CANCELADA]: 'error',
-};
-
-const QUOTE_ESTADO_LABELS: Record<QuoteStatus, string> = {
-  [QuoteStatus.NUEVA]: 'Nueva',
-  [QuoteStatus.EN_REVISION]: 'En revisión',
-  [QuoteStatus.CONTACTADA]: 'Contactada',
-  [QuoteStatus.COTIZADA]: 'Cotizada',
-  [QuoteStatus.CERRADA]: 'Cerrada',
-  [QuoteStatus.CANCELADA]: 'Cancelada',
-};
 
 const ORDER_CERRADOS: ReadonlySet<OrderStatus> = new Set([
   OrderStatus.ENTREGADO,
@@ -93,10 +69,6 @@ export class MiCuenta {
       .slice(0, 2)
       .join('');
   });
-  readonly totalCotizaciones = computed(() => this.facade.quotes().length);
-  readonly cotizacionesEnCurso = computed(
-    () => this.facade.quotes().filter((c) => !QUOTE_CERRADAS.has(c.estado)).length,
-  );
   readonly pedidosEnCurso = computed(
     () => this.facade.orders().filter((o) => !ORDER_CERRADOS.has(o.estado)).length,
   );
@@ -104,18 +76,9 @@ export class MiCuenta {
   constructor() {
     // Solo en el navegador: la página es de render en cliente y depende de la sesión local.
     afterNextRender(() => {
-      this.facade.cargarCotizaciones();
       this.facade.cargarPedidos();
       this.facade.cargarDirecciones();
     });
-  }
-
-  quoteEstadoLabel(estado: QuoteStatus): string {
-    return QUOTE_ESTADO_LABELS[estado] ?? estado;
-  }
-
-  quoteEstadoVariant(estado: QuoteStatus): BadgeVariant {
-    return QUOTE_ESTADO_VARIANTS[estado] ?? 'neutral';
   }
 
   orderEstadoLabel(estado: OrderStatus): string {

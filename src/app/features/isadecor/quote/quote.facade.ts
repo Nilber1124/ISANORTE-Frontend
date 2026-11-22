@@ -1,16 +1,11 @@
-import { isPlatformBrowser } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 
 import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
-import { QuoteChannel } from '../../../data/models/quote/quote-channel.enum';
-import {
-  PublicQuoteRequest,
-  PublicQuoteResponse,
-} from '../../../data/models/public-content/public-quote.model';
+import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 
 export interface QuoteCustomerDetails {
@@ -26,18 +21,19 @@ export interface QuoteCustomerDetails {
 export class QuoteFacade {
   private readonly publicApi = inject(PublicContentApiService);
   private readonly cart = inject(IsadecorQuoteCartService);
+  private readonly site = inject(PublicSiteFacade);
+  private readonly document = inject(DOCUMENT, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
 
   private readonly _mergingProduct = signal(false);
-  private readonly _submitting = signal(false);
+  private readonly _sent = signal(false);
   private readonly _error = signal<string | null>(null);
-  private readonly _quoteResult = signal<PublicQuoteResponse | null>(null);
 
   readonly mergingProduct = this._mergingProduct.asReadonly();
-  readonly submitting = this._submitting.asReadonly();
+  /** `true` cuando ya se abrió WhatsApp con la solicitud. */
+  readonly sent = this._sent.asReadonly();
   readonly error = this._error.asReadonly();
-  readonly quoteResult = this._quoteResult.asReadonly();
 
   /**
    * Agrega al carrito compartido el producto recibido por `?producto=slug` (botones "Cotizar"
@@ -65,46 +61,53 @@ export class QuoteFacade {
       });
   }
 
+  /**
+   * No guarda nada en el sistema: abre WhatsApp con los productos y los datos del cliente escritos
+   * en el mensaje, que es por donde se atienden las cotizaciones.
+   */
   submit(customer: QuoteCustomerDetails): void {
     const items = this.cart.items();
-    if (this._submitting() || items.length === 0) return;
+    if (items.length === 0) return;
 
     this._error.set(null);
-    this._submitting.set(true);
-    const request: PublicQuoteRequest = {
-      ...customer,
-      canal: QuoteChannel.FORMULARIO,
-      detalles: items.map((item) => ({
-        productoSlug: item.productSlug,
-        varianteSku: item.variant?.sku ?? null,
-        cantidad: item.quantity,
-        notas: null,
-      })),
-    };
-
-    this.publicApi
-      .createQuote(PUBLIC_SITE_KEY, ISADECOR_UNIT_SLUG, request)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this._submitting.set(false)),
-      )
-      .subscribe({
-        next: (response) => {
-          this._quoteResult.set(response);
-          this.cart.clear();
-        },
-        error: (error: unknown) => this._error.set(this.submitErrorMessage(error)),
-      });
-  }
-
-  private submitErrorMessage(error: unknown): string {
-    if (error instanceof HttpErrorResponse) {
-      if (error.status === 400) return 'Revisa los datos ingresados e inténtalo nuevamente.';
-      if (error.status === 404) return 'Uno de los productos ya no está disponible para cotizar.';
-      if (error.status === 409)
-        return 'No pudimos registrar la solicitud por un conflicto. Inténtalo nuevamente.';
+    const href = this.site.whatsappHrefFor(buildQuoteWhatsappMessage(customer, items));
+    if (!href) {
+      this._error.set(
+        'Por ahora no podemos abrir WhatsApp. Escríbenos por correo o llámanos a los datos de contacto.',
+      );
+      return;
     }
-
-    return 'No pudimos enviar tu solicitud. Comprueba tu conexión e inténtalo nuevamente.';
+    this.document?.defaultView?.open(href, '_blank', 'noopener');
+    this._sent.set(true);
+    this.cart.clear();
   }
+}
+
+export interface QuoteMessageItem {
+  readonly productName: string;
+  readonly variant: { readonly name: string } | null;
+  readonly quantity: number;
+}
+
+/** Texto de WhatsApp con la cotización: productos con su cantidad y una línea por dato del cliente. */
+export function buildQuoteWhatsappMessage(
+  customer: QuoteCustomerDetails,
+  items: readonly QuoteMessageItem[],
+): string {
+  const lines = ['Hola ISADECOR, quisiera cotizar estos productos:', ''];
+  for (const item of items) {
+    const variant = item.variant ? ` (${item.variant.name})` : '';
+    lines.push(`• ${item.productName}${variant} × ${item.quantity}`);
+  }
+  lines.push('');
+  const add = (label: string, value: string | null): void => {
+    if (value?.trim()) lines.push(`*${label}:* ${value.trim()}`);
+  };
+  add('Nombre', customer.nombreCliente);
+  add('Teléfono', customer.telefonoCliente);
+  add('Correo', customer.emailCliente);
+  add('Empresa', customer.empresaCliente);
+  add('Ciudad', customer.ciudad);
+  add('Mensaje', customer.mensaje);
+  return lines.join('\n');
 }

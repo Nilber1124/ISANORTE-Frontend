@@ -26,7 +26,7 @@
       data-all-clear
     >
       <span class="font-semibold text-success">Todo al día.</span>
-      No hay cotizaciones, pedidos ni productos que requieran atención ahora mismo.
+      No hay pedidos ni productos que requieran atención ahora mismo.
     </p>
   } @else {
     <ul class="mt-4 m-0 grid list-none gap-4 p-0 sm:grid-cols-2 xl:grid-cols-3" data-attention>
@@ -57,42 +57,7 @@
 </section>
 
 <!-- Lo último que entró -->
-<div class="mt-10 grid gap-8 xl:grid-cols-2">
-  <section aria-labelledby="recent-quotes-title">
-    <div class="flex flex-wrap items-end justify-between gap-4">
-      <h2 id="recent-quotes-title" class="text-heading-3 text-text-primary">Cotizaciones recientes</h2>
-      <a
-        routerLink="/admin/cotizaciones"
-        class="inline-flex min-h-10 items-center text-body-sm font-semibold text-accent underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-        >Ver todas</a
-      >
-    </div>
-    @if (facade.loading()) {
-      <div class="mt-4 space-y-2">
-        @for (_ of [1, 2, 3]; track $index) {
-          <div class="h-14 animate-pulse rounded-control bg-surface-hover"></div>
-        }
-      </div>
-    } @else if (facade.recentQuotes().length === 0) {
-      <p class="mt-4 text-body-sm text-text-muted">No hay cotizaciones registradas aún.</p>
-    } @else {
-      <ul class="mt-4 m-0 list-none divide-y divide-border overflow-hidden rounded-card border border-border p-0" data-recent-quotes>
-        @for (quote of facade.recentQuotes(); track quote.id) {
-          <li class="flex items-center justify-between gap-3 px-4 py-3">
-            <div class="min-w-0">
-              <p class="truncate text-body-sm font-medium text-text-primary">{{ quote.nombreCliente }}</p>
-              <p class="text-caption text-text-muted">
-                <span class="font-mono">{{ quote.codigo }}</span>
-                · {{ quote.fechaCreacion | date: 'dd MMM yyyy' : undefined : 'es' }}
-              </p>
-            </div>
-            <app-badge [variant]="statusVariant(quote.estado)" size="small">{{ statusLabel(quote.estado) }}</app-badge>
-          </li>
-        }
-      </ul>
-    }
-  </section>
-
+<div class="mt-10">
   <section aria-labelledby="recent-orders-title">
     <div class="flex flex-wrap items-end justify-between gap-4">
       <h2 id="recent-orders-title" class="text-heading-3 text-text-primary">Pedidos recientes</h2>

@@ -35,10 +35,6 @@ import {
   PublicOrderRequest,
   PublicOrderResponse,
 } from '../models/public-content/public-order.model';
-import {
-  PublicQuoteRequest,
-  PublicQuoteResponse,
-} from '../models/public-content/public-quote.model';
 import { PublicTrustResponse } from '../models/public-content/public-trust.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
 import { trimTrailingSlashes } from '../../shared/utils/text';
@@ -215,18 +211,6 @@ export class PublicContentApiService {
     return this.http.post<ProductReviewResponse>(
       `${this.apiBaseUrl}/api/publico/resenas/${encodeURIComponent(reviewId)}/util`,
       {},
-    );
-  }
-
-  createQuote(
-    siteKey: string,
-    unitSlug: string,
-    request: PublicQuoteRequest,
-  ): Observable<PublicQuoteResponse> {
-    return this.http.post<PublicQuoteResponse>(
-      `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/cotizaciones`,
-      request,
-      { context: conSesionCliente() },
     );
   }
 

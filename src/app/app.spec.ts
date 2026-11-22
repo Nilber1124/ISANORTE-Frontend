@@ -74,7 +74,6 @@ describe('App', () => {
       '',
       'categorias',
       'productos',
-      'cotizaciones',
       'pedidos',
       'ventas',
       'isadecor-landing',

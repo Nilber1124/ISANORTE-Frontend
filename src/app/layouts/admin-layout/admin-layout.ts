@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-import { PendingQuotesBadgeService } from '../../core/services/pending-quotes-badge.service';
 import { AppToast } from '../../shared/components/toast/toast';
 import { AdminSidebar } from './components/admin-sidebar/admin-sidebar';
 import { AdminTopbar } from './components/admin-topbar/admin-topbar';
@@ -13,14 +12,8 @@ import { AdminTopbar } from './components/admin-topbar/admin-topbar';
   styleUrl: './admin-layout.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AdminLayout implements OnInit {
+export class AdminLayout {
   readonly mobileMenuOpen = signal(false);
-  private readonly pendingQuotesBadge = inject(PendingQuotesBadgeService);
-
-  ngOnInit(): void {
-    this.pendingQuotesBadge.load();
-  }
-
   protected toggleMobileMenu(): void {
     this.mobileMenuOpen.update((isOpen) => !isOpen);
   }

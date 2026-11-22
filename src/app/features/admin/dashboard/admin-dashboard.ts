@@ -6,7 +6,6 @@ import { Alert } from '../../../shared/components/alert/alert';
 import { Badge, BadgeVariant } from '../../../shared/components/badge/badge';
 import { AdminDashboardFacade } from './admin-dashboard.facade';
 import { OrderStatus } from '../../../data/models/order/order-status.enum';
-import { QuoteStatus } from '../../../data/models/quote/quote-status.enum';
 import { AdminPageHeader } from '../shared/admin-page-header/admin-page-header';
 
 @Component({
@@ -24,36 +23,12 @@ export class AdminDashboard implements OnInit {
   protected readonly quickLinks = [
     { label: 'Landing', route: '/admin/landing' },
     { label: 'Productos', route: '/admin/productos' },
-    { label: 'Cotizaciones', route: '/admin/cotizaciones' },
+    { label: 'Ventas', route: '/admin/ventas' },
     { label: 'Pedidos', route: '/admin/pedidos' },
   ] as const;
 
   ngOnInit(): void {
     this.facade.load();
-  }
-
-  statusLabel(status: QuoteStatus): string {
-    const labels: Record<QuoteStatus, string> = {
-      [QuoteStatus.NUEVA]: 'Nueva',
-      [QuoteStatus.EN_REVISION]: 'En revisión',
-      [QuoteStatus.CONTACTADA]: 'Contactada',
-      [QuoteStatus.COTIZADA]: 'Cotizada',
-      [QuoteStatus.CERRADA]: 'Cerrada',
-      [QuoteStatus.CANCELADA]: 'Cancelada',
-    };
-    return labels[status] ?? status;
-  }
-
-  statusVariant(status: QuoteStatus): BadgeVariant {
-    const variants: Record<QuoteStatus, BadgeVariant> = {
-      [QuoteStatus.NUEVA]: 'accent',
-      [QuoteStatus.EN_REVISION]: 'info',
-      [QuoteStatus.CONTACTADA]: 'warning',
-      [QuoteStatus.COTIZADA]: 'neutral',
-      [QuoteStatus.CERRADA]: 'success',
-      [QuoteStatus.CANCELADA]: 'error',
-    };
-    return variants[status] ?? 'neutral';
   }
 
   orderStatusLabel(status: OrderStatus): string {

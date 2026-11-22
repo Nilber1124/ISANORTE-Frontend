@@ -83,14 +83,7 @@
                     (click)="navigationSelected.emit()"
                   >
                     <span>{{ item.label }}</span>
-                    @if (item.route === '/admin/cotizaciones' && quoteBadge.pendingCount() > 0) {
-                      <span
-                        class="min-w-5 rounded-full bg-accent px-1.5 py-0.5 text-center text-caption font-bold leading-none text-white tabular-nums"
-                        aria-label="{{ quoteBadge.pendingCount() }} cotizaciones nuevas"
-                      >
-                        {{ quoteBadge.pendingCount() }}
-                      </span>
-                    } @else if (item.badge) {
+                    @if (item.badge) {
                       <span class="rounded bg-accent/15 px-1.5 py-0.5 text-caption font-bold uppercase tracking-wider text-accent">
                         {{ item.badge }}
                       </span>

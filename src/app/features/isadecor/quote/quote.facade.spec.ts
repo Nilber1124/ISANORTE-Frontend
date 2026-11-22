@@ -1,20 +1,15 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { DOCUMENT } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Observable, Subject, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public-site.config';
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { ProductAvailability } from '../../../data/models/product/product-availability.enum';
 import { PublicProductDetailResponse } from '../../../data/models/public-content/public-product-detail.model';
-import {
-  PublicQuoteRequest,
-  PublicQuoteResponse,
-} from '../../../data/models/public-content/public-quote.model';
-import { QuoteChannel } from '../../../data/models/quote/quote-channel.enum';
-import { QuoteStatus } from '../../../data/models/quote/quote-status.enum';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
-import { QuoteCustomerDetails, QuoteFacade } from './quote.facade';
+import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
+import { QuoteCustomerDetails, QuoteFacade, buildQuoteWhatsappMessage } from './quote.facade';
 
 const product: PublicProductDetailResponse = {
   sku: 'WP-ROBLE-001',
@@ -46,27 +41,9 @@ const customer: QuoteCustomerDetails = {
   mensaje: null,
 };
 
-const response: PublicQuoteResponse = {
-  codigo: 'COT-0001',
-  nombreCliente: 'Ana',
-  emailCliente: 'ana@example.com',
-  telefonoCliente: '999 999 999',
-  empresaCliente: null,
-  ciudad: null,
-  mensaje: null,
-  canal: QuoteChannel.FORMULARIO,
-  estado: QuoteStatus.NUEVA,
-  totalEstimado: null,
-  detalles: [],
-  fechaCreacion: '2026-09-23T02:00:00',
-};
-
 class PublicContentApiStub {
   productResponse$: Observable<PublicProductDetailResponse> = of(product);
-  quoteResponse$: Observable<PublicQuoteResponse> = of(response);
   requestedProductParams: Array<{ siteKey: string; unitSlug: string; productSlug: string }> = [];
-  requestedQuoteParams: Array<{ siteKey: string; unitSlug: string; request: PublicQuoteRequest }> =
-    [];
 
   getProductDetail(
     siteKey: string,
@@ -76,30 +53,36 @@ class PublicContentApiStub {
     this.requestedProductParams.push({ siteKey, unitSlug, productSlug });
     return this.productResponse$;
   }
-
-  createQuote(
-    siteKey: string,
-    unitSlug: string,
-    quoteReq: PublicQuoteRequest,
-  ): Observable<PublicQuoteResponse> {
-    this.requestedQuoteParams.push({ siteKey, unitSlug, request: quoteReq });
-    return this.quoteResponse$;
-  }
 }
 
 describe('QuoteFacade', () => {
   let facade: QuoteFacade;
   let publicApi: PublicContentApiStub;
   let cart: IsadecorQuoteCartService;
+  let opened: string[];
+  let whatsappAvailable: boolean;
 
   beforeEach(() => {
     localStorage.clear();
+    opened = [];
+    whatsappAvailable = true;
     TestBed.configureTestingModule({
       providers: [
         QuoteFacade,
         PublicContentApiStub,
         { provide: PublicContentApiService, useExisting: PublicContentApiStub },
         { provide: PLATFORM_ID, useValue: 'browser' },
+        {
+          provide: PublicSiteFacade,
+          useValue: {
+            whatsappHrefFor: (text: string) =>
+              whatsappAvailable ? `https://wa.me/51999?text=${encodeURIComponent(text)}` : null,
+          },
+        },
+        {
+          provide: DOCUMENT,
+          useValue: { defaultView: { open: (url: string) => opened.push(url) } },
+        },
       ],
     });
     facade = TestBed.inject(QuoteFacade);
@@ -122,44 +105,41 @@ describe('QuoteFacade', () => {
 
   it('does nothing when submitting an empty cart', () => {
     facade.submit(customer);
-    expect(publicApi.requestedQuoteParams).toHaveLength(0);
+    expect(opened).toHaveLength(0);
+    expect(facade.sent()).toBe(false);
   });
 
-  it('sends one detail per cart item, stores the response and clears the cart', () => {
+  it('opens WhatsApp with the products and customer data, then clears the cart', () => {
     cart.addProduct(product, null, 5);
     facade.submit(customer);
 
-    expect(publicApi.requestedQuoteParams).toHaveLength(1);
-    expect(publicApi.requestedQuoteParams[0].siteKey).toBe(PUBLIC_SITE_KEY);
-    expect(publicApi.requestedQuoteParams[0].unitSlug).toBe(ISADECOR_UNIT_SLUG);
-    expect(publicApi.requestedQuoteParams[0].request.canal).toBe(QuoteChannel.FORMULARIO);
-    expect(publicApi.requestedQuoteParams[0].request.detalles).toEqual([
-      { productoSlug: product.slug, varianteSku: null, cantidad: 5, notas: null },
-    ]);
-    expect(facade.quoteResult()).toEqual(response);
+    expect(opened).toHaveLength(1);
+    const text = decodeURIComponent(opened[0].split('text=')[1]);
+    expect(text).toContain('Wall Panel Roble × 5');
+    expect(text).toContain('*Nombre:* Ana');
+    expect(text).toContain('*Teléfono:* 999 999 999');
+    expect(facade.sent()).toBe(true);
     expect(cart.items()).toHaveLength(0);
   });
 
-  it('sets submitting only until the request completes and prevents duplicate sends', () => {
-    const pending = new Subject<PublicQuoteResponse>();
-    publicApi.quoteResponse$ = pending;
+  it('keeps the cart and shows an error when there is no WhatsApp number', () => {
+    whatsappAvailable = false;
     cart.addProduct(product, null, 1);
     facade.submit(customer);
-    facade.submit(customer);
-    expect(facade.submitting()).toBe(true);
-    expect(publicApi.requestedQuoteParams).toHaveLength(1);
-    pending.next(response);
-    pending.complete();
-    expect(facade.submitting()).toBe(false);
+    expect(opened).toHaveLength(0);
+    expect(facade.sent()).toBe(false);
+    expect(facade.error()).toContain('WhatsApp');
+    expect(cart.items()).toHaveLength(1);
   });
 
-  it('keeps the cart intact and exposes a user-safe submit error on failure', () => {
-    publicApi.quoteResponse$ = throwError(() => new HttpErrorResponse({ status: 400 }));
-    cart.addProduct(product, null, 1);
-    facade.submit(customer);
-    expect(facade.quoteResult()).toBeNull();
-    expect(facade.error()).toContain('Revisa');
-    expect(facade.submitting()).toBe(false);
-    expect(cart.items()).toHaveLength(1);
+  it('builds the message skipping empty optional fields and naming the finish', () => {
+    const text = buildQuoteWhatsappMessage(
+      { ...customer, empresaCliente: 'ACME', mensaje: '  ' },
+      [{ productName: 'Piso', variant: { name: 'Roble' }, quantity: 2 }],
+    );
+    expect(text).toContain('• Piso (Roble) × 2');
+    expect(text).toContain('*Empresa:* ACME');
+    expect(text).not.toContain('Mensaje');
+    expect(text).not.toContain('Ciudad');
   });
 });

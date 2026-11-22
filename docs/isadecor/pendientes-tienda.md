@@ -23,7 +23,7 @@ proveedor autorizado que ofrece API (en Perú los hay conocidos, como Nubefact).
 
 No hay ningún envío de mensajes: ni el backend tiene dependencia de correo. Al crearse un pedido o cambiar de estado,
 **ni el cliente ni el administrador reciben nada**; solo te enteras si abres el dashboard.
-Falta: aviso al administrador cuando entra un pedido o una cotización, y aviso al cliente con la confirmación y los cambios
+Falta: aviso al administrador cuando entra un pedido, y aviso al cliente con la confirmación y los cambios
 de estado. Hay que elegir el canal (correo o un enlace/mensaje de WhatsApp) y el proveedor.
 
 ## 3. Comprobante del pago del cliente

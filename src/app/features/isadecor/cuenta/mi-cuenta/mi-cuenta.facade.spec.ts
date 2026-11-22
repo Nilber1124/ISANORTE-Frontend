@@ -7,26 +7,8 @@ import { vi } from 'vitest';
 import { AddressRequest, AddressResponse } from '../../../../data/models/address/address.model';
 import { OrderStatus } from '../../../../data/models/order/order-status.enum';
 import { PublicOrderResponse } from '../../../../data/models/public-content/public-order.model';
-import { PublicQuoteResponse } from '../../../../data/models/public-content/public-quote.model';
-import { QuoteChannel } from '../../../../data/models/quote/quote-channel.enum';
-import { QuoteStatus } from '../../../../data/models/quote/quote-status.enum';
 import { ClienteApiService } from '../../../../data/services/cliente-api.service';
 import { MiCuentaFacade } from './mi-cuenta.facade';
-
-const quote: PublicQuoteResponse = {
-  codigo: 'COT-0001',
-  nombreCliente: 'Ana',
-  emailCliente: 'ana@example.com',
-  telefonoCliente: '999 999 999',
-  empresaCliente: null,
-  ciudad: null,
-  mensaje: null,
-  canal: QuoteChannel.FORMULARIO,
-  estado: QuoteStatus.NUEVA,
-  totalEstimado: null,
-  detalles: [],
-  fechaCreacion: '2026-09-23T02:00:00',
-};
 
 const order: PublicOrderResponse = {
   codigo: 'PED-0001',
@@ -61,7 +43,6 @@ const addressRequest: AddressRequest = {
 };
 
 class ClienteApiStub {
-  quotes$: Observable<PublicQuoteResponse[]> = of([quote]);
   orders$: Observable<PublicOrderResponse[]> = of([order]);
   addresses$: Observable<AddressResponse[]> = of([address]);
   createResponse$: Observable<AddressResponse> = of(address);
@@ -71,9 +52,6 @@ class ClienteApiStub {
   actualizarCalls: Array<{ id: string; request: AddressRequest }> = [];
   eliminarCalls: string[] = [];
 
-  misCotizaciones(): Observable<PublicQuoteResponse[]> {
-    return this.quotes$;
-  }
   misPedidos(): Observable<PublicOrderResponse[]> {
     return this.orders$;
   }
@@ -113,13 +91,10 @@ describe('MiCuentaFacade', () => {
     router = TestBed.inject(Router);
   });
 
-  it('loads quotes, orders and addresses', () => {
-    facade.cargarCotizaciones();
+  it('loads orders and addresses', () => {
     facade.cargarPedidos();
     facade.cargarDirecciones();
 
-    expect(facade.quotes()).toEqual([quote]);
-    expect(facade.loadingQuotes()).toBe(false);
     expect(facade.orders()).toEqual([order]);
     expect(facade.loadingOrders()).toBe(false);
     expect(facade.addresses()).toEqual([address]);

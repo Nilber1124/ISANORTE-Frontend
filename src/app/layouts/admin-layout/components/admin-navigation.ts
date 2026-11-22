@@ -28,7 +28,6 @@ export const ADMIN_NAVIGATION: readonly AdminNavigationGroup[] = [
     items: [
       { label: 'Productos', route: '/admin/productos' },
       { label: 'Categorías', route: '/admin/categorias' },
-      { label: 'Cotizaciones', route: '/admin/cotizaciones' },
       { label: 'Pedidos', route: '/admin/pedidos' },
       { label: 'Ventas', route: '/admin/ventas' },
       { label: 'Home de ISADECOR', route: '/admin/home-isadecor' },

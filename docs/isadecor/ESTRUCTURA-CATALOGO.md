@@ -67,7 +67,7 @@ incluyen la proyección de tarjeta del Home en `tarjeta`.
 - **Ficha:** botón principal «Agregar al carrito» y secundario «Cotizar por WhatsApp» (mensaje con producto, acabado y cantidad ya escritos; el calculador de m² alimenta la cantidad). Solo se muestra «Desde» en productos exclusivamente de cotización, cuyo precio es referencial.
 - **Tarjeta:** un único botón «Ver producto» (o «Cotizar» si es solo cotización); la elección de acabado y de la vía se hace en la ficha.
 - **Carrito único** con dos salidas: «Ir a pagar» (checkout, requiere cuenta de cliente) y «Solicitar cotización por WhatsApp».
-- **No hay formulario de cotización enlazado:** el encabezado, el pie, la ficha y el carrito cotizan por WhatsApp. La página `/isadecor/cotizacion` sigue existiendo pero sin enlaces.
+- **No hay formulario de cotización enlazado:** el encabezado, el pie, la ficha y el carrito cotizan por WhatsApp. La página `/isadecor/cotizacion` sigue existiendo pero sin enlaces; al enviarla abre WhatsApp con los productos y los datos (no guarda nada).
 - Se quitó el filtro «Cómo se vende» del panel; el parámetro `modalidad` del backend sigue aceptándose (COMPRAR y COTIZAR incluyen los productos AMBAS).
 
 ### Ficha técnica y detalles (v2)

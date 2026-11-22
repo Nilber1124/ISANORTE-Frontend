@@ -5,7 +5,6 @@ import { signal } from '@angular/core';
 import { AddressRequest, AddressResponse } from '../../../../data/models/address/address.model';
 import { OrderStatus } from '../../../../data/models/order/order-status.enum';
 import { PublicOrderResponse } from '../../../../data/models/public-content/public-order.model';
-import { PublicQuoteResponse } from '../../../../data/models/public-content/public-quote.model';
 import { MiCuenta } from './mi-cuenta';
 import { MiCuentaFacade } from './mi-cuenta.facade';
 
@@ -21,9 +20,6 @@ const order: PublicOrderResponse = {
 };
 
 class MiCuentaFacadeStub {
-  readonly quotes = signal<readonly PublicQuoteResponse[]>([]);
-  readonly loadingQuotes = signal(false);
-  readonly quotesError = signal<string | null>(null);
   readonly orders = signal<readonly PublicOrderResponse[]>([order]);
   readonly loadingOrders = signal(false);
   readonly ordersError = signal<string | null>(null);
@@ -36,14 +32,10 @@ class MiCuentaFacadeStub {
   readonly addressFormError = signal<string | null>(null);
   readonly deletingAddressId = signal<string | null>(null);
 
-  readonly cargarCotizacionesCalls: number[] = [];
   readonly cargarPedidosCalls: number[] = [];
   readonly cargarDireccionesCalls: number[] = [];
   readonly saveAddressCalls: AddressRequest[] = [];
 
-  cargarCotizaciones(): void {
-    this.cargarCotizacionesCalls.push(1);
-  }
   cargarPedidos(): void {
     this.cargarPedidosCalls.push(1);
   }
@@ -84,8 +76,7 @@ describe('MiCuenta', () => {
     await fixture.whenStable();
   });
 
-  it('loads quotes, orders and addresses on init', () => {
-    expect(facade.cargarCotizacionesCalls).toHaveLength(1);
+  it('loads orders and addresses on init', () => {
     expect(facade.cargarPedidosCalls).toHaveLength(1);
     expect(facade.cargarDireccionesCalls).toHaveLength(1);
   });

@@ -40,11 +40,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'cotizaciones',
-        loadComponent: () =>
-          import('./features/admin/quotes/admin-quotes').then(({ AdminQuotes }) => AdminQuotes),
-      },
-      {
         path: 'pedidos',
         loadComponent: () =>
           import('./features/admin/orders/admin-orders').then(({ AdminOrders }) => AdminOrders),

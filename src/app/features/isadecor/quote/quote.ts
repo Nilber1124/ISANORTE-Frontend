@@ -11,7 +11,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { Alert } from '../../../shared/components/alert/alert';
-import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
 import { Card } from '../../../shared/components/card/card';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
@@ -32,7 +31,6 @@ interface QuoteFieldErrors {
   selector: 'app-isadecor-quote',
   imports: [
     Alert,
-    Badge,
     Button,
     Card,
     DecimalPipe,
@@ -91,7 +89,7 @@ export class Quote {
   protected submit(event: Event): void {
     event.preventDefault();
     this.submitted.set(true);
-    if (this.facade.submitting() || this.hasValidationErrors() || this.cart.items().length === 0) {
+    if (this.hasValidationErrors() || this.cart.items().length === 0) {
       return;
     }
 

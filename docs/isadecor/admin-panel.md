@@ -11,7 +11,7 @@ lateral y el título de la barra superior) se agrupa por marca:
 | Grupo | Pantallas |
 | --- | --- |
 | Principal | Dashboard |
-| ISADECOR · Tienda | Productos, Categorías, Cotizaciones, Pedidos |
+| ISADECOR · Tienda | Productos, Categorías, Pedidos, Ventas, Home de ISADECOR |
 | ISADECOR · Home | Hero, Cinta, Promociones, Campaña, Secciones, Bloque de servicio, Puntos, Reseñas, Videos |
 | ISANORTE · Web | Landing, Proyectos, Servicios |
 | ISANORTE · Confianza y contenido | FAQs, Equipo, Credenciales, Testimonios, Garantías, Pasos, Políticas, Galería |
@@ -109,7 +109,7 @@ paletas fijas (`amber-*`, `red-*`). Así, cuando el tema base cambie, el admin c
 
 ## Pendiente (opción C, no implementada)
 
-Edición directa de textos sobre la propia vista previa (hoy el clic abre el formulario del bloque), vista previa de ISADECOR, dashboard con «pendientes» (agotados, cotizaciones sin responder, reseñas por revisar) y
+Edición directa de textos sobre la propia vista previa (hoy el clic abre el formulario del bloque), vista previa de ISADECOR, dashboard con «pendientes» (agotados, reseñas por revisar) y
 enlaces «ver en la tienda» desde cada pantalla.
 
 ## Botones de la landing: fijos
@@ -278,7 +278,7 @@ Las solicitudes se atienden por WhatsApp, así que el formulario de la web (pág
 
 - Se eliminó la pantalla **Contacto** del admin (bandeja de solicitudes), su ruta, su entrada del menú y el atajo desde Landing.
 - Backend: se quitaron `POST /api/publico/contacto` y `/api/solicitudes-contacto` (listar, ver y cambiar estado) con su servicio, repositorio, entidad y DTOs. **La tabla `solicitudes_contacto` se dejó intacta** (sin migración de borrado) para no perder solicitudes ya guardadas en producción; se puede eliminar con una migración cuando se hayan exportado.
-- Las cotizaciones de ISADECOR (carrito/pedidos) son otro circuito y no se tocaron.
+- **Las cotizaciones de ISADECOR también van por WhatsApp.** La página `/isadecor/cotizacion` ya no guarda nada: arma un mensaje con los productos (acabado y cantidad) y los datos del cliente y abre WhatsApp. Se quitó «Cotizaciones» del admin, su aviso en el menú, las tarjetas del dashboard y «Mis cotizaciones» de la cuenta del cliente. El backend conserva la API y la tabla `cotizaciones` (sin uso desde la web); se pueden borrar más adelante.
 
 ### Coherencia del admin (Fase 1 del plan de UX)
 
@@ -326,8 +326,8 @@ Las 9 entradas del grupo «ISADECOR · Home» (casi todas con uno o dos elemento
 
 El dashboard dejó de mostrar contadores de volumen y pasó a decir **qué hay que atender hoy**. Todo se calcula en el frontend con los endpoints que ya existían (no se tocó el backend).
 
-- **«Para atender hoy»:** tarjetas con número, detalle y enlace a la pantalla donde se resuelve; solo aparecen las que tienen algo pendiente. Si no hay nada, una línea «Todo al día». Las tarjetas son: **cotizaciones nuevas** (estado NUEVA), **cotizaciones en revisión**, **pedidos por gestionar** (todo lo que no está entregado ni cancelado, con el desglose pendientes de pago · por preparar · en preparación · en camino), **productos agotados**, **productos con poco stock** (en o por debajo del mínimo de cada producto; solo publicados) y **proyectos sin foto** (activos sin portada).
-- **Lo último que entró:** las 5 cotizaciones y los 5 pedidos más recientes con su estado.
+- **«Para atender hoy»:** tarjetas con número, detalle y enlace a la pantalla donde se resuelve; solo aparecen las que tienen algo pendiente. Si no hay nada, una línea «Todo al día». Las tarjetas son: **pedidos por gestionar** (todo lo que no está entregado ni cancelado, con el desglose pendientes de pago · por preparar · en preparación · en camino), **productos agotados**, **productos con poco stock** (en o por debajo del mínimo de cada producto; solo publicados) y **proyectos sin foto** (activos sin portada).
+- **Lo último que entró:** los 5 pedidos más recientes con su estado.
 - **Accesos rápidos:** Landing, Productos, Cotizaciones y Pedidos.
 - Una línea final resume lo publicado en la web (productos, proyectos y servicios).
 - La lógica de stock se extrajo a `features/admin/products/product-stock.util.ts` y la comparten Productos y el dashboard.
