@@ -16,11 +16,32 @@
     </app-alert>
   }
 
-  <p class="mb-5 text-caption text-text-muted">
+  @if (mode() === 'edit') {
+    <div class="mb-5 flex flex-wrap gap-2 border-b border-border pb-3" role="tablist" aria-label="Partes del proyecto">
+      @for (t of tabs; track t.id) {
+        <button
+          type="button"
+          role="tab"
+          class="min-h-10 rounded-button border px-4 text-body-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          [class]="tab() === t.id ? 'border-transparent bg-action-primary text-action-primary-text' : 'border-border-strong bg-surface text-text-secondary hover:bg-surface-hover'"
+          [attr.aria-selected]="tab() === t.id"
+          (click)="tab.set(t.id)"
+        >{{ t.label }}</button>
+      }
+    </div>
+    @if (tab() === 'fotos') {
+      <app-project-gallery-manager [slug]="slug()" [projectName]="nombre()" />
+    }
+    @if (tab() === 'testimonio') {
+      <app-project-testimonial-manager [slug]="slug()" />
+    }
+  }
+
+  <p class="mb-5 text-caption text-text-muted" [hidden]="tab() !== 'datos'">
     <span class="text-error" aria-hidden="true">*</span> Campo obligatorio
   </p>
 
-  <form id="project-form" class="space-y-5" (submit)="submit(); $event.preventDefault()" novalidate>
+  <form id="project-form" class="space-y-5" [hidden]="tab() !== 'datos'" (submit)="submit(); $event.preventDefault()" novalidate>
     <!-- 1. Ficha técnica de la obra -->
     <fieldset class="rounded-card border border-border bg-surface p-4 space-y-4 shadow-xs">
       <div class="border-b border-border pb-2">
@@ -64,14 +85,9 @@
                   <span class="text-text-secondary font-medium">Slug actual:</span>
                   <code class="text-accent font-semibold font-mono">/{{ slug() }}</code>
                 </p>
-                <button
-                  type="button"
-                  class="text-caption text-text-muted underline hover:text-text-primary focus-visible:outline-none"
-                  [disabled]="submitting()"
-                  (click)="unlockSlug()"
-                >
-                  Editar slug
-                </button>
+                <span class="text-caption text-text-muted">
+                  No se puede cambiar: las fotos y el testimonio del proyecto están ligados a esta ruta.
+                </span>
               </div>
             } @else {
               <app-input-field
@@ -350,10 +366,12 @@
 
   <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
     <app-button variant="secondary" [disabled]="submitting()" (click)="canceled.emit()">
-      Cancelar
+      {{ tab() === 'datos' ? 'Cancelar' : 'Cerrar' }}
     </app-button>
-    <app-button [loading]="submitting()" [disabled]="loadingFormData()" (click)="submit()">
-      {{ mode() === 'create' ? 'Crear proyecto' : 'Guardar cambios' }}
-    </app-button>
+    @if (tab() === 'datos') {
+      <app-button [loading]="submitting()" [disabled]="loadingFormData()" (click)="submit()">
+        {{ mode() === 'create' ? 'Crear proyecto' : 'Guardar cambios' }}
+      </app-button>
+    }
   </div>
 </app-drawer>

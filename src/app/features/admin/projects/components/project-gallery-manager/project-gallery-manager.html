@@ -1,0 +1,62 @@
+<div class="space-y-5">
+  <p class="text-body-sm text-text-secondary">
+    Son las fotos de «Antes, durante y después» de la página del proyecto. Se muestran en el orden de esta lista.
+  </p>
+  @if (error(); as message) {
+    <p class="rounded-control border border-error/40 bg-error/10 p-3 text-body-sm text-error" role="alert">{{ message }}</p>
+  }
+  @if (loading()) {
+    <p class="text-body-sm text-text-muted" role="status">Cargando fotos…</p>
+  } @else {
+    @if (sorted().length === 0) {
+      <p class="rounded-card border border-dashed border-border p-4 text-body-sm text-text-muted" data-gallery-empty>Este proyecto todavía no tiene fotos de la obra.</p>
+    }
+    <ul class="space-y-3">
+      @for (photo of sorted(); track photo.id; let i = $index; let first = $first; let last = $last) {
+        <li class="flex flex-wrap items-center gap-3 rounded-card border border-border bg-surface p-3" data-gallery-photo>
+          <img [src]="photo.url" [alt]="photo.alt ?? ''" class="h-16 w-20 rounded-control object-cover" loading="lazy" />
+          <label class="flex min-w-40 flex-1 flex-col gap-1 text-caption text-text-muted">
+            Etapa
+            <select
+              class="min-h-10 rounded-control border border-border bg-background px-2 text-body-sm text-text-primary"
+              [disabled]="busy()"
+              (change)="changeStage(photo, $any($event.target).value)"
+            >
+              @for (stage of stages; track stage.value) {
+                <option [value]="stage.value" [selected]="photo.etiqueta === stage.value">{{ stage.label }}</option>
+              }
+            </select>
+          </label>
+          <div class="flex items-center gap-1">
+            <app-button size="small" variant="ghost" [disabled]="busy() || first" aria-label="Subir" (click)="move(photo, -1)">↑</app-button>
+            <app-button size="small" variant="ghost" [disabled]="busy() || last" aria-label="Bajar" (click)="move(photo, 1)">↓</app-button>
+            @if (confirmDelete() === photo.id) {
+              <app-button size="small" variant="primary" [disabled]="busy()" (click)="remove(photo)">Sí, quitar</app-button>
+              <app-button size="small" variant="ghost" (click)="confirmDelete.set(null)">No</app-button>
+            } @else {
+              <app-button size="small" variant="ghost" [disabled]="busy()" (click)="confirmDelete.set(photo.id)">Quitar</app-button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+
+    <div class="space-y-3 rounded-card border border-border bg-surface p-4">
+      <p class="text-body-sm font-semibold text-text-primary">Añadir una foto</p>
+      <app-image-uploader [ngModel]="newUrl()" (ngModelChange)="newUrl.set($event)" name="galeriaFoto" folder="isanorte/proyectos" />
+      <label class="flex flex-col gap-1 text-caption text-text-muted">
+        Etapa
+        <select
+          class="min-h-10 rounded-control border border-border bg-background px-2 text-body-sm text-text-primary"
+          [disabled]="busy()"
+          (change)="newStage.set($any($event.target).value)"
+        >
+          @for (stage of stages; track stage.value) {
+            <option [value]="stage.value" [selected]="newStage() === stage.value">{{ stage.label }}</option>
+          }
+        </select>
+      </label>
+      <app-button variant="primary" [disabled]="!newUrl() || busy()" [loading]="busy()" (click)="add()">Añadir foto</app-button>
+    </div>
+  }
+</div>

@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, afterNextRender, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, afterNextRender, computed, effect, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { ProjectResponse } from '../../../data/models/project/project-response.model';
 import { Alert } from '../../../shared/components/alert/alert';
@@ -21,6 +22,8 @@ import { ProjectForm, ProjectFormSubmission } from './components/project-form/pr
 })
 export class AdminProjects {
   readonly facade = inject(AdminProjectsFacade);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly projectToDeactivate = signal<ProjectResponse | null>(null);
   readonly projectToDelete = signal<ProjectResponse | null>(null);
   readonly activeFilter = signal<'all' | 'active' | 'inactive'>('all');
@@ -43,6 +46,14 @@ export class AdminProjects {
 
   constructor() {
     afterNextRender(() => this.facade.load());
+    // «Editar ficha completa» desde la vista previa llega con `?editar=<id>`: abre ese proyecto.
+    effect(() => {
+      const id = this.route.snapshot.queryParamMap.get('editar');
+      const project = id ? this.facade.projects().find((p) => p.id === id) : undefined;
+      if (!project || this.facade.formOpen()) return;
+      this.facade.openEdit(project);
+      void this.router.navigate([], { queryParams: { editar: null }, queryParamsHandling: 'merge', replaceUrl: true });
+    });
   }
 
   protected save(submission: ProjectFormSubmission): void {

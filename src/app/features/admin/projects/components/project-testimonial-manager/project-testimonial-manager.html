@@ -1,0 +1,43 @@
+<div class="space-y-5">
+  <p class="text-body-sm text-text-secondary">Lo que dice el cliente sobre esta obra; se muestra en la página del proyecto.</p>
+  @if (error(); as message) {
+    <p class="rounded-control border border-error/40 bg-error/10 p-3 text-body-sm text-error" role="alert">{{ message }}</p>
+  }
+  @if (loading()) {
+    <p class="text-body-sm text-text-muted" role="status">Cargando…</p>
+  } @else {
+    @if (items().length === 0 && !draft()) {
+      <p class="rounded-card border border-dashed border-border p-4 text-body-sm text-text-muted" data-testimonial-empty>Este proyecto todavía no tiene testimonio.</p>
+    }
+    @for (item of items(); track item.id) {
+      @if (draft()?.id !== item.id) {
+        <blockquote class="space-y-3 rounded-card border border-border bg-surface p-4" data-project-testimonial-item>
+          <p class="text-body text-text-primary">“{{ item.texto }}”</p>
+          <footer class="text-body-sm text-text-secondary">{{ item.autor }}@if (item.cargo) {, {{ item.cargo }}}</footer>
+          <div class="flex flex-wrap gap-2">
+            <app-button size="small" variant="secondary" [disabled]="busy()" (click)="startEdit(item)">Editar</app-button>
+            @if (confirmDelete() === item.id) {
+              <app-button size="small" variant="primary" [disabled]="busy()" (click)="remove(item)">Sí, quitar</app-button>
+              <app-button size="small" variant="ghost" (click)="confirmDelete.set(null)">No</app-button>
+            } @else {
+              <app-button size="small" variant="ghost" [disabled]="busy()" (click)="confirmDelete.set(item.id)">Quitar</app-button>
+            }
+          </div>
+        </blockquote>
+      }
+    }
+    @if (draft(); as d) {
+      <div class="space-y-4 rounded-card border border-border bg-surface p-4" data-testimonial-form>
+        <app-textarea-field inputId="tp-texto" label="Testimonio" [rows]="4" [required]="true" [disabled]="busy()" [value]="d.texto" (valueChange)="set('texto', $event)" />
+        <app-input-field inputId="tp-autor" label="Nombre" [required]="true" [disabled]="busy()" [value]="d.autor" (valueChange)="set('autor', $event)" />
+        <app-input-field inputId="tp-cargo" label="Cargo o lugar" [disabled]="busy()" [value]="d.cargo" (valueChange)="set('cargo', $event)" />
+        <div class="flex gap-2">
+          <app-button variant="primary" [disabled]="!valid || busy()" [loading]="busy()" (click)="save()">{{ d.id ? 'Guardar' : 'Añadir testimonio' }}</app-button>
+          <app-button variant="ghost" [disabled]="busy()" (click)="draft.set(null)">Cancelar</app-button>
+        </div>
+      </div>
+    } @else {
+      <app-button variant="secondary" [disabled]="busy()" (click)="startNew()">Añadir un testimonio</app-button>
+    }
+  }
+</div>

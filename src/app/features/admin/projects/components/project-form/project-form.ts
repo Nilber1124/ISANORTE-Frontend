@@ -21,6 +21,8 @@ import { InputField } from '../../../../../shared/components/input-field/input-f
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
 import { slugify } from '../../../../../shared/utils/slugify';
 import { ProjectFormMode } from '../../admin-projects.facade';
+import { ProjectGalleryManager } from '../project-gallery-manager/project-gallery-manager';
+import { ProjectTestimonialManager } from '../project-testimonial-manager/project-testimonial-manager';
 
 export type ProjectFormSubmission =
   | { mode: 'create'; request: ProjectCreateRequest }
@@ -34,7 +36,17 @@ interface ProjectFormErrors {
 
 @Component({
   selector: 'app-project-form',
-  imports: [Alert, Button, Drawer, InputField, TextareaField, ImageUploaderComponent, FormsModule],
+  imports: [
+    Alert,
+    Button,
+    Drawer,
+    InputField,
+    TextareaField,
+    ImageUploaderComponent,
+    FormsModule,
+    ProjectGalleryManager,
+    ProjectTestimonialManager,
+  ],
   templateUrl: './project-form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -76,6 +88,13 @@ export class ProjectForm implements OnInit {
   readonly servicioIds = signal<readonly string[]>([]);
   readonly submitted = signal(false);
   readonly slugLocked = signal(false);
+  /** Pestaña abierta (al editar): datos del proyecto, fotos de la obra o testimonio. */
+  readonly tab = signal<'datos' | 'fotos' | 'testimonio'>('datos');
+  protected readonly tabs = [
+    { id: 'datos', label: 'Datos' },
+    { id: 'fotos', label: 'Antes / durante / después' },
+    { id: 'testimonio', label: 'Testimonio' },
+  ] as const;
 
   readonly errors = computed<ProjectFormErrors>(() => this.validationErrors());
 
@@ -149,10 +168,6 @@ export class ProjectForm implements OnInit {
     if (!this.slugLocked()) {
       this.slug.set(slugify(value));
     }
-  }
-
-  protected unlockSlug(): void {
-    this.slugLocked.set(false);
   }
 
   protected generateSlug(): void {
