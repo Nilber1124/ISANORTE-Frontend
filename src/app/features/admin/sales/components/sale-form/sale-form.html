@@ -1,0 +1,145 @@
+<app-drawer
+  #drawer
+  guardUnsaved
+  drawerId="sale-form-drawer"
+  [title]="sale() ? 'Editar venta ' + sale()?.codigo : 'Registrar venta'"
+  description="Anota una venta hecha fuera de la web. Los productos del catálogo descuentan su stock al guardar."
+  [open]="true"
+  [loading]="submitting()"
+  (closed)="canceled.emit()"
+>
+  @if (serverError(); as error) {
+    <app-alert class="mb-5" variant="error" title="No se guardó la venta">{{ error }}</app-alert>
+  }
+
+  <form id="sale-form" class="space-y-5" (submit)="submit(); $event.preventDefault()" novalidate>
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4">
+      <legend class="px-1 text-body-sm font-semibold text-text-primary">Venta</legend>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <app-input-field inputId="sale-fecha" label="Fecha" type="date" [required]="true" [(value)]="fecha" [disabled]="submitting()" />
+        <app-select-field inputId="sale-canal" label="Canal" [options]="channelOptions" [(value)]="canal" [disabled]="submitting()" />
+        <app-select-field inputId="sale-pago" label="Cómo pagó" [options]="paymentOptions" [(value)]="metodoPago" [disabled]="submitting()" />
+        <label class="flex min-h-11 items-center gap-3 self-end text-body-sm text-text-primary">
+          <input type="checkbox" class="size-5 accent-accent" [checked]="pagado()" [disabled]="submitting()" (change)="pagado.set($any($event.target).checked)" />
+          Ya pagó
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4">
+      <legend class="px-1 text-body-sm font-semibold text-text-primary">Cliente (opcional)</legend>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <app-input-field inputId="sale-cliente" label="Nombre" [(value)]="clienteNombre" [disabled]="submitting()" />
+        <app-input-field inputId="sale-telefono" label="Teléfono" type="tel" [(value)]="clienteTelefono" [disabled]="submitting()" />
+        <app-select-field inputId="sale-doc-tipo" label="Documento" [options]="documentOptions" [(value)]="tipoDocumento" [disabled]="submitting()" />
+        @if (tipoDocumento()) {
+          <app-input-field
+            inputId="sale-doc"
+            [label]="'Número de ' + tipoDocumento()"
+            inputMode="numeric"
+            [(value)]="documento"
+            [error]="errors().document ?? undefined"
+            [disabled]="submitting()"
+          />
+        }
+      </div>
+      @if (tipoDocumento() === 'RUC') {
+        <app-input-field inputId="sale-razon" label="Razón social" [(value)]="razonSocial" [disabled]="submitting()" />
+      }
+    </fieldset>
+
+    <fieldset class="space-y-4 rounded-card border border-border bg-surface p-4">
+      <legend class="px-1 text-body-sm font-semibold text-text-primary">Qué se vendió</legend>
+
+      @for (line of lines(); track line.key; let i = $index) {
+        <div class="space-y-3 rounded-control border border-border p-3" [attr.data-sale-line]="i">
+          <div class="flex items-start gap-3">
+            <div class="min-w-0 flex-1">
+              <app-select-field
+                [inputId]="'sale-prod-' + line.key"
+                label="Producto"
+                [options]="productOptions()"
+                [value]="line.productoId"
+                (valueChange)="chooseProduct(line.key, $event)"
+                [disabled]="submitting()"
+              />
+            </div>
+            <button
+              type="button"
+              class="mt-7 inline-flex min-h-10 min-w-10 items-center justify-center rounded-control text-text-muted hover:bg-surface-hover hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+              aria-label="Quitar esta línea"
+              [disabled]="submitting() || lines().length === 1"
+              (click)="removeLine(line.key)"
+            >
+              ✕
+            </button>
+          </div>
+
+          @if (hasVariants(line)) {
+            <app-select-field
+              [inputId]="'sale-var-' + line.key"
+              label="Acabado"
+              [options]="variantOptions(line)"
+              [value]="line.varianteId"
+              (valueChange)="chooseVariant(line.key, $event)"
+              [disabled]="submitting()"
+            />
+          }
+
+          <app-input-field
+            [inputId]="'sale-nom-' + line.key"
+            label="Descripción"
+            [value]="line.nombre"
+            (valueChange)="setLine(line.key, 'nombre', $event)"
+            [disabled]="submitting()"
+          />
+
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <app-input-field
+              [inputId]="'sale-cant-' + line.key"
+              label="Cantidad"
+              type="number"
+              inputMode="numeric"
+              [value]="line.cantidad"
+              (valueChange)="setLine(line.key, 'cantidad', $event)"
+              [disabled]="submitting()"
+            />
+            <app-input-field
+              [inputId]="'sale-precio-' + line.key"
+              label="Precio unitario (S/)"
+              type="number"
+              inputMode="decimal"
+              [value]="line.precio"
+              (valueChange)="setLine(line.key, 'precio', $event)"
+              [disabled]="submitting()"
+            />
+            <p class="col-span-2 self-end pb-2 text-body-sm text-text-secondary sm:col-span-1">
+              Subtotal: <strong class="text-text-primary">S/ {{ lineSubtotal(line).toFixed(2) }}</strong>
+            </p>
+          </div>
+
+          @if (stockNote(line); as note) {
+            <p class="text-caption" [class]="stockExceeded(line) ? 'text-error' : 'text-text-muted'" data-stock-note>{{ note }}</p>
+          }
+          @if (errors().lines[i]) {
+            <p class="form-error" role="alert">{{ errors().lines[i] }}</p>
+          }
+        </div>
+      }
+
+      @if (errors().general; as message) {
+        <p class="form-error" role="alert">{{ message }}</p>
+      }
+      <app-button type="button" variant="secondary" size="small" [disabled]="submitting()" (click)="addLine()">+ Añadir una línea</app-button>
+
+      <p class="text-heading-4 text-text-primary" data-sale-total>Total: S/ {{ total().toFixed(2) }}</p>
+    </fieldset>
+
+    <app-textarea-field inputId="sale-notas" label="Notas (opcional)" [rows]="3" [(value)]="notas" [disabled]="submitting()" />
+  </form>
+
+  <div drawer-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+    <app-button variant="secondary" [disabled]="submitting()" (click)="drawer.requestClose()">Cancelar</app-button>
+    <app-button [loading]="submitting()" (click)="submit()">{{ sale() ? 'Guardar cambios' : 'Registrar venta' }}</app-button>
+  </div>
+</app-drawer>

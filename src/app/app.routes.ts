@@ -65,6 +65,10 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/orders/admin-orders').then(({ AdminOrders }) => AdminOrders),
       },
+      {
+        path: 'ventas',
+        loadComponent: () => import('./features/admin/sales/admin-sales').then(({ AdminSales }) => AdminSales),
+      },
       // Rutas antiguas: se conservan para no romper enlaces guardados.
       { path: 'isadecor-landing', redirectTo: '/admin', pathMatch: 'full' },
       {

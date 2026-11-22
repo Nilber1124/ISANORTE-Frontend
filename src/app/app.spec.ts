@@ -73,6 +73,7 @@ describe('App', () => {
       'productos',
       'cotizaciones',
       'pedidos',
+      'ventas',
       'isadecor-landing',
       'proyectos',
       'servicios',

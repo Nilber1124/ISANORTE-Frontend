@@ -1,0 +1,143 @@
+<app-admin-page-header
+  eyebrow="Catálogo ISADECOR"
+  title="Ventas"
+  description="Registra las ventas hechas por WhatsApp, en tienda u otro canal. Al guardarlas descuentan el stock de los productos del catálogo."
+>
+  <app-button variant="primary" (click)="facade.openNew()">Registrar venta</app-button>
+</app-admin-page-header>
+
+@if (facade.error(); as message) {
+  <app-alert class="mt-7" variant="error" title="No pudimos completar la operación">{{ message }}</app-alert>
+}
+
+@if (facade.loading()) {
+  <div class="mt-8"><app-loading label="Cargando ventas" size="large" /></div>
+} @else {
+  <!-- Resumen -->
+  <section class="mt-8 grid gap-4 sm:grid-cols-3" aria-label="Resumen de ventas" data-sales-summary>
+    <div class="rounded-card border border-border bg-surface-elevated p-5">
+      <p class="text-eyebrow uppercase text-text-muted">Hoy</p>
+      <p class="mt-3 font-numeric text-heading-2 font-bold text-text-primary tabular-nums">S/ {{ facade.summary().todayTotal | number: '1.2-2' }}</p>
+      <p class="mt-1 text-body-sm text-text-secondary">{{ facade.summary().todayCount }} {{ facade.summary().todayCount === 1 ? 'venta' : 'ventas' }}</p>
+    </div>
+    <div class="rounded-card border border-border bg-surface-elevated p-5">
+      <p class="text-eyebrow uppercase text-text-muted">Este mes</p>
+      <p class="mt-3 font-numeric text-heading-2 font-bold text-text-primary tabular-nums">S/ {{ facade.summary().monthTotal | number: '1.2-2' }}</p>
+      <p class="mt-1 text-body-sm text-text-secondary">{{ facade.summary().monthCount }} {{ facade.summary().monthCount === 1 ? 'venta' : 'ventas' }}</p>
+    </div>
+    <div class="rounded-card border bg-surface-elevated p-5" [class]="facade.summary().toCollect > 0 ? 'border-accent/50' : 'border-border'">
+      <p class="text-eyebrow uppercase text-text-muted">Por cobrar</p>
+      <p class="mt-3 font-numeric text-heading-2 font-bold text-text-primary tabular-nums">S/ {{ facade.summary().toCollect | number: '1.2-2' }}</p>
+      <p class="mt-1 text-body-sm text-text-secondary">Ventas aún sin pagar</p>
+    </div>
+  </section>
+
+  <!-- Filtros -->
+  <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:max-w-xl">
+    <app-select-field inputId="sales-status" label="Estado" [options]="statusOptions" [value]="statusFilter()" (valueChange)="statusFilter.set($any($event))" />
+    <app-select-field inputId="sales-channel" label="Canal" [options]="channelOptions" [value]="channelFilter()" (valueChange)="channelFilter.set($event)" />
+  </div>
+
+  @if (facade.sales().length === 0) {
+    <app-empty-state
+      class="mt-8"
+      emptyStateId="sales-empty"
+      title="Aún no hay ventas registradas"
+      description="Cuando cierres una venta por WhatsApp o en tienda, anótala aquí para llevar el control y el stock."
+    >
+      <app-button empty-state-actions variant="primary" (click)="facade.openNew()">Registrar venta</app-button>
+    </app-empty-state>
+  } @else if (filtered().length === 0) {
+    <p class="mt-8 text-body-sm text-text-muted" data-sales-no-match>Ninguna venta coincide con esos filtros.</p>
+  } @else {
+    <div class="mt-6 overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+      <table class="w-full min-w-[56rem] border-collapse text-left" data-sales-table>
+        <thead class="border-b border-border bg-background-soft">
+          <tr>
+            <th scope="col" class="table-heading">Venta</th>
+            <th scope="col" class="table-heading">Cliente</th>
+            <th scope="col" class="table-heading">Qué se vendió</th>
+            <th scope="col" class="table-heading">Canal y pago</th>
+            <th scope="col" class="table-heading pr-8 text-right">Total</th>
+            <th scope="col" class="table-heading">Estado</th>
+            <th scope="col" class="table-heading text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          @for (sale of filtered(); track sale.id) {
+            <tr [class.opacity-60]="sale.anulada" data-sale-row>
+              <td class="px-5 py-4">
+                <p class="font-mono text-caption text-text-primary">{{ sale.codigo }}</p>
+                <p class="text-caption text-text-muted">{{ sale.fechaVenta | date: 'dd MMM yyyy' : undefined : 'es' }}</p>
+              </td>
+              <td class="px-5 py-4 text-body-sm">
+                <p class="font-medium text-text-primary">{{ customer(sale) }}</p>
+                @if (sale.clienteTelefono) {
+                  <p class="text-caption text-text-muted">{{ sale.clienteTelefono }}</p>
+                }
+              </td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">{{ linesSummary(sale) }}</td>
+              <td class="px-5 py-4 text-body-sm text-text-secondary">
+                {{ channelLabels[sale.canal] }} · {{ paymentLabels[sale.metodoPago] }}
+              </td>
+              <td class="py-4 pl-5 pr-8 text-right text-body-sm font-semibold text-text-primary tabular-nums">S/ {{ sale.total | number: '1.2-2' }}</td>
+              <td class="px-5 py-4">
+                @if (sale.anulada) {
+                  <app-badge variant="error" dot>Anulada</app-badge>
+                } @else if (sale.pagado) {
+                  <app-badge variant="success" dot>Cobrada</app-badge>
+                } @else {
+                  <app-badge variant="warning" dot>Por cobrar</app-badge>
+                }
+              </td>
+              <td class="px-5 py-4">
+                <div class="flex justify-end gap-2">
+                  @if (!sale.anulada) {
+                    <app-button size="small" variant="secondary" (click)="facade.openEdit(sale)">Editar</app-button>
+                    <app-button size="small" variant="ghost" (click)="requestCancel(sale)">Anular</app-button>
+                  } @else {
+                    <app-button size="small" variant="secondary" (click)="facade.setAnulada(sale, false)">Reactivar</app-button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}
+
+@if (facade.editing() !== null) {
+  <app-sale-form
+    [sale]="editingSale()"
+    [products]="facade.products()"
+    [submitting]="facade.saving()"
+    [serverError]="facade.formError()"
+    (canceled)="facade.closeForm()"
+    (saved)="save($event)"
+  />
+}
+
+@if (saleToCancel(); as sale) {
+  <app-modal
+    modalId="cancel-sale-modal"
+    title="Anular venta"
+    [description]="'La venta ' + sale.codigo + ' dejará de contar en los totales.'"
+    size="small"
+    [open]="true"
+    (closed)="saleToCancel.set(null)"
+  >
+    <p class="text-body-sm text-text-secondary">
+      @if (sale.stockDescontado) {
+        Se devolverá al stock lo que esta venta descontó. Podrás reactivarla más adelante.
+      } @else {
+        Podrás reactivarla más adelante.
+      }
+    </p>
+    <div modal-actions class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <app-button variant="secondary" (click)="saleToCancel.set(null)">Cancelar</app-button>
+      <app-button variant="primary" (click)="confirmCancel()">Anular venta</app-button>
+    </div>
+  </app-modal>
+}
