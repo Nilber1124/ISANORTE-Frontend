@@ -109,8 +109,6 @@ export const SITE_CONTENT_ENTITIES: readonly SiteContentEntity[] = [
       },
       { key: 'codigo', label: 'Código o número', type: 'text', maxLength: 80 },
       { key: 'anio', label: 'Año', type: 'number' },
-      { key: 'imagenUrl', label: 'Imagen', type: 'image' },
-      { key: 'imagenAlt', label: 'Texto alternativo de la imagen', type: 'text', maxLength: 300 },
     ],
   },
   {

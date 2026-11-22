@@ -361,18 +361,6 @@
             data-edit-fallback="tarjeta"
           >
             <div class="flex items-center justify-between gap-3">
-              @if (item.imagenUrl) {
-                <img
-                  data-edit-field="imagenUrl"
-                  [src]="item.imagenUrl"
-                  [alt]="item.imagenAlt ?? item.nombre"
-                  width="48"
-                  height="48"
-                  loading="lazy"
-                  decoding="async"
-                  class="size-12 shrink-0 rounded-control object-contain"
-                />
-              } @else {
                 <span
                   class="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent"
                   aria-hidden="true"
@@ -390,7 +378,6 @@
                     <path d="m9 12 2 2 4-4" />
                   </svg>
                 </span>
-              }
               <span
                 class="rounded-full border border-border px-3 py-1 text-caption font-semibold uppercase tracking-wider text-text-secondary"
                 data-edit-field="tipo"

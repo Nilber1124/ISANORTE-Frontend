@@ -78,7 +78,6 @@ export const CONTENT_ITEMS: Readonly<
   credencial: {
     endpoint: 'credenciales',
     heading: 'Credencial',
-    folder: 'isanorte/credenciales',
     defaults: { tipo: 'LICENCIA' },
     fields: [
       { key: 'nombre', label: 'Nombre', rows: 1, required: true },
@@ -97,8 +96,6 @@ export const CONTENT_ITEMS: Readonly<
       },
       { key: 'codigo', label: 'Código o número', rows: 1, required: false },
       { key: 'anio', label: 'Año desde el que la tenemos', rows: 1, required: false, number: true },
-      { key: 'imagenUrl', label: 'Imagen o logo', rows: 1, required: false, image: true },
-      { key: 'imagenAlt', label: 'Texto alternativo de la imagen', rows: 1, required: false },
     ],
   },
   empresa: {

@@ -214,8 +214,8 @@ no se tocan. - **Estadísticas** («+12 años», «+85»…): tocar la cifra abr
 - **Etiquetas de la cabecera** («Cajamarca», «Obra con garantía»…): una por línea (campo `tags` del contenido de página).
 
 - **Equipo y credenciales** (fase 2): cada tarjeta es un registro real (`/api/equipo`, `/api/credenciales`). Tocar su nombre, cargo, especialidad,
-  biografía, foto, entidad, tipo, código o año abre solo ese campo; tocar el resto de la tarjeta, todos. El formulario permite **cambiar la foto**
-  (subida), elegir el **tipo** de credencial y **eliminar** el elemento (con confirmación). En el panel del bloque, «Añadir un miembro» y «Añadir una
+  biografía, foto, entidad, tipo, código o año abre solo ese campo (las credenciales no llevan imagen: todas muestran el escudo por defecto); tocar el resto de la tarjeta, todos. El formulario permite **cambiar la foto**
+  (subida, solo en los miembros), elegir el **tipo** de credencial y **eliminar** el elemento (con confirmación). En el panel del bloque, «Añadir un miembro» y «Añadir una
   credencial» abren el formulario de alta (se crea al final de la lista, activo). La API pública incluye ahora el `id` de cada miembro y credencial.
   El editor genérico (`content-item-editor`) soporta campos de imagen, selectores, alta y baja.
 
