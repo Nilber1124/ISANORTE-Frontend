@@ -13,6 +13,7 @@ import { PublicContentApiService } from '../../../data/services/public-content-a
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import {
   PublicPageSeoDefaults,
+  DEFAULT_SHARE_IMAGE,
   applyPublicPageSeo,
   clearPublicPageSeo,
 } from '../../../shared/utils/public-page-seo.util';
@@ -59,9 +60,11 @@ export class PublicContactFacade {
   private readonly document = inject(DOCUMENT, { optional: true });
 
   private readonly seoDefaults: PublicPageSeoDefaults = {
-    title: 'Contacto | ISANORTE',
+    title: 'Contacto | ISANORTE Cajamarca',
     description:
-      'Ponte en contacto con ISANORTE para consultas, cotizaciones y asesoría especializada en proyectos de construcción.',
+      'Escríbenos por WhatsApp o llámanos para cotizar tu obra en Cajamarca.',
+    automatic: true,
+    imageUrl: DEFAULT_SHARE_IMAGE,
   };
 
   private readonly _page = signal<PublicPageResponse | null>(null);

@@ -8,6 +8,29 @@ export interface PublicPageSeoDefaults {
   description: string;
   /** Marca a usar como sufijo cuando el título proviene del contenido backend. Por defecto ISANORTE. */
   siteTitle?: string;
+  /**
+   * SEO automático (páginas de ISANORTE): se ignora lo guardado en el backend. El título es siempre `title`
+   * (fijo en el código, con palabras clave), la descripción sigue al texto de la página (introducción o
+   * descripción, recortado) y la imagen es la de la página o, si no tiene, `imageUrl`. Robots: indexar.
+   */
+  automatic?: boolean;
+  /** Imagen para compartir cuando la página no tiene una propia. */
+  imageUrl?: string;
+}
+
+/** Foto del sitio para las tarjetas de WhatsApp y Facebook cuando la página no tiene imagen propia. */
+export const DEFAULT_SHARE_IMAGE =
+  'https://res.cloudinary.com/dmf9fsyvt/image/upload/v1794862521/isanorte/hero/hero-exterior.jpg';
+
+const DESCRIPTION_MAX = 160;
+
+/** Recorta un texto a ~160 caracteres sin partir palabras, como pide Google para la descripción. */
+export function toMetaDescription(text: string): string {
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= DESCRIPTION_MAX) return clean;
+  const cut = clean.slice(0, DESCRIPTION_MAX - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > 80 ? cut.slice(0, lastSpace) : cut).replace(/[\s,.;:–-]+$/, '')}…`;
 }
 
 export interface PublicPageSeoSource {
@@ -73,26 +96,33 @@ export function applyPublicPageSeo(
   defaults: PublicPageSeoDefaults,
   doc?: Document | null,
 ): void {
-  // 1. Título: prioridad SEO backend -> contenido backend -> default de página
-  const seoTitle = page?.seo?.title?.trim();
+  const stored = defaults.automatic ? null : page?.seo;
+
+  // 1. Título: SEO backend -> contenido backend -> default de página (en modo automático, siempre el default)
+  const seoTitle = stored?.title?.trim();
   const contentTitle = page?.contenido?.titulo?.trim();
   const siteTitle = defaults.siteTitle || BASE_SITE_TITLE;
-  const title = seoTitle || (contentTitle ? `${contentTitle} | ${siteTitle}` : defaults.title);
+  const title = defaults.automatic
+    ? defaults.title
+    : seoTitle || (contentTitle ? `${contentTitle} | ${siteTitle}` : defaults.title);
 
-  // 2. Descripción: prioridad SEO backend -> introducción/descripción contenido -> default de página
-  const seoDesc = page?.seo?.description?.trim();
+  // 2. Descripción: SEO backend -> introducción/descripción del contenido -> default de página
+  const seoDesc = stored?.description?.trim();
   const contentIntro = page?.contenido?.introduccion?.trim();
   const contentDesc = page?.contenido?.descripcion?.trim();
-  const description = seoDesc || contentIntro || contentDesc || defaults.description;
+  const fromContent = contentIntro || contentDesc;
+  const description = defaults.automatic
+    ? toMetaDescription(fromContent || defaults.description)
+    : seoDesc || contentIntro || contentDesc || defaults.description;
 
   // 3. Imagen OpenGraph (URL absoluta obligatoria)
-  const seoImage = page?.seo?.ogImageUrl?.trim();
+  const seoImage = stored?.ogImageUrl?.trim();
   const contentImage = page?.contenido?.imagenUrl?.trim();
-  const rawImage = seoImage || contentImage || null;
+  const rawImage = seoImage || contentImage || defaults.imageUrl || null;
   const ogImageUrl = toAbsoluteUrl(rawImage, doc);
 
   // 4. Directiva robots
-  const robots = toRobotsDirective(page?.seo?.robots);
+  const robots = toRobotsDirective(stored?.robots);
 
   // Aplicar título y metadatos estándar
   titleService.setTitle(title);

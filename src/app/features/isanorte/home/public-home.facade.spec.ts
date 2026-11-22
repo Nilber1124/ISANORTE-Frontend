@@ -350,7 +350,7 @@ describe('PublicHomeFacade', () => {
     expect(facade.showStatistics()).toBe(false);
   });
 
-  it('applies dynamic SEO to document Title and Meta on successful load', () => {
+  it('applies the automatic SEO and ignores the SEO stored in the backend', () => {
     const source = new Subject<PublicHomeResponse>();
     api.response$ = source;
     facade.load();
@@ -365,37 +365,24 @@ describe('PublicHomeFacade', () => {
     });
     source.complete();
 
-    expect(facade.seo()).toEqual({
-      title: 'Home Especial | ISANORTE',
-      description: 'Construcción y diseño en ISANORTE.',
-      ogImageUrl: 'https://cdn.isanorte.com/home.jpg',
-      robots: SeoRobots.INDEX_FOLLOW,
-    });
-    expect(titleService.getTitle()).toBe('Home Especial | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toBe(
-      'Construcción y diseño en ISANORTE.',
-    );
+    // SEO automático: se ignora lo guardado en el backend.
+    expect(titleService.getTitle()).toBe('ISANORTE | Constructora en Cajamarca: planos, permisos y obra');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('ISANORTE | Constructora en Cajamarca: planos, permisos y obra');
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
-    expect(metaService.getTag('property="og:title"')?.content).toBe('Home Especial | ISANORTE');
-    expect(metaService.getTag('property="og:description"')?.content).toBe(
-      'Construcción y diseño en ISANORTE.',
-    );
     expect(metaService.getTag('property="og:type"')?.content).toBe('website');
-    expect(metaService.getTag('property="og:image"')?.content).toBe(
-      'https://cdn.isanorte.com/home.jpg',
-    );
+    expect(metaService.getTag('name="description"')?.content).not.toBe('Construcción y diseño en ISANORTE.');
+    expect(metaService.getTag('property="og:image"')?.content).not.toBe('https://cdn.isanorte.com/home.jpg');
+    expect(metaService.getTag('property="og:image"')?.content).toBeTruthy();
   });
 
   it('applies default SEO on API error', () => {
     api.response$ = throwError(() => new Error('offline'));
     facade.load();
 
-    expect(titleService.getTitle()).toBe('ISANORTE | Construcción e Ingeniería');
-    expect(metaService.getTag('name="description"')?.content).toContain(
-      'Empresa líder en construcción',
-    );
+    expect(titleService.getTitle()).toBe('ISANORTE | Constructora en Cajamarca: planos, permisos y obra');
+    expect(metaService.getTag('name="description"')?.content).toContain('Construimos tu casa o local en Cajamarca');
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
-    expect(metaService.getTag('property="og:image"')).toBeNull();
+    expect(metaService.getTag('property="og:image"')?.content).toContain('hero-exterior.jpg');
   });
 
   it('cleans up SEO tags and restores defaults when destroyed', () => {
@@ -417,8 +404,8 @@ describe('PublicHomeFacade', () => {
     });
     source.complete();
 
-    expect(titleService.getTitle()).toBe('Home Scoped | ISANORTE');
-    expect(metaService.getTag('property="og:title"')?.content).toBe('Home Scoped | ISANORTE');
+    expect(titleService.getTitle()).toBe('ISANORTE | Constructora en Cajamarca: planos, permisos y obra');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('ISANORTE | Constructora en Cajamarca: planos, permisos y obra');
 
     childInjector.destroy();
 

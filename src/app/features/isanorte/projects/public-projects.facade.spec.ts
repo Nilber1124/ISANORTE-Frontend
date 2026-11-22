@@ -175,7 +175,7 @@ describe('PublicProjectsFacade', () => {
     expect(facade.projects()).toEqual([]);
   });
 
-  it('applies dynamic SEO from backend on load', () => {
+  it('applies the automatic SEO and ignores the SEO stored in the backend', () => {
     const subject = new Subject<PublicPageResponse>();
     api.response$ = subject;
     facade.load();
@@ -189,27 +189,22 @@ describe('PublicProjectsFacade', () => {
       },
     });
 
-    expect(titleService.getTitle()).toBe('Portafolio de Obras | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toBe(
-      'Proyectos arquitectónicos y civiles.',
-    );
+    // SEO automático: se ignora lo guardado en el backend.
+    expect(titleService.getTitle()).toBe('Proyectos y obras en Cajamarca | ISANORTE');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('Proyectos y obras en Cajamarca | ISANORTE');
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
-    expect(metaService.getTag('property="og:title"')?.content).toBe(
-      'Portafolio de Obras | ISANORTE',
-    );
-    expect(metaService.getTag('property="og:image"')?.content).toBe(
-      'https://cdn.isanorte.com/proyectos.jpg',
-    );
+    expect(metaService.getTag('property="og:type"')?.content).toBe('website');
+    expect(metaService.getTag('name="description"')?.content).not.toBe('Proyectos arquitectónicos y civiles.');
+    expect(metaService.getTag('property="og:image"')?.content).not.toBe('https://cdn.isanorte.com/proyectos.jpg');
+    expect(metaService.getTag('property="og:image"')?.content).toBeTruthy();
   });
 
   it('applies default SEO for Proyectos on error', () => {
     api.response$ = throwError(() => new Error('offline'));
     facade.load();
 
-    expect(titleService.getTitle()).toBe('Proyectos | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toContain(
-      'Explora nuestro portafolio de proyectos',
-    );
+    expect(titleService.getTitle()).toBe('Proyectos y obras en Cajamarca | ISANORTE');
+    expect(metaService.getTag('name="description"')?.content).toContain('Viviendas, edificios, remodelaciones');
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
   });
 
@@ -231,7 +226,7 @@ describe('PublicProjectsFacade', () => {
       },
     });
 
-    expect(titleService.getTitle()).toBe('Proyectos de Infraestructura');
+    expect(titleService.getTitle()).toBe('Proyectos y obras en Cajamarca | ISANORTE');
 
     childInjector.destroy();
 

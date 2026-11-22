@@ -15,6 +15,7 @@ import {
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import {
   PublicPageSeoDefaults,
+  DEFAULT_SHARE_IMAGE,
   applyPublicPageSeo,
   clearPublicPageSeo,
 } from '../../../shared/utils/public-page-seo.util';
@@ -35,9 +36,11 @@ export class PublicProjectsFacade {
   private readonly document = inject(DOCUMENT, { optional: true });
 
   private readonly seoDefaults: PublicPageSeoDefaults = {
-    title: 'Proyectos | ISANORTE',
+    title: 'Proyectos y obras en Cajamarca | ISANORTE',
     description:
-      'Explora nuestro portafolio de proyectos y obras de construcción y edificación ejecutadas por ISANORTE.',
+      'Viviendas, edificios, remodelaciones y galpones construidos por ISANORTE en la región Cajamarca.',
+    automatic: true,
+    imageUrl: DEFAULT_SHARE_IMAGE,
   };
 
   private readonly _page = signal<PublicPageResponse | null>(null);

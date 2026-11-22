@@ -17,6 +17,7 @@ import { PublicContentApiService } from '../../../data/services/public-content-a
 import { CinematicScene } from '../../../shared/components/cinematic-tour/cinematic-tour';
 import {
   PublicPageSeoDefaults,
+  DEFAULT_SHARE_IMAGE,
   applyPublicPageSeo,
   clearPublicPageSeo,
 } from '../../../shared/utils/public-page-seo.util';
@@ -45,9 +46,11 @@ export class PublicHomeFacade {
   private readonly document = inject(DOCUMENT, { optional: true });
 
   private readonly seoDefaults: PublicPageSeoDefaults = {
-    title: 'ISANORTE | Construcción e Ingeniería',
+    title: 'ISANORTE | Constructora en Cajamarca: planos, permisos y obra',
     description:
-      'Empresa líder en construcción, diseño arquitectónico, ingeniería y desarrollo de proyectos integrales.',
+      'Construimos tu casa o local en Cajamarca con un solo equipo: planos, licencias, ejecución y supervisión. Pide tu cotización.',
+    automatic: true,
+    imageUrl: DEFAULT_SHARE_IMAGE,
   };
 
   private readonly _home = signal<PublicHomeResponse | null>(null);

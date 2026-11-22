@@ -157,7 +157,7 @@ describe('PublicAboutFacade', () => {
     expect(facade.values()).toEqual([]);
   });
 
-  it('applies dynamic SEO to document Title and Meta on successful load', () => {
+  it('applies the automatic SEO and ignores the SEO stored in the backend', () => {
     const subject = new Subject<PublicPageResponse>();
     api.response$ = subject;
     facade.load();
@@ -171,29 +171,24 @@ describe('PublicAboutFacade', () => {
       },
     });
 
-    expect(titleService.getTitle()).toBe('Nosotros Especial | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toBe(
-      'Historia y valores de ISANORTE.',
-    );
+    // SEO automático: se ignora lo guardado en el backend.
+    expect(titleService.getTitle()).toBe('Nosotros | ISANORTE Cajamarca');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('Nosotros | ISANORTE Cajamarca');
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
-    expect(metaService.getTag('property="og:title"')?.content).toBe('Nosotros Especial | ISANORTE');
-    expect(metaService.getTag('property="og:description"')?.content).toBe(
-      'Historia y valores de ISANORTE.',
-    );
     expect(metaService.getTag('property="og:type"')?.content).toBe('website');
-    expect(metaService.getTag('property="og:image"')?.content).toBe(
-      'https://cdn.isanorte.com/about.jpg',
-    );
+    expect(metaService.getTag('name="description"')?.content).not.toBe('Historia y valores de ISANORTE.');
+    expect(metaService.getTag('property="og:image"')?.content).not.toBe('https://cdn.isanorte.com/about.jpg');
+    expect(metaService.getTag('property="og:image"')?.content).toBeTruthy();
   });
 
   it('applies default SEO on API error', () => {
     api.response$ = throwError(() => new Error('offline'));
     facade.load();
 
-    expect(titleService.getTitle()).toBe('Nosotros | ISANORTE');
-    expect(metaService.getTag('name="description"')?.content).toContain('Conoce la trayectoria');
+    expect(titleService.getTitle()).toBe('Nosotros | ISANORTE Cajamarca');
+    expect(metaService.getTag('name="description"')?.content).toContain('Conoce al equipo de ISANORTE');
     expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
-    expect(metaService.getTag('property="og:image"')).toBeNull();
+    expect(metaService.getTag('property="og:image"')?.content).toContain('hero-exterior.jpg');
   });
 
   it('cleans up SEO tags and restores defaults when destroyed', () => {
@@ -206,8 +201,8 @@ describe('PublicAboutFacade', () => {
     scopedFacade.load();
     subject.next(response);
 
-    expect(titleService.getTitle()).toBe('SEO API');
-    expect(metaService.getTag('property="og:title"')?.content).toBe('SEO API');
+    expect(titleService.getTitle()).toBe('Nosotros | ISANORTE Cajamarca');
+    expect(metaService.getTag('property="og:title"')?.content).toBe('Nosotros | ISANORTE Cajamarca');
 
     childInjector.destroy();
 

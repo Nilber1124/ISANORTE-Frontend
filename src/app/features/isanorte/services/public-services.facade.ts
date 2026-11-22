@@ -13,6 +13,7 @@ import {
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import {
   PublicPageSeoDefaults,
+  DEFAULT_SHARE_IMAGE,
   applyPublicPageSeo,
   clearPublicPageSeo,
 } from '../../../shared/utils/public-page-seo.util';
@@ -26,9 +27,11 @@ export class PublicServicesFacade {
   private readonly document = inject(DOCUMENT, { optional: true });
 
   private readonly seoDefaults: PublicPageSeoDefaults = {
-    title: 'Servicios | ISANORTE',
+    title: 'Servicios de construcción en Cajamarca | ISANORTE',
     description:
-      'Descubre nuestros servicios integrales de construcción, diseño arquitectónico, consultoría y ejecución de proyectos de ingeniería.',
+      'Planos, ejecución y supervisión, topografía, saneamiento físico legal, habilitaciones urbanas, remodelaciones, interiores y estructuras metálicas.',
+    automatic: true,
+    imageUrl: DEFAULT_SHARE_IMAGE,
   };
 
   private readonly _page = signal<PublicPageResponse | null>(null);

@@ -13,6 +13,7 @@ import {
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
 import {
   PublicPageSeoDefaults,
+  DEFAULT_SHARE_IMAGE,
   applyPublicPageSeo,
   clearPublicPageSeo,
 } from '../../../shared/utils/public-page-seo.util';
@@ -32,9 +33,11 @@ export class PublicAboutFacade {
   private readonly document = inject(DOCUMENT, { optional: true });
 
   private readonly seoDefaults: PublicPageSeoDefaults = {
-    title: 'Nosotros | ISANORTE',
+    title: 'Nosotros | ISANORTE Cajamarca',
     description:
-      'Conoce la trayectoria, misión, visión y valores corporativos de ISANORTE, empresa líder en construcción e ingeniería.',
+      'Conoce al equipo de ISANORTE: ingenieros y arquitectos de Cajamarca con 12 años de experiencia en obra.',
+    automatic: true,
+    imageUrl: DEFAULT_SHARE_IMAGE,
   };
 
   private readonly _page = signal<PublicPageResponse | null>(null);

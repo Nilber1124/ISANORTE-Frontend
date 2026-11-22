@@ -6,8 +6,10 @@ import { PublicPageResponse, PublicPageType } from '../../data/models/public-con
 import {
   BASE_SITE_DESCRIPTION,
   BASE_SITE_TITLE,
+  DEFAULT_SHARE_IMAGE,
   applyPublicPageSeo,
   clearPublicPageSeo,
+  toMetaDescription,
   toAbsoluteUrl,
   toRobotsDirective,
 } from './public-page-seo.util';
@@ -158,6 +160,55 @@ describe('public-page-seo.util', () => {
       expect(metaService.getTag('property="og:description"')).toBeNull();
       expect(metaService.getTag('property="og:type"')).toBeNull();
       expect(metaService.getTag('property="og:image"')).toBeNull();
+    });
+  });
+
+  describe('automatic SEO', () => {
+    const auto = {
+      title: 'Nosotros | ISANORTE Cajamarca',
+      description: 'Descripción fija de Nosotros.',
+      automatic: true,
+      imageUrl: DEFAULT_SHARE_IMAGE,
+    };
+    const stored = {
+      title: 'Título guardado',
+      description: 'Descripción guardada',
+      ogImageUrl: 'https://cdn.example.com/guardada.jpg',
+      robots: SeoRobots.NOINDEX_NOFOLLOW,
+    };
+
+    it('ignores the stored SEO: fixed title, always indexable', () => {
+      applyPublicPageSeo(titleService, metaService, { seo: stored, contenido: { titulo: 'Otro título' } }, auto);
+      expect(titleService.getTitle()).toBe('Nosotros | ISANORTE Cajamarca');
+      expect(metaService.getTag('property="og:title"')?.content).toBe('Nosotros | ISANORTE Cajamarca');
+      expect(metaService.getTag('name="robots"')?.content).toBe('index, follow');
+      expect(metaService.getTag('property="og:image"')?.content).not.toContain('guardada.jpg');
+    });
+
+    it('follows the page text for the description and its own image when it has one', () => {
+      applyPublicPageSeo(
+        titleService,
+        metaService,
+        { contenido: { introduccion: 'Introducción editada por el cliente.', imagenUrl: 'https://cdn.example.com/pagina.jpg' } },
+        auto,
+      );
+      expect(metaService.getTag('name="description"')?.content).toBe('Introducción editada por el cliente.');
+      expect(metaService.getTag('property="og:image"')?.content).toBe('https://cdn.example.com/pagina.jpg');
+    });
+
+    it('falls back to the fixed description and the default share image', () => {
+      applyPublicPageSeo(titleService, metaService, { contenido: {} }, auto);
+      expect(metaService.getTag('name="description"')?.content).toBe('Descripción fija de Nosotros.');
+      expect(metaService.getTag('property="og:image"')?.content).toBe(DEFAULT_SHARE_IMAGE);
+    });
+
+    it('cuts long descriptions near 160 characters without splitting words', () => {
+      const long = 'palabra '.repeat(40);
+      const cut = toMetaDescription(long);
+      expect(cut.length).toBeLessThanOrEqual(160);
+      expect(cut.endsWith('…')).toBe(true);
+      expect(cut).not.toMatch(/palabr…$/);
+      expect(toMetaDescription('  Corta   y  limpia ')).toBe('Corta y limpia');
     });
   });
 });
