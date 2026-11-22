@@ -3,7 +3,7 @@
 Resultado de la auditoría del admin (30 pantallas a escritorio, 23 a 375 px, y lectura del código).
 Este documento convierte esos hallazgos en fases ejecutables.
 
-**Estado:** Fase 1 ✅ · Fase 2 ✅ · Fase 3: 3.1 ✅, 3.2 pendiente · Fase 4 pendiente.
+**Estado:** Fase 1 ✅ · Fase 2 ✅ · Fase 3 ✅ (3.3 opcional, no hecha) · Fase 4 pendiente.
 
 **Decisión tomada en la Fase 2:** el SEO deja de administrarse (ver «SEO automático» abajo). «Páginas y SEO» desaparece del admin.
 
@@ -70,7 +70,7 @@ Tamaño: **L**. Se hace después de las fases 1 y 2.
 | # | Tarea | Hecho cuando |
 |---|---|---|
 | 3.1 ✅ | **Anuncios:** como la tienda no los consume y la tabla está vacía, dejarlo solo para la **cinta superior de ISANORTE**: título «Cinta de anuncios», destino fijo ISANORTE, **con entrada en el menú** (grupo «Web»), y quitar de la interfaz las pestañas de ISADECOR (Promociones, Anuncios, Productos destacados, Categorías superiores). El backend no se toca. | una sola cinta administrable, sin duplicados con `home-isadecor/*` |
-| 3.2 | **Una pantalla «Home de ISADECOR»** con secciones plegables que reutilizan los editores actuales (Hero, Cinta de avisos, Promociones, Campaña, Bloque de servicio + puntos, Secciones de productos, Reseñas, Videos de redes). Las 9 rutas antiguas redirigen al apartado correspondiente. | el menú de ISADECOR Home pasa de 9 entradas a 1 |
+| 3.2 ✅ | **Una pantalla «Home de ISADECOR»** con secciones plegables que reutilizan los editores actuales (Hero, Cinta de avisos, Promociones, Campaña, Bloque de servicio + puntos, Secciones de productos, Reseñas, Videos de redes). Las 9 rutas antiguas redirigen al apartado correspondiente. | el menú de ISADECOR Home pasa de 9 entradas a 1 |
 | 3.3 | *(Opcional, después)* Vista previa editable del Home de ISADECOR, como la de ISANORTE. Es un proyecto aparte. | — |
 
 ## Fase 4 · Dashboard útil (riesgo bajo)

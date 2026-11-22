@@ -312,3 +312,12 @@ Se quitó el **panel lateral de anuncios** de la web de ISANORTE (la pestaña na
 - Frontend: se borraron `features/announcements`, `features/admin/announcements`, `AnnouncementApiService` y su modelo. El layout público ya no pide `/api/publico/anuncios/ISANORTE`.
 - Las rutas `/admin/anuncios` y `/admin/isadecor-landing` redirigen a `/admin`.
 - **El backend no se tocó:** los endpoints de anuncios y la tabla `anuncios` (vacía) siguen existiendo; se pueden retirar con una migración cuando se decida.
+
+### Home de ISADECOR en una sola pantalla (Fase 3.2)
+
+Las 9 entradas del grupo «ISADECOR · Home» (casi todas con uno o dos elementos) se reunieron en **una sola entrada, «Home de ISADECOR»**, dentro del grupo Tienda: `/admin/home-isadecor` (`AdminIsadecorHome`).
+
+- **8 secciones plegables, en el orden en que salen en la web:** Hero de la Home, Cinta de avisos, Promociones, Campaña, Secciones de productos, Bloque de servicio (con «Puntos del servicio» dentro), Reseñas del Home y Videos de redes.
+- Cada sección reutiliza su pantalla de siempre, incrustada (`AdminSiteContent` y `AdminHomeReviews` aceptan `embedded`, y `AdminSiteContent` acepta `entityKey`), y **solo se carga al abrirla**. Todas empiezan cerradas; `?seccion=<id>` abre una directamente.
+- Las 9 rutas antiguas (`/admin/home-isadecor/hero`, `cinta`, `promociones`, `campana`, `servicio`, `servicio-puntos`, `secciones`, `resenas`, `publicaciones`) **redirigen** a su sección (`servicio-puntos` abre «Bloque de servicio»).
+- La web pública de ISADECOR no cambia: solo cambia dónde se edita.
