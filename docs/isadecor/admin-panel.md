@@ -195,3 +195,18 @@ se guardan en la tabla `textos_bloque` (migración `V9`; una fila por bloque con
 - Las **tarjetas** no se editan en texto: al tocar una se abre «Proyectos en la Home» (`projects-order-editor`), donde solo se cambia
   **qué proyectos salen y en qué orden** (campos `destacado` y `orden`). La Home muestra los 4 primeros activos y destacados por
   orden; los demás aparecen atenuados con aviso. Los textos y fotos de cada proyecto siguen en `/admin/proyectos`.
+
+## Vista previa de «Nosotros» (fase 1)
+
+La vista previa tiene un selector **Inicio / Nosotros**. La página Nosotros usa el mismo puente (`?editor=1`, `editor-bridge.ts` iniciado en
+`about.ts`) y sus secciones tienen `id` (`cabecera`, `estadisticas`, `valores`, `equipo`, `credenciales`, `cobertura`; lista en `ABOUT_BLOCKS`).
+
+Ya se editan, tocando el texto (un campo cada vez, con escritura en vivo salvo listas y números):
+- **Cabecera:** frase pequeña, título, introducción y descripción (contenido de página NOSOTROS, `/api/contenidos-pagina`).
+- **Misión, Visión y Valores** (campos de la empresa; los valores, uno por línea, se guardan separados por « | »).
+- **Año de fundación** y **lugares de cobertura** (separados por coma), de la empresa.
+- **Cabeceras** de Equipo, Credenciales y respaldo, y «Dónde trabajamos» (`textos_bloque`, claves `equipo`, `credenciales`, `cobertura`).
+
+La empresa se guarda con `PUT /api/empresa/{id}` enviando solo sus campos planos (`EmpresaUpdateRequest`): las redes sociales y estadísticas
+no se tocan. Pendiente de «Nosotros»: estadísticas, etiquetas de la cabecera, tarjetas de equipo y credenciales (crear/editar/borrar) y el
+selector de ubicación del mapa.
