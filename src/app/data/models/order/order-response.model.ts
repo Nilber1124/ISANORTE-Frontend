@@ -35,6 +35,11 @@ export interface OrderResponse {
   ruc: string | null;
   razonSocial: string | null;
   estado: OrderStatus;
+  metodoEntrega: 'DELIVERY' | 'RECOJO_TIENDA';
+  costoEnvio: number;
+  metodoPago: string | null;
+  referenciaPago: string | null;
+  fechaPago: string | null;
   totalPedido: number | null;
   stockDescontado: boolean;
   detalles: OrderDetailResponse[] | null;

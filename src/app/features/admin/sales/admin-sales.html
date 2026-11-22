@@ -1,7 +1,7 @@
 <app-admin-page-header
   eyebrow="Catálogo ISADECOR"
   title="Ventas"
-  description="Registra las ventas hechas por WhatsApp, en tienda u otro canal. Al guardarlas descuentan el stock de los productos del catálogo."
+  description="Todo lo vendido en un solo lugar: los pedidos pagados en la tienda online y las ventas que registras a mano (WhatsApp, tienda física u otro canal)."
 >
   <app-button variant="primary" (click)="facade.openNew()">Registrar venta</app-button>
 </app-admin-page-header>
@@ -28,7 +28,7 @@
     <div class="rounded-card border bg-surface-elevated p-5" [class]="facade.summary().toCollect > 0 ? 'border-accent/50' : 'border-border'">
       <p class="text-eyebrow uppercase text-text-muted">Por cobrar</p>
       <p class="mt-3 font-numeric text-heading-2 font-bold text-text-primary tabular-nums">S/ {{ facade.summary().toCollect | number: '1.2-2' }}</p>
-      <p class="mt-1 text-body-sm text-text-secondary">Ventas aún sin pagar</p>
+      <p class="mt-1 text-body-sm text-text-secondary">Ventas registradas a mano sin pagar</p>
     </div>
   </section>
 
@@ -106,6 +106,56 @@
       </table>
     </div>
   }
+
+  <!-- Pedidos de la tienda online -->
+  <section class="mt-12" aria-labelledby="online-orders-title" data-online-orders>
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h2 id="online-orders-title" class="text-heading-3 text-text-primary">Tienda online</h2>
+        <p class="mt-1 text-body-sm text-text-secondary">
+          Pedidos hechos por la web. Se cobran con la pasarela y se gestionan en Pedidos.
+        </p>
+      </div>
+      <app-button size="small" variant="secondary" href="/admin/pedidos">Gestionar pedidos</app-button>
+    </div>
+    @if (facade.onlineOrders().length === 0) {
+      <p class="mt-4 text-body-sm text-text-muted">Todavía no hay pedidos de la tienda online.</p>
+    } @else {
+      <div class="mt-4 overflow-x-auto rounded-card border border-border bg-surface shadow-card">
+        <table class="w-full min-w-[44rem] border-collapse text-left" data-online-orders-table>
+          <thead class="border-b border-border bg-background-soft">
+            <tr>
+              <th scope="col" class="table-heading">Pedido</th>
+              <th scope="col" class="table-heading">Entrega</th>
+              <th scope="col" class="table-heading">Pago</th>
+              <th scope="col" class="table-heading pr-8 text-right">Total</th>
+              <th scope="col" class="table-heading">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border">
+            @for (order of recentOnlineOrders(); track order.id) {
+              <tr data-online-order-row>
+                <td class="px-5 py-4">
+                  <p class="font-mono text-caption text-text-primary">{{ order.codigo }}</p>
+                  <p class="text-caption text-text-muted">{{ order.fechaCreacion | date: 'dd MMM yyyy' : undefined : 'es' }}</p>
+                </td>
+                <td class="px-5 py-4 text-body-sm text-text-secondary">
+                  {{ order.metodoEntrega === 'RECOJO_TIENDA' ? 'Recojo en tienda' : 'Delivery' }}
+                </td>
+                <td class="px-5 py-4 text-body-sm text-text-secondary">{{ order.metodoPago ?? 'Sin pagar' }}</td>
+                <td class="py-4 pl-5 pr-8 text-right text-body-sm font-semibold text-text-primary tabular-nums">
+                  @if (order.totalPedido !== null) { S/ {{ order.totalPedido | number: '1.2-2' }} } @else { — }
+                </td>
+                <td class="px-5 py-4">
+                  <app-badge [variant]="orderBadge(order.estado)" dot>{{ orderLabel(order.estado) }}</app-badge>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
 }
 
 @if (facade.editing() !== null) {

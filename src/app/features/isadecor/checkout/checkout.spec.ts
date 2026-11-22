@@ -50,6 +50,11 @@ class CheckoutFacadeStub {
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
   readonly orderResult = signal(null);
+  readonly storeConfig = signal<{ pagoSimulado: boolean; recojoHabilitado: boolean; costoDelivery: number } | null>(null);
+  readonly deliveryMethod = signal<'DELIVERY' | 'RECOJO_TIENDA'>('DELIVERY');
+  readonly shippingCost = signal(0);
+  readonly paying = signal(false);
+  readonly paymentMessage = signal<string | null>(null);
   readonly mergeCalls: Array<{ slug: string; quantity: number }> = [];
   readonly submitCalls: CheckoutSubmission[] = [];
   loadAddressesCalls = 0;
@@ -57,6 +62,11 @@ class CheckoutFacadeStub {
   loadAddresses(): void {
     this.loadAddressesCalls++;
   }
+  loadStoreConfig(): void {}
+  setDeliveryMethod(method: 'DELIVERY' | 'RECOJO_TIENDA'): void {
+    this.deliveryMethod.set(method);
+  }
+  pay(): void {}
   mergeProductIntoCart(slug: string, quantity: number): void {
     this.mergeCalls.push({ slug, quantity });
   }
@@ -130,6 +140,18 @@ describe('Checkout', () => {
     expect(component.fieldErrors().telefonoContacto).toBeTruthy();
   });
 
+  it('does not ask for an address when the order is picked up in store', async () => {
+    await create({});
+    facade.setDeliveryMethod('RECOJO_TIENDA');
+    cart.addProduct(product, null, 1);
+    fixture.detectChanges();
+    const component = fixture.componentInstance as unknown as { submit(event: Event): void } & Checkout;
+    component.submit(new Event('submit'));
+    expect(facade.submitCalls).toEqual([
+      { direccionId: null, direccionNueva: null, ruc: null, razonSocial: null, metodoEntrega: 'RECOJO_TIENDA' },
+    ]);
+  });
+
   it('submits the saved address id and blocks an empty-cart submit', async () => {
     await create({});
     facade.addresses.set(addresses);
@@ -144,7 +166,7 @@ describe('Checkout', () => {
     cart.addProduct(product, null, 1);
     component.submit(new Event('submit'));
     expect(facade.submitCalls).toEqual([
-      { direccionId: 'addr-1', direccionNueva: null, ruc: null, razonSocial: null },
+      { direccionId: 'addr-1', direccionNueva: null, ruc: null, razonSocial: null, metodoEntrega: 'DELIVERY' },
     ]);
   });
 
@@ -173,6 +195,7 @@ describe('Checkout', () => {
         },
         ruc: null,
         razonSocial: null,
+        metodoEntrega: 'DELIVERY',
       },
     ]);
   });

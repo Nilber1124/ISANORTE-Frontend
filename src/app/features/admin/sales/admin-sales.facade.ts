@@ -1,10 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 
+import { OrderResponse } from '../../../data/models/order/order-response.model';
+import { OrderStatus } from '../../../data/models/order/order-status.enum';
 import { ProductResponse } from '../../../data/models/product/product-response.model';
 import { ProductPublicationStatus } from '../../../data/models/product/product-publication-status.enum';
 import { SaleRequest, SaleResponse } from '../../../data/models/sale/sale.model';
+import { OrderApiService } from '../../../data/services/order-api.service';
 import { ProductApiService } from '../../../data/services/product-api.service';
 import { SaleApiService } from '../../../data/services/sale-api.service';
 
@@ -13,10 +16,13 @@ import { SaleApiService } from '../../../data/services/sale-api.service';
 export class AdminSalesFacade {
   private readonly saleApi = inject(SaleApiService);
   private readonly productApi = inject(ProductApiService);
+  private readonly orderApi = inject(OrderApiService);
 
   readonly sales = signal<readonly SaleResponse[]>([]);
   /** Productos publicados con su stock, para elegirlos al registrar una venta. */
   readonly products = signal<readonly ProductResponse[]>([]);
+  /** Pedidos de la tienda online: se suman a los totales y se listan aparte. */
+  readonly onlineOrders = signal<readonly OrderResponse[]>([]);
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
@@ -26,15 +32,27 @@ export class AdminSalesFacade {
   /** `null` = cerrado; `'new'` = alta; si no, la venta en edición. */
   readonly editing = signal<SaleResponse | 'new' | null>(null);
 
-  /** Lo vendido hoy y en el mes (las anuladas no cuentan). */
+  /** Un pedido online cuenta como vendido una vez pagado y mientras no se cancele. */
+  private readonly paidOnlineOrders = computed(() =>
+    this.onlineOrders().filter(
+      (order) => order.estado !== OrderStatus.PENDIENTE_PAGO && order.estado !== OrderStatus.CANCELADO,
+    ),
+  );
+
+  /** Lo vendido hoy y en el mes, en todos los canales (las anuladas y canceladas no cuentan). */
   readonly summary = computed(() => {
     const now = new Date();
     const today = this.isoDate(now);
     const month = today.slice(0, 7);
     const valid = this.sales().filter((sale) => !sale.anulada);
-    const sum = (list: readonly SaleResponse[]) => list.reduce((total, sale) => total + sale.total, 0);
-    const todaySales = valid.filter((sale) => sale.fechaVenta === today);
-    const monthSales = valid.filter((sale) => sale.fechaVenta.startsWith(month));
+    const online = this.paidOnlineOrders().map((order) => ({
+      fecha: this.localDate(order.fechaPago ?? order.fechaCreacion),
+      total: order.totalPedido ?? 0,
+    }));
+    const all = [...valid.map((sale) => ({ fecha: sale.fechaVenta, total: sale.total })), ...online];
+    const sum = (list: readonly { total: number }[]) => list.reduce((total, item) => total + item.total, 0);
+    const todaySales = all.filter((item) => item.fecha === today);
+    const monthSales = all.filter((item) => item.fecha.startsWith(month));
     return {
       todayTotal: sum(todaySales),
       todayCount: todaySales.length,
@@ -47,9 +65,14 @@ export class AdminSalesFacade {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    forkJoin({ sales: this.saleApi.getAll(), products: this.productApi.getAll() }).subscribe({
-      next: ({ sales, products }) => {
+    forkJoin({
+      sales: this.saleApi.getAll(),
+      products: this.productApi.getAll(),
+      orders: this.orderApi.getAll().pipe(catchError(() => of([] as OrderResponse[]))),
+    }).subscribe({
+      next: ({ sales, products, orders }) => {
         this.sales.set(sales);
+        this.onlineOrders.set(orders);
         this.products.set(products.filter((p) => p.estado === ProductPublicationStatus.PUBLICADO));
         this.loading.set(false);
       },
@@ -113,6 +136,10 @@ export class AdminSalesFacade {
   private message(error: unknown, fallback: string): string {
     const body = error instanceof HttpErrorResponse ? (error.error as { message?: string } | null) : null;
     return body?.message || fallback;
+  }
+
+  private localDate(value: string | null): string {
+    return value ? this.isoDate(new Date(value)) : '';
   }
 
   private isoDate(date: Date): string {

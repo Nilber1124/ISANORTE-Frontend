@@ -19,6 +19,7 @@ const sale = (patch: Partial<SaleResponse>): SaleResponse =>
 class FacadeStub {
   readonly sales = signal<readonly SaleResponse[]>([]);
   readonly products = signal<readonly unknown[]>([]);
+  readonly onlineOrders = signal<readonly unknown[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);

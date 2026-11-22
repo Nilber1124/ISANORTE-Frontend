@@ -27,6 +27,7 @@ const ORDER_CERRADOS: ReadonlySet<OrderStatus> = new Set([
 const ORDER_ESTADO_VARIANTS: Record<OrderStatus, BadgeVariant> = {
   [OrderStatus.PENDIENTE_PAGO]: 'warning',
   [OrderStatus.PAGADO_MANUAL]: 'info',
+  [OrderStatus.PAGADO_ONLINE]: 'info',
   [OrderStatus.EN_PREPARACION]: 'accent',
   [OrderStatus.ENVIADO]: 'accent',
   [OrderStatus.ENTREGADO]: 'success',
@@ -36,6 +37,7 @@ const ORDER_ESTADO_VARIANTS: Record<OrderStatus, BadgeVariant> = {
 const ORDER_ESTADO_LABELS: Record<OrderStatus, string> = {
   [OrderStatus.PENDIENTE_PAGO]: 'Pendiente de pago',
   [OrderStatus.PAGADO_MANUAL]: 'Pago confirmado',
+  [OrderStatus.PAGADO_ONLINE]: 'Pagado en línea',
   [OrderStatus.EN_PREPARACION]: 'En preparación',
   [OrderStatus.ENVIADO]: 'Enviado',
   [OrderStatus.ENTREGADO]: 'Entregado',

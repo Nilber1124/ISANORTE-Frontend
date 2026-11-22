@@ -14,7 +14,8 @@ const order: PublicOrderResponse = {
   direccionDistrito: 'Miraflores',
   direccionCiudad: 'Lima',
   estado: OrderStatus.PENDIENTE_PAGO,
-  totalPedido: null,
+  metodoEntrega: 'DELIVERY' as const, costoEnvio: 0, metodoPago: null, referenciaPago: null, fechaPago: null, 
+    totalPedido: null,
   detalles: [],
   fechaCreacion: '2026-09-23T02:00:00',
 };

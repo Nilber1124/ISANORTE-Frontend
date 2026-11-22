@@ -35,6 +35,42 @@
         </div>
       </div>
 
+      <section aria-labelledby="order-payment-title" data-order-payment>
+        <div class="flex items-end justify-between gap-4">
+          <h3 id="order-payment-title" class="text-heading-4 text-text-primary">Entrega y pago</h3>
+          <app-button size="small" variant="secondary" (click)="printReceipt(order)">
+            Imprimir comprobante
+          </app-button>
+        </div>
+        <app-card class="mt-4" padding="small">
+          <dl class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <dt class="detail-label">Entrega</dt>
+              <dd class="detail-value">
+                {{ order.metodoEntrega === 'RECOJO_TIENDA' ? 'Recojo en tienda' : 'Delivery' }}
+                · Envío S/ {{ order.costoEnvio | number: '1.2-2' }}
+              </dd>
+            </div>
+            <div>
+              <dt class="detail-label">Pago</dt>
+              <dd class="detail-value">
+                @if (order.metodoPago) {
+                  {{ order.metodoPago }} · ref. {{ order.referenciaPago ?? '—' }}
+                } @else {
+                  Sin pagar
+                }
+              </dd>
+            </div>
+            @if (order.fechaPago) {
+              <div>
+                <dt class="detail-label">Pagado el</dt>
+                <dd class="detail-value">{{ order.fechaPago | date: 'dd/MM/yyyy, HH:mm' }}</dd>
+              </div>
+            }
+          </dl>
+        </app-card>
+      </section>
+
       <section aria-labelledby="order-address-title">
         <h3 id="order-address-title" class="text-heading-4 text-text-primary">Dirección de envío</h3>
         <app-card class="mt-4" padding="small">

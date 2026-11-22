@@ -20,7 +20,8 @@ const order: OrderResponse = {
   razonSocial: null,
   estado: OrderStatus.PENDIENTE_PAGO,
   totalPedido: null,
-  stockDescontado: true,
+  metodoEntrega: 'DELIVERY' as const, costoEnvio: 0, metodoPago: null, referenciaPago: null, fechaPago: null, 
+    stockDescontado: true,
   detalles: [
     {
       id: 'detail-1',

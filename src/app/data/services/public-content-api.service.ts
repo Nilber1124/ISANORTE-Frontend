@@ -32,8 +32,10 @@ import {
 } from '../models/public-content/public-product-catalog.model';
 import { PublicProductDetailResponse } from '../models/public-content/public-product-detail.model';
 import {
+  OrderPaymentResponse,
   PublicOrderRequest,
   PublicOrderResponse,
+  StoreConfig,
 } from '../models/public-content/public-order.model';
 import { PublicTrustResponse } from '../models/public-content/public-trust.model';
 import { PublicSiteResponse } from '../models/public-content/public-site.model';
@@ -222,6 +224,19 @@ export class PublicContentApiService {
     return this.http.post<PublicOrderResponse>(
       `${this.resourceUrl}/${encodeURIComponent(siteKey)}/unidades/${encodeURIComponent(unitSlug)}/pedidos`,
       request,
+      { context: conSesionCliente() },
+    );
+  }
+
+  getStoreConfig(): Observable<StoreConfig> {
+    return this.http.get<StoreConfig>(`${this.apiBaseUrl}/api/publico/tienda/config`);
+  }
+
+  /** Cobra el pedido con la pasarela activa. En modo simulado el token es APROBADO o RECHAZADO. */
+  payOrder(code: string, token: string): Observable<OrderPaymentResponse> {
+    return this.http.post<OrderPaymentResponse>(
+      `${this.apiBaseUrl}/api/publico/cuenta/pedidos/${encodeURIComponent(code)}/pago`,
+      { token },
       { context: conSesionCliente() },
     );
   }

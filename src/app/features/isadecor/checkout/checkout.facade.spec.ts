@@ -55,7 +55,7 @@ const submission: CheckoutSubmission = {
   direccionId: 'addr-1',
   direccionNueva: null,
   ruc: null,
-  razonSocial: null,
+  razonSocial: null, metodoEntrega: 'DELIVERY' as const,
 };
 
 const response: PublicOrderResponse = {
@@ -64,7 +64,8 @@ const response: PublicOrderResponse = {
   direccionDistrito: 'Miraflores',
   direccionCiudad: 'Lima',
   estado: OrderStatus.PENDIENTE_PAGO,
-  totalPedido: null,
+  metodoEntrega: 'DELIVERY' as const, costoEnvio: 0, metodoPago: null, referenciaPago: null, fechaPago: null, 
+    totalPedido: null,
   detalles: [],
   fechaCreacion: '2026-09-23T02:00:00',
 };
@@ -180,7 +181,7 @@ describe('CheckoutFacade', () => {
         telefonoContacto: '999999999',
       },
       ruc: '20123456789',
-      razonSocial: 'Constructora XYZ',
+      razonSocial: 'Constructora XYZ', metodoEntrega: 'DELIVERY' as const,
     });
 
     expect(publicApi.requestedOrderParams[0].request).toEqual({
@@ -193,6 +194,7 @@ describe('CheckoutFacade', () => {
       direccionTelefonoContacto: '999999999',
       ruc: '20123456789',
       razonSocial: 'Constructora XYZ',
+      metodoEntrega: 'DELIVERY',
       detalles: [{ productoSlug: product.slug, varianteSku: null, cantidad: 1 }],
     });
   });

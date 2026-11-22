@@ -19,6 +19,8 @@ import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { InputField } from '../../../shared/components/input-field/input-field';
 import { Loading } from '../../../shared/components/loading/loading';
 import { SelectField, SelectOption } from '../../../shared/components/select-field/select-field';
+import { printReceipt } from '../../../shared/utils/print-receipt';
+import { DeliveryMethod } from '../../../data/models/public-content/public-order.model';
 import { AddressResponse } from '../../../data/models/address/address.model';
 import { CheckoutFacade } from './checkout.facade';
 
@@ -71,6 +73,8 @@ export class Checkout {
   readonly razonSocial = signal('');
   readonly submitted = signal(false);
 
+  readonly needsAddress = computed(() => this.facade.deliveryMethod() === 'DELIVERY');
+  readonly grandTotal = computed(() => this.cart.estimatedTotal() + this.facade.shippingCost());
   readonly usingNewAddress = computed(() => this.selectedAddressId() === NEW_ADDRESS_OPTION);
   readonly addressOptions = computed<SelectOption[]>(() => [
     ...this.facade.addresses().map((address) => ({
@@ -83,6 +87,7 @@ export class Checkout {
 
   constructor() {
     this.facade.loadAddresses();
+    this.facade.loadStoreConfig();
 
     // Preselecciona la dirección principal una vez carga, salvo que el cliente ya haya elegido algo.
     effect(() => {
@@ -112,6 +117,34 @@ export class Checkout {
     this.selectedAddressId.set(id);
   }
 
+  protected chooseDelivery(method: DeliveryMethod): void {
+    this.facade.setDeliveryMethod(method);
+  }
+
+  protected printReceipt(): void {
+    const order = this.facade.orderResult();
+    if (!order) return;
+    printReceipt({
+      code: order.codigo,
+      date: order.fechaCreacion,
+      deliveryLabel:
+        order.metodoEntrega === 'RECOJO_TIENDA'
+          ? 'Recojo en tienda'
+          : `Delivery a ${order.direccionCalle}, ${order.direccionDistrito}`,
+      paymentLabel: order.metodoPago
+        ? `${order.metodoPago} · ref. ${order.referenciaPago ?? '-'}`
+        : 'Pendiente',
+      lines: order.detalles.map((detail) => ({
+        name: detail.nombreProducto,
+        quantity: detail.cantidad,
+        unitPrice: detail.precioUnitario,
+        subtotal: detail.subtotal,
+      })),
+      shippingCost: order.costoEnvio,
+      total: order.totalPedido,
+    });
+  }
+
   protected submit(event: Event): void {
     event.preventDefault();
     this.submitted.set(true);
@@ -120,8 +153,9 @@ export class Checkout {
     }
 
     this.facade.submit({
-      direccionId: this.usingNewAddress() ? null : this.selectedAddressId(),
-      direccionNueva: this.usingNewAddress()
+      metodoEntrega: this.facade.deliveryMethod(),
+      direccionId: !this.needsAddress() || this.usingNewAddress() ? null : this.selectedAddressId(),
+      direccionNueva: this.needsAddress() && this.usingNewAddress()
         ? {
             alias: this.optionalValue(this.alias()),
             calle: this.calle().trim(),
@@ -137,7 +171,7 @@ export class Checkout {
   }
 
   private validationErrors(): CheckoutFieldErrors {
-    if (!this.submitted() || !this.usingNewAddress()) return {};
+    if (!this.submitted() || !this.needsAddress() || !this.usingNewAddress()) return {};
     return {
       calle: this.calle().trim() ? undefined : 'Ingresa la calle o avenida.',
       distrito: this.distrito().trim() ? undefined : 'Ingresa el distrito.',

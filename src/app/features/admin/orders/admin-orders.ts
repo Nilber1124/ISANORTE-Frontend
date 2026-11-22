@@ -40,6 +40,7 @@ export class AdminOrders {
     { value: 'ALL', label: 'Todos' },
     { value: OrderStatus.PENDIENTE_PAGO, label: 'Pendiente de pago' },
     { value: OrderStatus.PAGADO_MANUAL, label: 'Pago confirmado' },
+    { value: OrderStatus.PAGADO_ONLINE, label: 'Pagado en línea' },
     { value: OrderStatus.EN_PREPARACION, label: 'En preparación' },
     { value: OrderStatus.ENVIADO, label: 'Enviado' },
     { value: OrderStatus.ENTREGADO, label: 'Entregado' },
@@ -63,6 +64,7 @@ export class AdminOrders {
     return {
       [OrderStatus.PENDIENTE_PAGO]: 'Pendiente de pago',
       [OrderStatus.PAGADO_MANUAL]: 'Pago confirmado',
+      [OrderStatus.PAGADO_ONLINE]: 'Pagado en línea',
       [OrderStatus.EN_PREPARACION]: 'En preparación',
       [OrderStatus.ENVIADO]: 'Enviado',
       [OrderStatus.ENTREGADO]: 'Entregado',
@@ -74,6 +76,7 @@ export class AdminOrders {
     return {
       [OrderStatus.PENDIENTE_PAGO]: 'warning' as const,
       [OrderStatus.PAGADO_MANUAL]: 'info' as const,
+      [OrderStatus.PAGADO_ONLINE]: 'info' as const,
       [OrderStatus.EN_PREPARACION]: 'accent' as const,
       [OrderStatus.ENVIADO]: 'accent' as const,
       [OrderStatus.ENTREGADO]: 'success' as const,

@@ -59,7 +59,7 @@ export class AdminDashboardFacade {
     const count = (status: OrderStatus) => open.filter((o) => o.estado === status).length;
     const orderParts = [
       count(OrderStatus.PENDIENTE_PAGO) > 0 ? `${plural(count(OrderStatus.PENDIENTE_PAGO), 'pendiente de pago', 'pendientes de pago')}` : null,
-      count(OrderStatus.PAGADO_MANUAL) > 0 ? `${count(OrderStatus.PAGADO_MANUAL)} por preparar` : null,
+      count(OrderStatus.PAGADO_MANUAL) + count(OrderStatus.PAGADO_ONLINE) > 0 ? `${count(OrderStatus.PAGADO_MANUAL) + count(OrderStatus.PAGADO_ONLINE)} por preparar` : null,
       count(OrderStatus.EN_PREPARACION) > 0 ? `${count(OrderStatus.EN_PREPARACION)} en preparación` : null,
       count(OrderStatus.ENVIADO) > 0 ? `${count(OrderStatus.ENVIADO)} en camino` : null,
     ].filter((part): part is string => part !== null);

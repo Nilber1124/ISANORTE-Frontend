@@ -2,6 +2,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, afterNextRender, computed, inject, signal } from '@angular/core';
 
 import { SALE_CHANNEL_LABELS, SALE_PAYMENT_LABELS, SaleChannel, SaleRequest, SaleResponse } from '../../../data/models/sale/sale.model';
+import { OrderStatus } from '../../../data/models/order/order-status.enum';
 import { Alert } from '../../../shared/components/alert/alert';
 import { Badge } from '../../../shared/components/badge/badge';
 import { Button } from '../../../shared/components/button/button';
@@ -55,6 +56,32 @@ export class AdminSales {
       return true;
     });
   });
+
+  protected readonly recentOnlineOrders = computed(() =>
+    [...this.facade.onlineOrders()]
+      .sort((a, b) => (b.fechaCreacion ?? '').localeCompare(a.fechaCreacion ?? ''))
+      .slice(0, 15),
+  );
+
+  protected orderLabel(status: OrderStatus): string {
+    const labels: Record<OrderStatus, string> = {
+      [OrderStatus.PENDIENTE_PAGO]: 'Pendiente de pago',
+      [OrderStatus.PAGADO_MANUAL]: 'Pago confirmado',
+      [OrderStatus.PAGADO_ONLINE]: 'Pagado en línea',
+      [OrderStatus.EN_PREPARACION]: 'En preparación',
+      [OrderStatus.ENVIADO]: 'Enviado',
+      [OrderStatus.ENTREGADO]: 'Entregado',
+      [OrderStatus.CANCELADO]: 'Cancelado',
+    };
+    return labels[status];
+  }
+
+  protected orderBadge(status: OrderStatus): 'success' | 'warning' | 'error' | 'info' {
+    if (status === OrderStatus.PENDIENTE_PAGO) return 'warning';
+    if (status === OrderStatus.CANCELADO) return 'error';
+    if (status === OrderStatus.ENTREGADO) return 'success';
+    return 'info';
+  }
 
   constructor() {
     afterNextRender(() => this.facade.load());

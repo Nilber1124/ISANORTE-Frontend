@@ -6,11 +6,12 @@ import { filter, map, startWith } from 'rxjs';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { findNavigationItem } from '../admin-navigation';
+import { AdminNotifications } from './admin-notifications';
 import { AccessibilityWidget } from '../../../../shared/components/accessibility-widget/accessibility-widget';
 
 @Component({
   selector: 'app-admin-topbar',
-  imports: [AccessibilityWidget],
+  imports: [AccessibilityWidget, AdminNotifications],
   templateUrl: './admin-topbar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

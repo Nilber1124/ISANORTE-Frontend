@@ -5,6 +5,7 @@ import { OrderResponse } from '../../../../../data/models/order/order-response.m
 import { OrderStatus } from '../../../../../data/models/order/order-status.enum';
 import { Alert } from '../../../../../shared/components/alert/alert';
 import { Badge, BadgeVariant } from '../../../../../shared/components/badge/badge';
+import { printReceipt } from '../../../../../shared/utils/print-receipt';
 import { Button } from '../../../../../shared/components/button/button';
 import { Card } from '../../../../../shared/components/card/card';
 import { EmptyState } from '../../../../../shared/components/empty-state/empty-state';
@@ -47,6 +48,7 @@ export class OrderDetail {
   readonly statusOptions: readonly SelectOption[] = [
     { value: OrderStatus.PENDIENTE_PAGO, label: 'Pendiente de pago' },
     { value: OrderStatus.PAGADO_MANUAL, label: 'Pago confirmado' },
+    { value: OrderStatus.PAGADO_ONLINE, label: 'Pagado en línea' },
     { value: OrderStatus.EN_PREPARACION, label: 'En preparación' },
     { value: OrderStatus.ENVIADO, label: 'Enviado' },
     { value: OrderStatus.ENTREGADO, label: 'Entregado' },
@@ -68,11 +70,34 @@ export class OrderDetail {
     this.statusChanged.emit(this.nextStatus());
   }
 
+  protected printReceipt(order: OrderResponse): void {
+    printReceipt({
+      code: order.codigo,
+      date: order.fechaCreacion,
+      deliveryLabel:
+        order.metodoEntrega === 'RECOJO_TIENDA'
+          ? 'Recojo en tienda'
+          : `Delivery a ${order.direccionCalle}, ${order.direccionDistrito}`,
+      paymentLabel: order.metodoPago
+        ? `${order.metodoPago} · ref. ${order.referenciaPago ?? '-'}`
+        : 'Sin pagar',
+      lines: (order.detalles ?? []).map((detail) => ({
+        name: detail.nombreProducto,
+        quantity: detail.cantidad,
+        unitPrice: detail.precioUnitario,
+        subtotal: detail.subtotal,
+      })),
+      shippingCost: order.costoEnvio,
+      total: order.totalPedido,
+    });
+  }
+
   protected statusLabel(status: OrderStatus | null): string {
     if (status === null) return 'Sin estado';
     return {
       [OrderStatus.PENDIENTE_PAGO]: 'Pendiente de pago',
       [OrderStatus.PAGADO_MANUAL]: 'Pago confirmado',
+      [OrderStatus.PAGADO_ONLINE]: 'Pagado en línea',
       [OrderStatus.EN_PREPARACION]: 'En preparación',
       [OrderStatus.ENVIADO]: 'Enviado',
       [OrderStatus.ENTREGADO]: 'Entregado',
@@ -84,6 +109,7 @@ export class OrderDetail {
     return {
       [OrderStatus.PENDIENTE_PAGO]: 'warning' as const,
       [OrderStatus.PAGADO_MANUAL]: 'info' as const,
+      [OrderStatus.PAGADO_ONLINE]: 'info' as const,
       [OrderStatus.EN_PREPARACION]: 'accent' as const,
       [OrderStatus.ENVIADO]: 'accent' as const,
       [OrderStatus.ENTREGADO]: 'success' as const,

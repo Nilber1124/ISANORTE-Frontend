@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 
 import { SaleResponse } from '../../../data/models/sale/sale.model';
+import { OrderApiService } from '../../../data/services/order-api.service';
 import { ProductApiService } from '../../../data/services/product-api.service';
 import { SaleApiService } from '../../../data/services/sale-api.service';
 import { AdminSalesFacade } from './admin-sales.facade';
@@ -13,12 +14,14 @@ const sale = (patch: Partial<SaleResponse>): SaleResponse =>
 describe('AdminSalesFacade', () => {
   const saleApi = { getAll: vi.fn(), create: vi.fn(), update: vi.fn(), setAnulada: vi.fn() };
   const productApi = { getAll: vi.fn() };
+  const orderApi = { getAll: vi.fn() };
 
-  function create(sales: SaleResponse[] = []) {
+  function create(sales: SaleResponse[] = [], orders: unknown[] = []) {
+    orderApi.getAll.mockReturnValue(of(orders));
     saleApi.getAll.mockReturnValue(of(sales));
     productApi.getAll.mockReturnValue(of([{ id: 'p1', estado: 'PUBLICADO' }, { id: 'p2', estado: 'BORRADOR' }]));
     TestBed.configureTestingModule({
-      providers: [AdminSalesFacade, { provide: SaleApiService, useValue: saleApi }, { provide: ProductApiService, useValue: productApi }],
+      providers: [AdminSalesFacade, { provide: SaleApiService, useValue: saleApi }, { provide: ProductApiService, useValue: productApi }, { provide: OrderApiService, useValue: orderApi }],
     });
     const facade = TestBed.inject(AdminSalesFacade);
     facade.load();
@@ -30,6 +33,7 @@ describe('AdminSalesFacade', () => {
     vi.setSystemTime(new Date(2026, 10, 22, 12, 0, 0)); // 22 nov 2026
     Object.values(saleApi).forEach((fn) => fn.mockReset());
     productApi.getAll.mockReset();
+    orderApi.getAll.mockReset();
   });
   afterEach(() => vi.useRealTimers());
 
@@ -49,6 +53,26 @@ describe('AdminSalesFacade', () => {
       sale({ id: '5', fechaVenta: '2026-11-22', total: 70, anulada: true }),
     ]);
     expect(facade.summary()).toEqual({ todayTotal: 150, todayCount: 2, monthTotal: 350, monthCount: 3, toCollect: 50 });
+  });
+
+  it('counts paid online orders in the totals and ignores pending or cancelled ones', () => {
+    const order = (estado: string, total: number) => ({ id: estado, estado, totalPedido: total, fechaCreacion: '2026-11-22T10:00:00', fechaPago: '2026-11-22T10:05:00' });
+    const facade = create([], [order('PAGADO_ONLINE', 130), order('PENDIENTE_PAGO', 999), order('CANCELADO', 888)]);
+    expect(facade.onlineOrders()).toHaveLength(3);
+    expect(facade.summary()).toMatchObject({ todayTotal: 130, todayCount: 1, monthTotal: 130, monthCount: 1 });
+  });
+
+  it('keeps the manual sales when the online orders cannot be loaded', () => {
+    saleApi.getAll.mockReturnValue(of([sale({})]));
+    productApi.getAll.mockReturnValue(of([]));
+    orderApi.getAll.mockReturnValue(throwError(() => new Error('x')));
+    TestBed.configureTestingModule({
+      providers: [AdminSalesFacade, { provide: SaleApiService, useValue: saleApi }, { provide: ProductApiService, useValue: productApi }, { provide: OrderApiService, useValue: orderApi }],
+    });
+    const facade = TestBed.inject(AdminSalesFacade);
+    facade.load();
+    expect(facade.sales()).toHaveLength(1);
+    expect(facade.onlineOrders()).toEqual([]);
   });
 
   it('saves a new sale, closes the form and reloads', () => {

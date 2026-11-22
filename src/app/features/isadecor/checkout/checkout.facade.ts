@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { DestroyRef, Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 
@@ -8,8 +8,10 @@ import { ISADECOR_UNIT_SLUG, PUBLIC_SITE_KEY } from '../../../core/config/public
 import { IsadecorQuoteCartService } from '../../../core/services/isadecor-quote-cart.service';
 import { AddressResponse } from '../../../data/models/address/address.model';
 import {
+  DeliveryMethod,
   PublicOrderRequest,
   PublicOrderResponse,
+  StoreConfig,
 } from '../../../data/models/public-content/public-order.model';
 import { ClienteApiService } from '../../../data/services/cliente-api.service';
 import { PublicContentApiService } from '../../../data/services/public-content-api.service';
@@ -28,6 +30,7 @@ export interface CheckoutSubmission {
   direccionNueva: CheckoutNewAddressDetails | null;
   ruc: string | null;
   razonSocial: string | null;
+  metodoEntrega: DeliveryMethod;
 }
 
 @Injectable()
@@ -51,6 +54,61 @@ export class CheckoutFacade {
   readonly submitting = this._submitting.asReadonly();
   readonly error = this._error.asReadonly();
   readonly orderResult = this._orderResult.asReadonly();
+
+  private readonly _storeConfig = signal<StoreConfig | null>(null);
+  private readonly _deliveryMethod = signal<DeliveryMethod>('DELIVERY');
+  private readonly _paying = signal(false);
+  private readonly _paymentMessage = signal<string | null>(null);
+
+  readonly storeConfig = this._storeConfig.asReadonly();
+  readonly deliveryMethod = this._deliveryMethod.asReadonly();
+  readonly paying = this._paying.asReadonly();
+  readonly paymentMessage = this._paymentMessage.asReadonly();
+
+  /** Envío que se cobrará según la entrega elegida; 0 mientras no cargue la configuración. */
+  readonly shippingCost = computed(() =>
+    this._deliveryMethod() === 'RECOJO_TIENDA' ? 0 : (this._storeConfig()?.costoDelivery ?? 0),
+  );
+
+  setDeliveryMethod(method: DeliveryMethod): void {
+    this._deliveryMethod.set(method);
+  }
+
+  loadStoreConfig(): void {
+    this.publicApi
+      .getStoreConfig()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (config) => {
+          this._storeConfig.set(config);
+          if (!config.recojoHabilitado) this._deliveryMethod.set('DELIVERY');
+        },
+        error: () => this._storeConfig.set(null),
+      });
+  }
+
+  /** Paga el pedido recién creado. En modo simulado `approve` decide si la pasarela aprueba o rechaza. */
+  pay(approve: boolean): void {
+    const order = this._orderResult();
+    if (!order || this._paying()) return;
+
+    this._paying.set(true);
+    this._paymentMessage.set(null);
+    this.publicApi
+      .payOrder(order.codigo, approve ? 'APROBADO' : 'RECHAZADO')
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this._paying.set(false)),
+      )
+      .subscribe({
+        next: (response) => {
+          this._orderResult.set(response.pedido);
+          this._paymentMessage.set(response.aprobado ? null : response.mensaje);
+        },
+        error: () =>
+          this._paymentMessage.set('No pudimos procesar el pago. Inténtalo nuevamente en unos minutos.'),
+      });
+  }
 
   /**
    * Agrega al carrito compartido el producto recibido por `?producto=slug` (botón "Comprar ahora"
@@ -107,6 +165,7 @@ export class CheckoutFacade {
       direccionTelefonoContacto: details.direccionNueva?.telefonoContacto ?? null,
       ruc: details.ruc,
       razonSocial: details.razonSocial,
+      metodoEntrega: details.metodoEntrega,
       detalles: items.map((item) => ({
         productoSlug: item.productSlug,
         varianteSku: item.variant?.sku ?? null,
