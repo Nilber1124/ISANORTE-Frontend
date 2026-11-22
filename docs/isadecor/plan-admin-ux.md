@@ -3,7 +3,7 @@
 Resultado de la auditoría del admin (30 pantallas a escritorio, 23 a 375 px, y lectura del código).
 Este documento convierte esos hallazgos en fases ejecutables.
 
-**Estado:** Fase 1 ✅ · Fase 2 ✅ · Fase 3 ✅ (3.3 opcional, no hecha) · Fase 4 pendiente.
+**Estado:** Fase 1 ✅ · Fase 2 ✅ · Fase 3 ✅ (3.3 opcional, no hecha) · Fase 4 ✅.
 
 **Decisión tomada en la Fase 2:** el SEO deja de administrarse (ver «SEO automático» abajo). «Páginas y SEO» desaparece del admin.
 
@@ -73,7 +73,7 @@ Tamaño: **L**. Se hace después de las fases 1 y 2.
 | 3.2 ✅ | **Una pantalla «Home de ISADECOR»** con secciones plegables que reutilizan los editores actuales (Hero, Cinta de avisos, Promociones, Campaña, Bloque de servicio + puntos, Secciones de productos, Reseñas, Videos de redes). Las 9 rutas antiguas redirigen al apartado correspondiente. | el menú de ISADECOR Home pasa de 9 entradas a 1 |
 | 3.3 | *(Opcional, después)* Vista previa editable del Home de ISADECOR, como la de ISANORTE. Es un proyecto aparte. | — |
 
-## Fase 4 · Dashboard útil (riesgo bajo)
+## Fase 4 · Dashboard útil (riesgo bajo) — ✅ hecha
 
 Tamaño: **S–M**.
 

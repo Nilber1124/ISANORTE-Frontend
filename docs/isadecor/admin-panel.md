@@ -321,3 +321,13 @@ Las 9 entradas del grupo «ISADECOR · Home» (casi todas con uno o dos elemento
 - Cada sección reutiliza su pantalla de siempre, incrustada (`AdminSiteContent` y `AdminHomeReviews` aceptan `embedded`, y `AdminSiteContent` acepta `entityKey`), y **solo se carga al abrirla**. Todas empiezan cerradas; `?seccion=<id>` abre una directamente.
 - Las 9 rutas antiguas (`/admin/home-isadecor/hero`, `cinta`, `promociones`, `campana`, `servicio`, `servicio-puntos`, `secciones`, `resenas`, `publicaciones`) **redirigen** a su sección (`servicio-puntos` abre «Bloque de servicio»).
 - La web pública de ISADECOR no cambia: solo cambia dónde se edita.
+
+### Dashboard de pendientes (Fase 4)
+
+El dashboard dejó de mostrar contadores de volumen y pasó a decir **qué hay que atender hoy**. Todo se calcula en el frontend con los endpoints que ya existían (no se tocó el backend).
+
+- **«Para atender hoy»:** tarjetas con número, detalle y enlace a la pantalla donde se resuelve; solo aparecen las que tienen algo pendiente. Si no hay nada, una línea «Todo al día». Las tarjetas son: **cotizaciones nuevas** (estado NUEVA), **cotizaciones en revisión**, **pedidos por gestionar** (todo lo que no está entregado ni cancelado, con el desglose pendientes de pago · por preparar · en preparación · en camino), **productos agotados**, **productos con poco stock** (en o por debajo del mínimo de cada producto; solo publicados) y **proyectos sin foto** (activos sin portada).
+- **Lo último que entró:** las 5 cotizaciones y los 5 pedidos más recientes con su estado.
+- **Accesos rápidos:** Landing, Productos, Cotizaciones y Pedidos.
+- Una línea final resume lo publicado en la web (productos, proyectos y servicios).
+- La lógica de stock se extrajo a `features/admin/products/product-stock.util.ts` y la comparten Productos y el dashboard.
