@@ -52,6 +52,7 @@ export interface PublicServiceBenefit {
 
 /** Servicio editorial público usado exclusivamente por la página Servicios. */
 export interface PublicService {
+  id: string;
   nombre: string;
   slug: string;
   etiqueta: string | null;
@@ -79,6 +80,7 @@ export interface PublicProjectImage {
 
 /** Proyecto editorial público usado exclusivamente por la página Proyectos. */
 export interface PublicProject {
+  id: string;
   nombre: string;
   slug: string;
   descripcion: string | null;

@@ -1,8 +1,16 @@
 import { DOCUMENT } from '@angular/common';
 import { SmoothDetails } from '../../../shared/directives/smooth-details.directive';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  afterNextRender,
+  computed,
+  inject,
+} from '@angular/core';
 
 import { AccessibilityService } from '../../../core/services/accessibility.service';
+import { initEditorBridge } from '../../../shared/utils/editor-bridge';
 import { PublicTrustStore } from '../../../data/services/public-trust.store';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { Alert } from '../../../shared/components/alert/alert';
@@ -30,6 +38,14 @@ export class Services {
   constructor() {
     this.facade.load();
     this.trust.load();
+
+    // Dentro de la vista previa del admin (?editor=1) los bloques se pueden señalar para editarlos.
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const win = this.document.defaultView;
+      const stop = win ? initEditorBridge(this.document, win) : null;
+      if (stop) destroyRef.onDestroy(stop);
+    });
   }
 
   /** WhatsApp general de la empresa (para el cierre de la página); null si no hay número. */

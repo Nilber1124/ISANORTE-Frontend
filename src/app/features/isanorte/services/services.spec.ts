@@ -37,6 +37,7 @@ class PublicServicesFacadeStub {
   readonly error = signal<string | null>(null);
   readonly services = signal<readonly PublicService[]>([
     {
+      id: 'svc-39',
       nombre: 'Servicio API cero',
       slug: 'servicio-api-cero',
       etiqueta: 'ETIQUETA API',
@@ -48,6 +49,7 @@ class PublicServicesFacadeStub {
       beneficios: [{ texto: 'Beneficio API cero', orden: 0 }],
     },
     {
+      id: 'svc-50',
       nombre: 'Servicio API sin imagen',
       slug: 'servicio-api-sin-imagen',
       etiqueta: null,

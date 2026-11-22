@@ -11,6 +11,7 @@ function project(
   images: PublicProjectImage[] = [],
 ): PublicProject {
   return {
+    id: slug,
     nombre: slug,
     slug,
     descripcion: null,
@@ -18,7 +19,7 @@ function project(
     fechaProyecto: null,
     orden,
     imagenes: images,
-    servicios: services.map((service) => ({ nombre: service, slug: service })) as never,
+    servicios: services.map((service) => ({ id: 'p1', nombre: service, slug: service })) as never,
   };
 }
 

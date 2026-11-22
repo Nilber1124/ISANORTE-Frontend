@@ -87,6 +87,22 @@
                 (saved)="serviceSaved()"
                 (closed)="closePanelEdit()"
               />
+            } @else if (edit.kind === 'proy') {
+              <app-project-card-editor
+                [projectId]="edit.id"
+                [field]="edit.field"
+                (draftChanged)="setProjectCardDraft(edit.id, $event)"
+                (saved)="serviceSaved()"
+                (closed)="closePanelEdit()"
+              />
+            } @else if (edit.kind === 'svc') {
+              <app-service-card-editor
+                [serviceId]="edit.id"
+                [field]="edit.field"
+                (draftChanged)="setServiceCardDraft(edit.id, $event)"
+                (saved)="serviceSaved()"
+                (closed)="closePanelEdit()"
+              />
             } @else if (edit.kind === 'map') {
               <app-map-location-editor (saved)="serviceSaved()" (closed)="closePanelEdit()" />
             } @else if (edit.kind === 'projects') {
@@ -112,6 +128,7 @@
                 [kind]="edit.item"
                 [itemId]="edit.id"
                 [field]="edit.field"
+                [extras]="edit.extras ?? null"
                 (draftChanged)="setContentDraft(edit.item, edit.id, $event)"
                 (saved)="serviceSaved()"
                 (closed)="closePanelEdit()"
@@ -197,7 +214,7 @@
                   </p>
                 }
                 @if (block.create; as create) {
-                  <app-button variant="primary" (click)="startCreate(create.item)">{{ create.label }}</app-button>
+                  <app-button variant="primary" (click)="startCreate(create.item, create.extras)">{{ create.label }}</app-button>
                 }
                 @if (block.screen; as screen) {
                   <a

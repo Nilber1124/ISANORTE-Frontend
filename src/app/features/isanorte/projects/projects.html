@@ -36,10 +36,11 @@
     <app-alert variant="error" title="Proyectos">{{ error }}</app-alert>
   </div>
 } @else if (facade.content(); as content) {
-  <app-page-header [eyebrow]="content.eyebrow" [title]="content.titulo" />
+  <section id="cabecera"><app-page-header [eyebrow]="content.eyebrow" [title]="content.titulo" /></section>
 
   @if (facade.showProjects()) {
     <section
+      id="proyectos"
       class="section-space bg-background-soft"
       aria-label="Obras y proyectos"
       data-projects-list
@@ -110,6 +111,8 @@
     class="group block aspect-[4/3] cursor-pointer"
     [routerLink]="['/proyectos', project.slug]"
     [attr.data-project-slug]="project.slug"
+    [attr.data-edit-item]="'proy:' + project.id"
+    data-edit-fallback="tarjeta"
     [attr.aria-label]="'Ver proyecto ' + project.nombre"
   >
     <app-card padding="none" class="h-full">
@@ -122,23 +125,28 @@
         />
       }
       <div
+        data-edit-field="imagenUrl"
         class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/5"
         aria-hidden="true"
       ></div>
       <div class="absolute inset-x-0 bottom-0 p-6">
-        <h2 class="text-heading-3 text-white">{{ project.nombre }}</h2>
+        <h2 data-edit-field="nombre" class="text-heading-3 text-white">{{ project.nombre }}</h2>
         @if (project.descripcion) {
-          <p class="mt-2 line-clamp-2 max-w-[46ch] whitespace-pre-line text-body-sm text-white/85">
+          <p data-edit-field="descripcion" class="mt-2 line-clamp-2 max-w-[46ch] whitespace-pre-line text-body-sm text-white/85">
             {{ project.descripcion }}
           </p>
         }
         @if (project.ubicacion || project.fechaProyecto) {
           <p class="mt-3 text-caption font-semibold uppercase tracking-wider text-white/70">
-            {{ project.ubicacion }}
+            @if (project.ubicacion) {
+              <span data-edit-field="ubicacion">{{ project.ubicacion }}</span>
+            }
             @if (project.ubicacion && project.fechaProyecto) {
               <span aria-hidden="true"> · </span>
             }
-            {{ project.fechaProyecto }}
+            @if (project.fechaProyecto) {
+              <span data-edit-field="fechaProyecto">{{ project.fechaProyecto }}</span>
+            }
           </p>
         }
       </div>

@@ -41,10 +41,11 @@
     </app-alert>
   </div>
 } @else if (facade.content(); as content) {
-  <app-page-header [eyebrow]="content.eyebrow" [title]="content.titulo" />
+  <section id="cabecera"><app-page-header [eyebrow]="content.eyebrow" [title]="content.titulo" /></section>
 
   @if (facade.showServices()) {
     <section
+      id="servicios"
       class="section-space bg-background-soft"
       aria-label="Listado de servicios"
       data-services-list
@@ -81,8 +82,10 @@
                 data-reveal="up"
                 [attr.data-reveal-order]="i"
                 [attr.data-service-slug]="service.slug"
+                [attr.data-edit-item]="'svc:' + service.id"
+                data-edit-fallback="tarjeta"
               >
-                <div class="relative aspect-[4/3] overflow-hidden lg:aspect-auto lg:min-h-[22rem]">
+                <div data-edit-field="imagenUrl" class="relative aspect-[4/3] overflow-hidden lg:aspect-auto lg:min-h-[22rem]">
                   @if (service.imagenUrl) {
                     <img
                       class="absolute inset-0 h-full w-full object-cover transition-transform duration-entry ease-[var(--ease-standard)] group-hover:scale-105"
@@ -100,16 +103,16 @@
                     </p>
                   }
 
-                  <h2 class="text-heading-2 text-text-primary">{{ service.nombre }}</h2>
+                  <h2 data-edit-field="nombre" class="text-heading-2 text-text-primary">{{ service.nombre }}</h2>
 
                   @if (service.descripcion) {
-                    <p class="mt-4 max-w-[60ch] text-body text-text-secondary">
+                    <p data-edit-field="descripcion" class="mt-4 max-w-[60ch] text-body text-text-secondary">
                       {{ service.descripcion }}
                     </p>
                   }
 
                   @if (service.beneficios.length) {
-                    <ul class="mt-6 flex flex-col gap-3">
+                    <ul data-edit-field="beneficios" class="mt-6 flex flex-col gap-3">
                       @for (
                         benefit of service.beneficios;
                         track benefit.orden + ':' + benefit.texto
@@ -165,6 +168,7 @@
   @if (trust.faqsFor('SERVICIOS').length > 0) {
     <section
       class="app-container grid gap-10 py-16 lg:grid-cols-12 lg:gap-14 lg:py-24"
+      id="preguntas"
       aria-labelledby="faq-servicios"
       data-services-faq
     >
@@ -181,11 +185,16 @@
       </div>
       <div class="flex flex-col gap-3 lg:col-span-8">
         @for (faq of trust.faqsFor('SERVICIOS'); track faq.pregunta) {
-          <details appSmoothDetails class="group rounded-card border border-border bg-surface p-5">
+          <details
+            appSmoothDetails
+            class="group rounded-card border border-border bg-surface p-5"
+            [attr.data-edit-item]="'faq:' + faq.id"
+            data-edit-fallback="tarjeta"
+          >
             <summary
               class="flex cursor-pointer list-none items-center justify-between gap-4 text-heading-4 text-text-primary [&::-webkit-details-marker]:hidden"
             >
-              {{ faq.pregunta }}
+              <span data-edit-field="pregunta">{{ faq.pregunta }}</span>
               <svg
                 aria-hidden="true"
                 class="size-5 shrink-0 text-accent transition-transform duration-normal ease-[var(--ease-standard)] group-open:rotate-180"
@@ -199,7 +208,7 @@
                 <path d="m6 9 6 6 6-6" />
               </svg>
             </summary>
-            <p class="mt-3 text-body text-text-secondary">{{ faq.respuesta }}</p>
+            <p data-edit-field="respuesta" class="mt-3 text-body text-text-secondary">{{ faq.respuesta }}</p>
           </details>
         }
       </div>

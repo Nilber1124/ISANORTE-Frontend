@@ -14,7 +14,7 @@ import { ALL_PROJECTS_FILTER, PublicProjectsFacade } from './public-projects.fac
 
 const projects: PublicProject[] = [
   {
-    nombre: 'Segundo API',
+    id: 'p1', nombre: 'Segundo API',
     slug: 'segundo-api',
     descripcion: null,
     ubicacion: null,
@@ -24,7 +24,7 @@ const projects: PublicProject[] = [
     servicios: [{ nombre: 'Construcción API', slug: 'construccion-api' }],
   },
   {
-    nombre: 'Cero API',
+    id: 'p3', nombre: 'Cero API',
     slug: 'cero-api',
     descripcion: 'Descripción API',
     ubicacion: 'Ubicación API',
@@ -40,7 +40,7 @@ const projects: PublicProject[] = [
     ],
   },
   {
-    nombre: 'Sin servicio API',
+    id: 'p6', nombre: 'Sin servicio API',
     slug: 'sin-servicio-api',
     descripcion: null,
     ubicacion: null,

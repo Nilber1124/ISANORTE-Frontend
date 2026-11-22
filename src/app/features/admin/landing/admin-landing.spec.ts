@@ -399,4 +399,42 @@ describe('AdminLanding', () => {
       expect(component.panelEdit()).toBeNull();
     }
   });
+
+  it('en la página Proyectos: el título abre el contenido PROYECTOS y las tarjetas abren su editor', () => {
+    component['changePage']('proyectos');
+    expect(component.previewBlocks().map((b) => b.id)).toEqual(['cabecera', 'proyectos']);
+    component['selectBlock']('cabecera');
+    component['selectField']({ block: 'cabecera', field: 'titulo' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'pagina', id: 'PROYECTOS', field: 'titulo' });
+
+    component['selectBlock']('proyectos');
+    component['selectField']({ block: 'proyectos', field: 'ubicacion', item: 'proy:p1' });
+    expect(component.panelEdit()).toEqual({ kind: 'proy', id: 'p1', field: 'ubicacion' });
+    component['selectField']({ block: 'proyectos', field: 'tarjeta', item: 'proy:p1' });
+    expect(component.panelEdit()).toEqual({ kind: 'proy', id: 'p1', field: 'ambos' });
+    component['startCreate']('proy');
+    expect(component.panelEdit()).toEqual({ kind: 'proy', id: 'new', field: 'ambos' });
+  });
+
+  it('en la página Servicios: el título abre el contenido SERVICIOS, las tarjetas abren su editor y se puede crear un servicio o una pregunta', () => {
+    component['changePage']('servicios');
+    expect(component.previewBlocks().map((b) => b.id)).toEqual(['cabecera', 'servicios', 'preguntas']);
+    component['selectBlock']('cabecera');
+    component['selectField']({ block: 'cabecera', field: 'titulo' });
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'pagina', id: 'SERVICIOS', field: 'titulo' });
+
+    component['selectBlock']('servicios');
+    component['selectField']({ block: 'servicios', field: 'imagenUrl', item: 'svc:s1' });
+    expect(component.panelEdit()).toEqual({ kind: 'svc', id: 's1', field: 'imagenUrl' });
+    component['selectField']({ block: 'servicios', field: 'tarjeta', item: 'svc:s1' });
+    expect(component.panelEdit()).toEqual({ kind: 'svc', id: 's1', field: 'ambos' });
+    component['startCreate']('svc');
+    expect(component.panelEdit()).toEqual({ kind: 'svc', id: 'new', field: 'ambos' });
+
+    component['selectBlock']('preguntas');
+    const create = component.selectedBlock()?.create;
+    expect(create).toEqual({ item: 'faq', label: 'Añadir una pregunta', extras: { ambito: 'SERVICIOS' } });
+    component['startCreate'](create!.item, create!.extras);
+    expect(component.panelEdit()).toEqual({ kind: 'content', item: 'faq', id: 'new', field: 'ambos', extras: { ambito: 'SERVICIOS' } });
+  });
 });

@@ -1,0 +1,72 @@
+@if (simple(); as f) {
+  <app-field-editor
+    [heading]="heading()"
+    [label]="labels[f]"
+    [value]="savedValue()"
+    [rows]="f === 'descripcion' ? 5 : 1"
+    [required]="true"
+    [loading]="loading()"
+    [busy]="saving()"
+    [error]="error()"
+    (draftChanged)="onSingleDraft($event)"
+    (saved)="saveSingle($event)"
+    (closed)="closed.emit()"
+  />
+} @else {
+  <section class="rounded-card border border-border bg-surface shadow-card" [attr.aria-label]="heading()">
+    <header class="flex items-start justify-between gap-3 border-b border-border p-5">
+      <div>
+        <p class="text-eyebrow uppercase text-text-muted">{{ isNew() ? 'Creando' : 'Editando' }}</p>
+        <h2 class="mt-1 text-heading-3 text-text-primary">{{ heading() }}</h2>
+      </div>
+      <app-button size="small" variant="ghost" (click)="closed.emit()">← Volver</app-button>
+    </header>
+    <div class="space-y-4 p-5">
+      @if (loading()) {
+        <p class="text-body-sm text-text-muted" role="status">Cargando…</p>
+      } @else {
+        @if (error(); as message) {
+          <p class="rounded-control border border-error/40 bg-error/10 p-3 text-body-sm text-error" role="alert">{{ message }}</p>
+        }
+        @for (key of keys(); track key) {
+          @if (key === 'imagenUrl') {
+            <div class="space-y-2">
+              <p class="text-body-sm font-semibold text-text-primary">{{ labels.imagenUrl }} <span class="text-text-muted">(obligatoria)</span></p>
+              <app-image-uploader
+                [ngModel]="values()['imagenUrl'] ?? ''"
+                (ngModelChange)="setValue('imagenUrl', $event)"
+                name="servicioFoto"
+                folder="isanorte/servicios"
+              />
+            </div>
+          } @else if (key === 'nombre') {
+            <app-input-field inputId="svc-nombre" [label]="labels.nombre" [required]="true" [disabled]="saving()" [value]="values()['nombre'] ?? ''" (valueChange)="setValue('nombre', $event)" />
+          } @else if (key === 'descripcion') {
+            <app-textarea-field inputId="svc-descripcion" [label]="labels.descripcion" [rows]="5" [required]="true" [disabled]="saving()" [value]="values()['descripcion'] ?? ''" (valueChange)="setValue('descripcion', $event)" />
+          } @else {
+            <app-textarea-field inputId="svc-beneficios" [label]="labels.beneficios" [rows]="5" helperText="Cada línea es un punto de la lista. Se ven en la página al guardar." [disabled]="saving()" [value]="values()['beneficios'] ?? ''" (valueChange)="setValue('beneficios', $event)" />
+          }
+        }
+        <div class="flex flex-wrap items-center gap-3">
+          <app-button variant="primary" [disabled]="!dirty() || invalid() || saving()" [loading]="saving()" (click)="save()">{{ isNew() ? 'Crear' : 'Guardar' }}</app-button>
+          @if (dirty()) {
+            <span class="text-caption text-text-muted" role="status">{{ isNew() ? 'Sin crear todavía' : 'Cambios sin guardar' }}</span>
+          }
+        </div>
+      }
+    </div>
+    @if (!isNew() && service() && field() === 'ambos') {
+      <div class="border-t border-border p-5">
+        @if (confirmRemove()) {
+          <p class="mb-2 text-body-sm text-text-secondary">¿Quitar este servicio de la web? No se borra: queda desactivado en Servicios.</p>
+          <div class="flex gap-2">
+            <app-button size="small" variant="primary" [disabled]="saving()" (click)="remove()">Sí, quitar</app-button>
+            <app-button size="small" variant="ghost" (click)="confirmRemove.set(false)">No</app-button>
+          </div>
+        } @else {
+          <app-button size="small" variant="ghost" [disabled]="saving()" (click)="confirmRemove.set(true)">Quitar de la web</app-button>
+        }
+      </div>
+    }
+  </section>
+}

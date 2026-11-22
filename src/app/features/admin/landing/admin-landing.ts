@@ -16,6 +16,8 @@ import { Button } from '../../../shared/components/button/button';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { AdminLandingFacade } from './admin-landing.facade';
 import { FieldEditor } from './components/field-editor/field-editor';
+import { ProjectCardEditor, ProjectCardField } from './components/project-card-editor/project-card-editor';
+import { ServiceCardEditor, ServiceCardField } from './components/service-card-editor/service-card-editor';
 import { MapLocationEditor } from './components/map-location-editor/map-location-editor';
 import { StatisticEditor, StatisticField } from './components/statistic-editor/statistic-editor';
 import { ProjectsOrderEditor } from './components/projects-order-editor/projects-order-editor';
@@ -71,10 +73,18 @@ export type PanelEdit =
   | { readonly kind: 'service'; readonly slug: string; readonly field: ServiceField }
   | { readonly kind: 'projects' }
   | { readonly kind: 'map' }
+  | { readonly kind: 'proy'; readonly id: string; readonly field: ProjectCardField }
+  | { readonly kind: 'svc'; readonly id: string; readonly field: ServiceCardField }
   | { readonly kind: 'stat'; readonly orden: number; readonly field: StatisticField }
   | { readonly kind: 'blocktext'; readonly clave: BlockKey; readonly field: BlockTextField }
   | { readonly kind: 'unit'; readonly slug: string; readonly field: UnitField }
-  | { readonly kind: 'content'; readonly item: string; readonly id: string; readonly field: string };
+  | {
+      readonly kind: 'content';
+      readonly item: string;
+      readonly id: string;
+      readonly field: string;
+      readonly extras?: Readonly<Record<string, string>>;
+    };
 
 /** Bloque de la web pública (ancla `id` de su `<section>`) y dónde se edita. */
 export interface PreviewBlock {
@@ -85,7 +95,12 @@ export interface PreviewBlock {
   /** Pantalla del admin donde se edita su contenido, si no es una sección de la landing. */
   readonly screen?: { readonly route: string; readonly label: string };
   /** Permite crear un elemento nuevo del bloque (p. ej. un miembro del equipo). */
-  readonly create?: { readonly item: string; readonly label: string };
+  readonly create?: {
+    readonly item: string;
+    readonly label: string;
+    /** Campos fijos del alta (p. ej. el ámbito de una pregunta). */
+    readonly extras?: Readonly<Record<string, string>>;
+  };
 }
 
 /** Bloques de la página «Nosotros» (ancla `id` de cada sección). */
@@ -100,6 +115,23 @@ export const ABOUT_BLOCKS: readonly PreviewBlock[] = [
     create: { item: 'credencial', label: 'Añadir una credencial' },
   },
   { id: 'cobertura', label: 'Dónde trabajamos' },
+];
+
+/** Bloques de la página «Servicios». */
+export const SERVICES_BLOCKS: readonly PreviewBlock[] = [
+  { id: 'cabecera', label: 'Título' },
+  { id: 'servicios', label: 'Servicios', create: { item: 'svc', label: 'Añadir un servicio' } },
+  {
+    id: 'preguntas',
+    label: 'Preguntas frecuentes',
+    create: { item: 'faq', label: 'Añadir una pregunta', extras: { ambito: 'SERVICIOS' } },
+  },
+];
+
+/** Bloques de la página «Proyectos». */
+export const PROJECTS_BLOCKS: readonly PreviewBlock[] = [
+  { id: 'cabecera', label: 'Título' },
+  { id: 'proyectos', label: 'Proyectos', create: { item: 'proy', label: 'Añadir un proyecto' } },
 ];
 
 export const PREVIEW_BLOCKS: readonly PreviewBlock[] = [
@@ -136,6 +168,8 @@ export interface LandingTabItem {
     ProjectsOrderEditor,
     StatisticEditor,
     MapLocationEditor,
+    ProjectCardEditor,
+    ServiceCardEditor,
     ServiceFieldEditor,
     LandingPreview,
     LandingSectionForm,
@@ -175,7 +209,13 @@ export class AdminLanding {
   /** Página que se previsualiza y sus bloques. */
   readonly previewPage = signal<PreviewPage>('inicio');
   readonly previewBlocks = computed(() =>
-    this.previewPage() === 'nosotros' ? ABOUT_BLOCKS : PREVIEW_BLOCKS,
+    this.previewPage() === 'nosotros'
+      ? ABOUT_BLOCKS
+      : this.previewPage() === 'servicios'
+        ? SERVICES_BLOCKS
+        : this.previewPage() === 'proyectos'
+          ? PROJECTS_BLOCKS
+          : PREVIEW_BLOCKS,
   );
   readonly selectedBlockId = signal<string | null>(null);
   /** El bloque elegido se está editando en el panel (hoy solo el Hero tiene editor propio). */
@@ -190,9 +230,9 @@ export class AdminLanding {
   /** Sube cuando cambian las secciones: la vista previa se recarga con lo guardado. */
   readonly previewKey = signal(0);
 
+  /** El bloque elegido, buscado entre los de la página que se previsualiza (los ids se repiten entre páginas). */
   readonly selectedBlock = computed(
-    () =>
-      [...PREVIEW_BLOCKS, ...ABOUT_BLOCKS].find((block) => block.id === this.selectedBlockId()) ?? null,
+    () => this.previewBlocks().find((block) => block.id === this.selectedBlockId()) ?? null,
   );
   /** Sección de la landing que alimenta el bloque elegido (si la hay y está registrada). */
   readonly selectedSection = computed(() => {
@@ -326,6 +366,28 @@ export class AdminLanding {
       }
       return;
     }
+    // Una tarjeta de la página Proyectos: portada, textos, tipo de obra o servicios (o todo si se toca la tarjeta).
+    if (selection.item?.startsWith('proy:')) {
+      if (['nombre', 'descripcion', 'ubicacion', 'fechaProyecto', 'imagenUrl', 'tarjeta'].includes(selection.field)) {
+        this.panelEdit.set({
+          kind: 'proy',
+          id: selection.item.slice('proy:'.length),
+          field: (selection.field === 'tarjeta' ? 'ambos' : selection.field) as ProjectCardField,
+        });
+      }
+      return;
+    }
+    // Una tarjeta de la página Servicios: foto, nombre, descripción o puntos (o todo si se toca la tarjeta).
+    if (selection.item?.startsWith('svc:')) {
+      if (['nombre', 'descripcion', 'imagenUrl', 'beneficios', 'tarjeta'].includes(selection.field)) {
+        this.panelEdit.set({
+          kind: 'svc',
+          id: selection.item.slice('svc:'.length),
+          field: (selection.field === 'tarjeta' ? 'ambos' : selection.field) as ServiceCardField,
+        });
+      }
+      return;
+    }
     // El mapa de «Dónde trabajamos»: se elige la ubicación de la oficina.
     if (!selection.item && selection.block === 'cobertura' && selection.field === 'ubicacion') {
       this.panelEdit.set({ kind: 'map' });
@@ -349,7 +411,9 @@ export class AdminLanding {
     // La cabecera de la página «Nosotros»: contenido de página NOSOTROS (frase, título, introducción, descripción).
     if (!selection.item && selection.block === 'cabecera') {
       if (CONTENT_ITEMS['pagina'].fields.some((f) => f.key === selection.field)) {
-        this.panelEdit.set({ kind: 'content', item: 'pagina', id: 'NOSOTROS', field: selection.field });
+        const page = this.previewPage();
+        const pagina = page === 'servicios' ? 'SERVICIOS' : page === 'proyectos' ? 'PROYECTOS' : 'NOSOTROS';
+        this.panelEdit.set({ kind: 'content', item: 'pagina', id: pagina, field: selection.field });
       }
       return;
     }
@@ -434,8 +498,26 @@ export class AdminLanding {
   }
 
   /** Abre el formulario para crear un elemento nuevo del bloque seleccionado. */
-  protected startCreate(item: string): void {
-    this.panelEdit.set({ kind: 'content', item, id: 'new', field: 'ambos' });
+  protected startCreate(item: string, extras?: Readonly<Record<string, string>>): void {
+    if (item === 'proy') {
+      this.panelEdit.set({ kind: 'proy', id: 'new', field: 'ambos' });
+      return;
+    }
+    if (item === 'svc') {
+      this.panelEdit.set({ kind: 'svc', id: 'new', field: 'ambos' });
+      return;
+    }
+    this.panelEdit.set({ kind: 'content', item, id: 'new', field: 'ambos', extras });
+  }
+
+  protected setProjectCardDraft(id: string, values: Readonly<Record<string, string>> | null): void {
+    const block = this.selectedBlockId();
+    this.previewDraft.set(block && values ? { block, item: `proy:${id}`, values } : null);
+  }
+
+  protected setServiceCardDraft(id: string, values: Readonly<Record<string, string>> | null): void {
+    const block = this.selectedBlockId();
+    this.previewDraft.set(block && values ? { block, item: `svc:${id}`, values } : null);
   }
 
   protected setStatDraft(orden: number, values: Readonly<Record<string, string>> | null): void {

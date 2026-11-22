@@ -27,6 +27,7 @@ const response: PublicPageResponse = {
   empresa: null,
   servicios: [
     {
+      id: 'svc-29',
       nombre: 'Segundo API',
       slug: 'segundo-api',
       etiqueta: null,
@@ -41,6 +42,7 @@ const response: PublicPageResponse = {
       ],
     },
     {
+      id: 'svc-43',
       nombre: 'Cero API',
       slug: 'cero-api',
       etiqueta: 'Etiqueta API',

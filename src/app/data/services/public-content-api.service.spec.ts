@@ -70,6 +70,7 @@ const servicesPageResponse: PublicPageResponse = {
   contenido: { ...aboutPageResponse.contenido, pagina: PublicPageType.SERVICIOS },
   servicios: [
     {
+      id: 'svc-72',
       nombre: 'Servicio API',
       slug: 'servicio-api',
       etiqueta: null,
@@ -88,7 +89,7 @@ const projectsPageResponse: PublicPageResponse = {
   contenido: { ...aboutPageResponse.contenido, pagina: PublicPageType.PROYECTOS },
   proyectos: [
     {
-      nombre: 'Proyecto API',
+      id: 'p1', nombre: 'Proyecto API',
       slug: 'proyecto-api',
       descripcion: null,
       ubicacion: null,
@@ -252,7 +253,7 @@ describe('PublicContentApiService', () => {
     );
     expect(request.request.method).toBe('GET');
     request.flush({
-      unidad: { nombre: 'ISADECOR', slug: 'isadecor' },
+      unidad: { id: 'p5', nombre: 'ISADECOR', slug: 'isadecor' },
       categorias: [],
       productos: { contenido: [], pagina: 2, tamano: 24, totalElementos: 0, totalPaginas: 0 },
     });

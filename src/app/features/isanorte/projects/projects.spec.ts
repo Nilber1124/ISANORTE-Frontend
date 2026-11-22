@@ -40,7 +40,7 @@ class PublicProjectsFacadeStub {
   readonly activeFilter = signal(ALL_PROJECTS_FILTER);
   readonly projects = signal<readonly PublicProject[]>([
     {
-      nombre: 'Proyecto API',
+      id: 'p1', nombre: 'Proyecto API',
       slug: 'proyecto-api',
       descripcion: 'Descripción API',
       ubicacion: 'Ubicación API',
@@ -56,7 +56,7 @@ class PublicProjectsFacadeStub {
       ],
     },
     {
-      nombre: 'Proyecto sin servicio',
+      id: 'p4', nombre: 'Proyecto sin servicio',
       slug: 'sin-servicio',
       descripcion: null,
       ubicacion: null,

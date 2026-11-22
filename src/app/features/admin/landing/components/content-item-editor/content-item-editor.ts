@@ -197,6 +197,8 @@ export class ContentItemEditor {
   readonly itemId = input.required<string>();
   /** Clave del campo tocado o `'ambos'` (todos). */
   readonly field = input.required<string>();
+  /** Campos fijos que se añaden al crear un registro (p. ej. el ámbito de una pregunta). */
+  readonly extras = input<Readonly<Record<string, string>> | null>(null);
 
   /** Lo que se teclea, por campo (borrador en vivo), o `null` si no difiere de lo guardado. */
   readonly draftChanged = output<Readonly<Record<string, string>> | null>();
@@ -350,7 +352,7 @@ export class ContentItemEditor {
     this.saving.set(true);
     this.error.set(null);
     this.http
-      .post<Item>(`${this.base}/api/${this.config().endpoint}`, { ...patch, activo: true, orden: this.nextOrder })
+      .post<Item>(`${this.base}/api/${this.config().endpoint}`, { ...patch, ...(this.extras() ?? {}), activo: true, orden: this.nextOrder })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
