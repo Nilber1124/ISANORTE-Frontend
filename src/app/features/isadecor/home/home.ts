@@ -8,9 +8,8 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
-import { CommunityGrid } from '../community/community-grid';
+import { SocialCards } from '../community/social-cards';
 import { pickCommunityNetworks } from '../community/community-networks';
-import { SocialIcon } from '../community/social-icon';
 import { PublicSiteFacade } from '../../../layouts/public-layout/public-site.facade';
 import { IsadecorHomeFacade } from './isadecor-home.facade';
 import { ArmaAmbiente } from './arma-ambiente/arma-ambiente';
@@ -25,12 +24,11 @@ const HOME_STORE_LIMIT = 8;
   selector: 'app-isadecor-home',
   imports: [
     ArmaAmbiente,
-    CommunityGrid,
     HomeProductTile,
     HomePromoBanner,
     HomeRibbon,
     RouterLink,
-    SocialIcon,
+    SocialCards,
   ],
   providers: [IsadecorHomeFacade],
   templateUrl: './home.html',

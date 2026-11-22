@@ -330,8 +330,8 @@
     </section>
   }
 
-  <!-- Síguenos: videos de redes -->
-  @if (content()?.comunidad?.length) {
+  <!-- Síguenos: una tarjeta por red -->
+  @if (networks().length) {
     <section class="app-container py-12 sm:py-16" aria-labelledby="community-title">
       <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div>
@@ -340,25 +340,17 @@
             Instalaciones y novedades en nuestras redes.
           </p>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
-          @for (network of networks(); track network.url) {
-            <a
-              [href]="network.url"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex min-h-11 items-center gap-2 rounded-button border border-border-strong px-4 text-body-sm font-semibold text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              <app-social-icon [network]="network.kind" /> {{ network.label }}
-            </a>
-          }
+        @if (content()?.comunidad?.length) {
           <a
             routerLink="/isadecor/comunidad"
             class="enlace text-body-sm font-semibold text-accent-strong"
             >Ver más videos →</a
           >
-        </div>
+        }
       </div>
-      <div class="mt-6"><app-community-grid [items]="content()!.comunidad" /></div>
+      <div class="mt-6">
+        <app-social-cards [networks]="networks()" [items]="content()?.comunidad ?? []" />
+      </div>
     </section>
   }
 </main>
