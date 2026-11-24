@@ -79,6 +79,7 @@ describe('App', () => {
       'isadecor-landing',
       'proyectos',
       'servicios',
+      'catalogos',
       'unidades-negocio',
       'empresa',
       'landing',
@@ -132,7 +133,8 @@ describe('App', () => {
 
   it('redirects the removed admin screens to where their content lives now', () => {
     const adminRoute = routes.find((route) => route.path === 'admin');
-    const redirect = (path: string) => adminRoute?.children?.find((route) => route.path === path)?.redirectTo;
+    const redirect = (path: string) =>
+      adminRoute?.children?.find((route) => route.path === path)?.redirectTo;
     expect(redirect('contenido')).toBe('landing');
     expect(redirect('sitio/proyecto-galeria')).toBe('/admin/proyectos');
     expect(redirect('isadecor-landing')).toBe('/admin');
@@ -141,11 +143,14 @@ describe('App', () => {
 
   it('redirects each old ISADECOR Home admin route to its section of the single screen', () => {
     const adminRoute = routes.find((route) => route.path === 'admin');
-    const redirect = (path: string) => adminRoute?.children?.find((route) => route.path === path)?.redirectTo;
+    const redirect = (path: string) =>
+      adminRoute?.children?.find((route) => route.path === path)?.redirectTo;
     expect(redirect('home-isadecor/hero')).toBe('/admin/home-isadecor?seccion=hero');
     expect(redirect('home-isadecor/cinta')).toBe('/admin/home-isadecor?seccion=cinta');
     expect(redirect('home-isadecor/servicio-puntos')).toBe('/admin/home-isadecor?seccion=servicio');
     expect(redirect('home-isadecor/resenas')).toBe('/admin/home-isadecor?seccion=resenas');
-    expect(redirect('home-isadecor/publicaciones')).toBe('/admin/home-isadecor?seccion=publicaciones');
+    expect(redirect('home-isadecor/publicaciones')).toBe(
+      '/admin/home-isadecor?seccion=publicaciones',
+    );
   });
 });

@@ -32,6 +32,8 @@ class FacadeStub {
   readonly loadingFormData = signal(false);
   readonly submitting = signal(false);
   readonly changingActiveId = signal<string | null>(null);
+  readonly changingFeaturedId = signal<string | null>(null);
+  readonly deletingId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly success = signal<string | null>(null);
   readonly selectedProject = signal<ProjectResponse | null>(null);
@@ -53,6 +55,8 @@ class FacadeStub {
   changeActive(value: ProjectResponse): void {
     this.activeChanges.push(value);
   }
+  toggleDestacado(): void {}
+  delete(): void {}
   clearFeedback(): void {}
 }
 
