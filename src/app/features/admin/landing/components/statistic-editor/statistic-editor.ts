@@ -48,11 +48,11 @@ function combine(stat: Statistic | null): string {
 
 /** Separa «+12 años» en prefijo, cifra y sufijo; `null` si no hay una cifra. */
 export function parseFigure(text: string): { prefijo: string | null; valor: number; sufijo: string | null } | null {
-  const match = /^\s*([^0-9-]*?)\s*(-?\d+(?:[.,]\d+)?)(.*)$/.exec(text);
+  const match = /^([^0-9-]*)(-?\d+(?:[.,]\d+)?)(.*)$/.exec(text);
   if (!match) return null;
   const valor = Number(match[2].replace(',', '.'));
   if (Number.isNaN(valor)) return null;
-  const sufijo = match[3].replace(/\s+$/, '');
+  const sufijo = match[3].trimEnd();
   return { prefijo: match[1].trim() || null, valor, sufijo: sufijo.trim() ? sufijo : null };
 }
 

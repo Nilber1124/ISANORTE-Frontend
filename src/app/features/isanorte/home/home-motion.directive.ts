@@ -41,7 +41,7 @@ export class HomeMotion {
    * Cambia cuando llega contenido que el movimiento debe conocer (pasos del proceso, tarjetas):
    * el movimiento se reinicia para volver a leer el DOM.
    */
-  readonly motionKey = input('', { alias: 'homeMotionKey' });
+  readonly homeMotionKey = input('');
 
   private ctx?: GsapContext;
   private observer?: IntersectionObserver;
@@ -68,7 +68,7 @@ export class HomeMotion {
 
     effect(() => {
       const reduce = this.a11y.reduceMotion();
-      this.motionKey();
+      this.homeMotionKey();
       untracked(() => {
         if (!this.started || this.destroyed) return;
         if (reduce) {

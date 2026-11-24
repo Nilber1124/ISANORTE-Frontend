@@ -1,6 +1,7 @@
 import { Meta, Title } from '@angular/platform-browser';
 
 import { SeoRobots } from '../../data/models/content/page-seo.model';
+import { trimTrailingAny } from './text';
 import { PublicPageResponse, PublicPageSeo } from '../../data/models/public-content/public-page.model';
 
 export interface PublicPageSeoDefaults {
@@ -30,7 +31,7 @@ export function toMetaDescription(text: string): string {
   if (clean.length <= DESCRIPTION_MAX) return clean;
   const cut = clean.slice(0, DESCRIPTION_MAX - 1);
   const lastSpace = cut.lastIndexOf(' ');
-  return `${(lastSpace > 80 ? cut.slice(0, lastSpace) : cut).replace(/[\s,.;:–-]+$/, '')}…`;
+  return `${trimTrailingAny(lastSpace > 80 ? cut.slice(0, lastSpace) : cut, ',.;:–-')}…`;
 }
 
 export interface PublicPageSeoSource {

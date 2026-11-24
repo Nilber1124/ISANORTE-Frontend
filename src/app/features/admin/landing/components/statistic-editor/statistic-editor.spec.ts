@@ -64,4 +64,12 @@ describe('StatisticEditor', () => {
     expect(parseFigure('muchos')).toBeNull();
     expect(parseFigure('')).toBeNull();
   });
+
+  it('keeps the same split for spaced or negative figures and stays fast on long text', () => {
+    expect(parseFigure('  más de  -3,5 grados  ')).toEqual({ prefijo: 'más de', valor: -3.5, sufijo: ' grados' });
+    expect(parseFigure('a-b 5')).toBeNull();
+    const start = performance.now();
+    expect(parseFigure(`${' '.repeat(100_000)}x`)).toBeNull();
+    expect(performance.now() - start).toBeLessThan(200);
+  });
 });

@@ -22,4 +22,13 @@ describe('whatsappMessageFor', () => {
   it('falls back to a generic company name', () => {
     expect(whatsappMessageFor('/', '')).toContain('su empresa');
   });
+
+  it('ignores trailing slashes, including a long run of them', () => {
+    expect(whatsappMessageFor('/servicios///', 'ISANORTE')).toBe(
+      whatsappMessageFor('/servicios', 'ISANORTE'),
+    );
+    const start = performance.now();
+    whatsappMessageFor(`/${'/'.repeat(100_000)}x`, 'ISANORTE');
+    expect(performance.now() - start).toBeLessThan(200);
+  });
 });

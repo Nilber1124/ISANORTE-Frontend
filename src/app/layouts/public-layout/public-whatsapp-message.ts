@@ -1,10 +1,12 @@
+import { trimTrailingSlashes } from '../../shared/utils/text';
+
 /**
  * Mensaje inicial de WhatsApp según la página que mira el visitante, para que quien responde sepa
  * de inmediato qué le interesa. Función pura: no toca el DOM ni el router.
  */
 export function whatsappMessageFor(url: string, siteName: string): string {
   const name = siteName.trim() || 'su empresa';
-  const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+  const path = trimTrailingSlashes(url.split(/[?#]/)[0]) || '/';
 
   if (path === '/servicios') return `Hola, quisiera cotizar un servicio de ${name}.`;
   if (path === '/proyectos') {

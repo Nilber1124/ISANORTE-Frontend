@@ -60,10 +60,10 @@ export class SmoothDetails {
   private chromeY(): number {
     const style = getComputedStyle(this.details);
     return (
-      parseFloat(style.paddingTop) +
-      parseFloat(style.paddingBottom) +
-      parseFloat(style.borderTopWidth) +
-      parseFloat(style.borderBottomWidth)
+      Number.parseFloat(style.paddingTop) +
+      Number.parseFloat(style.paddingBottom) +
+      Number.parseFloat(style.borderTopWidth) +
+      Number.parseFloat(style.borderBottomWidth)
     );
   }
 

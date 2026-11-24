@@ -3,7 +3,14 @@ export type DescriptionBlock =
   | { readonly type: 'p'; readonly text: string }
   | { readonly type: 'ul'; readonly items: readonly string[] };
 
-const BULLET = /^\s*(?:[-•*])\s+(.*)$/;
+const BULLET_MARKS = '-•*';
+
+/** Texto de una viñeta («- texto», «• texto», «* texto») o `null`; sin expresión regular con backtracking. */
+function bulletText(raw: string): string | null {
+  const line = raw.trimStart();
+  if (line.length < 2 || !BULLET_MARKS.includes(line[0]) || line[1].trim() !== '') return null;
+  return line.slice(1).trim();
+}
 
 /**
  * Convierte la descripción del administrador en bloques: las líneas que empiezan con «- » son
@@ -25,13 +32,13 @@ export function parseDescription(text: string): DescriptionBlock[] {
 
   for (const raw of text.split(/\r?\n/)) {
     const line = raw.trim();
-    const bullet = BULLET.exec(raw);
+    const bullet = bulletText(raw);
     if (!line) {
       flushParagraph();
       flushBullets();
-    } else if (bullet) {
+    } else if (bullet !== null) {
       flushParagraph();
-      bullets.push(bullet[1].trim());
+      bullets.push(bullet);
     } else {
       flushBullets();
       paragraph.push(line);

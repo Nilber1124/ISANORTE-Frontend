@@ -26,4 +26,18 @@ describe('parseDescription', () => {
     expect(parseDescription('')).toEqual([]);
     expect(parseDescription('\n \n\n')).toEqual([]);
   });
+
+  it('keeps an empty bullet as an empty item and ignores marks without a following space', () => {
+    expect(parseDescription('- ')).toEqual([{ type: 'ul', items: [''] }]);
+    expect(parseDescription('-sin espacio')).toEqual([{ type: 'p', text: '-sin espacio' }]);
+    expect(parseDescription('  •  Con sangría  ')).toEqual([
+      { type: 'ul', items: ['Con sangría'] },
+    ]);
+  });
+
+  it('parses a very long line with many leading spaces quickly', () => {
+    const start = performance.now();
+    parseDescription(`${' '.repeat(100_000)}-`);
+    expect(performance.now() - start).toBeLessThan(200);
+  });
 });

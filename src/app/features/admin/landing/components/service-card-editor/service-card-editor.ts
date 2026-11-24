@@ -21,6 +21,7 @@ import { Button } from '../../../../../shared/components/button/button';
 import { ImageUploaderComponent } from '../../../../../shared/components/image-uploader/image-uploader.component';
 import { InputField } from '../../../../../shared/components/input-field/input-field';
 import { TextareaField } from '../../../../../shared/components/textarea-field/textarea-field';
+import { slugify } from '../../../../../shared/utils/slugify';
 import { trimTrailingSlashes } from '../../../../../shared/utils/text';
 import { FieldEditor } from '../field-editor/field-editor';
 
@@ -54,15 +55,8 @@ const LABELS = {
   beneficios: 'Puntos (uno por línea)',
 } as const;
 
-/** «Diseño y elaboración de planos» → «diseno-y-elaboracion-de-planos». */
-export function slugify(text: string): string {
-  return text
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
+/** «Diseño y elaboración de planos» → «diseno-y-elaboracion-de-planos» (utilidad compartida, sin backtracking). */
+export { slugify };
 
 /**
  * Edita una tarjeta de la página Servicios (foto, nombre, descripción y puntos), crea un servicio nuevo o lo quita de la

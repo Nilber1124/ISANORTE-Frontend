@@ -36,7 +36,11 @@ const HERO_FADE = 0.1;
 export class ArmaAmbiente {
   readonly scene = input.required<HomeScene>();
   readonly hero = input.required<HomeHero>();
-  readonly search = output<string>();
+  /**
+   * No se llama `search`: el `<input type="search">` dispara un evento nativo `search` que burbujea
+   * hasta el host y el padre lo recibiría como si fuera esta salida (con un Event en vez del texto).
+   */
+  readonly searched = output<string>();
 
   private readonly a11y = inject(AccessibilityService);
   private readonly destroyRef = inject(DestroyRef);
@@ -82,7 +86,7 @@ export class ArmaAmbiente {
 
   onSearch(event: Event, query: string): void {
     event.preventDefault();
-    this.search.emit(query);
+    this.searched.emit(query);
   }
 
   private async init(): Promise<void> {

@@ -210,5 +210,13 @@ describe('public-page-seo.util', () => {
       expect(cut).not.toMatch(/palabr…$/);
       expect(toMetaDescription('  Corta   y  limpia ')).toBe('Corta y limpia');
     });
+
+    it('drops trailing punctuation before the ellipsis', () => {
+      const cut = toMetaDescription(`${'x'.repeat(170)},;: –`);
+      expect(cut).toBe(`${'x'.repeat(159)}…`);
+      const words = toMetaDescription(`${'palabra '.repeat(18)}fin, ${'y '.repeat(40)}`);
+      expect(words.endsWith('…')).toBe(true);
+      expect(words).not.toMatch(/[\s,.;:–-]…$/);
+    });
   });
 });

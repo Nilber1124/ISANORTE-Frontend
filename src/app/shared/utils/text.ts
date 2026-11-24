@@ -11,6 +11,16 @@ export function trimTrailingChar(value: string, char: string): string {
   return value.slice(0, end);
 }
 
+/**
+ * Elimina del final del texto los espacios en blanco y cualquiera de los caracteres de `chars`.
+ * Equivale a `/[\s<chars>]+$/` sin backtracking.
+ */
+export function trimTrailingAny(value: string, chars: string): string {
+  let end = value.length;
+  while (end > 0 && (chars.includes(value[end - 1]) || value[end - 1].trim() === '')) end--;
+  return value.slice(0, end);
+}
+
 /** Elimina todas las apariciones consecutivas de `char` al inicio y al final del texto. */
 export function trimChar(value: string, char: string): string {
   let start = 0;

@@ -302,6 +302,7 @@
 
       <!-- Switch: Publicado en la web -->
       <label
+        for="project-active-switch"
         class="flex cursor-pointer items-center justify-between gap-4 rounded-card border border-border bg-surface-soft p-4 transition-colors hover:bg-surface-hover"
       >
         <div>
@@ -311,6 +312,7 @@
           </p>
         </div>
         <button
+          id="project-active-switch"
           type="button"
           role="switch"
           [attr.aria-checked]="activo()"
@@ -330,6 +332,7 @@
 
       <!-- Switch: Destacar en la portada -->
       <label
+        for="project-featured-switch"
         class="flex cursor-pointer items-center justify-between gap-4 rounded-card border border-border bg-surface-soft p-4 transition-colors"
         [class.opacity-50]="!activo()"
         [class.pointer-events-none]="!activo() || submitting()"
@@ -345,6 +348,7 @@
           </p>
         </div>
         <button
+          id="project-featured-switch"
           type="button"
           role="switch"
           [attr.aria-checked]="destacado()"

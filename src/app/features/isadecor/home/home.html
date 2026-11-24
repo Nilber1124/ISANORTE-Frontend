@@ -2,7 +2,7 @@
   <!-- Hero + "Arma tu ambiente": una sola escena con scroll -->
   @if (content(); as home) {
     @if (home.hero && home.escena) {
-      <app-arma-ambiente [hero]="home.hero" [scene]="home.escena" (search)="search($event)" />
+      <app-arma-ambiente [hero]="home.hero" [scene]="home.escena" (searched)="search($event)" />
     }
   } @else {
     <section data-theme="dark" class="min-h-svh bg-background-deep" aria-hidden="true">
