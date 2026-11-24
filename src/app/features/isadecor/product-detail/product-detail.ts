@@ -27,6 +27,8 @@ import { Modal } from '../../../shared/components/modal/modal';
 import { ClienteAuthForm } from '../cuenta/components/cliente-auth-form/cliente-auth-form';
 import { ProductGallery } from './components/product-gallery/product-gallery';
 import { ProductCalculator } from './components/product-calculator/product-calculator';
+import { ProductCompetitorComparison } from './components/product-competitor-comparison/product-competitor-comparison';
+import { ProductPriceComparison } from './components/product-price-comparison/product-price-comparison';
 import { toHomeProductCard } from './recommended-product.mapper';
 import { HomeProductTile, UNIT_LABELS } from '../home/product-tile/product-tile';
 import { ProductDetailFacade } from './product-detail.facade';
@@ -46,6 +48,8 @@ import { LONG_DESCRIPTION_CHARS, parseDescription } from './product-description'
     ClienteAuthForm,
     ProductGallery,
     ProductCalculator,
+    ProductCompetitorComparison,
+    ProductPriceComparison,
     HomeProductTile,
     RouterLink,
   ],
@@ -112,6 +116,22 @@ export class ProductDetail {
   readonly cartFeedback = signal<string | null>(null);
   readonly auth = inject(ClienteAuthService);
   readonly authModalOpen = signal(false);
+  /** Acción que se reanuda al iniciar sesión desde el modal de acceso. */
+  private readonly pendingAuthAction = signal<{ kind: 'review' } | { kind: 'price'; url: string }>({
+    kind: 'review',
+  });
+  protected readonly authModalCopy = computed(() =>
+    this.pendingAuthAction().kind === 'review'
+      ? {
+          title: 'Accede para publicar',
+          description: 'Tu producto, calificación y comentario se conservarán.',
+        }
+      : {
+          title: 'Accede para comparar',
+          description:
+            'Comparar con una publicación externa está disponible para clientes registrados.',
+        },
+  );
   readonly reviewFormOpen = signal(false);
   readonly reviewRating = signal(0);
   readonly reviewTitle = signal('');
@@ -136,7 +156,7 @@ export class ProductDetail {
       this.facade.load(params.get('slug') ?? '');
     });
     effect(() => {
-      if (this.facade.reviewAuthenticationRequired()) this.authModalOpen.set(true);
+      if (this.facade.reviewAuthenticationRequired()) this.openAuthModal({ kind: 'review' });
     });
     effect(() => {
       if (!this.facade.reviewSubmitted()) return;
@@ -231,18 +251,37 @@ export class ProductDetail {
     if (rating) this.reviewRating.set(rating);
     this.facade.clearReviewSubmissionState();
     if (!this.auth.token()) {
-      this.authModalOpen.set(true);
+      this.openAuthModal({ kind: 'review' });
       return;
     }
     this.reviewFormOpen.set(true);
     this.scrollToReviews();
   }
 
+  protected comparePrice(url: string): void {
+    if (!this.auth.token()) {
+      this.openAuthModal({ kind: 'price', url });
+      return;
+    }
+    this.facade.comparePrice(url);
+  }
+
   protected authenticationCompleted(): void {
     this.authModalOpen.set(false);
+    const action = this.pendingAuthAction();
+    this.pendingAuthAction.set({ kind: 'review' });
+    if (action.kind === 'price') {
+      this.facade.comparePrice(action.url);
+      return;
+    }
     this.reviewFormOpen.set(true);
     this.facade.clearReviewSubmissionState();
     this.scrollToReviews();
+  }
+
+  private openAuthModal(action: { kind: 'review' } | { kind: 'price'; url: string }): void {
+    this.pendingAuthAction.set(action);
+    this.authModalOpen.set(true);
   }
 
   protected submitReview(event: Event): void {

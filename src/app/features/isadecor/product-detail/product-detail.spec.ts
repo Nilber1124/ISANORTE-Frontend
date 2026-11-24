@@ -72,8 +72,8 @@ describe('ProductDetail integration', () => {
         link.getAttribute('href')?.includes('/isadecor/cotizacion'),
       ),
     ).toBe(false);
-    expect(root.querySelector('app-product-price-comparison')).toBeNull();
-    expect(root.querySelector('app-product-competitor-comparison')).toBeNull();
+    expect(root.querySelector('app-product-price-comparison')).not.toBeNull();
+    expect(root.querySelector('app-product-competitor-comparison')).not.toBeNull();
     expect(root.querySelector('.purchase-action button')?.textContent?.trim()).toBe(
       'Agregar al carrito',
     );
